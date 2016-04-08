@@ -1,70 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# This script originally came from https://github.com/jdhp-sap/snippets/tree/master/mr_transform
+# Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)
+
+# This script is provided under the terms and conditions of the MIT license:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+"""
+Denoise FITS and PNG images with Wavelet Transform.
+
+This script use mr_transform -- a program written CEA/CosmoStat
+(www.cosmostat.org) -- to make Wavelet Transform.
+
+It originally came from
+https://github.com/jdhp-sap/snippets/blob/master/mr_transform/mr_transform_wrapper_denoising.py.
+
+Example usages:
+  ./denoising_with_wavelets_mr_transform.py -h
+  ./denoising_with_wavelets_mr_transform.py ./test.fits
+  ipython3 -- ./denoising_with_wavelets_mr_transform.py -n4 ./test.fits
+
+This script requires the mr_transform program
+(http://www.cosmostat.org/software/isap/).
+
+It also requires Numpy and Matplotlib Python libraries.
+"""
 
 import argparse
-from astropy.io import fits
-
 import os
-
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import cm
 
-"""
-This script makes image denoising with mr_transform (a tool written by the
-CosmoStat group to compute wavelets transforms on images).
-"""
-
-
-def get_image_array_from_fits_file(file_path):
-    
-    hdu_list = fits.open(file_path)   # open the FITS file
-
-    if len(hdu_list) != 1:
-        raise Exception("The FITS file should contain only one HDU.")
-
-    image_array = hdu_list[0].data    # "hdu.data" is a Numpy Array
-
-    hdu_list.close()
-
-    return image_array
-
-
-def save_image(img, output_file_path, title=""):
-    """
-    img should be a 2D numpy array.
-    """
-    fig = plt.figure(figsize=(8.0, 8.0))
-    ax = fig.add_subplot(111)
-    ax.set_title(title)
-    ax.imshow(img, interpolation='nearest', cmap=cm.gray)
-    plt.savefig(output_file_path)
-    plt.close('all')
-
-
-def plot_image(img, title=""):
-    """
-    img should be a 2D numpy array.
-    """
-    fig = plt.figure(figsize=(8.0, 8.0))
-    ax = fig.add_subplot(111)
-    ax.set_title(title)
-    ax.imshow(img, interpolation='nearest', cmap=cm.gray)
-    plt.show()
-
+import utils
 
 def main():
 
     # PARSE OPTIONS ###############################################################
 
-    parser = argparse.ArgumentParser(description="MrTransform wrapper.")
+    parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
     parser.add_argument("--number_of_scales", "-n", type=int, default=4, metavar="INTEGER",
                         help="number of scales used in the multiresolution transform (default: 4)")
     parser.add_argument("filearg", nargs=1, metavar="FILE",
-                        help="the FITS file to process")
+                        help="The file image to process (FITS or PNG)")
 
     args = parser.parse_args()
 
@@ -77,7 +68,7 @@ def main():
 
     # READ THE INPUT FILE #########################################################
 
-    input_img = get_image_array_from_fits_file(input_file_path)
+    input_img = utils.get_image_array_from_file(input_file_path)
 
     if input_img.ndim != 2:
         raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
@@ -96,7 +87,7 @@ def main():
 
     # READ THE MR_TRANSFORM OUTPUT FILE ###########################################
 
-    output_imgs = get_image_array_from_fits_file(output_file_path)
+    output_imgs = utils.get_image_array_from_file(output_file_path)
 
     if output_imgs.ndim != 3:
         raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
@@ -124,19 +115,19 @@ def main():
             img_mask = img > (img_sigma * 3.)
             filtered_img = img * img_mask
 
-            #save_image(img,
-            #           "{}_plane{}.png".format(base_file_path, img_index),
-            #           title="Plane {}".format(img_index))
-            #save_image(img_mask,
-            #           "{}_plane{}_mask.png".format(base_file_path, img_index),
-            #           title="Binary mask for plane {}".format(img_index))
-            #save_image(filtered_img,
-            #           "{}_plane{}_filtered.png".format(base_file_path, img_index),
-            #           title="Filtered plane {}".format(img_index))
+            #utils.save_image(img,
+            #                 "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+            #                 title="Plane {}".format(img_index))
+            #utils.save_image(img_mask,
+            #                 "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
+            #                 title="Binary mask for plane {}".format(img_index))
+            #utils.save_image(filtered_img,
+            #                 "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
+            #                 title="Filtered plane {}".format(img_index))
 
-            #plot_image(img, title="Plane {}".format(img_index))
-            #plot_image(img_mask, title="Binary mask for plane {}".format(img_index))
-            #plot_image(filtered_img, title="Filtered plane {}".format(img_index))
+            #utils.plot_image(img, title="Plane {}".format(img_index))
+            #utils.plot_image(img_mask, title="Binary mask for plane {}".format(img_index))
+            #utils.plot_image(filtered_img, title="Filtered plane {}".format(img_index))
 
             # Sum the plane #########################################
 
@@ -144,24 +135,24 @@ def main():
 
         else:   # The last plane should be kept unmodified
 
-            #save_image(img,
-            #           "{}_plane{}.png".format(base_file_path, img_index),
-            #           title="Plane {}".format(img_index))
-            #plot_image(img, title="Plane {}".format(img_index))
+            #utils.save_image(img,
+            #                 "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+            #                 title="Plane {}".format(img_index))
+            #utils.plot_image(img, title="Plane {}".format(img_index))
 
             # Sum the last plane ####################################
 
             denoised_img = denoised_img + img
 
-    #save_image(input_img,
-    #           "{}.png".format(base_file_path),
-    #           title="Original image")
-    #save_image(denoised_img,
-    #           "{}_denoised.png".format(base_file_path),
-    #           title="Filtered image")
+    #utils.save_image(input_img,
+    #                 "{}.pdf".format(base_file_path),
+    #                 title="Original image")
+    #utils.save_image(denoised_img,
+    #                 "{}_wt_denoised.pdf".format(base_file_path),
+    #                 title="Filtered image")
 
-    plot_image(input_img, title="Original image")
-    plot_image(denoised_img, title="Filtered image")
+    utils.plot_image(input_img, title="Original image")
+    utils.plot_image(denoised_img, title="Denoised image")
 
 
 if __name__ == "__main__":
