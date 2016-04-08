@@ -115,19 +115,19 @@ def main():
             img_mask = img > (img_sigma * 3.)
             filtered_img = img * img_mask
 
-            #utils.save_image(img,
-            #                 "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-            #                 title="Plane {}".format(img_index))
-            #utils.save_image(img_mask,
-            #                 "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
-            #                 title="Binary mask for plane {}".format(img_index))
-            #utils.save_image(filtered_img,
-            #                 "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
-            #                 title="Filtered plane {}".format(img_index))
+            utils.save_image(img,
+                             "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                             title="Plane {}".format(img_index))
+            utils.save_image(img_mask,
+                             "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
+                             title="Binary mask for plane {}".format(img_index))
+            utils.save_image(filtered_img,
+                             "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
+                             title="Filtered plane {}".format(img_index))
 
-            #utils.plot_image(img, title="Plane {}".format(img_index))
-            #utils.plot_image(img_mask, title="Binary mask for plane {}".format(img_index))
-            #utils.plot_image(filtered_img, title="Filtered plane {}".format(img_index))
+            utils.plot_image(img, title="Plane {}".format(img_index))
+            utils.plot_image(img_mask, title="Binary mask for plane {}".format(img_index))
+            utils.plot_image(filtered_img, title="Filtered plane {}".format(img_index))
 
             # Sum the plane #########################################
 
@@ -135,21 +135,21 @@ def main():
 
         else:   # The last plane should be kept unmodified
 
-            #utils.save_image(img,
-            #                 "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-            #                 title="Plane {}".format(img_index))
-            #utils.plot_image(img, title="Plane {}".format(img_index))
+            utils.save_image(img,
+                             "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                             title="Plane {}".format(img_index))
+            utils.plot_image(img, title="Plane {}".format(img_index))
 
             # Sum the last plane ####################################
 
             denoised_img = denoised_img + img
 
-    #utils.save_image(input_img,
-    #                 "{}.pdf".format(base_file_path),
-    #                 title="Original image")
-    #utils.save_image(denoised_img,
-    #                 "{}_wt_denoised.pdf".format(base_file_path),
-    #                 title="Filtered image")
+    utils.save_image(input_img,
+                     "{}.pdf".format(base_file_path),
+                     title="Original image")
+    utils.save_image(denoised_img,
+                     "{}_wt_denoised.pdf".format(base_file_path),
+                     title="Filtered image")
 
     utils.plot_image(input_img, title="Original image")
     utils.plot_image(denoised_img, title="Denoised image")
