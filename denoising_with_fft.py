@@ -49,7 +49,7 @@ def main():
 
     # PARSE OPTIONS ###########################################################
 
-    parser = argparse.ArgumentParser(description="Denoise FITS images with DFT.")
+    parser = argparse.ArgumentParser(description="Denoise FITS and PNG images with DFT.")
 
     parser.add_argument("--shift", "-s", action="store_true", default=False,
                         help="Shift the zero to the center")

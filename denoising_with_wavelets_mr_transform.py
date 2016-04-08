@@ -50,7 +50,7 @@ def main():
 
     # PARSE OPTIONS ###############################################################
 
-    parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
+    parser = argparse.ArgumentParser(description="Denoise FITS and PNG images with Wavelet Transform.")
 
     parser.add_argument("--number_of_scales", "-n", type=int, default=4, metavar="INTEGER",
                         help="number of scales used in the multiresolution transform (default: 4)")
