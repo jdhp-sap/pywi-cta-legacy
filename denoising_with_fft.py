@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 """
-Denoise FITS images with Discrete Fourier Transform.
+Denoise FITS and PNG images with Discrete Fourier Transform.
 
 This script originally came from
 https://github.com/jeremiedecock/snippets/blob/master/python/numpy/fft_transform/fft2.py.
