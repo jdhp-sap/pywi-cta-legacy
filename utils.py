@@ -70,7 +70,7 @@ def save_image(img, output_file_path, title=""):
     ax = fig.add_subplot(111)
     ax.set_title(title)
     ax.imshow(img, interpolation='nearest', cmap=cm.gray)
-    plt.savefig(output_file_path)
+    plt.savefig(output_file_path, bbox_inches='tight')
     plt.close('all')
 
 
