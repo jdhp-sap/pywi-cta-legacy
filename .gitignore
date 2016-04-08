@@ -1,4 +1,7 @@
+__pycache__/
+*.pyc
 *.png
+*.pdf
 *.fits
 *.mr
 .DS_Store
