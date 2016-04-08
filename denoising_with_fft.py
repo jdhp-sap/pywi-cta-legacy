@@ -28,9 +28,9 @@ https://github.com/jeremiedecock/snippets/blob/master/python/numpy/fft_transform
 
 Example usages:
   ./denoising_with_fft.py -h
-  ./denoising_with_fft.py -t 0.0001 -s ./test.jpeg
-  ./denoising_with_fft.py -t 0.001 ./test.jpeg
-  ipython3 -- ./denoising_with_fft.py -t 0.0001 -s ./test.jpeg
+  ./denoising_with_fft.py -t 0.0001 -s ./test.fits
+  ./denoising_with_fft.py -t 0.001 ./test.fits
+  ipython3 -- ./denoising_with_fft.py -t 0.0001 -s ./test.fits
 
 This snippet requires Numpy, Scipy, Matplotlib and PIL/Pillow Python libraries.
 
@@ -39,11 +39,59 @@ Additional documentation:
 - Scipy implementation: http://docs.scipy.org/doc/scipy/reference/fftpack.html
 """
 
+__all__ = ['fft']
+
 import argparse
 import os
 import numpy as np
 
 import utils
+
+
+def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
+    """
+    Do the fourier transform.
+    """
+
+    transformed_img = np.fft.fft2(input_img)
+
+    if shift:
+        transformed_img = np.fft.fftshift(transformed_img)
+
+    utils.plot_image(np.log10(abs(transformed_img)),
+                     title="Fourier coefficients before filtering")
+    utils.save_image(np.log10(abs(transformed_img)),
+                     "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
+                     title="Fourier coefficients before filtering")
+
+    # Compute the standard deviation of the plane ###########
+
+    # TODO
+#    img_sigma = np.std(transformed_img)
+    max_value = np.max(abs(transformed_img))
+
+    # Apply a threshold on the transformed image ############
+
+    # TODO
+#    img_mask = abs(transformed_img) > (img_sigma * 3.)  
+    img_mask =  abs(transformed_img) > (max_value * threshold)
+    filtered_transformed_img = transformed_img * img_mask
+
+    utils.plot_image(np.log10(abs(filtered_transformed_img)),
+                     title="Fourier coefficients after filtering")
+    utils.save_image(np.log10(abs(filtered_transformed_img)),
+                     "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
+                     title="Fourier coefficients after filtering")
+
+    # Do the reverse transform #############
+
+    if shift:
+        filtered_transformed_img = np.fft.ifftshift(filtered_transformed_img)
+
+    filtered_img = np.fft.ifft2(filtered_transformed_img)
+    
+    return filtered_img
+
 
 def main():
 
@@ -76,46 +124,7 @@ def main():
 
     # FOURIER TRANSFORM WITH NUMPY ############################################
 
-    # Do the fourier transform #############
-
-    transformed_img = np.fft.fft2(input_img)
-
-    if shift:
-        transformed_img = np.fft.fftshift(transformed_img)
-
-    utils.plot_image(np.log10(abs(transformed_img)),
-                     title="Fourier coefficients before filtering")
-    utils.save_image(np.log10(abs(transformed_img)),
-                     "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
-                     title="Fourier coefficients before filtering")
-
-
-    # Compute the standard deviation of the plane ###########
-
-    # TODO
-#    img_sigma = np.std(transformed_img)
-    max_value = np.max(abs(transformed_img))
-
-    # Apply a threshold on the transformed image ############
-
-    # TODO
-#    img_mask = abs(transformed_img) > (img_sigma * 3.)  
-    img_mask =  abs(transformed_img) > (max_value * threshold)
-    filtered_transformed_img = transformed_img * img_mask
-
-    utils.plot_image(np.log10(abs(filtered_transformed_img)),
-                     title="Fourier coefficients after filtering")
-    utils.save_image(np.log10(abs(filtered_transformed_img)),
-                     "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
-                     title="Fourier coefficients after filtering")
-
-
-    # Do the reverse transform #############
-
-    if shift:
-        filtered_transformed_img = np.fft.ifftshift(filtered_transformed_img)
-
-    filtered_img = np.fft.ifft2(filtered_transformed_img)
+    filtered_img = fft(input_img, shift, threshold, base_file_path)
 
     utils.plot_image(abs(filtered_img),
                      title="Denoised image")
