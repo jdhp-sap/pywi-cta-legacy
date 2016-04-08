@@ -63,7 +63,8 @@ def main():
     threshold = args.threshold
     input_file_path = args.fileargs[0]
 
-    base_file_path = os.path.splitext(input_file_path)[0]
+    base_file_path = os.path.basename(input_file_path)
+    base_file_path = os.path.splitext(base_file_path)[0]
 
     # READ THE INPUT FILE ######################################################
 

@@ -62,8 +62,9 @@ def main():
     number_of_scales = args.number_of_scales
     input_file_path = args.filearg[0]
 
-    base_file_path = os.path.splitext(input_file_path)[0]
-    output_file_path = base_file_path + "_mr_planes.fits"
+    base_file_path = os.path.basename(input_file_path)
+    base_file_path = os.path.splitext(base_file_path)[0]
+    mr_output_file_path = base_file_path + "_mr_planes.fits"
 
 
     # READ THE INPUT FILE #########################################################
@@ -81,13 +82,13 @@ def main():
     os.system(cmd)
 
     # TODO: improve the following lines
-    cmd = "mv out.mr {}".format(output_file_path)
+    cmd = "mv out.mr {}".format(mr_output_file_path)
     os.system(cmd)
 
 
     # READ THE MR_TRANSFORM OUTPUT FILE ###########################################
 
-    output_imgs = utils.get_image_array_from_file(output_file_path)
+    output_imgs = utils.get_image_array_from_file(mr_output_file_path)
 
     if output_imgs.ndim != 3:
         raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
