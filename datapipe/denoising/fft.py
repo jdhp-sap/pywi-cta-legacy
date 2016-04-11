@@ -60,9 +60,9 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
 
     images.plot(np.log10(abs(transformed_img)),
                 title="Fourier coefficients before filtering")
-    images.save(np.log10(abs(transformed_img)),
-                "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
-                title="Fourier coefficients before filtering")
+    images.mpl_save(np.log10(abs(transformed_img)),
+                    "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
+                    title="Fourier coefficients before filtering")
 
     # Compute the standard deviation of the plane ###########
 
@@ -79,9 +79,9 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
 
     images.plot(np.log10(abs(filtered_transformed_img)),
                 title="Fourier coefficients after filtering")
-    images.save(np.log10(abs(filtered_transformed_img)),
-                "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
-                title="Fourier coefficients after filtering")
+    images.mpl_save(np.log10(abs(filtered_transformed_img)),
+                    "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
+                    title="Fourier coefficients after filtering")
 
     # Do the reverse transform #############
 
@@ -128,9 +128,9 @@ def main():
 
     images.plot(abs(filtered_img),
                 title="Denoised image")
-    images.save(abs(filtered_img),
-                "{}_dft_denoised.pdf".format(base_file_path),
-                title="Denoised image")
+    images.mpl_save(abs(filtered_img),
+                    "{}_dft_denoised.pdf".format(base_file_path),
+                    title="Denoised image")
 
 
 if __name__ == "__main__":

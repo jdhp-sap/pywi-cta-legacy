@@ -87,9 +87,9 @@ def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
     # PLOT MASK ###########################################
 
 #    images.plot(final_mask, title="Tailcut mask")
-#    images.save(final_mask,
-#                "{}_tailcut_mask.pdf".format(base_file_path),
-#                title="Tailcut mask")
+#    images.mpl_save(final_mask,
+#                    "{}_tailcut_mask.pdf".format(base_file_path),
+#                    title="Tailcut mask")
 
     # APPLY MASK ##########################################
 
@@ -133,9 +133,9 @@ def main():
 
     images.plot(input_img, title="Original image")
     images.plot(filtered_img, title="Denoised image")
-    images.save(filtered_img,
-                "{}_tailcut_denoised.pdf".format(base_file_path),
-                title="Denoised image")
+    images.mpl_save(filtered_img,
+                    "{}_tailcut_denoised.pdf".format(base_file_path),
+                    title="Denoised image")
 
 
 if __name__ == "__main__":

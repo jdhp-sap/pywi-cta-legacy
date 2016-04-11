@@ -20,6 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+__all__ = ['load',
+           'save',
+           'mpl_save',
+           'plot']
+
 from astropy.io import fits
 
 import os
@@ -48,7 +53,7 @@ def load(file_path):
 
         hdu_list.close()
 
-    elif file_extension == ".png":
+    elif file_extension in (".png", ".jpg", ".jpeg"):
 
         # Open the image and convert it to grayscale
         image_array = np.array(pil_img.open(file_path).convert('L'))
@@ -60,9 +65,24 @@ def load(file_path):
     return image_array
 
 
+def save(img, file_path):
+
+    file_extension = os.path.splitext(file_path)[1].lower()
+
+    if file_extension == ".fits":
+
+        hdu = fits.PrimaryHDU(img)
+        hdu.writeto(file_path)
+
+    else:
+
+        raise Exception("Unrecognized output file format.")
+
+
+
 # MATPLOTLIB ##################################################################
 
-def save(img, output_file_path, title=""):
+def mpl_save(img, output_file_path, title=""):
     """
     img should be a 2D numpy array.
     """
