@@ -44,7 +44,7 @@ import argparse
 import os
 import numpy as np
 
-import utils
+from datapipe.io import images
 
 def main():
 
@@ -69,7 +69,7 @@ def main():
 
     # READ THE INPUT FILE #########################################################
 
-    input_img = utils.get_image_array_from_file(input_file_path)
+    input_img = images.load(input_file_path)
 
     if input_img.ndim != 2:
         raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
@@ -88,7 +88,7 @@ def main():
 
     # READ THE MR_TRANSFORM OUTPUT FILE ###########################################
 
-    output_imgs = utils.get_image_array_from_file(mr_output_file_path)
+    output_imgs = images.load(mr_output_file_path)
 
     if output_imgs.ndim != 3:
         raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
@@ -116,19 +116,19 @@ def main():
             img_mask = img > (img_sigma * 3.)
             filtered_img = img * img_mask
 
-            utils.save_image(img,
-                             "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-                             title="Plane {}".format(img_index))
-            utils.save_image(img_mask,
-                             "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
-                             title="Binary mask for plane {}".format(img_index))
-            utils.save_image(filtered_img,
-                             "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
-                             title="Filtered plane {}".format(img_index))
+            images.save(img,
+                        "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                        title="Plane {}".format(img_index))
+            images.save(img_mask,
+                        "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
+                        title="Binary mask for plane {}".format(img_index))
+            images.save(filtered_img,
+                        "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
+                        title="Filtered plane {}".format(img_index))
 
-            utils.plot_image(img, title="Plane {}".format(img_index))
-            utils.plot_image(img_mask, title="Binary mask for plane {}".format(img_index))
-            utils.plot_image(filtered_img, title="Filtered plane {}".format(img_index))
+            images.plot(img, title="Plane {}".format(img_index))
+            images.plot(img_mask, title="Binary mask for plane {}".format(img_index))
+            images.plot(filtered_img, title="Filtered plane {}".format(img_index))
 
             # Sum the plane #########################################
 
@@ -136,24 +136,24 @@ def main():
 
         else:   # The last plane should be kept unmodified
 
-            utils.save_image(img,
-                             "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-                             title="Plane {}".format(img_index))
-            utils.plot_image(img, title="Plane {}".format(img_index))
+            images.save(img,
+                        "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                        title="Plane {}".format(img_index))
+            images.plot(img, title="Plane {}".format(img_index))
 
             # Sum the last plane ####################################
 
             denoised_img = denoised_img + img
 
-    utils.save_image(input_img,
-                     "{}.pdf".format(base_file_path),
-                     title="Original image")
-    utils.save_image(denoised_img,
-                     "{}_wt_denoised.pdf".format(base_file_path),
-                     title="Filtered image")
+    images.save(input_img,
+                "{}.pdf".format(base_file_path),
+                title="Original image")
+    images.save(denoised_img,
+                "{}_wt_denoised.pdf".format(base_file_path),
+                title="Filtered image")
 
-    utils.plot_image(input_img, title="Original image")
-    utils.plot_image(denoised_img, title="Denoised image")
+    images.plot(input_img, title="Original image")
+    images.plot(denoised_img, title="Denoised image")
 
 
 if __name__ == "__main__":

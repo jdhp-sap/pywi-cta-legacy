@@ -2,5 +2,6 @@
 
 INFILE=data/CT062.fits
 
-./denoising_with_fft.py -s -t 0.02 "${INFILE}"
-./denoising_with_wavelets_mr_transform.py "${INFILE}"
+./datapipe/denoising/tailcut -T 0.75 -t 0.5 "${INFILE}"
+./datapipe/denoising/fft.py -s -t 0.02 "${INFILE}"
+./datapipe/denoising/wavelets_mrtransform.py "${INFILE}"

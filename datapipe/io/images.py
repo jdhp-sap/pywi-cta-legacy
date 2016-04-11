@@ -30,7 +30,7 @@ from matplotlib import cm
 
 import PIL.Image as pil_img     # PIL.Image is a module not a class...
 
-def get_image_array_from_file(file_path):
+def load(file_path):
     """
     Return the image array contained in the first HDU of the given FITS file.
     """
@@ -62,7 +62,7 @@ def get_image_array_from_file(file_path):
 
 # MATPLOTLIB ##################################################################
 
-def save_image(img, output_file_path, title=""):
+def save(img, output_file_path, title=""):
     """
     img should be a 2D numpy array.
     """
@@ -74,7 +74,7 @@ def save_image(img, output_file_path, title=""):
     plt.close('all')
 
 
-def plot_image(img, title=""):
+def plot(img, title=""):
     """
     img should be a 2D numpy array.
     """

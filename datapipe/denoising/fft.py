@@ -45,7 +45,7 @@ import argparse
 import os
 import numpy as np
 
-import utils
+from datapipe.io import images
 
 
 def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
@@ -58,11 +58,11 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
     if shift:
         transformed_img = np.fft.fftshift(transformed_img)
 
-    utils.plot_image(np.log10(abs(transformed_img)),
-                     title="Fourier coefficients before filtering")
-    utils.save_image(np.log10(abs(transformed_img)),
-                     "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
-                     title="Fourier coefficients before filtering")
+    images.plot(np.log10(abs(transformed_img)),
+                title="Fourier coefficients before filtering")
+    images.save(np.log10(abs(transformed_img)),
+                "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
+                title="Fourier coefficients before filtering")
 
     # Compute the standard deviation of the plane ###########
 
@@ -77,11 +77,11 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
     img_mask =  abs(transformed_img) > (max_value * threshold)
     filtered_transformed_img = transformed_img * img_mask
 
-    utils.plot_image(np.log10(abs(filtered_transformed_img)),
-                     title="Fourier coefficients after filtering")
-    utils.save_image(np.log10(abs(filtered_transformed_img)),
-                     "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
-                     title="Fourier coefficients after filtering")
+    images.plot(np.log10(abs(filtered_transformed_img)),
+                title="Fourier coefficients after filtering")
+    images.save(np.log10(abs(filtered_transformed_img)),
+                "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
+                title="Fourier coefficients after filtering")
 
     # Do the reverse transform #############
 
@@ -116,7 +116,7 @@ def main():
 
     # READ THE INPUT FILE ######################################################
 
-    input_img = utils.get_image_array_from_file(input_file_path)
+    input_img = images.load(input_file_path)
 
     if input_img.ndim != 2:
         raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
@@ -126,11 +126,11 @@ def main():
 
     filtered_img = fft(input_img, shift, threshold, base_file_path)
 
-    utils.plot_image(abs(filtered_img),
-                     title="Denoised image")
-    utils.save_image(abs(filtered_img),
-                     "{}_dft_denoised.pdf".format(base_file_path),
-                     title="Denoised image")
+    images.plot(abs(filtered_img),
+                title="Denoised image")
+    images.save(abs(filtered_img),
+                "{}_dft_denoised.pdf".format(base_file_path),
+                title="Denoised image")
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@
 This module contains unit tests for the "io.images" module.
 """
 
-import utils as images       # TODO
+from datapipe.io import images
 
 import os
 import numpy as np

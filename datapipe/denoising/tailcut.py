@@ -36,7 +36,7 @@ import argparse
 import os
 import numpy as np
 
-import utils
+from datapipe.io import images
 
 def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
 
@@ -52,11 +52,8 @@ def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
     high_mask = (img > (max_value * high_threshold))
     low_mask =  (img > (max_value * low_threshold))
 
-#    utils.plot_image(high_mask,
-#                     title="High mask")
-#
-#    utils.plot_image(low_mask,
-#                     title="Low mask")
+#    images.plot(high_mask, title="High mask")
+#    images.plot(low_mask, title="Low mask")
 
     # MERGE MASKS #########################################
 
@@ -89,11 +86,10 @@ def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
 
     # PLOT MASK ###########################################
 
-#    utils.plot_image(final_mask,
-#                     title="Tailcut mask")
-#    utils.save_image(final_mask,
-#                     "{}_tailcut_mask.pdf".format(base_file_path),
-#                     title="Tailcut mask")
+#    images.plot(final_mask, title="Tailcut mask")
+#    images.save(final_mask,
+#                "{}_tailcut_mask.pdf".format(base_file_path),
+#                title="Tailcut mask")
 
     # APPLY MASK ##########################################
 
@@ -125,7 +121,7 @@ def main():
 
     # READ THE INPUT FILE ######################################################
 
-    input_img = utils.get_image_array_from_file(input_file_path)
+    input_img = images.load(input_file_path)
 
     if input_img.ndim != 2:
         raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
@@ -135,14 +131,11 @@ def main():
 
     filtered_img = tailcut(input_img, high_threshold, low_threshold)
 
-    utils.plot_image(input_img,
-                     title="Original image")
-
-    utils.plot_image(filtered_img,
-                     title="Denoised image")
-    utils.save_image(filtered_img,
-                     "{}_tailcut_denoised.pdf".format(base_file_path),
-                     title="Denoised image")
+    images.plot(input_img, title="Original image")
+    images.plot(filtered_img, title="Denoised image")
+    images.save(filtered_img,
+                "{}_tailcut_denoised.pdf".format(base_file_path),
+                title="Denoised image")
 
 
 if __name__ == "__main__":
