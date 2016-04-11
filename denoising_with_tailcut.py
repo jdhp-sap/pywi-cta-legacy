@@ -38,7 +38,7 @@ import numpy as np
 
 import utils
 
-def tailcut(img, high_threshold=4.25, low_threshold=2.25, base_file_path="tailcut"):
+def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
 
     # COMPUTE MASKS #######################################
 
@@ -49,27 +49,51 @@ def tailcut(img, high_threshold=4.25, low_threshold=2.25, base_file_path="tailcu
     # TODO
 #    high_mask = (img > (img_sigma * high_threshold)  
 #    low_mask = (img > (img_sigma * low_threshold)  
-    high_mask = (img > (max_value * high_threshold)
+    high_mask = (img > (max_value * high_threshold))
     low_mask =  (img > (max_value * low_threshold))
+
+#    utils.plot_image(high_mask,
+#                     title="High mask")
+#
+#    utils.plot_image(low_mask,
+#                     title="Low mask")
 
     # MERGE MASKS #########################################
 
-    final_mask = high_mask
+    # Dilate the high_mask to create a mask of neighbors.
+    # For instance, if high_mask is equals to:
+    #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 1, 0, 0, 0, 1, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    # the dilated version of high_mask is equals to:
+    #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    boundary_ids = []
-    #for pix_id in geom.pix_id[low_mask]:                # TODO
-    #    if final_mask[geom.neighbors[pix_id]].any():    # TODO
-    #        boundary_ids.append(pix_id)
+    high_mask_dilated = np.zeros(high_mask.shape, dtype=np.bool)
+    high_mask_dilated[:] = high_mask
 
-    final_mask[boundary_ids] = True
+    high_mask_dilated[:-1,:] |= high_mask[1:,:]    # shift up
+    high_mask_dilated[1:,:]  |= high_mask[:-1,:]   # shift down
+
+    high_mask_dilated[:,:-1] |= high_mask_dilated[:,1:]   # shift left
+    high_mask_dilated[:,1:]  |= high_mask_dilated[:,:-1]  # shift right
+
+    # Merge high_mask_dilated and low_mask (using a logical AND)
+
+    final_mask = high_mask_dilated & low_mask
 
     # PLOT MASK ###########################################
 
-    utils.plot_image(final_mask,
-                     title="Tailcut mask")
-    utils.save_image(final_mask,
-                     "{}_tailcut_mask.pdf".format(base_file_path),
-                     title="Tailcut mask")
+#    utils.plot_image(final_mask,
+#                     title="Tailcut mask")
+#    utils.save_image(final_mask,
+#                     "{}_tailcut_mask.pdf".format(base_file_path),
+#                     title="Tailcut mask")
 
     # APPLY MASK ##########################################
 
@@ -110,6 +134,9 @@ def main():
     # TAILCUT FILTER ##########################################################
 
     filtered_img = tailcut(input_img, high_threshold, low_threshold)
+
+    utils.plot_image(input_img,
+                     title="Original image")
 
     utils.plot_image(filtered_img,
                      title="Denoised image")
