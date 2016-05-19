@@ -135,7 +135,7 @@ def main():
     images.plot(filtered_img, title="Denoised image")
     images.mpl_save(filtered_img,
                     "{}_tailcut_denoised.pdf".format(base_file_path),
-                    title="Denoised image")
+                    title="Denoised image (Tailcut)")
 
 
 if __name__ == "__main__":

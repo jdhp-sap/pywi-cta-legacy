@@ -169,7 +169,7 @@ def main():
                     title="Original image")
     images.mpl_save(denoised_img,
                     "{}_wt_denoised.pdf".format(base_file_path),
-                    title="Filtered image")
+                    title="Denoised image (Wavelet Transform)")
 
     images.plot(input_img, title="Original image")
     images.plot(denoised_img, title="Denoised image")

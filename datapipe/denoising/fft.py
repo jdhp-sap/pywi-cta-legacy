@@ -130,7 +130,7 @@ def main():
                 title="Denoised image")
     images.mpl_save(abs(filtered_img),
                     "{}_dft_denoised.pdf".format(base_file_path),
-                    title="Denoised image")
+                    title="Denoised image (DFT)")
 
 
 if __name__ == "__main__":
