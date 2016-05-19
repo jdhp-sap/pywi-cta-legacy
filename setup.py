@@ -62,8 +62,9 @@ KEYWORDS = 'sap data pipeline'
 # distribution or use "setuptools.find_packages()" to include them
 # automatically with a recursive search (from the root directory of the
 # project).
-#PACKAGES = find_packages()
-PACKAGES = ['datapipe']
+PACKAGES = find_packages()
+#PACKAGES = ['datapipe']
+print("PACKAGES:", PACKAGES)
 
 
 # The following list contains all dependencies that Python will try to
