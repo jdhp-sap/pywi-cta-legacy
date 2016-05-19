@@ -35,16 +35,16 @@ from matplotlib import cm
 
 import PIL.Image as pil_img     # PIL.Image is a module not a class...
 
-def load(file_path):
+def load(input_file_path):
     """
     Return the image array contained in the first HDU of the given FITS file.
     """
     
-    file_extension = os.path.splitext(file_path)[1].lower()
+    file_extension = os.path.splitext(input_file_path)[1].lower()
 
     if file_extension == ".fits":
 
-        hdu_list = fits.open(file_path)   # open the FITS file
+        hdu_list = fits.open(input_file_path)   # open the FITS file
 
         if len(hdu_list) != 1:
             raise Exception("The FITS file should contain only one HDU.")
@@ -56,7 +56,7 @@ def load(file_path):
     elif file_extension in (".png", ".jpg", ".jpeg"):
 
         # Open the image and convert it to grayscale
-        image_array = np.array(pil_img.open(file_path).convert('L'))
+        image_array = np.array(pil_img.open(input_file_path).convert('L'))
 
     else:
 
@@ -65,14 +65,51 @@ def load(file_path):
     return image_array
 
 
-def save(img, file_path):
+def save(img, output_file_path, min_val=None, max_val=None):
+    """
+    img is the image and it should be a 2D or a 3D numpy array with values.
+    """
 
-    file_extension = os.path.splitext(file_path)[1].lower()
+    file_extension = os.path.splitext(output_file_path)[1].lower()
 
     if file_extension == ".fits":
 
+        if img.ndim not in (2, 3):
+            raise Exception("The input image should be a 2D or a 3D numpy array.")
+
         hdu = fits.PrimaryHDU(img)
-        hdu.writeto(file_path)
+
+        if os.path.isfile(output_file_path):
+            os.remove(output_file_path)
+
+        hdu.writeto(output_file_path)
+
+    elif file_extension in (".png", ".jpg", ".jpeg"):
+
+        if img.ndim != 2:
+            raise Exception("The input image should be a 2D numpy array.")
+
+        # Normalize values ################
+        # (FITS pixels value are unbounded but PNG pixels value are in range [0,255])
+        if min_val == None:
+            min_val = img.min()
+        if max_val == None:
+            max_val = img.max()
+
+        img = img.astype(np.float32)
+        img -= min_val
+        img /= max_val
+        img *= 255
+        img = img.astype(np.uint8)
+
+        # Save
+        mode = "L"                           # "L" = grayscale mode
+        pil_image = pil_img.new(mode, img.shape)
+
+        # WARNING: nested list and 2D numpy arrays are silently rejected!!!
+        #          data *must* be a list or a 1D numpy array!
+        pil_image.putdata(img.flatten())
+        pil_image.save(output_file_path)
 
     else:
 
@@ -88,7 +125,7 @@ def mpl_save(img, output_file_path, title=""):
     """
     fig = plt.figure(figsize=(8.0, 8.0))
     ax = fig.add_subplot(111)
-    ax.set_title(title)
+    ax.set_title(title, fontsize=24)
     ax.imshow(img, interpolation='nearest', cmap=cm.gray)
     plt.savefig(output_file_path, bbox_inches='tight')
     plt.close('all')
