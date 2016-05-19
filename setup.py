@@ -83,6 +83,7 @@ ENTRY_POINTS = {
       'dp-simtel-count = datapipe.io.simtel:main_count_simtel_events',
       'dp-simtel-ls = datapipe.io.simtel:main_list_simtel_content',
       'dp-simtel-show = datapipe.io.simtel:main_show_image',
+      'dp-simtel-show-pe = datapipe.io.simtel:main_show_pe_image',
   ],
 }
 
