@@ -103,12 +103,15 @@ def main():
                         help="Shift the zero to the center")
     parser.add_argument("--threshold", "-t", type=float, default=0, metavar="FLOAT", 
                         help="The threshold value (between 0 and 1)")
+    parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
+                        help="The index of the HDU image to use for FITS input files")
     parser.add_argument("fileargs", nargs=1, metavar="FILE",
                         help="The file image to process (FITS or PNG)")
     args = parser.parse_args()
 
     shift = args.shift
     threshold = args.threshold
+    hdu_index = args.hdu
     input_file_path = args.fileargs[0]
 
     base_file_path = os.path.basename(input_file_path)
@@ -116,7 +119,7 @@ def main():
 
     # READ THE INPUT FILE ######################################################
 
-    input_img = images.load(input_file_path)
+    input_img = images.load(input_file_path, hdu_index)
 
     if input_img.ndim != 2:
         raise Exception("Unexpected error: the input FITS file should contain a 2D array.")

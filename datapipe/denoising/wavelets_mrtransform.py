@@ -73,7 +73,7 @@ def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet"):
 
     # READ THE MR_TRANSFORM OUTPUT FILE ####################
 
-    output_imgs = images.load(mr_output_file_path)
+    output_imgs = images.load(mr_output_file_path, 0)
 
     if output_imgs.ndim != 3:
         raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
@@ -140,12 +140,15 @@ def main():
 
     parser.add_argument("--number_of_scales", "-n", type=int, default=4, metavar="INTEGER",
                         help="number of scales used in the multiresolution transform (default: 4)")
+    parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
+                        help="The index of the HDU image to use for FITS input files")
     parser.add_argument("filearg", nargs=1, metavar="FILE",
                         help="The file image to process (FITS or PNG)")
 
     args = parser.parse_args()
 
     number_of_scales = args.number_of_scales
+    hdu_index = args.hdu
     input_file_path = args.filearg[0]
 
     base_file_path = os.path.basename(input_file_path)
@@ -154,7 +157,7 @@ def main():
 
     # READ THE INPUT FILE #####################################################
 
-    input_img = images.load(input_file_path)
+    input_img = images.load(input_file_path, hdu_index)
 
     if input_img.ndim != 2:
         raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
