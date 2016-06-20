@@ -46,6 +46,7 @@ import argparse
 import os
 import numpy as np
 
+from datapipe.benchmark import assess
 from datapipe.io import images
 
 
@@ -138,6 +139,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS and PNG images with Wavelet Transform.")
 
+    parser.add_argument("--benchmark", "-b", type=int, default=0, metavar="INTEGER", 
+                        help="The benchmark method to use to assess the algorithm for the"
+                             "given images (0: no benchmark, 1: normalized mean pixel value"
+                             "difference, 2: Hillas parameters difference")
     parser.add_argument("--number_of_scales", "-n", type=int, default=4, metavar="INTEGER",
                         help="number of scales used in the multiresolution transform (default: 4)")
     parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
@@ -147,6 +152,7 @@ def main():
 
     args = parser.parse_args()
 
+    benchmark_method = args.benchmark
     number_of_scales = args.number_of_scales
     hdu_index = args.hdu
     input_file_path = args.filearg[0]
@@ -165,17 +171,26 @@ def main():
 
     # WAVELET TRANSFORM WITH MR_TRANSFORM #####################################
 
-    denoised_img = wavelet_transform(input_img, number_of_scales, base_file_path)
+    filtered_img = wavelet_transform(input_img, number_of_scales, base_file_path)
 
-    images.mpl_save(input_img,
-                    "{}.pdf".format(base_file_path),
-                    title="Original image")
-    images.mpl_save(denoised_img,
-                    "{}_wt_denoised.pdf".format(base_file_path),
-                    title="Denoised image (Wavelet Transform)")
+    if benchmark_method == 1:
+        reference_img = images.load(input_file_path, 1)
+        mark = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+        print(mark)
+    elif benchmark_method == 2:
+        reference_img = images.load(input_file_path, 1)
+        mark = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+        print(mark)
+    else:
+        images.mpl_save(input_img,
+                        "{}.pdf".format(base_file_path),
+                        title="Original image")
+        images.mpl_save(filtered_img,
+                        "{}_wt_denoised.pdf".format(base_file_path),
+                        title="Denoised image (Wavelet Transform)")
 
-    images.plot(input_img, title="Original image")
-    images.plot(denoised_img, title="Denoised image")
+        images.plot(input_img, title="Original image")
+        images.plot(filtered_img, title="Denoised image")
 
 
 if __name__ == "__main__":

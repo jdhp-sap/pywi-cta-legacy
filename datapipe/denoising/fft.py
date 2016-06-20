@@ -45,6 +45,7 @@ import argparse
 import os
 import numpy as np
 
+from datapipe.benchmark import assess
 from datapipe.io import images
 
 
@@ -99,6 +100,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS and PNG images with DFT.")
 
+    parser.add_argument("--benchmark", "-b", type=int, default=0, metavar="INTEGER", 
+                        help="The benchmark method to use to assess the algorithm for the"
+                             "given images (0: no benchmark, 1: normalized mean pixel value"
+                             "difference, 2: Hillas parameters difference")
     parser.add_argument("--shift", "-s", action="store_true", default=False,
                         help="Shift the zero to the center")
     parser.add_argument("--threshold", "-t", type=float, default=0, metavar="FLOAT", 
@@ -109,6 +114,7 @@ def main():
                         help="The file image to process (FITS or PNG)")
     args = parser.parse_args()
 
+    benchmark_method = args.benchmark
     shift = args.shift
     threshold = args.threshold
     hdu_index = args.hdu
@@ -129,11 +135,20 @@ def main():
 
     filtered_img = fft(input_img, shift, threshold, base_file_path)
 
-    images.plot(abs(filtered_img),
-                title="Denoised image")
-    images.mpl_save(abs(filtered_img),
-                    "{}_dft_denoised.pdf".format(base_file_path),
-                    title="Denoised image (DFT)")
+    if benchmark_method == 1:
+        reference_img = images.load(input_file_path, 1)
+        mark = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+        print(mark)
+    elif benchmark_method == 2:
+        reference_img = images.load(input_file_path, 1)
+        mark = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+        print(mark)
+    else:
+        images.plot(abs(filtered_img),
+                    title="Denoised image")
+        images.mpl_save(abs(filtered_img),
+                        "{}_dft_denoised.pdf".format(base_file_path),
+                        title="Denoised image (DFT)")
 
 
 if __name__ == "__main__":

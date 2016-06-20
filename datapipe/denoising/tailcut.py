@@ -36,6 +36,7 @@ import argparse
 import os
 import numpy as np
 
+from datapipe.benchmark import assess
 from datapipe.io import images
 
 def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
@@ -104,6 +105,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS and PNG images with the tailcut algorithm.")
 
+    parser.add_argument("--benchmark", "-b", type=int, default=0, metavar="INTEGER", 
+                        help="The benchmark method to use to assess the algorithm for the"
+                             "given images (0: no benchmark, 1: normalized mean pixel value"
+                             "difference, 2: Hillas parameters difference")
     parser.add_argument("--high_threshold", "-T", type=float, default=0, metavar="FLOAT", 
                         help="The 'high' threshold value (between 0 and 1)")
     parser.add_argument("--low_threshold", "-t", type=float, default=0, metavar="FLOAT", 
@@ -114,6 +119,7 @@ def main():
                         help="The file image to process (FITS or PNG)")
     args = parser.parse_args()
 
+    benchmark_method = args.benchmark
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
     hdu_index = args.hdu
@@ -134,11 +140,20 @@ def main():
 
     filtered_img = tailcut(input_img, high_threshold, low_threshold)
 
-    images.plot(input_img, title="Original image")
-    images.plot(filtered_img, title="Denoised image")
-    images.mpl_save(filtered_img,
-                    "{}_tailcut_denoised.pdf".format(base_file_path),
-                    title="Denoised image (Tailcut)")
+    if benchmark_method == 1:
+        reference_img = images.load(input_file_path, 1)
+        mark = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+        print(mark)
+    elif benchmark_method == 2:
+        reference_img = images.load(input_file_path, 1)
+        mark = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+        print(mark)
+    else:
+        images.plot(input_img, title="Original image")
+        images.plot(filtered_img, title="Denoised image")
+        images.mpl_save(filtered_img,
+                        "{}_tailcut_denoised.pdf".format(base_file_path),
+                        title="Denoised image (Tailcut)")
 
 
 if __name__ == "__main__":
