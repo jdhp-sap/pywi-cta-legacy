@@ -43,6 +43,7 @@ It also requires Numpy and Matplotlib Python libraries.
 __all__ = ['wavelet_transform']
 
 import argparse
+import datetime
 import json
 import os
 import numpy as np
@@ -202,9 +203,19 @@ def main():
     if benchmark_method > 0:
         print(score_list)
 
+        output_dict = {}
+        output_dict["algo"] = __file__
+        output_dict["algo_params"] = {"number_of_scales": number_of_scales}
+        output_dict["benchmark_method"] = benchmark_method
+        output_dict["date_time"] = str(datetime.datetime.now())
+        output_dict["hdu_index"] = hdu_index
+        output_dict["system"] = " ".join(os.uname())
+        output_dict["input_file_path_list"] = input_file_path_list
+        output_dict["score_list"] = score_list
+
         with open("score_wavelets.json", "w") as fd:
             #json.dump(data, fd)                                 # no pretty print
-            json.dump(score_list, fd, sort_keys=True, indent=4)  # pretty print format
+            json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
 
 
 if __name__ == "__main__":
