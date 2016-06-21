@@ -43,6 +43,7 @@ It also requires Numpy and Matplotlib Python libraries.
 __all__ = ['wavelet_transform']
 
 import argparse
+import json
 import os
 import numpy as np
 
@@ -50,7 +51,7 @@ from datapipe.benchmark import assess
 from datapipe.io import images
 
 
-def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet"):
+def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", verbose=False):
     """
     Do the wavelet transform.
     """
@@ -101,19 +102,20 @@ def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet"):
             img_mask = img > (img_sigma * 3.)
             filtered_img = img * img_mask
 
-            images.mpl_save(img,
-                            "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-                            title="Plane {}".format(img_index))
-            images.mpl_save(img_mask,
-                            "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
-                            title="Binary mask for plane {}".format(img_index))
-            images.mpl_save(filtered_img,
-                            "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
-                            title="Filtered plane {}".format(img_index))
+            if verbose:
+                images.mpl_save(img,
+                                "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                                title="Plane {}".format(img_index))
+                images.mpl_save(img_mask,
+                                "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
+                                title="Binary mask for plane {}".format(img_index))
+                images.mpl_save(filtered_img,
+                                "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
+                                title="Filtered plane {}".format(img_index))
 
-            images.plot(img, title="Plane {}".format(img_index))
-            images.plot(img_mask, title="Binary mask for plane {}".format(img_index))
-            images.plot(filtered_img, title="Filtered plane {}".format(img_index))
+                images.plot(img, title="Plane {}".format(img_index))
+                images.plot(img_mask, title="Binary mask for plane {}".format(img_index))
+                images.plot(filtered_img, title="Filtered plane {}".format(img_index))
 
             # Sum the plane ################################
 
@@ -121,10 +123,11 @@ def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet"):
 
         else:   # The last plane should be kept unmodified
 
-            images.mpl_save(img,
-                            "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-                            title="Plane {}".format(img_index))
-            images.plot(img, title="Plane {}".format(img_index))
+            if verbose:
+                images.mpl_save(img,
+                                "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                                title="Plane {}".format(img_index))
+                images.plot(img, title="Plane {}".format(img_index))
 
             # Sum the last plane ###########################
 
@@ -147,50 +150,61 @@ def main():
                         help="number of scales used in the multiresolution transform (default: 4)")
     parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
                         help="The index of the HDU image to use for FITS input files")
-    parser.add_argument("filearg", nargs=1, metavar="FILE",
-                        help="The file image to process (FITS or PNG)")
+    parser.add_argument("fileargs", nargs="+", metavar="FILE",
+                        help="The files image to process (FITS)")
 
     args = parser.parse_args()
 
     benchmark_method = args.benchmark
     number_of_scales = args.number_of_scales
     hdu_index = args.hdu
-    input_file_path = args.filearg[0]
+    input_file_path_list = args.fileargs
 
-    base_file_path = os.path.basename(input_file_path)
-    base_file_path = os.path.splitext(base_file_path)[0]
+    if benchmark_method > 0:
+        score_list = []
+
+    for input_file_path in input_file_path_list:
+
+        # READ THE INPUT FILE #################################################
+
+        input_img = images.load(input_file_path, hdu_index)
+
+        if input_img.ndim != 2:
+            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
 
-    # READ THE INPUT FILE #####################################################
+        # WAVELET TRANSFORM WITH MR_TRANSFORM #################################
 
-    input_img = images.load(input_file_path, hdu_index)
+        base_file_path = os.path.basename(input_file_path)
+        base_file_path = os.path.splitext(base_file_path)[0]
 
-    if input_img.ndim != 2:
-        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+        filtered_img = wavelet_transform(input_img, number_of_scales, base_file_path)
 
+        if benchmark_method == 1:
+            reference_img = images.load(input_file_path, 1)
+            score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+            score_list.append(score)
+        elif benchmark_method == 2:
+            reference_img = images.load(input_file_path, 1)
+            score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+            score_list.append(score)
+        else:
+            images.mpl_save(input_img,
+                            "{}.pdf".format(base_file_path),
+                            title="Original image")
+            images.mpl_save(filtered_img,
+                            "{}_wt_denoised.pdf".format(base_file_path),
+                            title="Denoised image (Wavelet Transform)")
 
-    # WAVELET TRANSFORM WITH MR_TRANSFORM #####################################
+            images.plot(input_img, title="Original image")
+            images.plot(filtered_img, title="Denoised image")
 
-    filtered_img = wavelet_transform(input_img, number_of_scales, base_file_path)
+    if benchmark_method > 0:
+        print(score_list)
 
-    if benchmark_method == 1:
-        reference_img = images.load(input_file_path, 1)
-        mark = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
-        print(mark)
-    elif benchmark_method == 2:
-        reference_img = images.load(input_file_path, 1)
-        mark = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
-        print(mark)
-    else:
-        images.mpl_save(input_img,
-                        "{}.pdf".format(base_file_path),
-                        title="Original image")
-        images.mpl_save(filtered_img,
-                        "{}_wt_denoised.pdf".format(base_file_path),
-                        title="Denoised image (Wavelet Transform)")
-
-        images.plot(input_img, title="Original image")
-        images.plot(filtered_img, title="Denoised image")
+        with open("score_wavelets.json", "w") as fd:
+            #json.dump(data, fd)                                 # no pretty print
+            json.dump(score_list, fd, sort_keys=True, indent=4)  # pretty print format
 
 
 if __name__ == "__main__":

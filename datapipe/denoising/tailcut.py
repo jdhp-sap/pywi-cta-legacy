@@ -33,13 +33,14 @@ This snippet requires Numpy, Matplotlib and PIL/Pillow Python libraries.
 """
 
 import argparse
+import json
 import os
 import numpy as np
 
 from datapipe.benchmark import assess
 from datapipe.io import images
 
-def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
+def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut", verbose=False):
 
     # COMPUTE MASKS #######################################
 
@@ -87,10 +88,11 @@ def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut"):
 
     # PLOT MASK ###########################################
 
-#    images.plot(final_mask, title="Tailcut mask")
-#    images.mpl_save(final_mask,
-#                    "{}_tailcut_mask.pdf".format(base_file_path),
-#                    title="Tailcut mask")
+    if verbose:
+        images.plot(final_mask, title="Tailcut mask")
+        images.mpl_save(final_mask,
+                        "{}_tailcut_mask.pdf".format(base_file_path),
+                        title="Tailcut mask")
 
     # APPLY MASK ##########################################
 
@@ -115,45 +117,57 @@ def main():
                         help="The 'low' threshold value (between 0 and 1)")
     parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
                         help="The index of the HDU image to use for FITS input files")
-    parser.add_argument("fileargs", nargs=1, metavar="FILE",
-                        help="The file image to process (FITS or PNG)")
+    parser.add_argument("fileargs", nargs="+", metavar="FILE",
+                        help="The files image to process (FITS)")
     args = parser.parse_args()
 
     benchmark_method = args.benchmark
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
     hdu_index = args.hdu
-    input_file_path = args.fileargs[0]
+    input_file_path_list = args.fileargs
 
-    base_file_path = os.path.basename(input_file_path)
-    base_file_path = os.path.splitext(base_file_path)[0]
+    if benchmark_method > 0:
+        score_list = []
 
-    # READ THE INPUT FILE ######################################################
+    for input_file_path in input_file_path_list:
 
-    input_img = images.load(input_file_path, hdu_index)
+        # READ THE INPUT FILE ##################################################
 
-    if input_img.ndim != 2:
-        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+        input_img = images.load(input_file_path, hdu_index)
+
+        if input_img.ndim != 2:
+            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
 
-    # TAILCUT FILTER ##########################################################
+        # TAILCUT FILTER ######################################################
 
-    filtered_img = tailcut(input_img, high_threshold, low_threshold)
+        base_file_path = os.path.basename(input_file_path)
+        base_file_path = os.path.splitext(base_file_path)[0]
 
-    if benchmark_method == 1:
-        reference_img = images.load(input_file_path, 1)
-        mark = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
-        print(mark)
-    elif benchmark_method == 2:
-        reference_img = images.load(input_file_path, 1)
-        mark = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
-        print(mark)
-    else:
-        images.plot(input_img, title="Original image")
-        images.plot(filtered_img, title="Denoised image")
-        images.mpl_save(filtered_img,
-                        "{}_tailcut_denoised.pdf".format(base_file_path),
-                        title="Denoised image (Tailcut)")
+        filtered_img = tailcut(input_img, high_threshold, low_threshold)
+
+        if benchmark_method == 1:
+            reference_img = images.load(input_file_path, 1)
+            score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+            score_list.append(score)
+        elif benchmark_method == 2:
+            reference_img = images.load(input_file_path, 1)
+            score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+            score_list.append(score)
+        else:
+            images.plot(input_img, title="Original image")
+            images.plot(filtered_img, title="Denoised image")
+            images.mpl_save(filtered_img,
+                            "{}_tailcut_denoised.pdf".format(base_file_path),
+                            title="Denoised image (Tailcut)")
+
+    if benchmark_method > 0:
+        print(score_list)
+
+        with open("score_tailcut.json", "w") as fd:
+            #json.dump(data, fd)                                 # no pretty print
+            json.dump(score_list, fd, sort_keys=True, indent=4)  # pretty print format
 
 
 if __name__ == "__main__":

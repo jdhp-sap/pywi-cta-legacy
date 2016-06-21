@@ -42,6 +42,7 @@ Additional documentation:
 __all__ = ['fft']
 
 import argparse
+import json
 import os
 import numpy as np
 
@@ -49,7 +50,7 @@ from datapipe.benchmark import assess
 from datapipe.io import images
 
 
-def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
+def fft(input_img, shift=False, threshold=0., base_file_path="fft", verbose=False):
     """
     Do the fourier transform.
     """
@@ -59,11 +60,12 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
     if shift:
         transformed_img = np.fft.fftshift(transformed_img)
 
-    images.plot(np.log10(abs(transformed_img)),
-                title="Fourier coefficients before filtering")
-    images.mpl_save(np.log10(abs(transformed_img)),
-                    "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
+    if verbose:
+        images.plot(np.log10(abs(transformed_img)),
                     title="Fourier coefficients before filtering")
+        images.mpl_save(np.log10(abs(transformed_img)),
+                        "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
+                        title="Fourier coefficients before filtering")
 
     # Compute the standard deviation of the plane ###########
 
@@ -78,11 +80,12 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft"):
     img_mask =  abs(transformed_img) > (max_value * threshold)
     filtered_transformed_img = transformed_img * img_mask
 
-    images.plot(np.log10(abs(filtered_transformed_img)),
-                title="Fourier coefficients after filtering")
-    images.mpl_save(np.log10(abs(filtered_transformed_img)),
-                    "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
+    if verbose:
+        images.plot(np.log10(abs(filtered_transformed_img)),
                     title="Fourier coefficients after filtering")
+        images.mpl_save(np.log10(abs(filtered_transformed_img)),
+                        "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
+                        title="Fourier coefficients after filtering")
 
     # Do the reverse transform #############
 
@@ -110,46 +113,57 @@ def main():
                         help="The threshold value (between 0 and 1)")
     parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
                         help="The index of the HDU image to use for FITS input files")
-    parser.add_argument("fileargs", nargs=1, metavar="FILE",
-                        help="The file image to process (FITS or PNG)")
+    parser.add_argument("fileargs", nargs="+", metavar="FILE",
+                        help="The files image to process (FITS)")
     args = parser.parse_args()
 
     benchmark_method = args.benchmark
     shift = args.shift
     threshold = args.threshold
     hdu_index = args.hdu
-    input_file_path = args.fileargs[0]
+    input_file_path_list = args.fileargs
 
-    base_file_path = os.path.basename(input_file_path)
-    base_file_path = os.path.splitext(base_file_path)[0]
+    if benchmark_method > 0:
+        score_list = []
 
-    # READ THE INPUT FILE ######################################################
+    for input_file_path in input_file_path_list:
 
-    input_img = images.load(input_file_path, hdu_index)
+        # READ THE INPUT FILE ##################################################
 
-    if input_img.ndim != 2:
-        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+        input_img = images.load(input_file_path, hdu_index)
+
+        if input_img.ndim != 2:
+            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
 
-    # FOURIER TRANSFORM WITH NUMPY ############################################
+        # FOURIER TRANSFORM WITH NUMPY ########################################
 
-    filtered_img = fft(input_img, shift, threshold, base_file_path)
+        base_file_path = os.path.basename(input_file_path)
+        base_file_path = os.path.splitext(base_file_path)[0]
 
-    if benchmark_method == 1:
-        reference_img = images.load(input_file_path, 1)
-        mark = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
-        print(mark)
-    elif benchmark_method == 2:
-        reference_img = images.load(input_file_path, 1)
-        mark = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
-        print(mark)
-    else:
-        images.plot(abs(filtered_img),
-                    title="Denoised image")
-        images.mpl_save(abs(filtered_img),
-                        "{}_dft_denoised.pdf".format(base_file_path),
-                        title="Denoised image (DFT)")
+        filtered_img = fft(input_img, shift, threshold, base_file_path)
 
+        if benchmark_method == 1:
+            reference_img = images.load(input_file_path, 1)
+            score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+            score_list.append(score)
+        elif benchmark_method == 2:
+            reference_img = images.load(input_file_path, 1)
+            score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+            score_list.append(score)
+        else:
+            images.plot(abs(filtered_img),
+                        title="Denoised image")
+            images.mpl_save(abs(filtered_img),
+                            "{}_dft_denoised.pdf".format(base_file_path),
+                            title="Denoised image (DFT)")
+
+    if benchmark_method > 0:
+        print(score_list)
+
+        with open("score_fft.json", "w") as fd:
+            #json.dump(data, fd)                                 # no pretty print
+            json.dump(score_list, fd, sort_keys=True, indent=4)  # pretty print format
 
 if __name__ == "__main__":
     main()
