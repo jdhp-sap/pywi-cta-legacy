@@ -46,6 +46,7 @@ import datetime
 import json
 import os
 import numpy as np
+import time
 
 from datapipe.benchmark import assess
 from datapipe.io import images
@@ -126,6 +127,7 @@ def main():
 
     if benchmark_method > 0:
         score_list = []
+        execution_time_list = []
 
     for input_file_path in input_file_path_list:
 
@@ -146,11 +148,21 @@ def main():
 
         if benchmark_method == 1:
             reference_img = images.load(input_file_path, 1)
+
+            initial_time = time.perf_counter()
             score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+            execution_time = time.perf_counter() - initial_time
+
+            execution_time_list.append(execution_time)
             score_list.append(score)
         elif benchmark_method == 2:
             reference_img = images.load(input_file_path, 1)
+
+            initial_time = time.perf_counter()
             score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+            execution_time = time.perf_counter() - initial_time
+
+            execution_time_list.append(execution_time)
             score_list.append(score)
         else:
             images.plot(abs(filtered_img),
@@ -171,6 +183,7 @@ def main():
         output_dict["system"] = " ".join(os.uname())
         output_dict["input_file_path_list"] = input_file_path_list
         output_dict["score_list"] = score_list
+        output_dict["execution_time_list"] = execution_time_list
 
         with open("score_fft.json", "w") as fd:
             #json.dump(data, fd)                                 # no pretty print
