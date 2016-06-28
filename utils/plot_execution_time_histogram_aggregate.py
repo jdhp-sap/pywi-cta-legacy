@@ -40,6 +40,7 @@ if __name__ == '__main__':
     # FETCH SCORE #############################################################
 
     result_list = []
+    label_list = []
 
     for json_file_path in json_file_path_list:
         score_dict = fetch_score(json_file_path)
@@ -51,14 +52,14 @@ if __name__ == '__main__':
         # METADATA
 
         algo_path = score_dict["algo"]
-        title = os.path.splitext(os.path.basename(algo_path))[0]
+        label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
 
     # PLOT STATISTICS #########################################################
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(12, 5))
 
-    #res_tuple = ax1.hist(execution_time_array, bins=32, histtype=HIST_TYPE, alpha=ALPHA)
-    res_tuple = ax1.hist(result_list, bins=30, histtype=HIST_TYPE)
+    res_tuple = ax1.hist(result_list, bins=50, histtype=HIST_TYPE, alpha=ALPHA, label=label_list)
+    ax1.legend(prop={'size': 10})
 
     ax1.set_title("Execution time")
     ax1.set_xlabel("Execution time (seconds)")
