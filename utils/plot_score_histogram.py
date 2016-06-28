@@ -8,6 +8,7 @@ Make statistics on score files (stored in JSON files).
 import argparse
 import json
 import math
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -54,6 +55,11 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    #plt.savefig("stats.pdf")
+    base_file_path = os.path.basename(json_file_path)
+    base_file_path = os.path.splitext(base_file_path)[0]
+
+    output_file = base_file_path + ".pdf"
+
+    plt.savefig(output_file)
     plt.show()
 
