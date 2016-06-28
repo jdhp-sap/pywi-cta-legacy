@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # FETCH METADATA ##########################################################
 
     algo_path = score_dict["algo"]
-    title = os.path.splitext(os.path.basename(algo_path))[0]
+    title = "Score " + os.path.splitext(os.path.basename(algo_path))[0]
 
     # PLOT STATISTICS #########################################################
 
