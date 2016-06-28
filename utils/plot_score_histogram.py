@@ -45,11 +45,17 @@ if __name__ == '__main__':
 
     score_array = np.array(score_list)
 
+    # FETCH METADATA ##########################################################
+
+    algo_path = score_dict["algo"]
+    title = os.path.splitext(os.path.basename(algo_path))[0]
+
     # PLOT STATISTICS #########################################################
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(12, 5))
 
     res_tuple = ax1.hist(score_array, bins=32, histtype=HIST_TYPE, alpha=ALPHA)
+    ax1.set_title(title)
     ax1.set_xlabel("Score")
     ax1.set_ylabel("Frequency")
 
