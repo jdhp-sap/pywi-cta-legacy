@@ -25,16 +25,28 @@ def fetch_score(json_file_path):
     return score_dict
 
 
+def plot_hist(axis, result_list, label_list):
+    res_tuple = axis.hist(result_list, bins=50, histtype=HIST_TYPE, alpha=ALPHA, label=label_list)
+
+
+def plot_overlaid_hist(axis, result_list, label_list):
+    for result_array, label in zip(result_list, label_list):
+        res_tuple = axis.hist(result_array, bins=50, histtype=HIST_TYPE, alpha=ALPHA, label=label)
+
+
 if __name__ == '__main__':
 
     # PARSE OPTIONS ###########################################################
 
     parser = argparse.ArgumentParser(description="Make statistics on score files (JSON files).")
 
+    parser.add_argument("--overlaid", "-O", action="store_true", default=False,
+                        help="Overlaid histograms")
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
     args = parser.parse_args()
+    overlaid = args.overlaid
     json_file_path_list = args.fileargs
 
     # FETCH SCORE #############################################################
@@ -56,19 +68,23 @@ if __name__ == '__main__':
 
     # PLOT STATISTICS #########################################################
 
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(12, 5))
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
 
-    res_tuple = ax1.hist(result_list, bins=50, histtype=HIST_TYPE, alpha=ALPHA, label=label_list)
-    ax1.legend(prop={'size': 10})
+    if overlaid:
+        plot_overlaid_hist(ax1, result_list, label_list)
+    else:
+        plot_hist(ax1, result_list, label_list)
 
-    ax1.set_title("Execution time")
-    ax1.set_xlabel("Execution time (seconds)")
-    ax1.set_ylabel("Frequency")
+    ax1.legend(prop={'size': 14})
+
+    ax1.set_title("Execution time", fontsize=14)
+    ax1.set_xlabel("Execution time (seconds)", fontsize=14)
+    ax1.set_ylabel("Occurrences", fontsize=14)
 
     # Save file and plot ########
 
     output_file = "execution_time.pdf"
 
-    plt.savefig(output_file)
+    plt.savefig(output_file, bbox_inches='tight')
     plt.show()
 
