@@ -40,12 +40,15 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Make statistics on score files (JSON files).")
 
+    parser.add_argument("--max", "-m", type=float, default=None, metavar="FLOAT", 
+                        help="The maximum abscissa value to plot")
     parser.add_argument("--overlaid", "-O", action="store_true", default=False,
                         help="Overlaid histograms")
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
     args = parser.parse_args()
+    max_abscissa = args.max
     overlaid = args.overlaid
     json_file_path_list = args.fileargs
 
@@ -57,7 +60,11 @@ if __name__ == '__main__':
     for json_file_path in json_file_path_list:
         score_dict = fetch_score(json_file_path)
         score_list = score_dict["score_list"]
+
         score_list = [score for score in score_list if not math.isnan(score)] # TODO...
+
+        if max_abscissa is not None:
+            score_list = [score for score in score_list if score <= max_abscissa]
 
         score_array = np.array(score_list)
         result_list.append(score_array)
@@ -76,6 +83,9 @@ if __name__ == '__main__':
     else:
         plot_hist(ax1, result_list, label_list)
 
+    if max_abscissa is not None:
+        ax1.set_xlim(xmax=max_abscissa)
+
     ax1.legend(prop={'size': 14})
 
     ax1.set_title("Score", fontsize=14)
@@ -84,7 +94,9 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    output_file = "scores.pdf"
+    prefix1 = "_o" if overlaid else ""
+    prefix2 = "_" + str(max_abscissa) if max_abscissa is not None else ""
+    output_file = "scores{}{}.pdf".format(prefix1, prefix2)
 
     plt.savefig(output_file, bbox_inches='tight')
     plt.show()
