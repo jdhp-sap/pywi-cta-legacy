@@ -84,11 +84,11 @@ if __name__ == '__main__':
     if max_abscissa is not None:
         ax1.set_xlim(xmax=max_abscissa)
 
-    ax1.legend(prop={'size': 14})
+    ax1.legend(prop={'size': 20})
 
-    ax1.set_title("Execution time", fontsize=14)
-    ax1.set_xlabel("Execution time (seconds)", fontsize=14)
-    ax1.set_ylabel("Occurrences", fontsize=14)
+    ax1.set_title("Execution time", fontsize=20)
+    ax1.set_xlabel("Execution time (seconds)", fontsize=20)
+    ax1.set_ylabel("Occurrences", fontsize=20)
 
     # Save file and plot ########
 
