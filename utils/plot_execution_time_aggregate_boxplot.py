@@ -69,7 +69,7 @@ if __name__ == '__main__':
     #plt.setp(ax1.get_xticklabels(), rotation='vertical', fontsize=18)
     plt.setp(ax1.get_xticklabels(), fontsize=16)
 
-    ax1.axhline(y=0.0003, linewidth=1, color='gray', linestyle='dashed', label=r'$30 \mu s$')  # The maximum time allowed per event on CTA
+    ax1.axhline(y=0.00003, linewidth=1, color='gray', linestyle='dashed', label=r'$30 \mu s$')  # The maximum time allowed per event on CTA
 
     ax1.set_yscale('log')
 
