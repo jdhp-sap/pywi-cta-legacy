@@ -81,6 +81,8 @@ if __name__ == '__main__':
     else:
         plot_hist(ax1, result_list, label_list)
 
+    ax1.axvline(x=0.0003, linewidth=1, color='gray', linestyle='dotted')  # The maximum time allowed per event on CTA
+
     if max_abscissa is not None:
         ax1.set_xlim(xmax=max_abscissa)
 
