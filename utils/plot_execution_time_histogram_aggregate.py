@@ -92,6 +92,9 @@ if __name__ == '__main__':
     ax1.set_xlabel("Execution time (seconds)", fontsize=20)
     ax1.set_ylabel("Occurrences", fontsize=20)
 
+    plt.setp(ax1.get_xticklabels(), fontsize=12)
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+
     # Save file and plot ########
 
     prefix1 = "_o" if overlaid else ""

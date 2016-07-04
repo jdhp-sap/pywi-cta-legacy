@@ -66,9 +66,6 @@ if __name__ == '__main__':
                      meanline=False,
                      showmeans=True)
 
-    #plt.setp(ax1.get_xticklabels(), rotation='vertical', fontsize=18)
-    plt.setp(ax1.get_xticklabels(), fontsize=16)
-
     ax1.axhline(y=0.00003, linewidth=1, color='gray', linestyle='dashed', label=r'$30 \mu s$')  # The maximum time allowed per event on CTA
 
     ax1.set_yscale('log')
@@ -77,6 +74,9 @@ if __name__ == '__main__':
 
     ax1.set_title("Execution time", fontsize=20)
     ax1.set_ylabel("Execution time (seconds)", fontsize=20)
+
+    #plt.setp(ax1.get_xticklabels(), rotation='vertical', fontsize=18)
+    plt.setp(ax1.get_xticklabels(), fontsize=16)
 
     # Save file and plot ########
 
