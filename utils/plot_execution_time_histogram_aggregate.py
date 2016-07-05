@@ -42,8 +42,14 @@ if __name__ == '__main__':
 
     parser.add_argument("--max", "-m", type=float, default=None, metavar="FLOAT", 
                         help="The maximum abscissa value to plot")
+
     parser.add_argument("--overlaid", "-O", action="store_true", default=False,
                         help="Overlaid histograms")
+
+    parser.add_argument("--output", "-o", default=None,
+                        metavar="FILE",
+                        help="The output file path")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
@@ -51,6 +57,13 @@ if __name__ == '__main__':
     max_abscissa = args.max
     overlaid = args.overlaid
     json_file_path_list = args.fileargs
+
+    if args.output is None:
+        prefix1 = "_o" if overlaid else ""
+        prefix2 = "_" + str(max_abscissa) if max_abscissa is not None else ""
+        output_file_path = "execution_time{}{}.pdf".format(prefix1, prefix2)
+    else:
+        output_file_path = args.output
 
     # FETCH SCORE #############################################################
 
@@ -97,10 +110,6 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    prefix1 = "_o" if overlaid else ""
-    prefix2 = "_" + str(max_abscissa) if max_abscissa is not None else ""
-    output_file = "execution_time{}{}.pdf".format(prefix1, prefix2)
-
-    plt.savefig(output_file, bbox_inches='tight')
+    plt.savefig(output_file_path, bbox_inches='tight')
     plt.show()
 
