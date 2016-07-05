@@ -56,9 +56,11 @@ if __name__ == '__main__':
         result_list.append(execution_time_array)
 
         # METADATA
-
-        algo_path = score_dict["algo"]
-        label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
+        try:
+            label_list.append(score_dict["label"])
+        except:
+            algo_path = score_dict["algo"]
+            label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
 
     # PLOT STATISTICS #########################################################
 
@@ -75,7 +77,7 @@ if __name__ == '__main__':
                      meanline=False,
                      showmeans=True)
 
-    ax1.axhline(y=0.00003, linewidth=1, color='gray', linestyle='dashed', label='30 μs')  # The maximum time allowed per event on CTA
+    ax1.axhline(y=0.00003, linewidth=1, color='gray', linestyle='dashed', label=r'30 $\mu$s')  # The maximum time allowed per event on CTA
 
     ax1.set_yscale('log')
 
@@ -84,8 +86,10 @@ if __name__ == '__main__':
     ax1.set_title("Execution time", fontsize=20)
     ax1.set_ylabel("Execution time (seconds)", fontsize=20)
 
-    #plt.setp(ax1.get_xticklabels(), rotation='vertical', fontsize=18)
+    #plt.setp(ax1.get_xticklabels(), rotation='vertical', fontsize=16)
+    #plt.setp(ax1.get_xticklabels(), rotation=10, fontsize=16)
     plt.setp(ax1.get_xticklabels(), fontsize=16)
+    plt.setp(ax1.get_yticklabels(), fontsize=16)
 
     # Save file and plot ########
 
