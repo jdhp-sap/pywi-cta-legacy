@@ -28,11 +28,20 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Make statistics on score files (JSON files).")
 
+    parser.add_argument("--output", "-o", default=None,
+                        metavar="FILE",
+                        help="The output file path")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
     args = parser.parse_args()
     json_file_path_list = args.fileargs
+
+    if args.output is None:
+        output_file_path = "execution_time.pdf"
+    else:
+        output_file_path = args.output
 
     # FETCH SCORE #############################################################
 
@@ -80,8 +89,6 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    output_file = "execution_time.pdf"
-
-    plt.savefig(output_file, bbox_inches='tight')
+    plt.savefig(output_file_path, bbox_inches='tight')
     plt.show()
 
