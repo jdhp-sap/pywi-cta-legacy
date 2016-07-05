@@ -42,8 +42,14 @@ if __name__ == '__main__':
 
     parser.add_argument("--max", "-m", type=float, default=None, metavar="FLOAT", 
                         help="The maximum abscissa value to plot")
+
     parser.add_argument("--overlaid", "-O", action="store_true", default=False,
                         help="Overlaid histograms")
+
+    parser.add_argument("--output", "-o", default=None,
+                        metavar="FILE",
+                        help="The output file path")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
@@ -51,6 +57,13 @@ if __name__ == '__main__':
     max_abscissa = args.max
     overlaid = args.overlaid
     json_file_path_list = args.fileargs
+
+    if args.output is None:
+        prefix1 = "_o" if overlaid else ""
+        prefix2 = "_" + str(max_abscissa) if max_abscissa is not None else ""
+        output_file_path = "scores{}{}.pdf".format(prefix1, prefix2)
+    else:
+        output_file_path = args.output
 
     # FETCH SCORE #############################################################
 
@@ -70,9 +83,11 @@ if __name__ == '__main__':
         result_list.append(score_array)
 
         # METADATA
-
-        algo_path = score_dict["algo"]
-        label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
+        try:
+            label_list.append(score_dict["label"])
+        except:
+            algo_path = score_dict["algo"]
+            label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
 
     # PLOT STATISTICS #########################################################
 
@@ -86,18 +101,19 @@ if __name__ == '__main__':
     if max_abscissa is not None:
         ax1.set_xlim(xmax=max_abscissa)
 
-    ax1.legend(prop={'size': 14})
+    ax1.legend(prop={'size': 20})
 
-    ax1.set_title("Score", fontsize=14)
-    ax1.set_xlabel("Score", fontsize=14)
-    ax1.set_ylabel("Occurrences", fontsize=14)
+    ax1.set_title("Score", fontsize=20)
+    ax1.set_xlabel("Score", fontsize=20)
+    ax1.set_ylabel("Count", fontsize=20)
+
+    plt.setp(ax1.get_xticklabels(), fontsize=14)
+    plt.setp(ax1.get_yticklabels(), fontsize=14)
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
     # Save file and plot ########
 
-    prefix1 = "_o" if overlaid else ""
-    prefix2 = "_" + str(max_abscissa) if max_abscissa is not None else ""
-    output_file = "scores{}{}.pdf".format(prefix1, prefix2)
-
-    plt.savefig(output_file, bbox_inches='tight')
+    plt.savefig(output_file_path, bbox_inches='tight')
     plt.show()
 
