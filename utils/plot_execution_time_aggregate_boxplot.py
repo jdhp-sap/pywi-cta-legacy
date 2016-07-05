@@ -66,7 +66,7 @@ if __name__ == '__main__':
                      meanline=False,
                      showmeans=True)
 
-    ax1.axhline(y=0.00003, linewidth=1, color='gray', linestyle='dashed', label=r'$30 \mu s$')  # The maximum time allowed per event on CTA
+    ax1.axhline(y=0.00003, linewidth=1, color='gray', linestyle='dashed', label='30 μs')  # The maximum time allowed per event on CTA
 
     ax1.set_yscale('log')
 
