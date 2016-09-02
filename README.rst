@@ -97,7 +97,7 @@ signal in HDU0 and the photoelectron signal in HDU1):
 1. clone http://github.com/jdhp-sap/snippets
 2. check snippets/ctapipe/extract_and_crop_simtel_images.py on lines 64 and 66,
    these lines may need to be fixed
-3. in ``snippets/ctapipe`` run ``./extract_crop_and_plot_all_astri_images.sh ASTRI_SIMTEL_FILE``
+3. in snippets/ctapipe run ``./extract_crop_and_plot_all_astri_images.sh ASTRI_SIMTEL_FILE``
 
 Step 1.4 generate a lot of fits files in your current directory ;
 its execution may be long (up to several hours) as the script is not optimized
