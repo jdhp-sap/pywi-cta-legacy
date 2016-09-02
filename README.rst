@@ -127,9 +127,9 @@ Clean images generated in step 1:
 1. clone http://github.com/jdhp-sap/data-pipeline-standalone-scripts
 2. to clean one fits file (see for instance run_experiments.sh):
 
-   - with Tailcut : run ``data-pipeline-standalone-scripts/datapipe/denoising/tailcut.py -T 0.75 -t 0.5 FITS_FILE`` (-T = max threshold, -t = min threshold, use the -h option to see command usage)
-   - with FFT : ``run data-pipeline-standalone-scripts/datapipe/denoising/fft.py -s -t 0.02 FITS_FILE`` (-t = threshold in the Fourier space, use the -h option to see command usage)
-   - with Wavelets : ``run data-pipeline-standalone-scripts/datapipe/denoising/wavelets_mrtrransform.py FITS_FILE`` (use the -h option to see command usage)
+   - with Tailcut : in data-pipeline-standalone-scripts, run ``./datapipe/denoising/tailcut.py -T 0.75 -t 0.5 FITS_FILE`` (-T = max threshold, -t = min threshold, use the -h option to see command usage)
+   - with FFT : in data-pipeline-standalone-scripts, run ``./datapipe/denoising/fft.py -s -t 0.02 FITS_FILE`` (-t = threshold in the Fourier space, use the -h option to see command usage)
+   - with Wavelets : in data-pipeline-standalone-scripts, run ``./datapipe/denoising/wavelets_mrtrransform.py FITS_FILE`` (use the -h option to see command usage)
 
 3. instead of the step 3.2, you can also set the "benchmark mode" to clean
    images and assess cleaning algorithms (it's still a bit experimental) : use
