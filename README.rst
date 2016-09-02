@@ -131,7 +131,7 @@ Clean images generated in step 1:
    - with FFT : in data-pipeline-standalone-scripts, run ``./datapipe/denoising/fft.py -s -t 0.02 FITS_FILE`` (-t = threshold in the Fourier space, use the -h option to see command usage)
    - with Wavelets : in data-pipeline-standalone-scripts, run ``./datapipe/denoising/wavelets_mrtrransform.py FITS_FILE`` (use the -h option to see command usage)
 
-3. instead of the step 3.2, you can also set the "benchmark mode" to clean
+3. instead of the step 3.2, the "benchmark mode" can be set to clean
    images and assess cleaning algorithms (it's still a bit experimental) : use
    the same instructions than for step 3.2 with the additional option "-b 1" in
    each command (and put several fits files in input e.g. "*.fits")
