@@ -124,7 +124,9 @@ Step 3
 
 Clean images generated in step 1:
 
-1. clone http://github.com/jdhp-sap/data-pipeline-standalone-scripts
+1. clone and install
+   http://github.com/jdhp-sap/data-pipeline-standalone-scripts (see
+   https://github.com/jdhp-sap/data-pipeline-standalone-scripts#installation)
 2. to clean one fits file (see for instance run_experiments.sh):
 
    - with Tailcut : in data-pipeline-standalone-scripts, run ``./datapipe/denoising/tailcut.py -T 0.75 -t 0.5 FITS_FILE`` (-T = max threshold, -t = min threshold, use the -h option to see command usage)
