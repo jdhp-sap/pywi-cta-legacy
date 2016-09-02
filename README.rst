@@ -122,14 +122,14 @@ Install mr_transform (the cosmostat wavelet transform tool):
 Step 3
 ------
 
-Clean images generated in step 1
+Clean images generated in step 1:
 
 1. clone http://github.com/jdhp-sap/data-pipeline-standalone-scripts
 2. to clean one fits file (see for instance run_experiments.sh):
 
-   - with Tailcut : run data-pipeline-standalone-scripts/datapipe/denoising/tailcut.py -T 0.75 -t 0.5 FITS_FILE (-T = max threshold, -t = min threshold, use the -h option to see command usage)
-   - with FFT : run data-pipeline-standalone-scripts/datapipe/denoising/fft.py -s -t 0.02 FITS_FILE (-t = threshold in the Fourier space, use the -h option to see command usage)
-   - with Wavelets : run data-pipeline-standalone-scripts/datapipe/denoising/wavelets_mrtrransform.py FITS_FILE (use the -h option to see command usage)
+   - with Tailcut : run ``data-pipeline-standalone-scripts/datapipe/denoising/tailcut.py -T 0.75 -t 0.5 FITS_FILE`` (-T = max threshold, -t = min threshold, use the -h option to see command usage)
+   - with FFT : ``run data-pipeline-standalone-scripts/datapipe/denoising/fft.py -s -t 0.02 FITS_FILE`` (-t = threshold in the Fourier space, use the -h option to see command usage)
+   - with Wavelets : ``run data-pipeline-standalone-scripts/datapipe/denoising/wavelets_mrtrransform.py FITS_FILE`` (use the -h option to see command usage)
 
 3. instead of the step 3.2, you can also set the "benchmark mode" to clean
    images and assess cleaning algorithms (it's still a bit experimental) : use
@@ -139,9 +139,9 @@ Clean images generated in step 1
 Step 4
 ------
 
-Optionally, plot some stats about scores : in
-data-pipeline-standalone-scripts/utils, use the plot_score_*.py scripts on the
-JSON files generated in step 3.3 (use the -h option to see command usage)
+Optionally, plot some stats about scores:
+in data-pipeline-standalone-scripts/utils, use the plot_score_*.py scripts on
+the JSON files generated in step 3.3 (use the -h option to see command usage)
 
 
 Bug reports
