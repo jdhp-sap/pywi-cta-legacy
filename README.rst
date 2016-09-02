@@ -111,9 +111,7 @@ Install mr_transform (the cosmostat wavelet transform tool):
 
 1. download http://www.cosmostat.org/wp-content/uploads/2014/12/ISAP_V3.1.tgz (see http://www.cosmostat.org/software/isap/)
 2. unzip this archive, go to the "sparse2d" directory and compile the sparse2d
-   library. It should generate an executable named "mr_transform" (if you have
-   difficulties to make this executable, you may search it with the "find"
-   command and copy it from sapcta)::
+   library. It should generate an executable named "mr_transform"::
 
     tar -xzvf ISAP_V3.1.tgz
     cd ISAP_V3.1/cxx
