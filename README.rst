@@ -2,7 +2,7 @@
 SAp Data Pipeline Standalone Scripts
 ====================================
 
-Copyright (c) 2016 Jeremie DECOCK (http://www.jdhp.org)
+Copyright (c) 2016 Jeremie DECOCK (www.jdhp.org) and Tino Michael
 
 
 * Source code: https://github.com/jdhp-sap/data-pipeline-standalone-scripts
