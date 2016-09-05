@@ -83,6 +83,7 @@ ENTRY_POINTS = {
       'dp-simtel-count = datapipe.io.simtel:main_count_simtel_events',
       'dp-simtel-ls = datapipe.io.simtel:main_list_simtel_content',
       'dp-simtel-show = datapipe.io.simtel:main_show_image',
+      'dp-simtel-show-pe = datapipe.io.simtel:main_show_pe_image',
   ],
 }
 
@@ -95,7 +96,7 @@ def get_long_description():
     return desc
 
 
-setup(author='Jeremie DECOCK',
+setup(author='Jeremie DECOCK and Tino Michael',
       author_email='jd.jdhp@gmail.com',
       maintainer='Jeremie DECOCK',
       maintainer_email='jd.jdhp@gmail.com',
