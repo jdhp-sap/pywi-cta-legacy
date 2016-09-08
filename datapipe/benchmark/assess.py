@@ -174,8 +174,13 @@ def assess_image_cleaning_meth1bis(input_image, output_image, reference_image):
     
     mark = None
 
-    diff_array = (output_image + 1.) - (reference_image + 1.) # TODO: +1 = dirty hack to avoid div by 0...
-    mark = np.mean(np.abs(diff_array)/(reference_image + 1.)) # TODO: +1 = dirty hack to avoid div by 0...
+    sum_output_image = float(np.sum(output_image))
+    sum_reference_image = float(np.sum(reference_image))
+
+    if (sum_output_image > 0) and (sum_reference_image > 0):
+        mark1 = np.mean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
+        mark2 = np.abs(sum_output_image - sum_reference_image) / (reference_image / sum_reference_image)
+        mark = (mark1, mark2)
 
     return mark
 
