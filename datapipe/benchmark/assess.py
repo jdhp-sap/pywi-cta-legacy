@@ -31,6 +31,20 @@ import astropy.units as u
 
 
 def normalize(input_array):
+    """Normalize the given image such that its pixels value fit between 0.0 and
+    1.0.
+
+    Parameters
+    ----------
+    image : Numpy array
+        The image to normalize (whatever its shape)
+
+    Returns
+    -------
+    output_array : Numpy array
+        The normalized version of the input image (keeping the same dimension
+        and shape)
+    """
     output_array = (input_array - input_array.min()) / (input_array.max() - input_array.min())
     return output_array
 
