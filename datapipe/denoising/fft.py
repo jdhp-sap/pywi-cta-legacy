@@ -157,7 +157,7 @@ def main():
         elif benchmark_method == 2:
             reference_img = images.load(input_file_path, 1)
             score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
-            score_list.append(score)
+            score_list.append(score.tolist())
         else:
             images.plot(abs(filtered_img),
                         title="Denoised image")
