@@ -68,11 +68,11 @@ def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", v
     # EXECUTE MR_TRANSFORM #################################
 
     # TODO: improve the following lines
-    cmd = 'mr_transform -n{} "{}" out'.format(number_of_scales, input_file_path)
+    cmd = 'mr_transform -n{} "{}" {}_out'.format(number_of_scales, input_file_path, base_file_path)
     os.system(cmd)
 
     # TODO: improve the following lines
-    cmd = "mv out.mr {}".format(mr_output_file_path)
+    cmd = "mv {}_out.mr {}".format(base_file_path, mr_output_file_path)
     os.system(cmd)
 
     # READ THE MR_TRANSFORM OUTPUT FILE ####################
