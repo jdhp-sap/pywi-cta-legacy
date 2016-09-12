@@ -24,7 +24,7 @@
 This module contains unit tests for the "benchmark.assess" module.
 """
 
-from datapipe.benchmark.assess import normalize
+from datapipe.benchmark import assess
 
 import numpy as np
 
@@ -42,17 +42,9 @@ class TestAssess(unittest.TestCase):
 
         # Input image #################
 
-        # [[128 128 128 128]
-        #  [128  64 256 256]
-        #  [128 128 128 128]]
-
-        input_img = np.array([[100, 200, 200, 100],
-                              [100, 300, 300, 100],
-                              [100, 200, 200, 100]])
-
-        # Output image ################
-
-        output_img = normalize(input_img)
+        input_img = np.array([[1, 2, 2, 1],
+                              [1, 3, 3, 1],
+                              [1, 2, 2, 1]])
 
         # Expected output image #######
 
@@ -60,7 +52,388 @@ class TestAssess(unittest.TestCase):
                                         [0., 1.0, 1.0, 0.],
                                         [0., 0.5, 0.5, 0.]])
 
+        # Output image ################
+
+        output_img = assess.normalize(input_img)
+
+        # Test ########################
+
         np.testing.assert_array_equal(output_img, expected_output_img)
+
+
+    # Test the "assess_image_cleaning_meth1bis" function ######################
+
+    def test_assess_image_cleaning_meth1bis_input(self):
+        """Check the input of the "assess_image_cleaning_meth1bis"
+        function."""
+
+        #######################################################################
+        # Test 1: sum on output image is 0                                    #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[0, 0, 0, 0],
+                                 [0, 0, 0, 0],
+                                 [0, 0, 0, 0]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1, 2, 2, 1],
+                                    [1, 3, 3, 1],
+                                    [1, 2, 2, 1]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 2: sum on reference image is 0                                 #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[0, 0, 0, 0],
+                                    [0, 0, 0, 0],
+                                    [0, 0, 0, 0]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 3: sum on output image is 0                                    #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[0., 0., 0., 0.],
+                                 [0., 0., 0., 0.],
+                                 [0., 0., 0., 0.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1, 2, 2, 1],
+                                    [1, 3, 3, 1],
+                                    [1, 2, 2, 1]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 4: sum on reference image is 0                                 #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[0., 0., 0., 0.],
+                                    [0., 0., 0., 0.],
+                                    [0., 0., 0., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+    def test_assess_image_cleaning_meth1bis_output(self):
+        """Check the output of the "assess_image_cleaning_meth1bis"
+        function."""
+
+        #######################################################################
+        # Test 1: perfect output                                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1, 2, 2, 1],
+                                    [1, 3, 3, 1],
+                                    [1, 2, 2, 1]])
+    
+        # Expected mark ###############
+
+        expected_mark = np.array([0., 0.])
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 2: perfect output                                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[.1, .2, .2, .1],
+                                 [.1, .3, .3, .1],
+                                 [.1, .2, .2, .1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[.1, .2, .2, .1],
+                                    [.1, .3, .3, .1],
+                                    [.1, .2, .2, .1]])
+    
+        # Expected mark ###############
+
+        expected_mark = np.array([0., 0.])
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 3: perfect shape but 10 time the energy                        #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[10., 20., 20., 10.],
+                                 [10., 30., 30., 10.],
+                                 [10., 20., 20., 10.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 2., 2., 1.],
+                                    [1., 3., 3., 1.],
+                                    [1., 2., 2., 1.]])
+    
+        # Expected mark ###############
+
+        expected_mark = np.array([0., 9.])
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 4: perfect shape but the energy divided by 10                  #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[0.1, 0.2, 0.2, 0.1],
+                                 [0.1, 0.3, 0.3, 0.1],
+                                 [0.1, 0.2, 0.2, 0.1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 2., 2., 1.],
+                                    [1., 3., 3., 1.],
+                                    [1., 2., 2., 1.]])
+    
+        # Expected mark ###############
+
+        expected_mark = np.array([0., 0.9])
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 5: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 1., 1., 1., 2.],
+                                    [1., 1., 1., 1., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = np.array([0.02, 0.])
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 6: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[2., 2., 2., 2., 2.],
+                                    [0., 0., 0., 0., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = np.array([0.1, 0.])
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 7: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 1., 1., 1., 1.5],
+                                    [1., 1., 1., 1., 0.5]])
+    
+        # Expected mark ###############
+
+        expected_mark = np.array([0.01, 0.])
+
+        # Mark ########################
+
+        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_array_almost_equal(mark, expected_mark, decimal=10)
     
 
 if __name__ == '__main__':
