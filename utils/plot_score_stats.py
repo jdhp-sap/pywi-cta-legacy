@@ -29,13 +29,21 @@ if __name__ == '__main__':
     parser.add_argument("fileargs", nargs=1, metavar="FILE",
                         help="The JSON file to process")
 
+    parser.add_argument("--index", "-i", type=int, default=None, metavar="INT", 
+                        help="The index of the score to plot in case of multivalued scores")
+
     args = parser.parse_args()
+    score_index = args.index
     json_file_path = args.fileargs[0]
 
     # FETCH SCORE #############################################################
 
     score_dict = fetch_score(json_file_path)
     score_list = score_dict["score_list"]
+
+    if score_index is not None:
+        score_list = [score[score_index] for score in score_list] # TODO...
+
     score_list = [score for score in score_list if not math.isnan(score)]
 
     score_array = np.array(score_list)

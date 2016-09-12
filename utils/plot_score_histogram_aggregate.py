@@ -43,6 +43,9 @@ if __name__ == '__main__':
     parser.add_argument("--max", "-m", type=float, default=None, metavar="FLOAT", 
                         help="The maximum abscissa value to plot")
 
+    parser.add_argument("--index", "-i", type=int, default=None, metavar="INT", 
+                        help="The index of the score to plot in case of multivalued scores")
+
     parser.add_argument("--overlaid", "-O", action="store_true", default=False,
                         help="Overlaid histograms")
 
@@ -55,6 +58,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     max_abscissa = args.max
+    score_index = args.index
     overlaid = args.overlaid
     json_file_path_list = args.fileargs
 
@@ -73,6 +77,9 @@ if __name__ == '__main__':
     for json_file_path in json_file_path_list:
         score_dict = fetch_score(json_file_path)
         score_list = score_dict["score_list"]
+
+        if score_index is not None:
+            score_list = [score[score_index] for score in score_list] # TODO...
 
         score_list = [score for score in score_list if not math.isnan(score)] # TODO...
 
