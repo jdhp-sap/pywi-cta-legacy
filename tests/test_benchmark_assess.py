@@ -61,10 +61,10 @@ class TestAssess(unittest.TestCase):
         np.testing.assert_array_equal(output_img, expected_output_img)
 
 
-    # Test the "assess_image_cleaning_meth1bis" function ######################
+    # Test the "assess_image_cleaning_meth2" function #########################
 
-    def test_assess_image_cleaning_meth1bis_input(self):
-        """Check the input of the "assess_image_cleaning_meth1bis"
+    def test_assess_image_cleaning_meth2_input(self):
+        """Check the input of the "assess_image_cleaning_meth2"
         function."""
 
         #######################################################################
@@ -95,7 +95,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -130,7 +130,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -165,7 +165,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -200,15 +200,15 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
         np.testing.assert_array_equal(mark, expected_mark)
 
 
-    def test_assess_image_cleaning_meth1bis_output(self):
-        """Check the output of the "assess_image_cleaning_meth1bis"
+    def test_assess_image_cleaning_meth2_output(self):
+        """Check the output of the "assess_image_cleaning_meth2"
         function."""
 
         #######################################################################
@@ -237,7 +237,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -270,7 +270,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -303,7 +303,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -336,7 +336,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -367,7 +367,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -398,7 +398,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 
@@ -429,7 +429,7 @@ class TestAssess(unittest.TestCase):
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth1bis(input_image, output_image, reference_image)
+        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
 
         # Test ########################
 

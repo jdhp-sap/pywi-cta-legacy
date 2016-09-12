@@ -22,8 +22,8 @@
 
 __all__ = ['normalize',
            'assess_image_cleaning_meth1',
-           'assess_image_cleaning_meth1bis',
-           'assess_image_cleaning_meth2']
+           'assess_image_cleaning_meth2',
+           'assess_image_cleaning_meth3']
 
 import numpy as np
 from astropy.units import Quantity
@@ -166,7 +166,7 @@ def assess_image_cleaning_meth1(input_image, output_image, reference_image, norm
     return mark
 
 
-def assess_image_cleaning_meth1bis(input_image, output_image, reference_image):
+def assess_image_cleaning_meth2(input_image, output_image, reference_image):
     """
     TODO...
 
@@ -200,7 +200,7 @@ def assess_image_cleaning_meth1bis(input_image, output_image, reference_image):
     return mark
 
 
-def assess_image_cleaning_meth2(input_image, output_image, reference_image):
+def assess_image_cleaning_meth3(input_image, output_image, reference_image):
     """
     TODO...
 
