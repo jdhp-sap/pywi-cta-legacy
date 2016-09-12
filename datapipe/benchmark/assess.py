@@ -182,8 +182,9 @@ def assess_image_cleaning_meth1bis(input_image, output_image, reference_image):
 
     Returns
     -------
-    The mark (float number) of the image cleaning algorithm for the given
-    image.
+    mark : 1D Numpy array containing float numbers
+        The mark (float number) of the image cleaning algorithm for the given
+        image.
     """
     
     mark = None
@@ -193,8 +194,8 @@ def assess_image_cleaning_meth1bis(input_image, output_image, reference_image):
 
     if (sum_output_image > 0) and (sum_reference_image > 0):
         mark1 = np.mean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
-        mark2 = np.abs(sum_output_image - sum_reference_image) / (reference_image / sum_reference_image)
-        mark = (mark1, mark2)
+        mark2 = np.abs(sum_output_image - sum_reference_image) / sum_reference_image
+        mark = np.array([mark1, mark2])
 
     return mark
 
