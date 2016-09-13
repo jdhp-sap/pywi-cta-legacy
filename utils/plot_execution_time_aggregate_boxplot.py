@@ -39,7 +39,7 @@ if __name__ == '__main__':
     json_file_path_list = args.fileargs
 
     if args.output is None:
-        output_file_path = "execution_time.pdf"
+        output_file_path = "execution_time_boxplot.pdf"
     else:
         output_file_path = args.output
 
