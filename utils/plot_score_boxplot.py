@@ -44,7 +44,8 @@ if __name__ == '__main__':
     score_index = args.index
 
     if args.output is None:
-        output_file_path = "score_boxplot.pdf"
+        suffix = "_i" + str(score_index) if score_index is not None else ""
+        output_file_path = "score_boxplot{}.pdf".format(suffix)
     else:
         output_file_path = args.output
 
@@ -91,7 +92,8 @@ if __name__ == '__main__':
 
     ax1.legend(prop={'size': 18}, loc='upper left')
 
-    ax1.set_title("Score", fontsize=20)
+    suffix = " (index {})".format(score_index) if score_index is not None else ""
+    ax1.set_title("Score" + suffix, fontsize=20)
     ax1.set_ylabel("Score", fontsize=20)
 
     #plt.setp(ax1.get_xticklabels(), rotation='vertical', fontsize=16)

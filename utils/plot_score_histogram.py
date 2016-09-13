@@ -63,9 +63,10 @@ if __name__ == '__main__':
     json_file_path_list = args.fileargs
 
     if args.output is None:
-        prefix1 = "_o" if overlaid else ""
-        prefix2 = "_" + str(max_abscissa) if max_abscissa is not None else ""
-        output_file_path = "scores{}{}.pdf".format(prefix1, prefix2)
+        suffix1 = "_i" + str(score_index) if score_index is not None else ""
+        suffix2 = "_o" if overlaid else ""
+        suffix3 = "_" + str(max_abscissa) if max_abscissa is not None else ""
+        output_file_path = "scores{}{}{}.pdf".format(suffix1, suffix2, suffix3)
     else:
         output_file_path = args.output
 
