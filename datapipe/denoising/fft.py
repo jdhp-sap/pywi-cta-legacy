@@ -124,7 +124,9 @@ def main():
                         help="The output file path (JSON)")
 
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
-                        help="The files image to process (FITS)")
+                        help="The files image to process (FITS)."
+                             "If fileargs is a directory,"
+                             "all FITS files it contains are processed.")
 
     args = parser.parse_args()
 
@@ -132,54 +134,65 @@ def main():
     shift = args.shift
     threshold = args.threshold
     hdu_index = args.hdu
-    input_file_path_list = args.fileargs
+    input_file_or_dir_path_list = args.fileargs
 
     execution_time_list = []
 
     if benchmark_method > 0:
         score_list = []
 
-    for input_file_path in input_file_path_list:
+    for input_file_or_dir_path in input_file_or_dir_path_list:
 
-        # READ THE INPUT FILE ##################################################
+        if os.path.isdir(input_file_or_dir_path):
+            input_file_path_list = []
+            for dir_item in os.listdir(input_file_or_dir_path):
+                dir_item_path = os.path.join(input_file_or_dir_path, dir_item)
+                if dir_item_path.lower().endswith('.fits') and os.path.isfile(dir_item_path):
+                    input_file_path_list.append(dir_item_path)
+        else:
+            input_file_path_list = [input_file_or_dir_path]
 
-        input_img = images.load(input_file_path, hdu_index)
+        for input_file_path in input_file_path_list:
 
-        if input_img.ndim != 2:
-            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+            # READ THE INPUT FILE ##################################################
+
+            input_img = images.load(input_file_path, hdu_index)
+
+            if input_img.ndim != 2:
+                raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
 
-        # FOURIER TRANSFORM WITH NUMPY ########################################
+            # FOURIER TRANSFORM WITH NUMPY ########################################
 
-        base_file_path = os.path.basename(input_file_path)
-        base_file_path = os.path.splitext(base_file_path)[0]
+            base_file_path = os.path.basename(input_file_path)
+            base_file_path = os.path.splitext(base_file_path)[0]
 
-        initial_time = time.perf_counter()
-        filtered_img = fft(input_img, shift, threshold, base_file_path)
-        execution_time = time.perf_counter() - initial_time
-        execution_time_list.append(execution_time)
+            initial_time = time.perf_counter()
+            filtered_img = fft(input_img, shift, threshold, base_file_path)
+            execution_time = time.perf_counter() - initial_time
+            execution_time_list.append(execution_time)
 
-        try:
-            if benchmark_method == 1:
-                reference_img = images.load(input_file_path, 1)
-                score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
-                score_list.append(score)
-            elif benchmark_method == 2:
-                reference_img = images.load(input_file_path, 1)
-                score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
-                score_list.append(score.tolist())
-            else:
-                images.plot(abs(filtered_img),
-                            title="Denoised image")
-                images.mpl_save(abs(filtered_img),
-                                "{}_dft_denoised.pdf".format(base_file_path),
-                                title="Denoised image (DFT)")
-        except assess.EmptyReferenceImageError:
-            print("Empty reference image error")
-        except assess.EmptyOutputImageError:
-            # TODO: if only the output is zero then this is ackward: this
-            #       is an algorithm mistake but it cannot be assessed...
-            print("Empty output image error")
+            try:
+                if benchmark_method == 1:
+                    reference_img = images.load(input_file_path, 1)
+                    score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+                    score_list.append(score)
+                elif benchmark_method == 2:
+                    reference_img = images.load(input_file_path, 1)
+                    score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+                    score_list.append(score.tolist())
+                else:
+                    images.plot(abs(filtered_img),
+                                title="Denoised image")
+                    images.mpl_save(abs(filtered_img),
+                                    "{}_dft_denoised.pdf".format(base_file_path),
+                                    title="Denoised image (DFT)")
+            except assess.EmptyReferenceImageError:
+                print("Empty reference image error")
+            except assess.EmptyOutputImageError:
+                # TODO: if only the output is zero then this is ackward: this
+                #       is an algorithm mistake but it cannot be assessed...
+                print("Empty output image error")
 
     if benchmark_method > 0:
         print(score_list)
