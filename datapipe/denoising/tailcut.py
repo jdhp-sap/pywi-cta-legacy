@@ -113,14 +113,23 @@ def main():
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images (0: no benchmark, 1: normalized mean pixel value"
                              "difference, 2: Hillas parameters difference")
+
     parser.add_argument("--high_threshold", "-T", type=float, default=0, metavar="FLOAT", 
                         help="The 'high' threshold value (between 0 and 1)")
+
     parser.add_argument("--low_threshold", "-t", type=float, default=0, metavar="FLOAT", 
                         help="The 'low' threshold value (between 0 and 1)")
+
     parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
                         help="The index of the HDU image to use for FITS input files")
+
+    parser.add_argument("--output", "-o", default=None,
+                        metavar="FILE",
+                        help="The output file path (JSON)")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The files image to process (FITS)")
+
     args = parser.parse_args()
 
     benchmark_method = args.benchmark
@@ -190,7 +199,12 @@ def main():
         output_dict["score_list"] = score_list
         output_dict["execution_time_list"] = execution_time_list
 
-        with open("score_tailcut.json", "w") as fd:
+        if args.output is None:
+            output_file_path = "score_tailcut_benchmark_{}.json".format(benchmark_method)
+        else:
+            output_file_path = args.output
+
+        with open(output_file_path, "w") as fd:
             #json.dump(data, fd)                                 # no pretty print
             json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
 
