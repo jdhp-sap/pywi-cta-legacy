@@ -187,24 +187,31 @@ def main():
         execution_time = time.perf_counter() - initial_time
         execution_time_list.append(execution_time)
 
-        if benchmark_method == 1:
-            reference_img = images.load(input_file_path, 1)
-            score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
-            score_list.append(score)
-        elif benchmark_method == 2:
-            reference_img = images.load(input_file_path, 1)
-            score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
-            score_list.append(score.tolist())
-        else:
-            images.mpl_save(input_img,
-                            "{}.pdf".format(base_file_path),
-                            title="Original image")
-            images.mpl_save(filtered_img,
-                            "{}_wt_denoised.pdf".format(base_file_path),
-                            title="Denoised image (Wavelet Transform)")
+        try:
+            if benchmark_method == 1:
+                reference_img = images.load(input_file_path, 1)
+                score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
+                score_list.append(score)
+            elif benchmark_method == 2:
+                reference_img = images.load(input_file_path, 1)
+                score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
+                score_list.append(score.tolist())
+            else:
+                images.mpl_save(input_img,
+                                "{}.pdf".format(base_file_path),
+                                title="Original image")
+                images.mpl_save(filtered_img,
+                                "{}_wt_denoised.pdf".format(base_file_path),
+                                title="Denoised image (Wavelet Transform)")
 
-            images.plot(input_img, title="Original image")
-            images.plot(filtered_img, title="Denoised image")
+                images.plot(input_img, title="Original image")
+                images.plot(filtered_img, title="Denoised image")
+        except assess.EmptyReferenceImageError:
+            print("Empty reference image error")
+        except assess.EmptyOutputImageError:
+            # TODO: if only the output is zero then this is ackward: this
+            #       is an algorithm mistake but it cannot be assessed...
+            print("Empty output image error")
 
     if benchmark_method > 0:
         print(score_list)
