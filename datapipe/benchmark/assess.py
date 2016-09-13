@@ -29,6 +29,16 @@ from astropy.units import Quantity
 import astropy.units as u
 
 
+class AssessError(Exception):
+    pass
+
+class EmptyOutputImageError(AssessError):
+    pass
+
+class EmptyReferenceImageError(AssessError):
+    pass
+
+
 def normalize(input_array):
     """Normalize the given image such that its pixels value fit between 0.0 and
     1.0.
@@ -101,15 +111,18 @@ def assess_image_cleaning_meth2(input_image, output_image, reference_image):
         image.
     """
     
-    mark = None
-
     sum_output_image = float(np.sum(output_image))
     sum_reference_image = float(np.sum(reference_image))
 
-    if (sum_output_image > 0) and (sum_reference_image > 0):
-        mark1 = np.mean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
-        mark2 = np.abs(sum_output_image - sum_reference_image) / sum_reference_image
-        mark = np.array([mark1, mark2])
+    if sum_output_image <= 0:                 # TODO
+        raise EmptyOutputImageError()
+
+    if sum_reference_image <= 0:              # TODO
+        raise EmptyReferenceImageError()
+
+    mark1 = np.mean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
+    mark2 = np.abs(sum_output_image - sum_reference_image) / sum_reference_image
+    mark = np.array([mark1, mark2])
 
     return mark
 
