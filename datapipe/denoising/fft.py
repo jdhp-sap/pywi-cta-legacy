@@ -103,12 +103,11 @@ def main():
 
     # PARSE OPTIONS ###########################################################
 
-    parser = argparse.ArgumentParser(description="Denoise FITS and PNG images with DFT.")
+    parser = argparse.ArgumentParser(description="Denoise FITS images with DFT.")
 
-    parser.add_argument("--benchmark", "-b", type=int, default=0, metavar="INTEGER", 
+    parser.add_argument("--benchmark", "-b", metavar="STRING", 
                         help="The benchmark method to use to assess the algorithm for the"
-                             "given images (0: no benchmark, 1: normalized mean pixel value"
-                             "difference, 2: Hillas parameters difference")
+                             "given images")
 
     parser.add_argument("--shift", "-s", action="store_true", default=False,
                         help="Shift the zero to the center")
@@ -138,7 +137,7 @@ def main():
 
     execution_time_list = []
 
-    if benchmark_method > 0:
+    if benchmark_method is not None:
         score_list = []
 
     for input_file_or_dir_path in input_file_or_dir_path_list:
@@ -161,7 +160,6 @@ def main():
             if input_img.ndim != 2:
                 raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-
             # FOURIER TRANSFORM WITH NUMPY ########################################
 
             base_file_path = os.path.basename(input_file_path)
@@ -172,21 +170,21 @@ def main():
             execution_time = time.perf_counter() - initial_time
             execution_time_list.append(execution_time)
 
+            # GET THE REFERENCE IMAGE #############################################
+
+            reference_img = images.load(input_file_path, 1)
+
+            # ASSESS OR PRINT THE CLEANED IMAGE ###################################
+
             try:
-                if benchmark_method == 1:
-                    reference_img = images.load(input_file_path, 1)
-                    score = assess.assess_image_cleaning_meth1(input_img, filtered_img, reference_img)
-                    score_list.append(score)
-                elif benchmark_method == 2:
-                    reference_img = images.load(input_file_path, 1)
-                    score = assess.assess_image_cleaning_meth2(input_img, filtered_img, reference_img)
-                    score_list.append(score.tolist())
-                else:
-                    images.plot(abs(filtered_img),
-                                title="Denoised image")
+                if benchmark_method is None:
+                    images.plot(abs(filtered_img), title="Denoised image")
                     images.mpl_save(abs(filtered_img),
                                     "{}_dft_denoised.pdf".format(base_file_path),
                                     title="Denoised image (DFT)")
+                else:
+                    score_tuple = assess.assess_image_cleaning(input_img, filtered_img, reference_img, benchmark_method)
+                    score_list.append(score_tuple)
             except assess.EmptyReferenceImageError:
                 print("Empty reference image error")
             except assess.EmptyOutputImageError:
@@ -194,7 +192,7 @@ def main():
                 #       is an algorithm mistake but it cannot be assessed...
                 print("Empty output image error")
 
-    if benchmark_method > 0:
+    if benchmark_method is not None:
         print(score_list)
 
         output_dict = {}

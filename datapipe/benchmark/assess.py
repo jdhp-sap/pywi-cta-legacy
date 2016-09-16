@@ -21,15 +21,22 @@
 # THE SOFTWARE.
 
 __all__ = ['normalize',
-           'assess_image_cleaning_meth1',
-           'assess_image_cleaning_meth2']
+           'list_assess_methods',
+           'assess_image_cleaning']
 
 import numpy as np
 from astropy.units import Quantity
 import astropy.units as u
 
+import sys
+
+
+# EXCEPTIONS #################################################################
 
 class AssessError(Exception):
+    pass
+
+class UnknownMethod(AssessError):
     pass
 
 class EmptyOutputImageError(AssessError):
@@ -38,6 +45,10 @@ class EmptyOutputImageError(AssessError):
 class EmptyReferenceImageError(AssessError):
     pass
 
+
+# ASSESS FUNCTIONS ###########################################################
+
+# Mean Pixel Difference with Normalization (mpd)
 
 def normalize(input_array):
     """Normalize the given image such that its pixels value fit between 0.0 and
@@ -57,15 +68,12 @@ def normalize(input_array):
     output_array = (input_array - input_array.min()) / (input_array.max() - input_array.min())
     return output_array
 
-
-def assess_image_cleaning_meth1(input_image, output_image, reference_image, normalize_images=True):
+def assess_image_cleaning_meth1(input_img, output_image, reference_image, params=None):
     """
     TODO...
 
     Parameters
     ----------
-    input_image: 2D numpy.array
-        The RAW original image.
     output_image: 2D numpy.array
         The cleaned image returned by the image cleanning algorithm to assess.
     reference_image: 2D numpy.array
@@ -78,26 +86,24 @@ def assess_image_cleaning_meth1(input_image, output_image, reference_image, norm
     image.
     """
     
-    mark = None
-
-    if normalize_images:
+    if (params is not None) and ('normalize_images' in params) and (params['normalize_images']):
         normalized_diff_array = normalize(output_image) - normalize(reference_image)
         mark = np.mean(np.abs(normalized_diff_array))
     else:
         diff_array = output_image - reference_image
         mark = np.mean(np.abs(diff_array))
 
-    return mark
+    return (mark,)
 
 
-def assess_image_cleaning_meth2(input_image, output_image, reference_image):
+# Mean Pixel Difference + Total PhotoElectron Difference (mpdspd)
+
+def assess_image_cleaning_meth2(input_img, output_image, reference_image, params=None):
     """
     TODO...
 
     Parameters
     ----------
-    input_image: 2D numpy.array
-        The RAW original image.
     output_image: 2D numpy.array
         The cleaned image returned by the image cleanning algorithm to assess.
     reference_image: 2D numpy.array
@@ -122,7 +128,83 @@ def assess_image_cleaning_meth2(input_image, output_image, reference_image):
 
     mark1 = np.mean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
     mark2 = np.abs(sum_output_image - sum_reference_image) / sum_reference_image
-    mark = np.array([mark1, mark2])
 
-    return mark
+    return (mark1, mark2)
+
+
+# Signed Total PhotoElectron Difference (sspd)
+
+def assess_image_cleaning_meth3(input_img, output_image, reference_image, params=None):
+    """
+    TODO...
+
+    Parameters
+    ----------
+    output_image: 2D numpy.array
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_image: 2D numpy.array
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+
+    Returns
+    -------
+    mark : 1D Numpy array containing float numbers
+        The mark (float number) of the image cleaning algorithm for the given
+        image.
+    """
+    
+    sum_output_image = float(np.sum(output_image))
+    sum_reference_image = float(np.sum(reference_image))
+
+    if sum_output_image <= 0:                 # TODO
+        raise EmptyOutputImageError()
+
+    if sum_reference_image <= 0:              # TODO
+        raise EmptyReferenceImageError()
+
+    mark = (sum_output_image - sum_reference_image) / sum_reference_image
+
+    return (mark,)
+
+
+# ASSESS FUNCTIONS DRIVER ####################################################
+
+METHOD_DICT = {
+    "mpd":    assess_image_cleaning_meth1,
+    "mpdspd": assess_image_cleaning_meth2,
+    "sspd":   assess_image_cleaning_meth3
+}
+
+def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
+    """TODO...
+
+    Parameters
+    ----------
+    input_img: 2D numpy.array
+        The RAW original image.
+    output_img: 2D numpy.array
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_img: 2D numpy.array
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+
+    Returns
+    -------
+    mark : a tuple of float numbers
+        The mark (may be multivalued) of the image cleaning algorithm for the
+        given image.
+    """
+
+    try:
+        score_tuple = METHOD_DICT[benchmark_method](input_img, output_img, reference_img, params)
+    except KeyError:
+        raise UnknownMethod()
+
+    return score_tuple
+
+def list_assess_methods():
+    """TODO...
+    """
+
+    return METHOD_DICT.keys()
 
