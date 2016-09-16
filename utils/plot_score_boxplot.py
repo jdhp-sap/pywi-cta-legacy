@@ -32,7 +32,7 @@ if __name__ == '__main__':
                         metavar="FILE",
                         help="The output file path")
 
-    parser.add_argument("--index", "-i", type=int, default=None, metavar="INT", 
+    parser.add_argument("--index", "-i", type=int, default=0, metavar="INT", 
                         help="The index of the score to plot in case of multivalued scores")
 
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     score_index = args.index
 
     if args.output is None:
-        suffix = "_i" + str(score_index) if score_index is not None else ""
+        suffix = "_i" + str(score_index)
         output_file_path = "score_boxplot{}.pdf".format(suffix)
     else:
         output_file_path = args.output
@@ -58,9 +58,7 @@ if __name__ == '__main__':
         score_dict = fetch_data(json_file_path)
         score_list = score_dict["score_list"]
 
-        if score_index is not None:
-            score_list = [score[score_index] for score in score_list] # TODO...
-
+        score_list = [score[score_index] for score in score_list] # TODO...
         score_list = [score for score in score_list if not math.isnan(score)]
 
         score_array = np.array(score_list)
@@ -92,7 +90,7 @@ if __name__ == '__main__':
 
     ax1.legend(prop={'size': 18}, loc='upper left')
 
-    suffix = " (index {})".format(score_index) if score_index is not None else ""
+    suffix = " (index {})".format(score_index)
     ax1.set_title("Score" + suffix, fontsize=20)
     ax1.set_ylabel("Score", fontsize=20)
 

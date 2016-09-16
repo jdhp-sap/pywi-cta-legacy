@@ -43,7 +43,7 @@ if __name__ == '__main__':
     parser.add_argument("--max", "-m", type=float, default=None, metavar="FLOAT", 
                         help="The maximum abscissa value to plot")
 
-    parser.add_argument("--index", "-i", type=int, default=None, metavar="INT", 
+    parser.add_argument("--index", "-i", type=int, default=0, metavar="INT", 
                         help="The index of the score to plot in case of multivalued scores")
 
     parser.add_argument("--overlaid", "-O", action="store_true", default=False,
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     json_file_path_list = args.fileargs
 
     if args.output is None:
-        suffix1 = "_i" + str(score_index) if score_index is not None else ""
+        suffix1 = "_i" + str(score_index)
         suffix2 = "_o" if overlaid else ""
         suffix3 = "_" + str(max_abscissa) if max_abscissa is not None else ""
         output_file_path = "scores{}{}{}.pdf".format(suffix1, suffix2, suffix3)
@@ -79,9 +79,7 @@ if __name__ == '__main__':
         score_dict = fetch_score(json_file_path)
         score_list = score_dict["score_list"]
 
-        if score_index is not None:
-            score_list = [score[score_index] for score in score_list] # TODO...
-
+        score_list = [score[score_index] for score in score_list] # TODO...
         score_list = [score for score in score_list if not math.isnan(score)] # TODO...
 
         if max_abscissa is not None:
