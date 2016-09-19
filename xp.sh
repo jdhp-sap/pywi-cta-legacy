@@ -58,22 +58,22 @@ rm *.fits
 # PLOT SCORES
 
 echo "" & echo "* SCORE PROTON MPD BOXPLOT ***********" & ./utils/plot_score_boxplot.py   -q                   -o score_proton_mpd_boxplot.pdf         score_proton_mpd_*.json
-echo "" & echo "* SCORE PROTON MPDSDP I0 BOXPLOT *****" & ./utils/plot_score_boxplot.py   -q               -i0 -o score_proton_mpdsdp_i0_boxplot.pdf   score_proton_mpdspd_*.json
-echo "" & echo "* SCORE PROTON MPDSDP I1 BOXPLOT *****" & ./utils/plot_score_boxplot.py   -q               -i1 -o score_proton_mpdsdp_i1_boxplot.pdf   score_proton_mpdspd_*.json
+echo "" & echo "* SCORE PROTON MPDSDP I0 BOXPLOT *****" & ./utils/plot_score_boxplot.py   -q               -i0 -o score_proton_mpdspd_i0_boxplot.pdf   score_proton_mpdspd_*.json
+echo "" & echo "* SCORE PROTON MPDSDP I1 BOXPLOT *****" & ./utils/plot_score_boxplot.py   -q               -i1 -o score_proton_mpdspd_i1_boxplot.pdf   score_proton_mpdspd_*.json
 echo "" & echo "* SCORE PROTON SSPD BOXPLOT **********" & ./utils/plot_score_boxplot.py   -q                   -o score_proton_sspd_boxplot.pdf        score_proton_sspd_*.json
 
 echo "" & echo "* SCORE PROTON MPD HISTOGRAM *********" & ./utils/plot_score_histogram.py -q --logx --logy     -o score_proton_mpd_histogram.pdf       score_proton_mpd_*.json
-echo "" & echo "* SCORE PROTON MPDSDP I0 HISTOGRAM ***" & ./utils/plot_score_histogram.py -q --logx --logy -i0 -o score_proton_mpdsdp_i0_histogram.pdf score_proton_mpdspd_*.json
-echo "" & echo "* SCORE PROTON MPDSDP I1 HISTOGRAM ***" & ./utils/plot_score_histogram.py -q --logx --logy -i1 -o score_proton_mpdsdp_i1_histogram.pdf score_proton_mpdspd_*.json
+echo "" & echo "* SCORE PROTON MPDSDP I0 HISTOGRAM ***" & ./utils/plot_score_histogram.py -q --logx --logy -i0 -o score_proton_mpdspd_i0_histogram.pdf score_proton_mpdspd_*.json
+echo "" & echo "* SCORE PROTON MPDSDP I1 HISTOGRAM ***" & ./utils/plot_score_histogram.py -q --logx --logy -i1 -o score_proton_mpdspd_i1_histogram.pdf score_proton_mpdspd_*.json
 echo "" & echo "* SCORE PROTON SSPD HISTOGRAM ********" & ./utils/plot_score_histogram.py -q        --logy     -o score_proton_sspd_histogram.pdf      score_proton_sspd_*.json
 
 echo "" & echo "* SCORE GAMMA MPD BOXPLOT ************" & ./utils/plot_score_boxplot.py   -q                   -o score_gamma_mpd_boxplot.pdf          score_gamma_mpd_*.json
-echo "" & echo "* SCORE GAMMA MPDSDP I0 BOXPLOT ******" & ./utils/plot_score_boxplot.py   -q               -i0 -o score_gamma_mpdsdp_i0_boxplot.pdf    score_gamma_mpdspd_*.json
-echo "" & echo "* SCORE GAMMA MPDSDP I1 BOXPLOT ******" & ./utils/plot_score_boxplot.py   -q               -i1 -o score_gamma_mpdsdp_i1_boxplot.pdf    score_gamma_mpdspd_*.json
+echo "" & echo "* SCORE GAMMA MPDSDP I0 BOXPLOT ******" & ./utils/plot_score_boxplot.py   -q               -i0 -o score_gamma_mpdspd_i0_boxplot.pdf    score_gamma_mpdspd_*.json
+echo "" & echo "* SCORE GAMMA MPDSDP I1 BOXPLOT ******" & ./utils/plot_score_boxplot.py   -q               -i1 -o score_gamma_mpdspd_i1_boxplot.pdf    score_gamma_mpdspd_*.json
 echo "" & echo "* SCORE GAMMA SSPD BOXPLOT ***********" & ./utils/plot_score_boxplot.py   -q                   -o score_gamma_sspd_boxplot.pdf         score_gamma_sspd_*.json
 
 echo "" & echo "* SCORE GAMMA MPD HISTOGRAM **********" & ./utils/plot_score_histogram.py -q --logx --logy     -o score_gamma_mpd_histogram.pdf        score_gamma_mpd_*.json
-echo "" & echo "* SCORE GAMMA MPDSDP I0 HISTOGRAM ****" & ./utils/plot_score_histogram.py -q --logx --logy -i0 -o score_gamma_mpdsdp_i0_histogram.pdf  score_gamma_mpdspd_*.json
-echo "" & echo "* SCORE GAMMA MPDSDP I1 HISTOGRAM ****" & ./utils/plot_score_histogram.py -q --logx --logy -i1 -o score_gamma_mpdsdp_i1_histogram.pdf  score_gamma_mpdspd_*.json
+echo "" & echo "* SCORE GAMMA MPDSDP I0 HISTOGRAM ****" & ./utils/plot_score_histogram.py -q --logx --logy -i0 -o score_gamma_mpdspd_i0_histogram.pdf  score_gamma_mpdspd_*.json
+echo "" & echo "* SCORE GAMMA MPDSDP I1 HISTOGRAM ****" & ./utils/plot_score_histogram.py -q --logx --logy -i1 -o score_gamma_mpdspd_i1_histogram.pdf  score_gamma_mpdspd_*.json
 echo "" & echo "* SCORE GAMMA SSPD HISTOGRAM *********" & ./utils/plot_score_histogram.py -q        --logy     -o score_gamma_sspd_histogram.pdf       score_gamma_sspd_*.json
 
