@@ -94,9 +94,9 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft", verbose=Fals
     if shift:
         filtered_transformed_img = np.fft.ifftshift(filtered_transformed_img)
 
-    filtered_img = np.fft.ifft2(filtered_transformed_img)
+    cleaned_img = np.fft.ifft2(filtered_transformed_img)
     
-    return filtered_img
+    return cleaned_img
 
 
 def main():
@@ -166,7 +166,7 @@ def main():
             base_file_path = os.path.splitext(base_file_path)[0]
 
             initial_time = time.perf_counter()
-            filtered_img = fft(input_img, shift, threshold, base_file_path)
+            cleaned_img = abs(fft(input_img, shift, threshold, base_file_path))  # TODO: abs(...)
             execution_time = time.perf_counter() - initial_time
 
             # GET THE REFERENCE IMAGE #############################################
@@ -177,12 +177,14 @@ def main():
 
             try:
                 if benchmark_method is None:
-                    images.plot(abs(filtered_img), title="Denoised image")
-                    images.mpl_save(abs(filtered_img),
-                                    "{}_dft_denoised.pdf".format(base_file_path),
-                                    title="Denoised image (DFT)")
+                    image_list = [input_img, reference_img, cleaned_img] 
+                    title_list = ["Input image", "Reference image", "Cleaned image"] 
+                    output = "{}_dft.pdf".format(base_file_path)
+
+                    images.plot_list(image_list, title_list)
+                    images.mpl_save_list(image_list, output, title_list)
                 else:
-                    score_tuple = assess.assess_image_cleaning(input_img, filtered_img, reference_img, benchmark_method)
+                    score_tuple = assess.assess_image_cleaning(input_img, cleaned_img, reference_img, benchmark_method)
 
                     file_path_list.append(input_file_path)
                     score_list.append(score_tuple)

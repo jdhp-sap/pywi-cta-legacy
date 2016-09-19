@@ -102,7 +102,7 @@ def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", v
 
             #img_mask = abs(img) > (img_sigma * 3.)  
             img_mask = img > (img_sigma * 3.)
-            filtered_img = img * img_mask
+            cleaned_img = img * img_mask
 
             if verbose:
                 images.mpl_save(img,
@@ -111,17 +111,17 @@ def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", v
                 images.mpl_save(img_mask,
                                 "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
                                 title="Binary mask for plane {}".format(img_index))
-                images.mpl_save(filtered_img,
+                images.mpl_save(cleaned_img,
                                 "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
                                 title="Filtered plane {}".format(img_index))
 
                 images.plot(img, title="Plane {}".format(img_index))
                 images.plot(img_mask, title="Binary mask for plane {}".format(img_index))
-                images.plot(filtered_img, title="Filtered plane {}".format(img_index))
+                images.plot(cleaned_img, title="Filtered plane {}".format(img_index))
 
             # Sum the plane ################################
 
-            denoised_img = denoised_img + filtered_img
+            denoised_img = denoised_img + cleaned_img
 
         else:   # The last plane should be kept unmodified
 
@@ -202,7 +202,7 @@ def main():
             base_file_path = os.path.splitext(base_file_path)[0]
 
             initial_time = time.perf_counter()
-            filtered_img = wavelet_transform(input_img, number_of_scales, base_file_path)
+            cleaned_img = wavelet_transform(input_img, number_of_scales, base_file_path)
             execution_time = time.perf_counter() - initial_time
 
             # GET THE REFERENCE IMAGE #############################################
@@ -213,17 +213,14 @@ def main():
 
             try:
                 if benchmark_method is None:
-                    images.mpl_save(input_img,
-                                    "{}.pdf".format(base_file_path),
-                                    title="Original image")
-                    images.mpl_save(filtered_img,
-                                    "{}_wt_denoised.pdf".format(base_file_path),
-                                    title="Denoised image (Wavelet Transform)")
+                    image_list = [input_img, reference_img, cleaned_img] 
+                    title_list = ["Input image", "Reference image", "Cleaned image"] 
+                    output = "{}_wt.pdf".format(base_file_path)
 
-                    images.plot(input_img, title="Original image")
-                    images.plot(filtered_img, title="Denoised image")
+                    images.plot_list(image_list, title_list)
+                    images.mpl_save_list(image_list, output, title_list)
                 else:
-                    score_tuple = assess.assess_image_cleaning(input_img, filtered_img, reference_img, benchmark_method)
+                    score_tuple = assess.assess_image_cleaning(input_img, cleaned_img, reference_img, benchmark_method)
 
                     file_path_list.append(input_file_path)
                     score_list.append(score_tuple)

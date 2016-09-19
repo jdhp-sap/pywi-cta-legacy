@@ -98,9 +98,9 @@ def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut", ve
 
     # APPLY MASK ##########################################
 
-    filtered_img = img * final_mask
+    cleaned_img = img * final_mask
 
-    return filtered_img
+    return cleaned_img
 
 
 def main():
@@ -171,7 +171,7 @@ def main():
             base_file_path = os.path.splitext(base_file_path)[0]
 
             initial_time = time.perf_counter()
-            filtered_img = tailcut(input_img, high_threshold, low_threshold)
+            cleaned_img = tailcut(input_img, high_threshold, low_threshold)
             execution_time = time.perf_counter() - initial_time
 
             # GET THE REFERENCE IMAGE #############################################
@@ -182,13 +182,14 @@ def main():
 
             try:
                 if benchmark_method is None:
-                    images.plot(input_img, title="Original image")
-                    images.plot(filtered_img, title="Denoised image")
-                    images.mpl_save(filtered_img,
-                                    "{}_tailcut_denoised.pdf".format(base_file_path),
-                                    title="Denoised image (Tailcut)")
+                    image_list = [input_img, reference_img, cleaned_img] 
+                    title_list = ["Input image", "Reference image", "Cleaned image"] 
+                    output = "{}_tailcut.pdf".format(base_file_path)
+
+                    images.plot_list(image_list, title_list)
+                    images.mpl_save_list(image_list, output, title_list)
                 else:
-                    score_tuple = assess.assess_image_cleaning(input_img, filtered_img, reference_img, benchmark_method)
+                    score_tuple = assess.assess_image_cleaning(input_img, cleaned_img, reference_img, benchmark_method)
 
                     file_path_list.append(input_file_path)
                     score_list.append(score_tuple)
