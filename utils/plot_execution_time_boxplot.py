@@ -15,10 +15,8 @@ import numpy as np
 
 
 def fetch_data(json_file_path):
-
     with open(json_file_path, "r") as fd:
         score_dict = json.load(fd)
-
     return score_dict
 
 
@@ -32,10 +30,15 @@ if __name__ == '__main__':
                         metavar="FILE",
                         help="The output file path")
 
+    parser.add_argument("--quiet", "-q", action="store_true",
+                        help="Don't show the plot, just save it")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
     args = parser.parse_args()
+
+    quiet = args.quiet
     json_file_path_list = args.fileargs
 
     if args.output is None:
@@ -94,5 +97,7 @@ if __name__ == '__main__':
     # Save file and plot ########
 
     plt.savefig(output_file_path, bbox_inches='tight')
-    plt.show()
+
+    if not quiet:
+        plt.show()
 

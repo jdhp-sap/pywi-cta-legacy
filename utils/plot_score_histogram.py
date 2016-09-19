@@ -79,6 +79,9 @@ if __name__ == '__main__':
                         metavar="FILE",
                         help="The output file path")
 
+    parser.add_argument("--quiet", "-q", action="store_true",
+                        help="Don't show the plot, just save it")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
@@ -89,6 +92,7 @@ if __name__ == '__main__':
     max_abscissa = args.max
     score_index = args.index
     overlaid = args.overlaid
+    quiet = args.quiet
     json_file_path_list = args.fileargs
 
     if args.output is None:
@@ -153,5 +157,7 @@ if __name__ == '__main__':
     # Save file and plot ########
 
     plt.savefig(output_file_path, bbox_inches='tight')
-    plt.show()
+
+    if not quiet:
+        plt.show()
 
