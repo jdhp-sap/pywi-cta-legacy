@@ -197,6 +197,7 @@ def main():
 
         output_dict = {}
         output_dict["algo"] = __file__
+        output_dict["label"] = "FFT"
         output_dict["algo_params"] = {"threshold": threshold}
         output_dict["benchmark_method"] = benchmark_method
         output_dict["date_time"] = str(datetime.datetime.now())

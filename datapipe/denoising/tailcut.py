@@ -203,6 +203,7 @@ def main():
 
         output_dict = {}
         output_dict["algo"] = __file__
+        output_dict["label"] = "Tailcut"
         output_dict["algo_params"] = {"high_threshold": high_threshold, "low_threshold": low_threshold}
         output_dict["benchmark_method"] = benchmark_method
         output_dict["date_time"] = str(datetime.datetime.now())

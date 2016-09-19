@@ -238,6 +238,7 @@ def main():
 
         output_dict = {}
         output_dict["algo"] = __file__
+        output_dict["label"] = "WT"
         output_dict["algo_params"] = {"number_of_scales": number_of_scales}
         output_dict["benchmark_method"] = benchmark_method
         output_dict["date_time"] = str(datetime.datetime.now())
