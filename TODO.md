@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] Rename this project "SAp CTA Data Pipeline"
 - [ ] Simtel should be a class to load files only once
 - [ ] Add the following command: "dp-simtel-ls-telescopes [telid]" (dp-simtel-count is based on this function)
 - [ ] Add the following command: "dp-simtel-ls-events [evid]"
