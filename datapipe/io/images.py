@@ -66,6 +66,8 @@ def save(img, output_file_path, min_val=None, max_val=None):
 
 # MATPLOTLIB ##################################################################
 
+COLOR_MAP = "gnuplot2" # "gray"
+
 def mpl_save(img, output_file_path, title=""):
     """
     img should be a 2D numpy array.
@@ -73,7 +75,14 @@ def mpl_save(img, output_file_path, title=""):
     fig = plt.figure(figsize=(8.0, 8.0))
     ax = fig.add_subplot(111)
     ax.set_title(title, fontsize=24)
-    ax.imshow(img, interpolation='nearest', cmap=cm.gray)
+
+    im = ax.imshow(img,
+                   origin='lower',
+                   interpolation='nearest',
+                   cmap=COLOR_MAP)
+
+    plt.colorbar(im) # draw the colorbar
+
     plt.savefig(output_file_path, bbox_inches='tight')
     plt.close('all')
 
@@ -85,6 +94,52 @@ def plot(img, title=""):
     fig = plt.figure(figsize=(8.0, 8.0))
     ax = fig.add_subplot(111)
     ax.set_title(title)
-    ax.imshow(img, interpolation='nearest', cmap=cm.gray)
+
+    im = ax.imshow(img,
+                   origin='lower',
+                   interpolation='nearest',
+                   cmap=COLOR_MAP)
+
+    plt.colorbar(im) # draw the colorbar
+
+    plt.show()
+
+
+def mpl_save_list(img_list, output_file_path, title_list):
+    """
+    img should be a list of 2D numpy array.
+    """
+    fig, ax_tuple = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+
+    for img, title, ax in zip(img_list, title_list, ax_tuple):
+        ax.set_title(title, fontsize=18)
+
+        im = ax.imshow(img,
+                       origin='lower',
+                       interpolation='nearest',
+                       cmap=COLOR_MAP)
+
+        plt.colorbar(im, ax=ax) # draw the colorbar
+
+    plt.savefig(output_file_path, bbox_inches='tight')
+    plt.close('all')
+
+
+def plot_list(img_list, title_list):
+    """
+    img should be a list of 2D numpy array.
+    """
+    fig, ax_tuple = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+
+    for img, title, ax in zip(img_list, title_list, ax_tuple):
+        ax.set_title(title)
+
+        im = ax.imshow(img,
+                       origin='lower',
+                       interpolation='nearest',
+                       cmap=COLOR_MAP)
+
+        plt.colorbar(im, ax=ax) # draw the colorbar
+
     plt.show()
 
