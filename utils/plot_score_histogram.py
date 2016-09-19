@@ -79,6 +79,10 @@ if __name__ == '__main__':
                         metavar="FILE",
                         help="The output file path")
 
+    parser.add_argument("--title", default=None,
+                        metavar="STRING",
+                        help="The title of the plot")
+
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
@@ -92,6 +96,7 @@ if __name__ == '__main__':
     max_abscissa = args.max
     score_index = args.index
     overlaid = args.overlaid
+    title = args.title
     quiet = args.quiet
     json_file_path_list = args.fileargs
 
@@ -130,7 +135,7 @@ if __name__ == '__main__':
 
     # PLOT STATISTICS #########################################################
 
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
     plot_hist(ax1, result_list, label_list, logx, logy, overlaid)
 
@@ -139,7 +144,12 @@ if __name__ == '__main__':
 
     ax1.legend(prop={'size': 20})
 
-    ax1.set_title("Score", fontsize=20)
+    if title is not None:
+        ax1.set_title(title, fontsize=20)
+    else:
+        suffix = " (index {})".format(score_index)
+        ax1.set_title("Score" + suffix, fontsize=20)
+
     ax1.set_xlabel("Score", fontsize=20)
     ax1.set_ylabel("Count", fontsize=20)
 

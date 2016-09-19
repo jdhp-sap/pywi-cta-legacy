@@ -30,6 +30,10 @@ if __name__ == '__main__':
                         metavar="FILE",
                         help="The output file path")
 
+    parser.add_argument("--title", default=None,
+                        metavar="STRING",
+                        help="The title of the plot")
+
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
@@ -38,6 +42,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    title = args.title
     quiet = args.quiet
     json_file_path_list = args.fileargs
 
@@ -67,7 +72,7 @@ if __name__ == '__main__':
 
     # PLOT STATISTICS #########################################################
 
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
     meanpointprops = dict(marker='*', markeredgecolor='black', markerfacecolor='firebrick')
     whiskerprops = dict(color='k', linestyle='-')
@@ -86,7 +91,11 @@ if __name__ == '__main__':
 
     ax1.legend(prop={'size': 18}, loc='upper left')
 
-    ax1.set_title("Execution time", fontsize=20)
+    if title is not None:
+        ax1.set_title(title, fontsize=20)
+    else:
+        ax1.set_title("Execution time", fontsize=20)
+
     ax1.set_ylabel("Execution time (seconds)", fontsize=20)
 
     #plt.setp(ax1.get_xticklabels(), rotation='vertical', fontsize=16)
