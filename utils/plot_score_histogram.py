@@ -7,7 +7,7 @@ Make statistics on score files (stored in JSON files).
 
 import argparse
 import json
-import math
+#import math
 import os
 
 import matplotlib.pyplot as plt
@@ -118,7 +118,7 @@ if __name__ == '__main__':
         score_list = score_dict["score_list"]
 
         score_list = [score[score_index] for score in score_list] # TODO...
-        score_list = [score for score in score_list if not math.isnan(score)] # TODO...
+        #score_list = [score for score in score_list if not math.isnan(score)] # TODO...
 
         if max_abscissa is not None:
             score_list = [score for score in score_list if score <= max_abscissa]

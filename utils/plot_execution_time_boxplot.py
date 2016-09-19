@@ -7,7 +7,6 @@ Make statistics on score files (stored in JSON files).
 
 import argparse
 import json
-import math
 import os
 
 import matplotlib.pyplot as plt
