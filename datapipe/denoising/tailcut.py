@@ -139,10 +139,10 @@ def main():
     hdu_index = args.hdu
     input_file_or_dir_path_list = args.fileargs
 
-    execution_time_list = []
-
     if benchmark_method is not None:
+        file_path_list = []
         score_list = []
+        execution_time_list = []
 
     for input_file_or_dir_path in input_file_or_dir_path_list:
 
@@ -173,7 +173,6 @@ def main():
             initial_time = time.perf_counter()
             filtered_img = tailcut(input_img, high_threshold, low_threshold)
             execution_time = time.perf_counter() - initial_time
-            execution_time_list.append(execution_time)
 
             # GET THE REFERENCE IMAGE #############################################
 
@@ -190,7 +189,10 @@ def main():
                                     title="Denoised image (Tailcut)")
                 else:
                     score_tuple = assess.assess_image_cleaning(input_img, filtered_img, reference_img, benchmark_method)
+
+                    file_path_list.append(input_file_path)
                     score_list.append(score_tuple)
+                    execution_time_list.append(execution_time)
             except assess.EmptyReferenceImageError:
                 print("Empty reference image error")
             except assess.EmptyOutputImageError:
@@ -209,7 +211,7 @@ def main():
         output_dict["date_time"] = str(datetime.datetime.now())
         output_dict["hdu_index"] = hdu_index
         output_dict["system"] = " ".join(os.uname())
-        output_dict["input_file_path_list"] = input_file_path_list
+        output_dict["input_file_path_list"] = file_path_list
         output_dict["score_list"] = score_list
         output_dict["execution_time_list"] = execution_time_list
 
