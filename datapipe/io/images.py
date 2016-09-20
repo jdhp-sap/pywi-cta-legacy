@@ -109,7 +109,7 @@ def mpl_save_list(img_list, output_file_path, title_list):
     """
     img should be a list of 2D numpy array.
     """
-    fig, ax_tuple = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+    fig, ax_tuple = plt.subplots(nrows=1, ncols=len(img_list), figsize=(12, 4))
 
     for img, title, ax in zip(img_list, title_list, ax_tuple):
         ax.set_title(title, fontsize=18)
@@ -129,7 +129,7 @@ def plot_list(img_list, title_list):
     """
     img should be a list of 2D numpy array.
     """
-    fig, ax_tuple = plt.subplots(nrows=1, ncols=3, figsize=(12, 4))
+    fig, ax_tuple = plt.subplots(nrows=1, ncols=len(img_list), figsize=(12, 4))
 
     for img, title, ax in zip(img_list, title_list, ax_tuple):
         ax.set_title(title)
