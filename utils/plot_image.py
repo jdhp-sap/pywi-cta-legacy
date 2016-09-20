@@ -95,6 +95,7 @@ def main():
             if not quiet:
                 images.plot_list(image_list, title_list)
 
+            print("Writing", output)
             images.mpl_save_list(image_list, output, title_list)
 
 
