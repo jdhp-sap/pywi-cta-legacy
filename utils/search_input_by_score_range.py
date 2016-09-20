@@ -66,9 +66,9 @@ if __name__ == '__main__':
 
     print("Min:", min_score, file=sys.stderr)
     print("Max:", max_score, file=sys.stderr)
-    print(len(filtered_data_list), "inputs", file=sys.stderr)
 
     for file_path, score in filtered_data_list:
         #print(file_path)
         print(file_path, score)
 
+    print(len(filtered_data_list), "inputs", file=sys.stderr)
