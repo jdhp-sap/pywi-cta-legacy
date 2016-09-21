@@ -79,6 +79,7 @@ def mpl_save(img, output_file_path, title=""):
     im = ax.imshow(img,
                    origin='lower',
                    interpolation='nearest',
+                   vmin=min(img.min(), 0),
                    cmap=COLOR_MAP)
 
     plt.colorbar(im) # draw the colorbar
@@ -98,6 +99,7 @@ def plot(img, title=""):
     im = ax.imshow(img,
                    origin='lower',
                    interpolation='nearest',
+                   vmin=min(img.min(), 0),
                    cmap=COLOR_MAP)
 
     plt.colorbar(im) # draw the colorbar
@@ -117,6 +119,7 @@ def mpl_save_list(img_list, output_file_path, title_list):
         im = ax.imshow(img,
                        origin='lower',
                        interpolation='nearest',
+                       vmin=min(img.min(), 0),
                        cmap=COLOR_MAP)
 
         plt.colorbar(im, ax=ax) # draw the colorbar
@@ -137,6 +140,7 @@ def plot_list(img_list, title_list):
         im = ax.imshow(img,
                        origin='lower',
                        interpolation='nearest',
+                       vmin=min(img.min(), 0),
                        cmap=COLOR_MAP)
 
         plt.colorbar(im, ax=ax) # draw the colorbar
