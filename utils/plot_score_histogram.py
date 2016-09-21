@@ -23,7 +23,6 @@ def fetch_score(json_file_path):
     return score_dict
 
 
-
 def plot_hist(axis, data_list, label_list, logx, logy, overlaid):
     """
     """
