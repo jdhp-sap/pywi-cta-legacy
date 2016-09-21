@@ -122,6 +122,12 @@ def main():
     parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
                         help="The index of the HDU image to use for FITS input files")
 
+    parser.add_argument("--plot", action="store_true",
+                        help="Plot images")
+
+    parser.add_argument("--saveplot", action="store_true",
+                        help="Save images")
+
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
                         help="The output file path (JSON)")
@@ -137,6 +143,8 @@ def main():
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
     hdu_index = args.hdu
+    plot = args.plot
+    saveplot = args.saveplot
     input_file_or_dir_path_list = args.fileargs
 
     if benchmark_method is not None:
@@ -180,26 +188,37 @@ def main():
 
             # ASSESS OR PRINT THE CLEANED IMAGE ###################################
 
-            try:
-                if benchmark_method is None:
-                    image_list = [input_img, reference_img, cleaned_img] 
-                    title_list = ["Input image", "Reference image", "Cleaned image"] 
-                    output = "{}_tailcut.pdf".format(base_file_path)
-
-                    images.plot_list(image_list, title_list)
-                    images.mpl_save_list(image_list, output, title_list)
-                else:
+            if benchmark_method is not None:
+                try:
                     score_tuple = assess.assess_image_cleaning(input_img, cleaned_img, reference_img, benchmark_method)
 
                     file_path_list.append(input_file_path)
                     score_list.append(score_tuple)
                     execution_time_list.append(execution_time)
-            except assess.EmptyReferenceImageError:
-                print("Empty reference image error")
-            except assess.EmptyOutputImageError:
-                # TODO: if only the output is zero then this is ackward: this
-                #       is an algorithm mistake but it cannot be assessed...
-                print("Empty output image error")
+                except assess.EmptyReferenceImageError:
+                    print("Empty reference image error")
+                except assess.EmptyOutputImageError:
+                    # TODO: if only the output is zero then this is ackward: this
+                    #       is an algorithm mistake but it cannot be assessed...
+                    print("Empty output image error")
+
+            # PLOT IMAGES #########################################################
+
+            if plot or saveplot:
+                image_list = [input_img, reference_img, cleaned_img] 
+                title_list = ["Input image", "Reference image", "Cleaned image"] 
+
+                if plot:
+                    images.plot_list(image_list, title_list)
+
+                if saveplot:
+                    if 'score_tuple' in locals():              # Not very Pythonic...
+                        for score_index, score in enumerate(score_tuple):
+                            output = "{}_{}_tailcut_{}_{}.pdf".format(benchmark_method, score_index, score, base_file_path)
+                            images.mpl_save_list(image_list, output, title_list)
+                    else:
+                        output = "{}_tailcut.pdf".format(base_file_path)
+                        images.mpl_save_list(image_list, output, title_list)
 
     if benchmark_method is not None:
         print(score_list)
