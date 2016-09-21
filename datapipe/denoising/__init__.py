@@ -21,5 +21,7 @@
 # THE SOFTWARE.
 
 __all__ = ['fft',
+           'null',
            'tailcut',
+           'wavelets_mrfilter',
            'wavelets_mrtransform']
