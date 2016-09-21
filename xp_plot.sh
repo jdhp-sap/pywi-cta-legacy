@@ -28,3 +28,13 @@ echo ""   & echo "* SCORE GAMMA SSPD HISTOGRAM *********" & ./utils/plot_score_h
 echo ""   & echo "* SCORE GAMMA SSPD HISTOGRAM *********" & ./utils/plot_score_histogram.py -q        --logy     --title "Tailcut"                    -o score_gamma_sspd_histogram_tailcut.pdf                score_gamma_sspd_tailcut.json
 echo ""   & echo "* SCORE GAMMA SSPD HISTOGRAM *********" & ./utils/plot_score_histogram.py -q        --logy     --title "WT"                         -o score_gamma_sspd_histogram_wavelets_mrtransform.pdf   score_gamma_sspd_wavelets_mrtransform.json
 
+
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_gamma_mpdspd_correlation_null.pdf    ./score_gamma_mpdspd_null.json
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_gamma_mpdspd_correlation_fft.pdf     ./score_gamma_mpdspd_fft.json
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_gamma_mpdspd_correlation_tailcut.pdf ./score_gamma_mpdspd_tailcut.json
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_gamma_mpdspd_correlation_wt.pdf      ./score_gamma_mpdspd_wavelets_mrtransform.json
+
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_proton_mpdspd_correlation_null.pdf    ./score_proton_mpdspd_null.json
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_proton_mpdspd_correlation_fft.pdf     ./score_proton_mpdspd_fft.json
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_proton_mpdspd_correlation_tailcut.pdf ./score_proton_mpdspd_tailcut.json
+./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o score_proton_mpdspd_correlation_wt.pdf      ./score_proton_mpdspd_wavelets_mrtransform.json
