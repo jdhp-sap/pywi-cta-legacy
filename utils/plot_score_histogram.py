@@ -65,6 +65,9 @@ if __name__ == '__main__':
     parser.add_argument("--logy", "-L", action="store_true", default=False,
                         help="Use a logaritmic scale on the Y axis")
 
+    parser.add_argument("--tight", action="store_true", default=False,
+                        help="Optimize the X axis usage")
+
     parser.add_argument("--max", "-m", type=float, default=None, metavar="FLOAT", 
                         help="The maximum abscissa value to plot")
 
@@ -92,6 +95,7 @@ if __name__ == '__main__':
 
     logx = args.logx
     logy = args.logy
+    tight = args.tight
     max_abscissa = args.max
     score_index = args.index
     overlaid = args.overlaid
@@ -137,6 +141,13 @@ if __name__ == '__main__':
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
     plot_hist(ax1, result_list, label_list, logx, logy, overlaid)
+
+    if tight:
+        result_array = np.array(result_list)
+        min_abscissa = result_array.min()
+        max_abscissa = result_array.max()
+        ax1.set_xlim(xmin=min_abscissa)
+        ax1.set_xlim(xmax=max_abscissa)
 
     if max_abscissa is not None:
         ax1.set_xlim(xmax=max_abscissa)
