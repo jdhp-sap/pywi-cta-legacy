@@ -27,7 +27,7 @@ class FitGammaHillas:
         self.circles = {}
     
     
-    def set_instrument_description(self, telescopes, cameras, optics):
+    def setup_geometry(self, telescopes, cameras, optics, phi=180.*u.deg, theta=20.*u.deg):
         self.Ver = 'Feb2016'
         self.TelVer = 'TelescopeTable_Version{}'.format(self.Ver)
         self.CamVer = 'CameraTable_Version{}_TelID'.format(self.Ver)
@@ -37,8 +37,8 @@ class FitGammaHillas:
         self.cameras    = lambda tel_id : cameras[self.CamVer+str(tel_id)]
         self.optics     = lambda tel_id : optics [self.OptVer+str(tel_id)]
     
-        self.tel_phi   =   0.*u.deg
-        self.tel_theta =  20.*u.deg
+        self.tel_phi   = phi
+        self.tel_theta = theta
 
 
     def get_great_circles(self,tel_data):
@@ -49,13 +49,13 @@ class FitGammaHillas:
                 self.tel_geom[tel_id] = CameraGeometry.guess(self.cameras(tel_id)['PixX'].to(u.m),
                                                              self.cameras(tel_id)['PixY'].to(u.m),
                                                              self.telescopes['FL'][tel_id-1] * u.m) 
-            moments = hillas_parameters(self.tel_geom[tel_id].pix_x,
-                                        self.tel_geom[tel_id].pix_y,
-                                        photo_electrons)
+            moments, moms2 = hillas_parameters(self.tel_geom[tel_id].pix_x,
+                                               self.tel_geom[tel_id].pix_y,
+                                               photo_electrons)
             
-            camera_rotation = -110.893*u.deg
-            if tel_id in TelDict["LST"]          : camera_rotation = -110.893*u.deg
-            else: camera_rotation = -90.*u.deg
+            camera_rotation = -90.*u.deg
+            #if tel_id in TelDict["LST"]          : camera_rotation = -110.893*u.deg
+            #else: camera_rotation = -90.*u.deg
             #if tel_id in TelDict["MST_NectaCam"] : camera_rotation = -90.*u.deg
             #if tel_id in TelDict["MST_FlashCam"] : camera_rotation = -90.*u.deg
             #if tel_id in TelDict["SST_ASTRI"]    : camera_rotation = -90.*u.deg
@@ -64,9 +64,10 @@ class FitGammaHillas:
             #if tel_id in TelDict["SST_DC"]       : camera_rotation = -90.*u.deg    
             #if tel_id in TelDict["SCT"]          : camera_rotation = -90.*u.deg    
             
+            
             #camera_rotation_s = _guess_camera_type(len(self.cameras(tel_id)['PixX']), self.telescopes['FL'][tel_id-1]*u.m )[4]
-            circle = GreatCircle(guessPixDirection( np.array([ moments.cen_x.value, (moments.cen_x + moments.length * np.cos( moments.psi + np.pi/2*u.rad )).value] ) * u.m,
-                                                    np.array([ moments.cen_y.value, (moments.cen_y + moments.length * np.sin( moments.psi + np.pi/2*u.rad )).value] ) * u.m,
+            circle = GreatCircle(guessPixDirection( np.array([ moments.cen_x, (moments.cen_x + moments.length * np.cos( moments.psi + np.pi/2 ))] ) * u.m,
+                                                    np.array([ moments.cen_y, (moments.cen_y + moments.length * np.sin( moments.psi + np.pi/2 ))] ) * u.m,
                                                     self.tel_phi, self.tel_theta, self.telescopes['FL'][tel_id-1] * u.m, camera_rotation=camera_rotation
                                                   )
                                 )
@@ -130,7 +131,7 @@ class FitGammaHillas:
                                            method='BFGS', options={'disp': False}
                                          )
             
-        return np.array(self.fit_result_origin.x)*u.dimless
+        return np.array(normalise(self.fit_result_origin.x))*u.dimless
         
     def _MEst(self, origin, weights):
         """ calculates the M-Estimator:
