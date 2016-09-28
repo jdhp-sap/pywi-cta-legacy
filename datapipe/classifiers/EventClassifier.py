@@ -1,9 +1,5 @@
-from sys import path
-
-path.append("/local/home/tmichael/software/jeremie_cta/snippets/ctapipe")
 from extract_and_crop_simtel_images import crop_astri_image
 
-path.append("/local/home/tmichael/software/jeremie_cta/data-pipeline-standalone-scripts")
 from datapipe.denoising.wavelets_mrtransform import wavelet_transform
 
 
@@ -21,29 +17,17 @@ from ctapipe.instrument.InstrumentDescription import load_hessio
 from ctapipe.utils import linalg
 from ctapipe.utils.fitshistogram import Histogram
 
-from ctapipe.reco.hillas import hillas_parameters
+from ctapipe.reco.hillas import hillas_parameters,HillasParameterizationError
 from ctapipe.reco.cleaning import tailcuts_clean, dilate
 
 
+from datapipe.utils.EfficiencyErrors import get_efficiency_errors
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn import svm
 
 from random import random
-
-
-import signal
-stop = None
-def signal_handler(signal, frame):
-    global stop
-    if stop:
-        print('you pressed Ctrl+C again -- exiting NOW')
-        exit(-1)
-    print('you pressed Ctrl+C!')
-    print('exiting current loop after this event')
-    stop = True
-
 
 
 
@@ -63,24 +47,22 @@ def apply_mc_calibration_ASTRI(adcs, tel_id, adc_tresh=3500):
 class EventClassifier:
         
     
-    def __init__(self):
-        axisNames = [ "log(E / GeV)" ]
-        ranges    = [ [2,8] ]
-        nbins     = [ 6 ]
-        self.wrong = { "p":Histogram( axisNames=axisNames, nbins=nbins, ranges=ranges), "g":Histogram( axisNames=axisNames, nbins=nbins, ranges=ranges) }
-        self.total = { "p":Histogram( axisNames=axisNames, nbins=nbins, ranges=ranges), "g":Histogram( axisNames=axisNames, nbins=nbins, ranges=ranges) }
+    def __init__(self, class_list=['p','g']):
+
+        self.class_list = class_list
+
+        self.wrong = self.create_histogram_class_dict()
+        self.total = self.create_histogram_class_dict()
     
-    
-        self.Features  = { "g":[], "p":[] }
-        self.Classes   = { "g":[], "p":[] }
-        self.MCEnergy  = { "g":[], "p":[] }
+        self.Features  = self.create_empty_class_dict()
+        self.MCEnergy  = self.create_empty_class_dict()
     
         self.wave_out_name = "/tmp/wavelet_{}_".format(random())
-        
     
+        self.total_images    = 0
+        self.selected_images = 0
     
-    def setup_geometry(self, filename, phi=0.*u.deg, theta=20.*u.deg):
-        (h_telescopes, h_cameras, h_optics) = load_hessio(filename)
+    def setup_geometry(self, h_telescopes, h_cameras, h_optics, phi=180.*u.deg, theta=20.*u.deg):
         Ver = 'Feb2016'
         TelVer = 'TelescopeTable_Version{}'.format(Ver)
         CamVer = 'CameraTable_Version{}_TelID'.format(Ver)
@@ -100,13 +82,33 @@ class EventClassifier:
                                                          self.telescopes['FL'][tel_idx] * u.m) 
 
         
+    
+    def create_empty_class_dict(self):
+        mydict = {}
+        for cl in self.class_list:
+            mydict[cl] = []
+        return mydict
+    
+    def create_histogram_class_dict(self):
+        axisNames = [ "log(E / GeV)" ]
+        ranges    = [ [2,8] ]
+        nbins     = [ 6 ]
+        mydict = {}
+        for cl in self.class_list:
+            mydict[cl] = Histogram( axisNames=axisNames, nbins=nbins, ranges=ranges)
+        return mydict
+    
+    
+    def get_event(self, event, cl, **kwargs):
+        features = self.get_features(event, **kwargs )
+        if len(features): 
+            self.Features[cl].append( features )
+            self.MCEnergy[cl].append(log10(event.mc.energy.to(u.GeV).value))
         
-
-    def get_event(self, event, cl, mode="wave"):
+    
+    def get_features(self, event, mode="wave", skip_edge_events=True,edge_thresh=1.5):
         mc_shower = event.mc
         mc_shower_core = np.array( [mc_shower.core_x.value, mc_shower.core_y.value] )
-        
-        
         
         
         tel_data = {}
@@ -126,13 +128,28 @@ class EventClassifier:
             tel_pos = np.array( [self.telescopes["TelX"][tel_idx], self.telescopes["TelY"][tel_idx]] )
             impact_dist = linalg.length(tel_pos-mc_shower_core)
             
-            
+            self.total_images += 1
             if mode == "wave":
                 # for now wavelet library works only on rectangular images
                 cropped_img = crop_astri_image(pmt_signal)
-                pmt_signal = wavelet_transform(cropped_img, 4, self.wave_out_name).flatten()
+                cleaned_img = wavelet_transform(cropped_img, 4, self.wave_out_name)
+                cleaned_img -= np.mean(cleaned_img)
+                cleaned_img[cleaned_img<0] = 0
                 
-                # hillas parameter function requires image and x/y arrays to be of the same dimension
+                self.remove_isolated_pixels(cleaned_img)
+                
+                edge_thresh = np.max(cleaned_img)/5.
+                if skip_edge_events:
+                    if (cleaned_img[0,:] > edge_thresh).any() or (cleaned_img[-1,:] > edge_thresh).any() or (cleaned_img[:,0] > edge_thresh).any() or (cleaned_img[:,-1] > edge_thresh).any(): 
+                        #import matplotlib.pyplot as plt
+                        #fig = plt.figure()
+                        #plt.imshow(cleaned_img,interpolation='none',cmap=plt.cm.afmhot)
+                        #plt.colorbar()
+                        #plt.show()
+                        continue
+                
+                pmt_signal = cleaned_img.flatten()
+                ''' hillas parameter function requires image and x/y arrays to be of the same dimension '''
                 pix_x = crop_astri_image(self.tel_geom[tel_id].pix_x).flatten()
                 pix_y = crop_astri_image(self.tel_geom[tel_id].pix_y).flatten()
     
@@ -140,105 +157,128 @@ class EventClassifier:
                 mask = tailcuts_clean(self.tel_geom[tel_id], pmt_signal, 1,picture_thresh=10.,boundary_thresh=8.)
                 if True not in mask: continue
                 dilate(self.tel_geom[tel_id], mask)
-                pmt_signal[mask] = 0
+                
+                if skip_edge_events:
+                    skip_event=False
+                    for pixid in self.tel_geom[tel_id].pix_id[mask]:
+                        if len(self.tel_geom[tel_id].neighbors) < 8:
+                            skip_event=True
+                            break
+                    if skip_event: continue
+                        
+
+
+                pmt_signal[mask==False] = 0
                 pix_x = self.tel_geom[tel_id].pix_x
                 pix_y = self.tel_geom[tel_id].pix_y
             else: 
                 raise Exception('cleaning mode "{}" not found'.format(mode))
-            
-            moments, h_moments = hillas_parameters(pix_x, pix_y, pmt_signal)
-            features.append( [ moments.size, moments.width, moments.length, impact_dist, h_moments.Skewness, h_moments.Kurtosis, h_moments.Asymmetry ] )
-        
-        
-        self.Features[cl].append( features )
-        self.Classes [cl].append( cl )
-        self.MCEnergy[cl].append(log10(mc_shower.energy.to(u.GeV).value))
+            self.selected_images += 1
 
+            try:
+                moments, h_moments = hillas_parameters(pix_x, pix_y, pmt_signal)
+                features.append( [ moments.size, moments.width, moments.length, impact_dist, h_moments.Skewness, h_moments.Kurtosis, h_moments.Asymmetry ] )
+            except HillasParameterizationError:
+                pass
+
+        return features
 
 
     def equalise_nevents(self, NEvents):
         for cl in ["p", "g"]:
             self.Features[cl] = self.Features[cl][:NEvents]
-            self.Classes [cl] = self.Classes [cl][:NEvents]
             self.MCEnergy[cl] = self.MCEnergy[cl][:NEvents]
 
 
-    def learn(self):
+    def learn(self, clf=None):
         trainFeatures   = []
         trainClasses    = []
-        for ev, cl in zip( chain(self.Features["p"], self.Features["g"]),
-                           chain(self.Classes ["p"], self.Classes ["g"]) ):
-            trainFeatures += ev
-            trainClasses  += [cl]*len(ev)
-
-        clf = RandomForestClassifier(n_estimators=40, max_depth=None,min_samples_split=1, random_state=0)
-        clf.fit(trainFeatures, trainClasses)
-
-    def self_check(self, min_tel=3, agree_threshold=.75, split_size=10):
-        import matplotlib.pyplot as plt
-        
-        
-        right_ratio = { 'g': [], 'p':[] }
-                
-        start      = 0
-        NEvents = min(len(self.Features["p"]), len(self.Features["g"]))
-        while start+split_size <= NEvents:
-                
-            
-            trainFeatures   = []
-            trainClasses    = []
-            for ev, cl in zip( chain(self.Features["p"][:start] + self.Features["p"][start+split_size:],  self.Features["g"][:start] + self.Features["g"][start+split_size:]),
-                               chain(self.Classes ["p"][:start] + self.Classes ["p"][start+split_size:] + self.Classes ["g"][:start] + self.Classes ["g"][start+split_size:]) ):
+        for cl in self.Features.keys():
+            for ev in self.Features[cl]:
                 trainFeatures += ev
                 trainClasses  += [cl]*len(ev)
+        
+        if clf == None:
+            clf = RandomForestClassifier(n_estimators=40, max_depth=None,min_samples_split=1, random_state=0)
+        clf.fit(trainFeatures, trainClasses)
+        self.clf = clf
+
+
+    def save(self, path):
+        from sklearn.externals import joblib
+        joblib.dump(self.clf, path) 
+        
+    def load(self, path):
+        from sklearn.externals import joblib
+        self.clf = joblib.load(path)
+    
+    def predict(self, ev):
+        return self.clf.predict(ev)
+
+    def self_check(self, min_tel=3, agree_threshold=.75, split_size=10, clf=None):
+        import matplotlib.pyplot as plt
+        
+        right_ratio = self.create_empty_class_dict()
+        
+        start   = 0
+        NEvents = min( len(features) for features in self.Features.values() )
+        while start+split_size <= NEvents:
+            trainFeatures   = []
+            trainClasses    = []
+            for cl in self.Features.keys():
+                for ev in chain( self.Features[cl][:start], self.Features[cl][start+split_size:] ):
+                    trainFeatures += ev
+                    trainClasses  += [cl]*len(ev)
 
             
-            
-            #clf = svm.SVC(kernel='rbf')
-            #clf = RandomForestClassifier(n_estimators=20, max_depth=None,min_samples_split=1, random_state=0)
-            clf = RandomForestClassifier(n_estimators=40, max_depth=None,min_samples_split=1, random_state=0)
+            if clf == None:
+                clf = RandomForestClassifier(n_estimators=40, max_depth=None,min_samples_split=1, random_state=0)
             clf.fit(trainFeatures, trainClasses)
             
             
-            for ev, cl, en in zip( chain(self.Features["p"][start:start+split_size], self.Features["g"][start:start+split_size]), 
-                                   chain(self.Classes ["p"][start:start+split_size], self.Classes ["g"][start:start+split_size]),
-                                   chain(self.MCEnergy["p"][start:start+split_size], self.MCEnergy["g"][start:start+split_size])
-                                ):
+            for cl in self.Features.keys():
+                for ev, en in zip( self.Features[cl][start:start+split_size], 
+                                   self.MCEnergy[cl][start:start+split_size]
+                                 ):
             
             
-                predict = clf.predict(ev)
+                    predict = clf.predict(ev)
+    
+                    ''' check if prediction was right '''
+                    right = [ 1 if (cl == tel) else 0 for tel in predict ]
+                    right_ratio[cl].append(sum(right) / len(right))
 
-                right = [ 1 if (cl == tel) else 0 for tel in predict ]
-                right_ratio[cl].append(sum(right) / len(right))
-
-                isGamma = [ 1 if (tel == "g") else 0 for tel in predict ]
-                if sum(isGamma) / len(isGamma) > agree_threshold: PredictClass = "g"
-                else: PredictClass = "p"
-                if PredictClass != cl and len(ev) > min_tel:
-                    self.wrong[cl].fill( [en] )
-                self.total[cl].fill( [en] )
+                    ''' check if prediction returned gamma '''
+                    isGamma = [ 1 if (tel == "g") else 0 for tel in predict ]
+                    if np.mean(isGamma) > agree_threshold: PredictClass = "g"
+                    else: PredictClass = "!g"
+                    if PredictClass != cl and len(ev) >= min_tel:
+                        self.wrong[cl].fill( [en] )
+                    self.total[cl].fill( [en] )
                 
                 
-            start += split_size
             
-            for cl in ["p", "g"]:
+            #for cl in self.Features.keys():
                 if sum(self.total[cl].hist) > 0:
                     print( "wrong {}: {} out of {} => {}".format(cl, sum(self.wrong[cl].hist), 
                                                                      sum(self.total[cl].hist),
                                                                      sum(self.wrong[cl].hist) / 
                                                                      sum(self.total[cl].hist) *100*u.percent))
+            start += split_size
                     
             print()
-            if stop: break
 
         print()
         print("-"*30)
         print()
-        y_eff         = {"p":[], "g":[]}
-        y_eff_lerrors = {"p":[], "g":[]}
-        y_eff_uerrors = {"p":[], "g":[]}
-        from efficiency_errors import get_efficiency_errors_scan as get_efficiency_errors
-        for cl in ["p", "g"]:
+        y_eff         = self.create_empty_class_dict()
+        y_eff_lerrors = self.create_empty_class_dict()
+        y_eff_uerrors = self.create_empty_class_dict()
+        
+        try:    from efficiency_errors import get_efficiency_errors_scan as get_efficiency_errors
+        except: pass
+    
+        for cl in self.Features.keys():
             if sum(self.total[cl].hist) > 0:
                 print( "wrong {}: {} out of {} => {}".format(cl, sum(self.wrong[cl].hist), 
                                                                  sum(self.total[cl].hist),
@@ -246,16 +286,17 @@ class EventClassifier:
                                                                  sum(self.total[cl].hist) *100*u.percent))
             
             for wr, tot in zip( self.wrong[cl].hist, self.total[cl].hist):
-                #errors = get_efficiency_errors( wr, tot )[:]
-                errors = [wr/tot if tot > 0 else 0,0,0]
+                try:
+                    errors = get_efficiency_errors( wr, tot )
+                except:
+                    errors = [wr/tot if tot > 0 else 0,0,0]
                 y_eff        [cl].append( errors[0] )
                 y_eff_lerrors[cl].append( errors[1] )
                 y_eff_uerrors[cl].append( errors[2] )
         
-            #wrong[cl].hist[total[cl].hist > 0] = wrong[cl].hist[total[cl].hist > 0] / total[cl].hist[total[cl].hist > 0]
         
         plt.style.use('seaborn-talk')
-        fig, ax = plt.subplots(3,2, sharex=True)
+        fig, ax = plt.subplots(3,2)
         tax = ax[0,0]
         tax.errorbar(self.wrong["g"].bin_centers(0), y_eff["g"], yerr=[y_eff_lerrors["g"], y_eff_uerrors["g"]])
         tax.set_title("gamma misstag")
@@ -285,10 +326,34 @@ class EventClassifier:
         tax.set_ylabel("events")
         
         
-        #tax = ax[2,0]
-        plt.subplot(325)
-        plt.hist(right_ratio['g'],bins=20,range=(0,1), normed=True)
+        tax = ax[2,0]
+        tax.hist(right_ratio['g'],bins=20,range=(0,1), normed=True)
+        tax.set_title("fraction of classifiers per event agreeing to gamma")
+        tax.set_xlabel("agree ratio")
+        tax.set_ylabel("PDF")
         
-        #tax = ax[2,1]
-        plt.subplot(326)
-        plt.hist(right_ratio['p'],bins=20,range=(0,1), normed=True)        
+        tax = ax[2,1]
+        tax.hist(right_ratio['p'],bins=20,range=(0,1), normed=True)
+        tax.set_title("fraction of classifiers per event agreeing to proton")
+        tax.set_xlabel("agree ratio")
+        tax.set_ylabel("PDF")
+
+        plt.tight_layout()
+        plt.show()
+
+    def remove_isolated_pixels(self, img, threshold=0):
+        max_val = np.max(img)
+        for idx, foo in enumerate(img):
+            for idy, bar in enumerate(foo):
+                threshold=3
+                is_island=0
+                if idx>0:
+                    is_island += img[idx-1,idy]
+                if idx<len(img)-1:
+                    is_island += img[idx+1,idy]
+                if idy>0:
+                    is_island += img[idx,idy-1]
+                if idy<len(foo)-1:
+                    is_island += img[idx,idy+1]
+                
+                if is_island < threshold and bar != max_val: img[idx,idy] = 0
