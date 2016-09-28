@@ -47,13 +47,14 @@ import datetime
 import json
 import os
 import numpy as np
+import tempfile
 import time
 
 from datapipe.benchmark import assess
 from datapipe.io import images
 
 
-def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", verbose=False):
+def wavelet_transform(input_img, number_of_scales=4, verbose=False):
     """
     Do the wavelet transform.
 
@@ -70,26 +71,34 @@ def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", v
     -P  ?      Suppress the positivity constraint
     """
 
-    input_file_path = base_file_path + "_in.fits"
-    mr_output_file_path = base_file_path + "_out.fits"
+    # Make a temporary directory to store fits files
+    with tempfile.TemporaryDirectory() as temp_dir_path:
 
-    # WRITE THE INPUT FILE (FITS) ##########################
+        input_file_path = os.path.join(temp_dir_path, "in.fits")
+        mr_output_file_path = os.path.join(temp_dir_path, "out.fits")
 
-    images.save(input_img, input_file_path)
+        #print("In:", input_file_path)
+        #print("Out:", mr_output_file_path)
 
-    # EXECUTE MR_FILTER ####################################
+        # WRITE THE INPUT FILE (FITS) ##########################
 
-    # TODO: improve the following lines
-    #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
-    cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
-    os.system(cmd)
+        images.save(input_img, input_file_path)
 
-    # READ THE MR_FILTER OUTPUT FILE #######################
+        # EXECUTE MR_FILTER ####################################
 
-    cleaned_img = images.load(mr_output_file_path, 0)
+        # TODO: improve the following lines
+        #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+        cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+        os.system(cmd)
 
-    if cleaned_img.ndim != 2:
-        raise Exception("Unexpected error: the output FITS file should contain a 2D array.")
+        # READ THE MR_FILTER OUTPUT FILE #######################
+
+        cleaned_img = images.load(mr_output_file_path, 0)
+
+        if cleaned_img.ndim != 2:
+            raise Exception("Unexpected error: the output FITS file should contain a 2D array.")
+
+    # The temporary directory and all its contents are removed now
 
     return cleaned_img
 
@@ -162,11 +171,8 @@ def main():
 
             # WAVELET TRANSFORM WITH MR_FILTER ####################################
 
-            base_file_path = os.path.basename(input_file_path)
-            base_file_path = os.path.splitext(base_file_path)[0]
-
             initial_time = time.perf_counter()
-            cleaned_img = wavelet_transform(input_img, number_of_scales, base_file_path)
+            cleaned_img = wavelet_transform(input_img, number_of_scales)
             execution_time = time.perf_counter() - initial_time
 
             # GET THE REFERENCE IMAGE #############################################
@@ -199,6 +205,9 @@ def main():
                     images.plot_list(image_list, title_list)
 
                 if saveplot:
+                    base_file_path = os.path.basename(input_file_path)
+                    base_file_path = os.path.splitext(base_file_path)[0]
+
                     if 'score_tuple' in locals():              # Not very Pythonic...
                         for score_index, score in enumerate(score_tuple):
                             output = "{}_{}_wt_mrfilter_{}_{}.pdf".format(benchmark_method, score_index, score, base_file_path)
