@@ -40,10 +40,22 @@ class UnknownMethod(AssessError):
     pass
 
 class EmptyOutputImageError(AssessError):
-    pass
+    """
+    Exception raised when the output image only have null pixels (to prevent
+    division by 0 in the assess function).
+    """
+
+    def __init__(self):
+        super(EmptyOutputImageError, self).__init__("Empty output image error")
 
 class EmptyReferenceImageError(AssessError):
-    pass
+    """
+    Exception raised when the reference image only have null pixels (to prevent
+    division by 0 in the assess function).
+    """
+
+    def __init__(self):
+        super(EmptyReferenceImageError, self).__init__("Empty reference image error")
 
 
 # ASSESS FUNCTIONS ###########################################################
