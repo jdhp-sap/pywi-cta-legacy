@@ -29,20 +29,87 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-def load(input_file_path, hdu_index):
+
+# EXCEPTIONS #################################################################
+
+class FitsError(Exception):
+    pass
+
+class WrongHDUError(FitsError):
+    """Exception raised when trying to access a wrong HDU in a FITS file.
+
+    Attributes:
+        input_file_path -- the FITS file concerned by the error
+        hdu_index -- the HDU index concerned by the error
     """
-    Return the image array contained in the first HDU of the given FITS file.
+
+    def __init__(self, file_path, hdu_index):
+        super(WrongHDUError, self).__init__("File {} doesn't have data in HDU {}.".format(file_path, hdu_index))
+        self.file_path = file_path
+        self.hdu_index = hdu_index
+
+class NotAnImageError(FitsError):
+    """Exception raised when trying to load a FITS file which doesn't contain a
+    valid image in the given HDU.
+
+    Attributes:
+        input_file_path -- the FITS file concerned by the error
+        hdu_index -- the HDU index concerned by the error
+    """
+
+    def __init__(self, input_file_path, hdu_index):
+        super(NotAnImageError, self).__init__("HDU {} in file {} doesn't contain any image.".format(self.hdu_index, self.file_path))
+        self.file_path = file_path
+        self.hdu_index = hdu_index
+
+class WrongDimensionError(FitsError):
+    """
+    Exception raised when trying to save a FITS with more than 3 dimensions
+    or less than 2 dimensions.
+    """
+
+    def __init__(self):
+        super(WrongDimensionError, self).__init__("The input image should be a 2D or a 3D numpy array.")
+
+
+# LOAD AND SAVE FITS FILES ###################################################
+
+def load(input_file_path, hdu_index):
+    """Return the image array contained in the given HDU of the given FITS file.
+
+    Parameters
+    ----------
+    input_file_path : str
+        The path of the FITS file to load
+    hdu_index : int
+        The HDU to load within the FITS file (one FITS file can contain several
+        images stored in different HDU)
+
+    Returns
+    -------
+    ndarray
+        The loaded image
+
+    Raises
+    ------
+    WrongHDUError
+        If `input_file_path` doesn't contain the HDU `hdu_index`
+    NotAnImageError
+        If `input_file_path` doesn't contain a valid image in the HDU
+        `hdu_index`
     """
     
     hdu_list = fits.open(input_file_path)   # open the FITS file
 
     if not (0 <= hdu_index < len(hdu_list)):
-        raise Exception("Wrong HDU index.")
+        hdu_list.close()
+        raise WrongHDUError(input_file_path, hdu_index)
 
     hdu = hdu_list[hdu_index]
 
     if not hdu.is_image:
-        raise Exception("HDU{} doesn't contain any image.".format(hdu_index))
+        hdu_list.close()
+        raise NotAnImageError(input_file_path, hdu_index)
 
     image_array = hdu.data    # "hdu.data" is a Numpy Array
 
@@ -51,13 +118,24 @@ def load(input_file_path, hdu_index):
     return image_array
 
 
-def save(img, output_file_path, min_val=None, max_val=None):
-    """
-    img is the image and it should be a 2D or a 3D numpy array with values.
+def save(img, output_file_path):
+    """Save the `img` image array to the `output_file_path` FITS file.
+
+    Parameters
+    ----------
+    img : ndarray
+        The image to save (should be a 2D or a 3D numpy array)
+    output_file_path : str
+        The path of the FITS file where to save the `img`
+
+    Raises
+    ------
+    WrongDimensionError
+        If `img` has more than 3 dimensions or less than 2 dimensions.
     """
 
     if img.ndim not in (2, 3):
-        raise Exception("The input image should be a 2D or a 3D numpy array.")
+        raise WrongDimensionError()
 
     hdu = fits.PrimaryHDU(img)
 
