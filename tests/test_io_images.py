@@ -26,8 +26,9 @@ This module contains unit tests for the "io.images" module.
 
 from datapipe.io import images
 
-import os
 import numpy as np
+import os
+import tempfile
 
 import unittest
 
@@ -36,33 +37,99 @@ class TestImages(unittest.TestCase):
     Contains unit tests for the "io.images" module.
     """
 
-    # Test the "load" function ################################################
+    # Test the "save" and "load" functions ####################################
 
-    def test_png(self):
-        """Check the output of the "load" function."""
+    def test_load_and_save(self):
+        """Check the `images.load` and `images.save` functions."""
 
-        current_package_path = os.path.dirname(__file__)
-        img_path = os.path.join(current_package_path, "data", "test.png")
+        img = np.random.randint(128, size=(4, 6))
 
-        # Loaded image ################
+        # Make a temporary directory to store fits files
+        with tempfile.TemporaryDirectory() as temp_dir_path:
 
-        img = images.load(img_path)
+            img_path = os.path.join(temp_dir_path, "test.fits")
 
-        # Expected image ##############
+            # Save the image
+            images.save(img, img_path)
 
-        # [[  0   0   0   0   0   0]
-        #  [  0 128 128 128 128   0]
-        #  [  0 128 255 255 128   0]
-        #  [  0 128 255 255 128   0]
-        #  [  0 128 128 128 128   0]
-        #  [  0   0   0   0   0   0]]
+            # Load the saved image
+            loaded_img = images.load(img_path, 0)
 
-        expected_img = np.zeros([6, 6], dtype=np.uint8)
-        expected_img[1:5, 1:5] = 128
-        expected_img[2:4, 2:4] = 255
-
-        np.testing.assert_array_equal(img, expected_img)
+            # Check img vs loaded_img
+            np.testing.assert_array_equal(img, loaded_img)
     
+        # The temporary directory and all its contents are removed now
+
+
+    # Test the "save" function exceptions #####################################
+
+    def test_save_wrong_dimension_error(self):
+        """Check the call to `images.load` fails with an WrongDimensionError
+        when saved images have more than 3 dimensions or less than 2
+        dimensions."""
+
+        img_1d = np.random.randint(128, size=(3))           # Make a 1D image
+        img_2d = np.random.randint(128, size=(3, 3))        # Make a 2D image
+        img_3d = np.random.randint(128, size=(3, 3, 3))     # Make a 3D image
+        img_4d = np.random.randint(128, size=(3, 3, 3, 3))  # Make a 4D image
+
+        # Make a temporary directory to store fits files
+        with tempfile.TemporaryDirectory() as temp_dir_path:
+
+            img_path = os.path.join(temp_dir_path, "test.fits")
+
+            # Save the 1D image (should raise an exception)
+            with self.assertRaises(images.WrongDimensionError):
+                images.save(img_1d, img_path)
+
+            # Save the 2D image (should not raise any exception)
+            try:
+                images.save(img_2d, img_path)
+            except images.WrongDimensionError:
+                self.fail("images.save() raised WrongDimensionError unexpectedly!")
+
+            # Save the 3D image (should not raise any exception)
+            try:
+                images.save(img_3d, img_path)
+            except images.WrongDimensionError:
+                self.fail("images.save() raised WrongDimensionError unexpectedly!")
+
+            # Save the 4D image (should raise an exception)
+            with self.assertRaises(images.WrongDimensionError):
+                images.save(img_4d, img_path)
+
+        # The temporary directory and all its contents are removed now
+
+
+    # Test the "load" function exceptions #####################################
+
+    def test_load_wrong_hdu_error(self):
+        """Check the call to `images.load` fails with an WrongDimensionError
+        when saved images have more than 3 dimensions or less than 2
+        dimensions."""
+
+        img = np.random.randint(128, size=(3, 3))        # Make a 2D image
+
+        # Make a temporary directory to store fits files
+        with tempfile.TemporaryDirectory() as temp_dir_path:
+
+            img_path = os.path.join(temp_dir_path, "test.fits")
+
+            # Save the image
+            images.save(img, img_path)
+
+            # Load the saved image (should raise an exception)
+            with self.assertRaises(images.WrongHDUError):
+                loaded_img = images.load(img_path, hdu_index=1000)
+
+            # Load the saved image (should not raise any exception)
+            try:
+                loaded_img = images.load(img_path, hdu_index=0)
+            except images.WrongHDUError:
+                self.fail("images.load() raised WrongHDUError unexpectedly!")
+
+        # The temporary directory and all its contents are removed now
+
 
 if __name__ == '__main__':
     unittest.main()
