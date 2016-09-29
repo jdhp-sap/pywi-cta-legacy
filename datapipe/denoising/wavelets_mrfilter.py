@@ -47,12 +47,33 @@ import datetime
 import json
 import os
 import numpy as np
+import sys
 import tempfile
 import time
+import traceback
 
 from datapipe.benchmark import assess
 from datapipe.io import images
 
+
+# EXCEPTIONS #################################################################
+
+class MrFilterError(Exception):
+    pass
+
+class WrongDimensionError(MrFilterError):
+    """Exception raised when trying to save a FITS with more than 3 dimensions
+    or less than 2 dimensions.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self):
+        super(WrongDimensionError, self).__init__("Unexpected error: the output FITS file should contain a 2D array.")
+
+
+##############################################################################
 
 def wavelet_transform(input_img, number_of_scales=4, verbose=False):
     """
@@ -69,7 +90,15 @@ def wavelet_transform(input_img, number_of_scales=4, verbose=False):
     eventuellement -w pour le debug
     -p  ?      Detect only positive structure
     -P  ?      Suppress the positivity constraint
+
+    Raises
+    ------
+    WrongDimensionError
+        If `cleaned_img` is not a 2D array.
     """
+
+    if input_img.ndim != 2:
+        raise WrongDimensionError()
 
     # Make a temporary directory to store fits files
     with tempfile.TemporaryDirectory() as temp_dir_path:
@@ -77,28 +106,38 @@ def wavelet_transform(input_img, number_of_scales=4, verbose=False):
         input_file_path = os.path.join(temp_dir_path, "in.fits")
         mr_output_file_path = os.path.join(temp_dir_path, "out.fits")
 
-        #print("In:", input_file_path)
-        #print("Out:", mr_output_file_path)
-
         # WRITE THE INPUT FILE (FITS) ##########################
 
-        images.save(input_img, input_file_path)
+        try:
+            images.save(input_img, input_file_path)
+        except:
+            print("Error on input FITS file:", input_file_path)
+            raise
 
         # EXECUTE MR_FILTER ####################################
 
         # TODO: improve the following lines
         #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
         cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
-        os.system(cmd)
+
+        try:
+            os.system(cmd)
+        except:
+            print("Error on command:", cmd)
+            raise
 
         # READ THE MR_FILTER OUTPUT FILE #######################
 
-        cleaned_img = images.load(mr_output_file_path, 0)
-
-        if cleaned_img.ndim != 2:
-            raise Exception("Unexpected error: the output FITS file should contain a 2D array.")
+        try:
+            cleaned_img = images.load(mr_output_file_path, 0)
+        except:
+            print("Error on output FITS file:", mr_output_file_path)
+            raise
 
     # The temporary directory and all its contents are removed now
+
+    if cleaned_img.ndim != 2:
+        raise WrongDimensionError()
 
     return cleaned_img
 
@@ -161,60 +200,62 @@ def main():
 
         for input_file_path in input_file_path_list:
 
-            # READ THE INPUT FILE #################################################
+            # CLEAN ONE IMAGE #########################################################
 
-            input_img = images.load(input_file_path, hdu_index)
+            try:
+                # READ THE INPUT FILE #################################################
 
-            if input_img.ndim != 2:
-                raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+                input_img = images.load(input_file_path, hdu_index)
 
+                # WAVELET TRANSFORM WITH MR_FILTER ####################################
 
-            # WAVELET TRANSFORM WITH MR_FILTER ####################################
+                initial_time = time.perf_counter()
+                cleaned_img = wavelet_transform(input_img, number_of_scales)
+                execution_time = time.perf_counter() - initial_time
 
-            initial_time = time.perf_counter()
-            cleaned_img = wavelet_transform(input_img, number_of_scales)
-            execution_time = time.perf_counter() - initial_time
+                # GET THE REFERENCE IMAGE #############################################
 
-            # GET THE REFERENCE IMAGE #############################################
+                reference_img = images.load(input_file_path, hdu_index=1)
 
-            reference_img = images.load(input_file_path, 1)
+                # ASSESS OR PRINT THE CLEANED IMAGE ###################################
 
-            # ASSESS OR PRINT THE CLEANED IMAGE ###################################
-
-            if benchmark_method is not None:
-                try:
-                    score_tuple = assess.assess_image_cleaning(input_img, cleaned_img, reference_img, benchmark_method)
+                if benchmark_method is not None:
+                    score_tuple = assess.assess_image_cleaning(input_img,
+                                                               cleaned_img,
+                                                               reference_img,
+                                                               benchmark_method)
 
                     file_path_list.append(input_file_path)
                     score_list.append(score_tuple)
                     execution_time_list.append(execution_time)
-                except assess.EmptyReferenceImageError:
-                    print("Empty reference image error")
-                except assess.EmptyOutputImageError:
-                    # TODO: if only the output is zero then this is ackward: this
-                    #       is an algorithm mistake but it cannot be assessed...
-                    print("Empty output image error")
 
-            # PLOT IMAGES #########################################################
+                # PLOT IMAGES #########################################################
 
-            if plot or saveplot:
-                image_list = [input_img, reference_img, cleaned_img] 
-                title_list = ["Input image", "Reference image", "Cleaned image"] 
+                if plot or saveplot:
+                    image_list = [input_img, reference_img, cleaned_img] 
+                    title_list = ["Input image", "Reference image", "Cleaned image"] 
 
-                if plot:
-                    images.plot_list(image_list, title_list)
+                    if plot:
+                        images.plot_list(image_list, title_list)
 
-                if saveplot:
-                    base_file_path = os.path.basename(input_file_path)
-                    base_file_path = os.path.splitext(base_file_path)[0]
+                    if saveplot:
+                        base_file_path = os.path.basename(input_file_path)
+                        base_file_path = os.path.splitext(base_file_path)[0]
 
-                    if 'score_tuple' in locals():              # Not very Pythonic...
-                        for score_index, score in enumerate(score_tuple):
-                            output = "{}_{}_wt_mrfilter_{}_{}.pdf".format(benchmark_method, score_index, score, base_file_path)
+                        if 'score_tuple' in locals():              # Not very Pythonic...
+                            for score_index, score in enumerate(score_tuple):
+                                output = "{}_{}_wt_mrfilter_{}_{}.pdf".format(benchmark_method, score_index, score, base_file_path)
+                                images.mpl_save_list(image_list, output, title_list)
+                        else:
+                            output = "{}_wt_mrfilter.pdf".format(base_file_path)
                             images.mpl_save_list(image_list, output, title_list)
-                    else:
-                        output = "{}_wt_mrfilter.pdf".format(base_file_path)
-                        images.mpl_save_list(image_list, output, title_list)
+
+            except Exception as e:
+                print("Abort image {}".format(input_file_path))
+                print("Error type:", type(e))
+                print("Error message:", e)
+                print("Error traceback:")
+                traceback.print_tb(e.__traceback__, file=sys.stdout)
 
     if benchmark_method is not None:
         print(score_list)
