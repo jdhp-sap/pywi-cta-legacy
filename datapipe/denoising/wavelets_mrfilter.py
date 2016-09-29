@@ -186,6 +186,7 @@ def main():
         file_path_list = []
         score_list = []
         execution_time_list = []
+        error_list = []
 
     for input_file_or_dir_path in input_file_or_dir_path_list:
 
@@ -254,11 +255,18 @@ def main():
                 print("Abort image {}".format(input_file_path))
                 print("Error type:", type(e))
                 print("Error message:", e)
-                print("Error traceback:")
-                traceback.print_tb(e.__traceback__, file=sys.stdout)
+                #print("Error traceback:")
+                #traceback.print_tb(e.__traceback__, file=sys.stdout)
+
+                if benchmark_method is not None:
+                    error_dict = {"file": input_file_path,
+                                  "type": type(e),
+                                  "message": str(e)}
+                    error_list.append(error_dict)
 
     if benchmark_method is not None:
         print(score_list)
+        print("{} images aborted".format(len(error_list)))
 
         output_dict = {}
         output_dict["algo"] = __file__
@@ -278,8 +286,10 @@ def main():
             output_file_path = args.output
 
         with open(output_file_path, "w") as fd:
-            #json.dump(data, fd)                                 # no pretty print
             json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
+
+        with open("errors_" + output_file_path, "w") as fd:
+            json.dump(error_list, fd, sort_keys=True, indent=4)  # pretty print format
 
 
 if __name__ == "__main__":
