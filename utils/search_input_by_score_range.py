@@ -51,6 +51,9 @@ if __name__ == '__main__':
     score_index = args.index
     json_file_path = args.fileargs[0]
 
+    if (num_best is not None) and (num_worst is not None):
+        raise Exception("--best and --worst options are not compatible")
+
     # FETCH SCORE #############################################################
 
     score_dict = fetch_score(json_file_path)
