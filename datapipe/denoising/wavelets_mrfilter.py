@@ -161,8 +161,8 @@ def main():
     parser.add_argument("--plot", action="store_true",
                         help="Plot images")
 
-    parser.add_argument("--saveplot", action="store_true",
-                        help="Save images")
+    parser.add_argument("--saveplot", default=None, metavar="FILE",
+                        help="The output file where to save plotted images")
 
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
@@ -232,24 +232,15 @@ def main():
 
                 # PLOT IMAGES #########################################################
 
-                if plot or saveplot:
+                if plot or (saveplot is not None):
                     image_list = [input_img, reference_img, cleaned_img] 
                     title_list = ["Input image", "Reference image", "Cleaned image"] 
 
                     if plot:
                         images.plot_list(image_list, title_list)
 
-                    if saveplot:
-                        base_file_path = os.path.basename(input_file_path)
-                        base_file_path = os.path.splitext(base_file_path)[0]
-
-                        if 'score_tuple' in locals():              # Not very Pythonic...
-                            for score_index, score in enumerate(score_tuple):
-                                output = "{}_{}_wt_mrfilter_{}_{}.pdf".format(benchmark_method, score_index, score, base_file_path)
-                                images.mpl_save_list(image_list, output, title_list)
-                        else:
-                            output = "{}_wt_mrfilter.pdf".format(base_file_path)
-                            images.mpl_save_list(image_list, output, title_list)
+                    if saveplot is not None:
+                        images.mpl_save_list(image_list, saveplot, title_list)
 
             except Exception as e:
                 print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))

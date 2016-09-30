@@ -56,6 +56,16 @@ from datapipe.io import images
 def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", verbose=False):
     """
     Do the wavelet transform.
+
+    mr_filter
+    -K 
+    -k
+    -F2
+    -C1
+    -s3
+    -m2  (a essayer ou -m10)
+
+    eventuellement -w pour le debug
     """
 
     input_file_path = base_file_path + "_in.fits"
@@ -157,8 +167,8 @@ def main():
     parser.add_argument("--plot", action="store_true",
                         help="Plot images")
 
-    parser.add_argument("--saveplot", action="store_true",
-                        help="Save images")
+    parser.add_argument("--saveplot", default=None, metavar="FILE",
+                        help="The output file where to save plotted images")
 
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
@@ -235,21 +245,15 @@ def main():
 
             # PLOT IMAGES #########################################################
 
-            if plot or saveplot:
+            if plot or (saveplot is not None):
                 image_list = [input_img, reference_img, cleaned_img] 
                 title_list = ["Input image", "Reference image", "Cleaned image"] 
 
                 if plot:
                     images.plot_list(image_list, title_list)
 
-                if saveplot:
-                    if 'score_tuple' in locals():              # Not very Pythonic...
-                        for score_index, score in enumerate(score_tuple):
-                            output = "{}_{}_wt_{}_{}.pdf".format(benchmark_method, score_index, score, base_file_path)
-                            images.mpl_save_list(image_list, output, title_list)
-                    else:
-                        output = "{}_wt.pdf".format(base_file_path)
-                        images.mpl_save_list(image_list, output, title_list)
+                if saveplot is not None:
+                    images.mpl_save_list(image_list, saveplot, title_list)
 
     if benchmark_method is not None:
         print(score_list)
