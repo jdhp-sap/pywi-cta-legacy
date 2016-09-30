@@ -252,15 +252,12 @@ def main():
                             images.mpl_save_list(image_list, output, title_list)
 
             except Exception as e:
-                print("Abort image {}".format(input_file_path))
-                print("Error type:", type(e))
-                print("Error message:", e)
-                #print("Error traceback:")
+                print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
                 #traceback.print_tb(e.__traceback__, file=sys.stdout)
 
                 if benchmark_method is not None:
                     error_dict = {"file": input_file_path,
-                                  "type": type(e),
+                                  "type": str(type(e)),
                                   "message": str(e)}
                     error_list.append(error_dict)
 
