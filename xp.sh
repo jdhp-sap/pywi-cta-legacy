@@ -7,9 +7,9 @@ NUM_IMG=10000
 # PROTONS #########
 
 echo "" # & echo "* PROTON MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_proton_mpd_null.json                  $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004   --saveplot -o score_proton_mpd_fft.json                   $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON MPD TAILCUT"     & ./datapipe/denoising/tailcut.py           -b mpd    -T0.75 -t0.5 --saveplot -o score_proton_mpd_tailcut.json               $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd                 --saveplot -o score_proton_mpd_wavelets_mrfilter.json     $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004            t -o score_proton_mpd_fft.json                   $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPD TAILCUT"     & ./datapipe/denoising/tailcut.py           -b mpd    -T0.75 -t0.5          t -o score_proton_mpd_tailcut.json               $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd                          t -o score_proton_mpd_wavelets_mrfilter.json     $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
 echo ""   & echo "* PROTON MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_proton_mpdspd_null.json               $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
@@ -31,9 +31,9 @@ echo "" # & for FILE in *.fits ; do rm $FILE ; done
 # GAMMAS ##########
 
 echo "" # & echo "* GAMMA MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_gamma_mpd_null.json                   $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004   --saveplot -o score_gamma_mpd_fft.json                    $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut.py           -b mpd    -T0.75 -t0.5 --saveplot -o score_gamma_mpd_tailcut.json                $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd                 --saveplot -o score_gamma_mpd_wavelets_mrfilter.json      $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004   -          -o score_gamma_mpd_fft.json                    $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut.py           -b mpd    -T0.75 -t0.5 -          -o score_gamma_mpd_tailcut.json                $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd                 -          -o score_gamma_mpd_wavelets_mrfilter.json      $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
 echo "" # & echo "* GAMMA MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_gamma_mpdspd_null.json                $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
@@ -51,9 +51,9 @@ echo "" # & for FILE in *.fits ; do rm $FILE ; done
 # ALL GAMMAS ######
 
 echo "" # & echo "* GAMMA MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_gamma_mpd_null.json                   ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd -s -t0.004      --saveplot -o score_gamma_mpd_fft.json                    ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut.py           -b mpd -T0.75 -t0.5    --saveplot -o score_gamma_mpd_tailcut.json                ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd                 --saveplot -o score_gamma_mpd_wavelets_mrfilter.json      ~/data/astri_mini_array/fits/gamma
+echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd -s -t0.004      -          -o score_gamma_mpd_fft.json                    ~/data/astri_mini_array/fits/gamma
+echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut.py           -b mpd -T0.75 -t0.5    -          -o score_gamma_mpd_tailcut.json                ~/data/astri_mini_array/fits/gamma
+echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd                 -          -o score_gamma_mpd_wavelets_mrfilter.json      ~/data/astri_mini_array/fits/gamma
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
 echo ""   & echo "* GAMMA MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_gamma_mpdspd_null.json                ~/data/astri_mini_array/fits/gamma
