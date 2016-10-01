@@ -21,13 +21,10 @@
 # THE SOFTWARE.
 
 """
-Denoise FITS and PNG images with Wavelet Transform.
+Denoise FITS images with Wavelet Transform.
 
 This script use mr_filter -- a program written CEA/CosmoStat
 (www.cosmostat.org) -- to make Wavelet Transform.
-
-It originally came from
-https://github.com/jdhp-sap/snippets/blob/master/mr_filter/mr_filter_wrapper_denoising.py.
 
 Example usages:
   ./denoising_with_wavelets_mr_filter.py -h
@@ -36,8 +33,6 @@ Example usages:
 
 This script requires the mr_filter program
 (http://www.cosmostat.org/software/isap/).
-
-It also requires Numpy and Matplotlib Python libraries.
 """
 
 __all__ = ['wavelet_transform']
@@ -258,7 +253,7 @@ def main():
 
         output_dict = {}
         output_dict["algo"] = __file__
-        output_dict["label"] = "WT MrFilter"
+        output_dict["label"] = "WT (mr_filter)"
         output_dict["algo_params"] = {"number_of_scales": number_of_scales}
         output_dict["benchmark_method"] = benchmark_method
         output_dict["date_time"] = str(datetime.datetime.now())
