@@ -23,5 +23,6 @@
 __all__ = ['fft',
            'null',
            'tailcut',
+           'tailcut_jd',
            'wavelets_mrfilter',
            'wavelets_mrtransform']
