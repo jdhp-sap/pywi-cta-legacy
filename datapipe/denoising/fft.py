@@ -48,6 +48,7 @@ import os
 import numpy as np
 import time
 
+import datapipe.denoising
 from datapipe.benchmark import assess
 from datapipe.io import images
 
@@ -56,6 +57,8 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft", verbose=Fals
     """
     Do the fourier transform.
     """
+
+    base_file_path="fft"
 
     transformed_img = np.fft.fft2(input_img)
 
@@ -94,8 +97,10 @@ def fft(input_img, shift=False, threshold=0., base_file_path="fft", verbose=Fals
     if shift:
         filtered_transformed_img = np.fft.ifftshift(filtered_transformed_img)
 
-    cleaned_img = np.fft.ifft2(filtered_transformed_img)
+    cleaned_img_complex = np.fft.ifft2(filtered_transformed_img)
     
+    cleaned_img = abs(cleaned_img_complex)
+
     return cleaned_img
 
 
@@ -105,18 +110,15 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with DFT.")
 
-    parser.add_argument("--benchmark", "-b", metavar="STRING", 
-                        help="The benchmark method to use to assess the algorithm for the"
-                             "given images")
-
     parser.add_argument("--shift", "-s", action="store_true", default=False,
                         help="Shift the zero to the center")
 
     parser.add_argument("--threshold", "-t", type=float, default=0, metavar="FLOAT", 
                         help="The threshold value (between 0 and 1)")
 
-    parser.add_argument("--hdu", "-H", type=int, default=0, metavar="INTEGER", 
-                        help="The index of the HDU image to use for FITS input files")
+    parser.add_argument("--benchmark", "-b", metavar="STRING", 
+                        help="The benchmark method to use to assess the algorithm for the"
+                             "given images")
 
     parser.add_argument("--plot", action="store_true",
                         help="Plot images")
@@ -135,103 +137,30 @@ def main():
 
     args = parser.parse_args()
 
-    benchmark_method = args.benchmark
     shift = args.shift
     threshold = args.threshold
-    hdu_index = args.hdu
+    benchmark_method = args.benchmark
     plot = args.plot
     saveplot = args.saveplot
     input_file_or_dir_path_list = args.fileargs
 
-    if benchmark_method is not None:
-        file_path_list = []
-        score_list = []
-        execution_time_list = []
+    if args.output is None:
+        output_file_path = "score_fft_benchmark_{}.json".format(benchmark_method)
+    else:
+        output_file_path = args.output
 
-    for input_file_or_dir_path in input_file_or_dir_path_list:
+    cleaning_function_params = {"shift": shift, "threshold": threshold}
+    cleaning_algorithm_label = "FFT"
 
-        if os.path.isdir(input_file_or_dir_path):
-            input_file_path_list = []
-            for dir_item in os.listdir(input_file_or_dir_path):
-                dir_item_path = os.path.join(input_file_or_dir_path, dir_item)
-                if dir_item_path.lower().endswith('.fits') and os.path.isfile(dir_item_path):
-                    input_file_path_list.append(dir_item_path)
-        else:
-            input_file_path_list = [input_file_or_dir_path]
+    datapipe.denoising.run(fft,
+                           cleaning_function_params,
+                           input_file_or_dir_path_list,
+                           benchmark_method,
+                           output_file_path,
+                           cleaning_algorithm_label,
+                           plot,
+                           saveplot)
 
-        for input_file_path in input_file_path_list:
-
-            # READ THE INPUT FILE ##################################################
-
-            input_img = images.load(input_file_path, hdu_index)
-
-            if input_img.ndim != 2:
-                raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
-
-            # FOURIER TRANSFORM WITH NUMPY ########################################
-
-            base_file_path = os.path.basename(input_file_path)
-            base_file_path = os.path.splitext(base_file_path)[0]
-
-            initial_time = time.perf_counter()
-            cleaned_img = abs(fft(input_img, shift, threshold, base_file_path))  # TODO: abs(...)
-            execution_time = time.perf_counter() - initial_time
-
-            # GET THE REFERENCE IMAGE #############################################
-
-            reference_img = images.load(input_file_path, 1)
-
-            # ASSESS OR PRINT THE CLEANED IMAGE ###################################
-
-            if benchmark_method is not None:
-                try:
-                    score_tuple = assess.assess_image_cleaning(input_img, cleaned_img, reference_img, benchmark_method)
-
-                    file_path_list.append(input_file_path)
-                    score_list.append(score_tuple)
-                    execution_time_list.append(execution_time)
-                except assess.EmptyReferenceImageError:
-                    print("Empty reference image error")
-                except assess.EmptyOutputImageError:
-                    # TODO: if only the output is zero then this is ackward: this
-                    #       is an algorithm mistake but it cannot be assessed...
-                    print("Empty output image error")
-
-            # PLOT IMAGES #########################################################
-
-            if plot or (saveplot is not None):
-                image_list = [input_img, reference_img, cleaned_img] 
-                title_list = ["Input image", "Reference image", "Cleaned image"] 
-
-                if plot:
-                    images.plot_list(image_list, title_list)
-
-                if saveplot is not None:
-                    images.mpl_save_list(image_list, saveplot, title_list)
-
-    if benchmark_method is not None:
-        print(score_list)
-
-        output_dict = {}
-        output_dict["algo"] = __file__
-        output_dict["label"] = "FFT"
-        output_dict["algo_params"] = {"threshold": threshold}
-        output_dict["benchmark_method"] = benchmark_method
-        output_dict["date_time"] = str(datetime.datetime.now())
-        output_dict["hdu_index"] = hdu_index
-        output_dict["system"] = " ".join(os.uname())
-        output_dict["input_file_path_list"] = file_path_list
-        output_dict["score_list"] = score_list
-        output_dict["execution_time_list"] = execution_time_list
-
-        if args.output is None:
-            output_file_path = "score_fft_benchmark_{}.json".format(benchmark_method)
-        else:
-            output_file_path = args.output
-
-        with open(output_file_path, "w") as fd:
-            #json.dump(data, fd)                                 # no pretty print
-            json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
 
 if __name__ == "__main__":
     main()

@@ -20,9 +20,122 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import datetime
+import json
+import os
+import numpy as np
+import sys
+import time
+import traceback
+
+from datapipe.benchmark import assess
+from datapipe.io import images
+
 __all__ = ['fft',
            'null',
            'tailcut',
            'tailcut_jd',
            'wavelets_mrfilter',
            'wavelets_mrtransform']
+
+# TODO: params algos
+
+def run(cleaning_function,
+        cleaning_function_params,
+        input_file_or_dir_path_list,
+        benchmark_method,
+        output_file_path,
+        cleaning_algorithm_label,
+        plot=False,
+        saveplot=None):
+
+    if benchmark_method is not None:
+        file_path_list = []
+        score_list = []
+        execution_time_list = []
+        error_list = []
+
+    for input_file_or_dir_path in input_file_or_dir_path_list:
+
+        if os.path.isdir(input_file_or_dir_path):
+            input_file_path_list = []
+            for dir_item in os.listdir(input_file_or_dir_path):
+                dir_item_path = os.path.join(input_file_or_dir_path, dir_item)
+                if dir_item_path.lower().endswith('.fits') and os.path.isfile(dir_item_path):
+                    input_file_path_list.append(dir_item_path)
+        else:
+            input_file_path_list = [input_file_or_dir_path]
+
+        for input_file_path in input_file_path_list:
+
+            # CLEAN ONE IMAGE #########################################################
+
+            try:
+                # READ THE INPUT FILE #################################################
+
+                input_img = images.load(input_file_path, hdu_index=0)
+
+                # CLEAN THE INPUT IMAGE ###############################################
+
+                initial_time = time.perf_counter()
+                cleaned_img = cleaning_function(input_img, **cleaning_function_params)
+                execution_time = time.perf_counter() - initial_time
+
+                # GET THE REFERENCE IMAGE #############################################
+
+                reference_img = images.load(input_file_path, hdu_index=1)
+
+                # ASSESS OR PRINT THE CLEANED IMAGE ###################################
+
+                if benchmark_method is not None:
+                    score_tuple = assess.assess_image_cleaning(input_img,
+                                                               cleaned_img,
+                                                               reference_img,
+                                                               benchmark_method)
+
+                    file_path_list.append(input_file_path)
+                    score_list.append(score_tuple)
+                    execution_time_list.append(execution_time)
+
+                # PLOT IMAGES #########################################################
+
+                if plot or (saveplot is not None):
+                    image_list = [input_img, reference_img, cleaned_img] 
+                    title_list = ["Input image", "Reference image", "Cleaned image"] 
+
+                    if plot:
+                        images.plot_list(image_list, title_list)
+
+                    if saveplot is not None:
+                        images.mpl_save_list(image_list, saveplot, title_list)
+
+            except Exception as e:
+                print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
+                #traceback.print_tb(e.__traceback__, file=sys.stdout)
+
+                if benchmark_method is not None:
+                    error_dict = {"file": input_file_path,
+                                  "type": str(type(e)),
+                                  "message": str(e)}
+                    error_list.append(error_dict)
+
+    if benchmark_method is not None:
+        print(score_list)
+        print("{} images aborted".format(len(error_list)))
+
+        output_dict = {}
+        output_dict["algo"] = __file__
+        output_dict["label"] = cleaning_algorithm_label
+        output_dict["algo_params"] = cleaning_function_params
+        output_dict["benchmark_method"] = benchmark_method
+        output_dict["date_time"] = str(datetime.datetime.now())
+        output_dict["system"] = " ".join(os.uname())
+        output_dict["input_file_path_list"] = file_path_list
+        output_dict["score_list"] = score_list
+        output_dict["execution_time_list"] = execution_time_list
+
+        with open(output_file_path, "w") as fd:
+            json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
+
+        with open("errors_" + output_file_path, "w") as fd:
+            json.dump(error_list, fd, sort_keys=True, indent=4)  # pretty print format
