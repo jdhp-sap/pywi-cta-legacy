@@ -112,7 +112,7 @@ def load_benchmark_images(input_file_path):
 
     input_img = hdu_list[0].data        # "hdu.data" is a Numpy Array
     reference_img = hdu_list[1].data    # "hdu.data" is a Numpy Array
-    metadata_dict = {"npe": reference_img.sum()}
+    metadata_dict = {"npe": int(reference_img.sum())}    # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
 
     hdu_list.close()
 
