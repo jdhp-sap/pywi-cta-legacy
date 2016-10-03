@@ -7,17 +7,22 @@ Make statistics on score files (stored in JSON files).
 
 import argparse
 import json
-#import math
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def fetch_data(json_file_path):
+def parse_json_file(json_file_path):
     with open(json_file_path, "r") as fd:
-        score_dict = json.load(fd)
-    return score_dict
+        json_data = json.load(fd)
+    return json_data
+
+
+def extract_score_list(json_dict, score_index):
+    io_list = json_dict["io"]
+    json_data = [image_dict["score"][score_index] for image_dict in io_list if "score" in image_dict]
+    return json_data
 
 
 if __name__ == '__main__':
@@ -59,25 +64,17 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    result_list = []
+    data_list = []
     label_list = []
 
     for json_file_path in json_file_path_list:
-        score_dict = fetch_data(json_file_path)
-        score_list = score_dict["score_list"]
+        json_dict = parse_json_file(json_file_path)
 
-        score_list = [score[score_index] for score in score_list] # TODO...
-        #score_list = [score for score in score_list if not math.isnan(score)]
+        score_array = np.array(extract_score_list(json_dict, score_index))
+        data_list.append(score_array)
 
-        score_array = np.array(score_list)
-        result_list.append(score_array)
+        label_list.append(json_dict["label"])
 
-        # METADATA
-        try:
-            label_list.append(score_dict["label"])
-        except:
-            algo_path = score_dict["algo"]
-            label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
 
     # PLOT STATISTICS #########################################################
 
@@ -86,7 +83,7 @@ if __name__ == '__main__':
     meanpointprops = dict(marker='*', markeredgecolor='black', markerfacecolor='firebrick')
     whiskerprops = dict(color='k', linestyle='-')
 
-    bp = ax1.boxplot(result_list,
+    bp = ax1.boxplot(data_list,
                      labels=label_list,
                      meanprops=meanpointprops,
                      whiskerprops=whiskerprops,

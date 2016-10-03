@@ -12,10 +12,16 @@ import sys
 import numpy as np
 
 
-def fetch_score(json_file_path):
+def parse_json_file(json_file_path):
     with open(json_file_path, "r") as fd:
-        score_dict = json.load(fd)
-    return score_dict
+        json_data = json.load(fd)
+    return json_data
+
+
+def extract_input_path_and_score_list(json_dict, score_index):
+    io_list = json_dict["io"]
+    json_data = [(image_dict["input_file_path"], float(image_dict["score"][score_index])) for image_dict in io_list if "score" in image_dict]
+    return json_data
 
 
 if __name__ == '__main__':
@@ -56,14 +62,12 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    score_dict = fetch_score(json_file_path)
-
-    input_file_path_list = score_dict["input_file_path_list"]
-    score_list = [float(score[score_index]) for score in score_dict["score_list"]]
-
-    data_list = zip(input_file_path_list, score_list)
+    json_dict = parse_json_file(json_file_path)
+    data_list = extract_input_path_and_score_list(json_dict, score_index)
 
     # SEARCH INPUTS BY SCORE RANGE ############################################
+
+    score_list = [item[1] for item in data_list]
 
     if min_score is None:
         min_score = min(score_list)

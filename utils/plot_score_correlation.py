@@ -10,10 +10,17 @@ import json
 import numpy as np
 from matplotlib import pyplot as plt
 
-def fetch_data(json_file_path):
+
+def parse_json_file(json_file_path):
     with open(json_file_path, "r") as fd:
-        score_dict = json.load(fd)
-    return score_dict
+        json_data = json.load(fd)
+    return json_data
+
+
+def extract_score_list(json_dict, score_index1, score_index2):
+    io_list = json_dict["io"]
+    json_data = [(image_dict["score"][score_index1], image_dict["score"][score_index2]) for image_dict in io_list if "score" in image_dict]
+    return json_data
 
 
 if __name__ == '__main__':
@@ -61,20 +68,11 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    score_dict = fetch_data(json_file_path)
+    json_dict = parse_json_file(json_file_path)
 
-    score_list = score_dict["score_list"]
-    score_list = [[score[score_index1], score[score_index2]] for score in score_list]
+    score_array = np.array(extract_score_list(json_dict, score_index1, score_index2))
 
-    score_array = np.array(score_list)
-
-    # METADATA
-
-    try:
-        label = score_dict["label"]
-    except:
-        algo_path = score_dict["algo"]
-        label = os.path.splitext(os.path.basename(algo_path))[0]
+    label = json_dict["label"]
 
     if args.output is None:
         suffix = label + "_i" + str(score_index1) + "_i" + str(score_index2)

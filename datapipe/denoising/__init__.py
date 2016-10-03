@@ -50,10 +50,7 @@ def run(cleaning_function,
         saveplot=None):
 
     if benchmark_method is not None:
-        file_path_list = []
-        score_list = []
-        execution_time_list = []
-        error_list = []
+        io_list = []
 
     for input_file_or_dir_path in input_file_or_dir_path_list:
 
@@ -70,10 +67,14 @@ def run(cleaning_function,
 
             # CLEAN ONE IMAGE #########################################################
 
+            image_dict = {"input_file_path": input_file_path}
+
             try:
                 # READ THE INPUT FILE #################################################
 
                 input_img, reference_img, metadata_dict = images.load_benchmark_images(input_file_path)
+
+                image_dict.update(metadata_dict)
 
                 # CLEAN THE INPUT IMAGE ###############################################
 
@@ -89,9 +90,8 @@ def run(cleaning_function,
                                                                reference_img,
                                                                benchmark_method)
 
-                    file_path_list.append(input_file_path)
-                    score_list.append(score_tuple)
-                    execution_time_list.append(execution_time)
+                    image_dict["score"] = score_tuple
+                    image_dict["execution_time"] = execution_time
 
                 # PLOT IMAGES #########################################################
 
@@ -110,28 +110,27 @@ def run(cleaning_function,
                 #traceback.print_tb(e.__traceback__, file=sys.stdout)
 
                 if benchmark_method is not None:
-                    error_dict = {"file": input_file_path,
-                                  "type": str(type(e)),
+                    error_dict = {"type": str(type(e)),
                                   "message": str(e)}
-                    error_list.append(error_dict)
+                    image_dict["error"] = error_dict
+
+            finally:
+                if benchmark_method is not None:
+                    io_list.append(image_dict)
 
     if benchmark_method is not None:
-        print(score_list)
+        error_list = [image_dict["error"] for image_dict in io_list if "error" in image_dict]
         print("{} images aborted".format(len(error_list)))
 
         output_dict = {}
-        output_dict["algo"] = __file__
+        output_dict["algo_name"] = cleaning_function.__name__
+        output_dict["algo_code_ref"] = str(cleaning_function.__code__)
         output_dict["label"] = cleaning_algorithm_label
         output_dict["algo_params"] = cleaning_function_params
         output_dict["benchmark_method"] = benchmark_method
         output_dict["date_time"] = str(datetime.datetime.now())
         output_dict["system"] = " ".join(os.uname())
-        output_dict["input_file_path_list"] = file_path_list
-        output_dict["score_list"] = score_list
-        output_dict["execution_time_list"] = execution_time_list
+        output_dict["io"] = io_list
 
         with open(output_file_path, "w") as fd:
             json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
-
-        with open("errors_" + output_file_path, "w") as fd:
-            json.dump(error_list, fd, sort_keys=True, indent=4)  # pretty print format
