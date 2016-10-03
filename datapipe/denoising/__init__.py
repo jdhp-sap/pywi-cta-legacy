@@ -73,17 +73,13 @@ def run(cleaning_function,
             try:
                 # READ THE INPUT FILE #################################################
 
-                input_img = images.load(input_file_path, hdu_index=0)
+                input_img, reference_img, metadata_dict = images.load_benchmark_images(input_file_path)
 
                 # CLEAN THE INPUT IMAGE ###############################################
 
                 initial_time = time.perf_counter()
                 cleaned_img = cleaning_function(input_img, **cleaning_function_params)
                 execution_time = time.perf_counter() - initial_time
-
-                # GET THE REFERENCE IMAGE #############################################
-
-                reference_img = images.load(input_file_path, hdu_index=1)
 
                 # ASSESS OR PRINT THE CLEANED IMAGE ###################################
 
