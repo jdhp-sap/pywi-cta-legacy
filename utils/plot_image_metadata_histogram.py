@@ -26,16 +26,18 @@ def parse_json_file(json_file_path):
 
 def extract_data_list(json_dict, key, exclude_aborted, aborted_only):
     io_list = json_dict["io"]
+
     if exclude_aborted:
         json_data = [image_dict[key] for image_dict in io_list if "error" not in image_dict]
     elif aborted_only:
         json_data = [image_dict[key] for image_dict in io_list if "error" in image_dict]
     else:
         json_data = [image_dict[key] for image_dict in io_list]
+
     return json_data
 
 
-def plot_hist(axis, data_array, label, logx, logy):
+def plot_hist(axis, data_array, logx, logy):
     """
     """
 
@@ -51,8 +53,7 @@ def plot_hist(axis, data_array, label, logx, logy):
                           bins=bins,
                           log=logy,               # Set log scale on the Y axis
                           histtype=HIST_TYPE,
-                          alpha=ALPHA,
-                          label=label)
+                          alpha=ALPHA)
 
 
 if __name__ == '__main__':
@@ -129,7 +130,7 @@ if __name__ == '__main__':
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    plot_hist(ax1, data_array, label, logx, logy)
+    plot_hist(ax1, data_array, logx, logy)
 
     if tight:
         min_abscissa = data_array.min()
@@ -137,12 +138,29 @@ if __name__ == '__main__':
         ax1.set_xlim(xmin=min_abscissa)
         ax1.set_xlim(xmax=max_abscissa)
 
-    ax1.legend(prop={'size': 20})
-
     if title is not None:
         ax1.set_title(title, fontsize=20)
     else:
-        ax1.set_title(key, fontsize=20)
+        if exclude_aborted:
+            errors_str = "exclude errors"
+        elif aborted_only:
+            errors_str = "errors only"
+        else:
+            errors_str = None
+
+        if errors_str is not None:
+            ax1.set_title("{} ({}) - {}".format(key, errors_str, label), fontsize=20)
+        else:
+            ax1.set_title("{} - {}".format(key, label), fontsize=20)
+
+    # Info box
+    ax1.text(0.95, 0.92,
+            "{} images".format(data_array.shape[0]),
+            verticalalignment = 'top',
+            horizontalalignment = 'right',
+            transform = ax1.transAxes,
+            bbox={'facecolor': 'white', 'alpha': 0.5, 'pad': 10})
+
 
     ax1.set_xlabel(key, fontsize=20)
     ax1.set_ylabel("Count", fontsize=20)
