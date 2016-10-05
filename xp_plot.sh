@@ -31,21 +31,17 @@ echo ""   & echo "* SCORE GAMMA SSPD HISTOGRAM *********" & ./utils/plot_score_h
 
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy -i0 --title "$\mathcal{E}_1$ ($\gamma$)"     -q -o score_gamma_mpdspd_i0_histogram2d.pdf   score_gamma_mpdspd_tailcut_jd.json   score_gamma_mpdspd_wavelets_mrfilter.json
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy -i1 --title "$\mathcal{E}_2$ ($\gamma$)"     -q -o score_gamma_mpdspd_i1_histogram2d.pdf   score_gamma_mpdspd_tailcut_jd.json   score_gamma_mpdspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy     --title "Energy conservation ($\gamma$)" -q -o score_gamma_sspd_i0_histogram2d.pdf     score_gamma_sspd_tailcut_jd.json     score_gamma_sspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy     --title "Energy conservation ($\gamma$)" -q -o score_gamma_sspd_i1_histogram2d.pdf     score_gamma_sspd_tailcut_jd.json     score_gamma_sspd_wavelets_mrfilter.json
+./utils/plot_score_histogram2d.py --key "npe"        --logy     --title "Energy conservation ($\gamma$)" -q -o score_gamma_sspd_histogram2d.pdf     score_gamma_sspd_tailcut_jd.json        score_gamma_sspd_wavelets_mrfilter.json
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy -i0 --title "$\mathcal{E}_1$ (protons)"      -q -o score_proton_mpdspd_i0_histogram2d.pdf  score_proton_mpdspd_tailcut_jd.json  score_proton_mpdspd_wavelets_mrfilter.json
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy -i1 --title "$\mathcal{E}_2$ (protons)"      -q -o score_proton_mpdspd_i1_histogram2d.pdf  score_proton_mpdspd_tailcut_jd.json  score_proton_mpdspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy     --title "Energy conservation (protons)"  -q -o score_proton_sspd_i0_histogram2d.pdf    score_proton_sspd_tailcut_jd.json    score_proton_sspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy     --title "Energy conservation (protons)"  -q -o score_proton_sspd_i1_histogram2d.pdf    score_proton_sspd_tailcut_jd.json    score_proton_sspd_wavelets_mrfilter.json
+./utils/plot_score_histogram2d.py --key "npe"        --logy     --title "Energy conservation (protons)"  -q -o score_proton_sspd_histogram2d.pdf    score_proton_sspd_tailcut_jd.json       score_proton_sspd_wavelets_mrfilter.json
 
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy --logz -i0 --title "$\mathcal{E}_1$ ($\gamma$)"     -q -o score_gamma_mpdspd_i0_histogram2d_logz.pdf   score_gamma_mpdspd_tailcut_jd.json   score_gamma_mpdspd_wavelets_mrfilter.json
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy --logz -i1 --title "$\mathcal{E}_2$ ($\gamma$)"     -q -o score_gamma_mpdspd_i1_histogram2d_logz.pdf   score_gamma_mpdspd_tailcut_jd.json   score_gamma_mpdspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy --logz     --title "Energy conservation ($\gamma$)" -q -o score_gamma_sspd_i0_histogram2d_logz.pdf     score_gamma_sspd_tailcut_jd.json     score_gamma_sspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy --logz     --title "Energy conservation ($\gamma$)" -q -o score_gamma_sspd_i1_histogram2d_logz.pdf     score_gamma_sspd_tailcut_jd.json     score_gamma_sspd_wavelets_mrfilter.json
+./utils/plot_score_histogram2d.py --key "npe"        --logy --logz     --title "Energy conservation ($\gamma$)" -q -o score_gamma_sspd_histogram2d_logz.pdf     score_gamma_sspd_tailcut_jd.json        score_gamma_sspd_wavelets_mrfilter.json
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy --logz -i0 --title "$\mathcal{E}_1$ (protons)"      -q -o score_proton_mpdspd_i0_histogram2d_logz.pdf  score_proton_mpdspd_tailcut_jd.json  score_proton_mpdspd_wavelets_mrfilter.json
 ./utils/plot_score_histogram2d.py --key "npe" --logx --logy --logz -i1 --title "$\mathcal{E}_2$ (protons)"      -q -o score_proton_mpdspd_i1_histogram2d_logz.pdf  score_proton_mpdspd_tailcut_jd.json  score_proton_mpdspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy --logz     --title "Energy conservation (protons)"  -q -o score_proton_sspd_i0_histogram2d_logz.pdf    score_proton_sspd_tailcut_jd.json    score_proton_sspd_wavelets_mrfilter.json
-./utils/plot_score_histogram2d.py --key "npe"        --logy --logz     --title "Energy conservation (protons)"  -q -o score_proton_sspd_i1_histogram2d_logz.pdf    score_proton_sspd_tailcut_jd.json    score_proton_sspd_wavelets_mrfilter.json
+./utils/plot_score_histogram2d.py --key "npe"        --logy --logz     --title "Energy conservation (protons)"  -q -o score_proton_sspd_histogram2d_logz.pdf    score_proton_sspd_tailcut_jd.json       score_proton_sspd_wavelets_mrfilter.json
 
 
 ./utils/plot_image_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ ($\gamma$)" -q -o score_gamma_npe.pdf   score_gamma_mpdspd_tailcut_jd.json
