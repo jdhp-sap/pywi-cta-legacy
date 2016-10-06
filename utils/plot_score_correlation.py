@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    ax1.plot(score_array[:,0], score_array[:,1], '.')
+    ax1.plot(score_array[:,0], score_array[:,1], '.', alpha=0.2)
 
     ax1.legend(prop={'size': 20})
 
