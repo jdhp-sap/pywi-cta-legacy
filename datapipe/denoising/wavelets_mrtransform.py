@@ -60,7 +60,7 @@ from datapipe.io import images
 class MrTransformError(Exception):
     pass
 
-class WrongDimensionError(MrFilterError):
+class WrongDimensionError(MrTransformError):
     """Exception raised when trying to save a FITS with more than 3 dimensions
     or less than 2 dimensions.
 
