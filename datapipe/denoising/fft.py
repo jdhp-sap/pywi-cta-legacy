@@ -39,7 +39,7 @@ Additional documentation:
 - Scipy implementation: http://docs.scipy.org/doc/scipy/reference/fftpack.html
 """
 
-__all__ = ['fft']
+__all__ = ['FFT']
 
 import argparse
 import datetime
@@ -49,59 +49,65 @@ import numpy as np
 import time
 
 import datapipe.denoising
+from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.benchmark import assess
 from datapipe.io import images
 
+class FFT(AbstractCleaningAlgorithm):
 
-def fft(input_img, shift=False, threshold=0., base_file_path="fft", verbose=False):
-    """
-    Do the fourier transform.
-    """
+    def __init__(self):
+        super(FFT, self).__init__()
+        self.label = "FFT"  # Name to show in plots
 
-    base_file_path="fft"
+    def clean_image(self, input_img, shift=False, threshold=0., base_file_path="fft"):
+        """
+        Do the fourier transform.
+        """
 
-    transformed_img = np.fft.fft2(input_img)
+        base_file_path="fft"
 
-    if shift:
-        transformed_img = np.fft.fftshift(transformed_img)
+        transformed_img = np.fft.fft2(input_img)
 
-    if verbose:
-        images.plot(np.log10(abs(transformed_img)),
-                    title="Fourier coefficients before filtering")
-        images.mpl_save(np.log10(abs(transformed_img)),
-                        "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
+        if shift:
+            transformed_img = np.fft.fftshift(transformed_img)
+
+        if self.verbose:
+            images.plot(np.log10(abs(transformed_img)),
                         title="Fourier coefficients before filtering")
+            images.mpl_save(np.log10(abs(transformed_img)),
+                            "{}_dft_fourier_coefficients_before_filtering.pdf".format(base_file_path),
+                            title="Fourier coefficients before filtering")
 
-    # Compute the standard deviation of the plane ###########
+        # Compute the standard deviation of the plane ###########
 
-    # TODO
-#    img_sigma = np.std(transformed_img)
-    max_value = np.max(abs(transformed_img))
+        # TODO
+    #    img_sigma = np.std(transformed_img)
+        max_value = np.max(abs(transformed_img))
 
-    # Apply a threshold on the transformed image ############
+        # Apply a threshold on the transformed image ############
 
-    # TODO
-#    img_mask = abs(transformed_img) > (img_sigma * 3.)  
-    img_mask =  abs(transformed_img) > (max_value * threshold)
-    filtered_transformed_img = transformed_img * img_mask
+        # TODO
+    #    img_mask = abs(transformed_img) > (img_sigma * 3.)  
+        img_mask =  abs(transformed_img) > (max_value * threshold)
+        filtered_transformed_img = transformed_img * img_mask
 
-    if verbose:
-        images.plot(np.log10(abs(filtered_transformed_img)),
-                    title="Fourier coefficients after filtering")
-        images.mpl_save(np.log10(abs(filtered_transformed_img)),
-                        "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
+        if self.verbose:
+            images.plot(np.log10(abs(filtered_transformed_img)),
                         title="Fourier coefficients after filtering")
+            images.mpl_save(np.log10(abs(filtered_transformed_img)),
+                            "{}_dft_fourier_coefficients_after_filtering.pdf".format(base_file_path),
+                            title="Fourier coefficients after filtering")
 
-    # Do the reverse transform #############
+        # Do the reverse transform #############
 
-    if shift:
-        filtered_transformed_img = np.fft.ifftshift(filtered_transformed_img)
+        if shift:
+            filtered_transformed_img = np.fft.ifftshift(filtered_transformed_img)
 
-    cleaned_img_complex = np.fft.ifft2(filtered_transformed_img)
-    
-    cleaned_img = abs(cleaned_img_complex)
+        cleaned_img_complex = np.fft.ifft2(filtered_transformed_img)
+        
+        cleaned_img = abs(cleaned_img_complex)
 
-    return cleaned_img
+        return cleaned_img
 
 
 def main():
@@ -150,14 +156,12 @@ def main():
         output_file_path = args.output
 
     cleaning_function_params = {"shift": shift, "threshold": threshold}
-    cleaning_algorithm_label = "FFT"
 
-    datapipe.denoising.run(fft,
-                           cleaning_function_params,
+    cleaning_algorithm = FFT()
+    cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           cleaning_algorithm_label,
                            plot,
                            saveplot)
 

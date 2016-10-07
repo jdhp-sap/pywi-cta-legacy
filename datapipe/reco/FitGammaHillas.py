@@ -24,9 +24,9 @@ from Telescope_Mask import TelDict
 
 
 ''' old '''
-from datapipe.denoising.wavelets_mrtransform import wavelet_transform as wavelet_transform_old
+from datapipe.denoising.wavelets_mrtransform import WaveletTransform as WaveletTransformOld
 ''' new '''                                                           
-from datapipe.denoising.wavelets_mrfilter import wavelet_transform    as wavelet_transform_new
+from datapipe.denoising.wavelets_mrfilter import WaveletTransform    as WaveletTransformNew
 
 
 
@@ -92,8 +92,10 @@ class FitGammaHillas:
                     # for now wavelet library works only on rectangular images
                     cropped_img = crop_astri_image(pmt_signal)
                     if old:
-                        cleaned_img = wavelet_transform_old(cropped_img, 4,"wave_5")
+                        wavelet_transform_old = WaveletTransformOld()
+                        cleaned_img = wavelet_transform_old(cropped_img, 4, "wave_5")
                     else:
+                        wavelet_transform_new = WaveletTransformNew()
                         cleaned_img = wavelet_transform_new(cropped_img)
 
                 except FileNotFoundError:

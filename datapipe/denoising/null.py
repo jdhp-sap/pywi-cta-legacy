@@ -37,13 +37,19 @@ import numpy as np
 import time
 
 import datapipe.denoising
+from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.benchmark import assess
 from datapipe.io import images
 
 
-def null(img):
+class Null(AbstractCleaningAlgorithm):
 
-    return img
+    def __init__(self):
+        super(Null, self).__init__()
+        self.label = "Null"  # Name to show in plots
+
+    def clean_image(self, img):
+        return img
 
 
 def main():
@@ -76,14 +82,12 @@ def main():
         output_file_path = args.output
 
     cleaning_function_params = {}
-    cleaning_algorithm_label = "Null"
 
-    datapipe.denoising.run(null,
-                           cleaning_function_params,
+    cleaning_algorithm = Null()
+    cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
-                           output_file_path,
-                           cleaning_algorithm_label)
+                           output_file_path)
 
 
 if __name__ == "__main__":

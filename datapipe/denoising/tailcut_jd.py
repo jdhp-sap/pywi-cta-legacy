@@ -40,68 +40,75 @@ import numpy as np
 import time
 
 import datapipe.denoising
+from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.benchmark import assess
 from datapipe.io import images
 
-def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut", verbose=False):
+class Tailcut(AbstractCleaningAlgorithm):
 
-    # COMPUTE MASKS #######################################
+    def __init__(self):
+        super(Tailcut, self).__init__()
+        self.label = "Tailcut (JD)"  # Name to show in plots
 
-    # TODO
-#    img_sigma = np.std(img)
-    max_value = np.max(img)
+    def clean_image(self, img, high_threshold=0, low_threshold=0, base_file_path="tailcut_jd"):
 
-    # TODO
-#    high_mask = (img > (img_sigma * high_threshold)  
-#    low_mask = (img > (img_sigma * low_threshold)  
-    high_mask = (img > (max_value * high_threshold))
-    low_mask =  (img > (max_value * low_threshold))
+        # COMPUTE MASKS #######################################
 
-#    images.plot(high_mask, title="High mask")
-#    images.plot(low_mask, title="Low mask")
+        # TODO
+    #    img_sigma = np.std(img)
+        max_value = np.max(img)
 
-    # MERGE MASKS #########################################
+        # TODO
+    #    high_mask = (img > (img_sigma * high_threshold)  
+    #    low_mask = (img > (img_sigma * low_threshold)  
+        high_mask = (img > (max_value * high_threshold))
+        low_mask =  (img > (max_value * low_threshold))
 
-    # Dilate the high_mask to create a mask of neighbors.
-    # For instance, if high_mask is equals to:
-    #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 1, 0, 0, 0, 1, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
-    # the dilated version of high_mask is equals to:
-    #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
-    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
-    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    #    images.plot(high_mask, title="High mask")
+    #    images.plot(low_mask, title="Low mask")
 
-    high_mask_dilated = np.zeros(high_mask.shape, dtype=np.bool)
-    high_mask_dilated[:] = high_mask
+        # MERGE MASKS #########################################
 
-    high_mask_dilated[:-1,:] |= high_mask[1:,:]    # shift up
-    high_mask_dilated[1:,:]  |= high_mask[:-1,:]   # shift down
+        # Dilate the high_mask to create a mask of neighbors.
+        # For instance, if high_mask is equals to:
+        #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 1, 0, 0, 0, 1, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        # the dilated version of high_mask is equals to:
+        #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+        #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+        #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+        #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+        #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    high_mask_dilated[:,:-1] |= high_mask_dilated[:,1:]   # shift left
-    high_mask_dilated[:,1:]  |= high_mask_dilated[:,:-1]  # shift right
+        high_mask_dilated = np.zeros(high_mask.shape, dtype=np.bool)
+        high_mask_dilated[:] = high_mask
 
-    # Merge high_mask_dilated and low_mask (using a logical AND)
+        high_mask_dilated[:-1,:] |= high_mask[1:,:]    # shift up
+        high_mask_dilated[1:,:]  |= high_mask[:-1,:]   # shift down
 
-    final_mask = high_mask_dilated & low_mask
+        high_mask_dilated[:,:-1] |= high_mask_dilated[:,1:]   # shift left
+        high_mask_dilated[:,1:]  |= high_mask_dilated[:,:-1]  # shift right
 
-    # PLOT MASK ###########################################
+        # Merge high_mask_dilated and low_mask (using a logical AND)
 
-    if verbose:
-        images.plot(final_mask, title="Tailcut mask")
-        images.mpl_save(final_mask,
-                        "{}_tailcut_mask.pdf".format(base_file_path),
-                        title="Tailcut mask")
+        final_mask = high_mask_dilated & low_mask
 
-    # APPLY MASK ##########################################
+        # PLOT MASK ###########################################
 
-    cleaned_img = img * final_mask
+        if self.verbose:
+            images.plot(final_mask, title="Tailcut mask")
+            images.mpl_save(final_mask,
+                            "{}_tailcut_mask.pdf".format(base_file_path),
+                            title="Tailcut mask")
 
-    return cleaned_img
+        # APPLY MASK ##########################################
+
+        cleaned_img = img * final_mask
+
+        return cleaned_img
 
 
 def main():
@@ -150,14 +157,12 @@ def main():
         output_file_path = args.output
 
     cleaning_function_params = {"high_threshold": high_threshold, "low_threshold": low_threshold}
-    cleaning_algorithm_label = "Tailcut (JD)"
 
-    datapipe.denoising.run(tailcut,
-                           cleaning_function_params,
+    cleaning_algorithm = Tailcut()
+    cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           cleaning_algorithm_label,
                            plot,
                            saveplot)
 

@@ -40,41 +40,48 @@ import numpy as np
 import time
 
 import datapipe.denoising
+from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.benchmark import assess
 from datapipe.io import images
 
 import ctapipe.io
 from ctapipe.reco.cleaning import tailcuts_clean, dilate
 
-def tailcut(img, high_threshold=10., low_threshold=8., base_file_path="tailcut", verbose=False):
+class Tailcut(AbstractCleaningAlgorithm):
+
+    def __init__(self):
+        super(Tailcut, self).__init__()
+        self.label = "Tailcut"  # Name to show in plots
+
+    def clean_image(self, img, high_threshold=10., low_threshold=8., base_file_path="tailcut"):
     """
     vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
     """
 
-    geom = ctapipe.io.CameraGeometry.from_name("astri", 1)  # TODO
+        geom = ctapipe.io.CameraGeometry.from_name("astri", 1)  # TODO
 
-    print(geom)
+        print(geom)
 
-    #signal = convert...
+        #signal = convert...
 
-    mask = tailcuts_clean(geom,
-                          signal,                   # TODO
-                          1,
-                          picture_thresh=high_threshold,
-                          boundary_thresh=low_threshold)
+        mask = tailcuts_clean(geom,
+                              signal,                   # TODO
+                              1,
+                              picture_thresh=high_threshold,
+                              boundary_thresh=low_threshold)
 
-    #if True not in mask: continue       # TODO ?????
-    dilate(geom, mask)                  # TODO ?
+        #if True not in mask: continue       # TODO ?????
+        dilate(geom, mask)                  # TODO ?
 
-    signal[mask == False] = 0
+        signal[mask == False] = 0
 
-    #                for ii in range(3):
-    #                    reco.cleaning.dilate(geom, cleanmask)
-    #                    image[cleanmask == 0] = 0  # zero noise pixels
+        #                for ii in range(3):
+        #                    reco.cleaning.dilate(geom, cleanmask)
+        #                    image[cleanmask == 0] = 0  # zero noise pixels
 
-    #cleaned_img = convert...
+        #cleaned_img = convert...
 
-    return cleaned_img
+        return cleaned_img
 
 
 def main():
@@ -123,14 +130,12 @@ def main():
         output_file_path = args.output
 
     cleaning_function_params = {"high_threshold": high_threshold, "low_threshold": low_threshold}
-    cleaning_algorithm_label = "Tailcut"
 
-    datapipe.denoising.run(tailcut,
-                           cleaning_function_params,
+    cleaning_algorithm = Tailcut()
+    cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           cleaning_algorithm_label,
                            plot,
                            saveplot)
 

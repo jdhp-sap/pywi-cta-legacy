@@ -50,103 +50,130 @@ import numpy as np
 import time
 
 import datapipe.denoising
+from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.benchmark import assess
 from datapipe.io import images
 
 
-def wavelet_transform(input_img, number_of_scales=4, base_file_path="wavelet", verbose=False):
-    """
-    Do the wavelet transform.
+# EXCEPTIONS #################################################################
 
-    mr_filter
-    -K 
-    -k
-    -F2
-    -C1
-    -s3
-    -m2  (a essayer ou -m10)
+class MrTransformError(Exception):
+    pass
 
-    eventuellement -w pour le debug
+class WrongDimensionError(MrFilterError):
+    """Exception raised when trying to save a FITS with more than 3 dimensions
+    or less than 2 dimensions.
+
+    Attributes:
+        message -- explanation of the error
     """
 
-    input_file_path = base_file_path + "_in.fits"
-    mr_output_file_path = base_file_path + "_mr_planes.fits"
+    def __init__(self):
+        super(WrongDimensionError, self).__init__("Unexpected error: the output FITS file should contain a 2D array.")
 
-    # WRITE THE INPUT FILE (FITS) ##########################
 
-    images.save(input_img, input_file_path)
+##############################################################################
 
-    # EXECUTE MR_TRANSFORM #################################
 
-    # TODO: improve the following lines
-    cmd = 'mr_transform -n{} "{}" {}_out'.format(number_of_scales, input_file_path, base_file_path)
-    os.system(cmd)
+class WaveletTransform(AbstractCleaningAlgorithm):
 
-    # TODO: improve the following lines
-    cmd = "mv {}_out.mr {}".format(base_file_path, mr_output_file_path)
-    os.system(cmd)
+    def __init__(self):
+        super(WaveletTransform, self).__init__()
+        self.label = "WT (mr_transform)"  # Name to show in plots
 
-    # READ THE MR_TRANSFORM OUTPUT FILE ####################
+    def clean_image(self, input_img, number_of_scales=4, base_file_path="wavelet_mrtransform"):
+        """
+        Do the wavelet transform.
 
-    output_imgs = images.load(mr_output_file_path, 0)
+        mr_filter
+        -K 
+        -k
+        -F2
+        -C1
+        -s3
+        -m2  (a essayer ou -m10)
 
-    if output_imgs.ndim != 3:
-        raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
+        eventuellement -w pour le debug
+        """
 
-    # DENOISE THE INPUT IMAGE WITH MR_TRANSFORM PLANES #####
+        input_file_path = base_file_path + "_in.fits"
+        mr_output_file_path = base_file_path + "_mr_planes.fits"
 
-    denoised_img = np.zeros(input_img.shape)
+        # WRITE THE INPUT FILE (FITS) ##########################
 
-    for img_index, img in enumerate(output_imgs):
+        images.save(input_img, input_file_path)
 
-        if img_index < (len(output_imgs) - 1):  # All planes except the last one
+        # EXECUTE MR_TRANSFORM #################################
 
-            # Compute the standard deviation of the plane ##
+        # TODO: improve the following lines
+        cmd = 'mr_transform -n{} "{}" {}_out'.format(number_of_scales, input_file_path, base_file_path)
+        os.system(cmd)
 
-            img_sigma = np.std(img)
+        # TODO: improve the following lines
+        cmd = "mv {}_out.mr {}".format(base_file_path, mr_output_file_path)
+        os.system(cmd)
 
-            # Apply a threshold on the plane ###############
+        # READ THE MR_TRANSFORM OUTPUT FILE ####################
 
-            # Remark: "abs(img) > (img_sigma * 3.)" should be the correct way to
-            # make the image mask, but sometimes results looks better when all
-            # negative coefficients are dropped ("img > (img_sigma * 3.)")
+        output_imgs = images.load(mr_output_file_path, 0)
 
-            #img_mask = abs(img) > (img_sigma * 3.)  
-            img_mask = img > (img_sigma * 3.)
-            cleaned_img = img * img_mask
+        if output_imgs.ndim != 3:
+            raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
 
-            if verbose:
-                images.mpl_save(img,
-                                "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-                                title="Plane {}".format(img_index))
-                images.mpl_save(img_mask,
-                                "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
-                                title="Binary mask for plane {}".format(img_index))
-                images.mpl_save(cleaned_img,
-                                "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
-                                title="Filtered plane {}".format(img_index))
+        # DENOISE THE INPUT IMAGE WITH MR_TRANSFORM PLANES #####
 
-                images.plot(img, title="Plane {}".format(img_index))
-                images.plot(img_mask, title="Binary mask for plane {}".format(img_index))
-                images.plot(cleaned_img, title="Filtered plane {}".format(img_index))
+        denoised_img = np.zeros(input_img.shape)
 
-            # Sum the plane ################################
+        for img_index, img in enumerate(output_imgs):
 
-            denoised_img = denoised_img + cleaned_img
+            if img_index < (len(output_imgs) - 1):  # All planes except the last one
 
-        else:   # The last plane should be kept unmodified
+                # Compute the standard deviation of the plane ##
 
-            if verbose:
-                images.mpl_save(img,
-                                "{}_wt_plane{}.pdf".format(base_file_path, img_index),
-                                title="Plane {}".format(img_index))
-                images.plot(img, title="Plane {}".format(img_index))
+                img_sigma = np.std(img)
 
-            # Sum the last plane ###########################
+                # Apply a threshold on the plane ###############
 
-            denoised_img = denoised_img + img
-    
-    return denoised_img
+                # Remark: "abs(img) > (img_sigma * 3.)" should be the correct way to
+                # make the image mask, but sometimes results looks better when all
+                # negative coefficients are dropped ("img > (img_sigma * 3.)")
+
+                #img_mask = abs(img) > (img_sigma * 3.)  
+                img_mask = img > (img_sigma * 3.)
+                cleaned_img = img * img_mask
+
+                if self.verbose:
+                    images.mpl_save(img,
+                                    "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                                    title="Plane {}".format(img_index))
+                    images.mpl_save(img_mask,
+                                    "{}_wt_plane{}_mask.pdf".format(base_file_path, img_index),
+                                    title="Binary mask for plane {}".format(img_index))
+                    images.mpl_save(cleaned_img,
+                                    "{}_wt_plane{}_filtered.pdf".format(base_file_path, img_index),
+                                    title="Filtered plane {}".format(img_index))
+
+                    images.plot(img, title="Plane {}".format(img_index))
+                    images.plot(img_mask, title="Binary mask for plane {}".format(img_index))
+                    images.plot(cleaned_img, title="Filtered plane {}".format(img_index))
+
+                # Sum the plane ################################
+
+                denoised_img = denoised_img + cleaned_img
+
+            else:   # The last plane should be kept unmodified
+
+                if self.verbose:
+                    images.mpl_save(img,
+                                    "{}_wt_plane{}.pdf".format(base_file_path, img_index),
+                                    title="Plane {}".format(img_index))
+                    images.plot(img, title="Plane {}".format(img_index))
+
+                # Sum the last plane ###########################
+
+                denoised_img = denoised_img + img
+        
+        return denoised_img
 
 
 def main():
@@ -191,14 +218,12 @@ def main():
         output_file_path = args.output
 
     cleaning_function_params = {"number_of_scales": number_of_scales}
-    cleaning_algorithm_label = "WT (mr_transform)"
 
-    datapipe.denoising.run(wavelet_transform,
-                           cleaning_function_params,
+    cleaning_algorithm = WaveletTransform()
+    cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           cleaning_algorithm_label,
                            plot,
                            saveplot)
 

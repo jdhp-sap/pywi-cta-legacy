@@ -42,6 +42,7 @@ import os
 import tempfile
 
 import datapipe.denoising
+from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.io import images
 
 
@@ -64,71 +65,77 @@ class WrongDimensionError(MrFilterError):
 
 ##############################################################################
 
-def wavelet_transform(input_img, number_of_scales=4, verbose=False):
-    """
-    Do the wavelet transform.
+class WaveletTransform(AbstractCleaningAlgorithm):
 
-    mr_filter
-    -K         Suppress the last scale (to have background pixels = 0)
-    -k         Suppress isolated pixels in the support
-    -F2        First scale used for the detection (smooth the resulting image)
-    -C1        Coef_Detection_Method: K-SigmaNoise Threshold
-    -s3        K-SigmaNoise Threshold = 3 sigma
-    -m2        Noise model (try -m2 or -m10) -> -m10 works better but is much slower...
+    def __init__(self):
+        super(WaveletTransform, self).__init__()
+        self.label = "WT (mr_filter)"  # Name to show in plots
 
-    eventuellement -w pour le debug
-    -p  ?      Detect only positive structure
-    -P  ?      Suppress the positivity constraint
+    def clean_image(self, input_img, number_of_scales=4):
+        """
+        Do the wavelet transform.
 
-    Raises
-    ------
-    WrongDimensionError
-        If `cleaned_img` is not a 2D array.
-    """
+        mr_filter
+        -K         Suppress the last scale (to have background pixels = 0)
+        -k         Suppress isolated pixels in the support
+        -F2        First scale used for the detection (smooth the resulting image)
+        -C1        Coef_Detection_Method: K-SigmaNoise Threshold
+        -s3        K-SigmaNoise Threshold = 3 sigma
+        -m2        Noise model (try -m2 or -m10) -> -m10 works better but is much slower...
 
-    if input_img.ndim != 2:
-        raise WrongDimensionError()
+        eventuellement -w pour le debug
+        -p  ?      Detect only positive structure
+        -P  ?      Suppress the positivity constraint
 
-    # Make a temporary directory to store fits files
-    with tempfile.TemporaryDirectory() as temp_dir_path:
+        Raises
+        ------
+        WrongDimensionError
+            If `cleaned_img` is not a 2D array.
+        """
 
-        input_file_path = os.path.join(temp_dir_path, "in.fits")
-        mr_output_file_path = os.path.join(temp_dir_path, "out.fits")
+        if input_img.ndim != 2:
+            raise WrongDimensionError()
 
-        # WRITE THE INPUT FILE (FITS) ##########################
+        # Make a temporary directory to store fits files
+        with tempfile.TemporaryDirectory() as temp_dir_path:
 
-        try:
-            images.save(input_img, input_file_path)
-        except:
-            print("Error on input FITS file:", input_file_path)
-            raise
+            input_file_path = os.path.join(temp_dir_path, "in.fits")
+            mr_output_file_path = os.path.join(temp_dir_path, "out.fits")
 
-        # EXECUTE MR_FILTER ####################################
+            # WRITE THE INPUT FILE (FITS) ##########################
 
-        # TODO: improve the following lines
-        #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
-        cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+            try:
+                images.save(input_img, input_file_path)
+            except:
+                print("Error on input FITS file:", input_file_path)
+                raise
 
-        try:
-            os.system(cmd)
-        except:
-            print("Error on command:", cmd)
-            raise
+            # EXECUTE MR_FILTER ####################################
 
-        # READ THE MR_FILTER OUTPUT FILE #######################
+            # TODO: improve the following lines
+            #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+            cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
 
-        try:
-            cleaned_img = images.load(mr_output_file_path, 0)
-        except:
-            print("Error on output FITS file:", mr_output_file_path)
-            raise
+            try:
+                os.system(cmd)
+            except:
+                print("Error on command:", cmd)
+                raise
 
-    # The temporary directory and all its contents are removed now
+            # READ THE MR_FILTER OUTPUT FILE #######################
 
-    if cleaned_img.ndim != 2:
-        raise WrongDimensionError()
+            try:
+                cleaned_img = images.load(mr_output_file_path, 0)
+            except:
+                print("Error on output FITS file:", mr_output_file_path)
+                raise
 
-    return cleaned_img
+        # The temporary directory and all its contents are removed now
+
+        if cleaned_img.ndim != 2:
+            raise WrongDimensionError()
+
+        return cleaned_img
 
 
 def main():
@@ -176,14 +183,12 @@ def main():
         output_file_path = args.output
 
     cleaning_function_params = {"number_of_scales": number_of_scales}
-    cleaning_algorithm_label = "WT (mr_filter)"
 
-    datapipe.denoising.run(wavelet_transform,
-                           cleaning_function_params,
+    cleaning_algorithm = WaveletTransform()
+    cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           cleaning_algorithm_label,
                            plot,
                            saveplot)
 
