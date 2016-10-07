@@ -41,7 +41,7 @@ class AbstractCleaningAlgorithm(object):
         self.verbose = False    # Debug mode
 
     def __call__(self, *pargs, **kargs):
-        self.clean_image(*pargs, **kargs)
+        return self.clean_image(*pargs, **kargs)
 
     # STR #####################################################################
 
