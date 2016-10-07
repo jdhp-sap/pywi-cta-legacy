@@ -1,6 +1,12 @@
 from extract_and_crop_simtel_images import crop_astri_image
 
-from datapipe.denoising.wavelets_mrtransform import wavelet_transform
+old=False
+old=True
+
+''' old '''
+from datapipe.denoising.wavelets_mrtransform import wavelet_transform as wavelet_transform_old
+''' new '''                                                           
+from datapipe.denoising.wavelets_mrfilter import wavelet_transform    as wavelet_transform_new
 
 
 import numpy as np
@@ -47,7 +53,7 @@ def apply_mc_calibration_ASTRI(adcs, tel_id, adc_tresh=3500):
 class EventClassifier:
         
     
-    def __init__(self, class_list=['p','g']):
+    def __init__(self, class_list=['g','p']):
 
         self.class_list = class_list
 
@@ -103,7 +109,7 @@ class EventClassifier:
         features = self.get_features(event, **kwargs )
         if len(features): 
             self.Features[cl].append( features )
-            self.MCEnergy[cl].append(log10(event.mc.energy.to(u.GeV).value))
+            self.MCEnergy[cl].append( event.mc.energy )
         
     
     def get_features(self, event, mode="wave", skip_edge_events=True,edge_thresh=1.5):
@@ -117,37 +123,63 @@ class EventClassifier:
             data = apply_mc_calibration_ASTRI(event.dl0.tel[tel_id].adc_sums, tel_id)
             tel_data[tel_id] = data
             tot_signal += sum(data)
-        
-        
 
         features = []
         
         for tel_id, pmt_signal in tel_data.items():
 
+            self.total_images += 1
+            
             tel_idx = np.searchsorted( self.telescopes['TelID'], tel_id )
             tel_pos = np.array( [self.telescopes["TelX"][tel_idx], self.telescopes["TelY"][tel_idx]] )
             impact_dist = linalg.length(tel_pos-mc_shower_core)
             
-            self.total_images += 1
             if mode == "wave":
-                # for now wavelet library works only on rectangular images
-                cropped_img = crop_astri_image(pmt_signal)
-                cleaned_img = wavelet_transform(cropped_img, 4, self.wave_out_name)
-                cleaned_img -= np.mean(cleaned_img)
-                cleaned_img[cleaned_img<0] = 0
+                try:
+                    # for now wavelet library works only on rectangular images
+                    cropped_img = crop_astri_image(pmt_signal)
+                    if old:
+                        cleaned_img = wavelet_transform_old(cropped_img, 4, self.wave_out_name)
+                    else:
+                        cleaned_img = wavelet_transform_new(cropped_img)
+
+                except FileNotFoundError:
+                    continue
                 
+                
+                if old:
+                    ''' old wavelet_transform did leave constant background; remove '''
+                    cleaned_img -= np.mean(cleaned_img)
+                    cleaned_img[cleaned_img<0] = 0
+                
+                ''' old wavelet_transform did leave some isolated pixels; remove '''
                 self.remove_isolated_pixels(cleaned_img)
+
+
                 
-                edge_thresh = np.max(cleaned_img)/5.
+                
+                
+                #import matplotlib.pyplot as plt
+                #fig = None
+                #if fig == None:
+                    #fig = plt.figure()
+                #plt.subplot(121)
+                #plt.imshow(cropped_img,interpolation='none',cmap=plt.cm.afmhot)
+                #plt.colorbar()
+                #plt.subplot(122)
+                #plt.imshow(cleaned_img,interpolation='none',cmap=plt.cm.afmhot)
+                #plt.colorbar()
+                #plt.pause(.1)
+                #response = input()
+                
+                
                 if skip_edge_events:
-                    if (cleaned_img[0,:] > edge_thresh).any() or (cleaned_img[-1,:] > edge_thresh).any() or (cleaned_img[:,0] > edge_thresh).any() or (cleaned_img[:,-1] > edge_thresh).any(): 
-                        #import matplotlib.pyplot as plt
-                        #fig = plt.figure()
-                        #plt.imshow(cleaned_img,interpolation='none',cmap=plt.cm.afmhot)
-                        #plt.colorbar()
-                        #plt.show()
+                    edge_thresh = np.max(cleaned_img)/5.
+                    if (cleaned_img[0,:]  > edge_thresh).any() or  \
+                       (cleaned_img[-1,:] > edge_thresh).any() or  \
+                       (cleaned_img[:,0]  > edge_thresh).any() or  \
+                       (cleaned_img[:,-1] > edge_thresh).any(): 
                         continue
-                
                 pmt_signal = cleaned_img.flatten()
                 ''' hillas parameter function requires image and x/y arrays to be of the same dimension '''
                 pix_x = crop_astri_image(self.tel_geom[tel_id].pix_x).flatten()
@@ -173,12 +205,14 @@ class EventClassifier:
                 pix_y = self.tel_geom[tel_id].pix_y
             else: 
                 raise Exception('cleaning mode "{}" not found'.format(mode))
-            self.selected_images += 1
 
             try:
                 moments, h_moments = hillas_parameters(pix_x, pix_y, pmt_signal)
                 features.append( [ moments.size, moments.width, moments.length, impact_dist, h_moments.Skewness, h_moments.Kurtosis, h_moments.Asymmetry ] )
-            except HillasParameterizationError:
+                self.selected_images += 1
+            except HillasParameterizationError as e:
+                print(e)
+                print("ignoring this camera")
                 pass
 
         return features
@@ -215,7 +249,7 @@ class EventClassifier:
     def predict(self, ev):
         return self.clf.predict(ev)
 
-    def self_check(self, min_tel=3, agree_threshold=.75, split_size=10, clf=None):
+    def self_check(self, min_tel=3, agree_threshold=.75, split_size=10, clf=None, verbose=True):
         import matplotlib.pyplot as plt
         
         right_ratio = self.create_empty_class_dict()
@@ -230,7 +264,7 @@ class EventClassifier:
                     trainFeatures += ev
                     trainClasses  += [cl]*len(ev)
 
-            
+
             if clf == None:
                 clf = RandomForestClassifier(n_estimators=40, max_depth=None,min_samples_split=1, random_state=0)
             clf.fit(trainFeatures, trainClasses)
@@ -240,26 +274,39 @@ class EventClassifier:
                 for ev, en in zip( self.Features[cl][start:start+split_size], 
                                    self.MCEnergy[cl][start:start+split_size]
                                  ):
-            
-            
-                    predict = clf.predict(ev)
-    
-                    ''' check if prediction was right '''
-                    right = [ 1 if (cl == tel) else 0 for tel in predict ]
+                
+                    log_en = np.log10(en/u.GeV)
+                    
+                    PredictTels = clf.predict(ev)
+                    
+                    
+                    right = [ 1 if (cl == tel) else 0 for tel in PredictTels ]
                     right_ratio[cl].append(sum(right) / len(right))
 
-                    ''' check if prediction returned gamma '''
-                    isGamma = [ 1 if (tel == "g") else 0 for tel in predict ]
-                    if np.mean(isGamma) > agree_threshold: PredictClass = "g"
-                    else: PredictClass = "!g"
+                    isGamma = [ 1 if (tel == "g") else 0 for tel in PredictTels ]
+                    if sum(isGamma) / len(isGamma) > agree_threshold: PredictClass = "g"
+                    else: PredictClass = "p"
                     if PredictClass != cl and len(ev) >= min_tel:
-                        self.wrong[cl].fill( [en] )
-                    self.total[cl].fill( [en] )
+                    
+                    #''' check if prediction was right '''
+                    #right_ratio[cl].append( np.count_nonzero(PredictTels==cl)/len(PredictTels) )
+
+                    #''' check if prediction returned gamma '''
+                    #isGamma = PredictTels == "g"
+                    #try:
+                        #if np.count_nonzero(isGamma)/len(isGamma) > agree_threshold: PredictEvent = "g"
+                        #else: PredictEvent = "!g"
+                    #except:
+                        #print(ev)
+                        #print(PredictTels)
+                        #print(isGamma)
+                        #sys.exit()
+                    #if PredictEvent != cl and len(ev) >= min_tel:
+                        self.wrong[cl].fill( [log_en] )
+                    self.total[cl].fill( [log_en] )
                 
                 
-            
-            #for cl in self.Features.keys():
-                if sum(self.total[cl].hist) > 0:
+                if verbose and sum(self.total[cl].hist) > 0:
                     print( "wrong {}: {} out of {} => {}".format(cl, sum(self.wrong[cl].hist), 
                                                                      sum(self.total[cl].hist),
                                                                      sum(self.wrong[cl].hist) / 
@@ -276,7 +323,7 @@ class EventClassifier:
         y_eff_uerrors = self.create_empty_class_dict()
         
         try:    from efficiency_errors import get_efficiency_errors_scan as get_efficiency_errors
-        except: pass
+        except ImportError: pass
     
         for cl in self.Features.keys():
             if sum(self.total[cl].hist) > 0:

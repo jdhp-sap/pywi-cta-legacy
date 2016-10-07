@@ -1,3 +1,8 @@
+import sys
+sys.path.append("/local/home/tmichael/software/jeremie_cta/snippets/ctapipe")
+from extract_and_crop_simtel_images import crop_astri_image
+
+
 from itertools import combinations,permutations
 
 import numpy as np
@@ -11,13 +16,40 @@ from ctapipe.io import CameraGeometry
 #from ctapipe.io.camera import _guess_camera_type
 
 from ctapipe.reco.hillas import hillas_parameters
-from ctapipe.utils.linalg import *
+from ctapipe.reco.cleaning import tailcuts_clean, dilate
+from ctapipe.utils import linalg
 
 from guessPixDirection import guessPixDirection
 from Telescope_Mask import TelDict
 
 
+''' old '''
+from datapipe.denoising.wavelets_mrtransform import wavelet_transform as wavelet_transform_old
+''' new '''                                                           
+from datapipe.denoising.wavelets_mrfilter import wavelet_transform    as wavelet_transform_new
+
+
+
 __all__ = ["FitGammaHillas"]
+
+
+
+def remove_isolated_pixels(self, img, threshold=0):
+    max_val = np.max(img)
+    for idx, foo in enumerate(img):
+        for idy, bar in enumerate(foo):
+            threshold=3
+            is_island=0
+            if idx>0:
+                is_island += img[idx-1,idy]
+            if idx<len(img)-1:
+                is_island += img[idx+1,idy]
+            if idy>0:
+                is_island += img[idx,idy-1]
+            if idy<len(foo)-1:
+                is_island += img[idx,idy+1]
+            
+            if is_island < threshold and bar != max_val: img[idx,idy] = 0
 
 
 class FitGammaHillas:
@@ -41,17 +73,72 @@ class FitGammaHillas:
         self.tel_theta = theta
 
 
-    def get_great_circles(self,tel_data):
+    def get_great_circles(self,tel_data, mode="wave", old=False, do_dilate=False):
         self.circles = {}
-        for tel_id, photo_electrons in tel_data.items():
+        for tel_id, pmt_signal in tel_data.items():
 
             if tel_id not in self.tel_geom:
                 self.tel_geom[tel_id] = CameraGeometry.guess(self.cameras(tel_id)['PixX'].to(u.m),
                                                              self.cameras(tel_id)['PixY'].to(u.m),
                                                              self.telescopes['FL'][tel_id-1] * u.m) 
-            moments, moms2 = hillas_parameters(self.tel_geom[tel_id].pix_x,
-                                               self.tel_geom[tel_id].pix_y,
-                                               photo_electrons)
+            
+            
+            
+            
+            
+            
+            if mode == "wave":
+                try:
+                    # for now wavelet library works only on rectangular images
+                    cropped_img = crop_astri_image(pmt_signal)
+                    if old:
+                        cleaned_img = wavelet_transform_old(cropped_img, 4,"wave_5")
+                    else:
+                        cleaned_img = wavelet_transform_new(cropped_img)
+
+                except FileNotFoundError:
+                    continue
+                
+                
+                if old:
+                    ''' old wavelet_transform did leave constant background; remove '''
+                    cleaned_img -= np.mean(cleaned_img)
+                    cleaned_img[cleaned_img<0] = 0
+                
+                
+                ''' wavelet_transform still leaves some isolated pixels; remove '''
+                remove_isolated_pixels(None,cleaned_img)
+
+            
+                pmt_signal = cleaned_img.flatten()
+                ''' hillas parameter function requires image and x/y arrays to be of the same dimension '''
+                pix_x = crop_astri_image(self.tel_geom[tel_id].pix_x).flatten()
+                pix_y = crop_astri_image(self.tel_geom[tel_id].pix_y).flatten()
+    
+            elif mode == "tail":
+                mask = tailcuts_clean(self.tel_geom[tel_id], pmt_signal, 1,picture_thresh=10.,boundary_thresh=5.)
+                if True not in mask: continue
+                if do_dilate:
+                    dilate(self.tel_geom[tel_id], mask)
+                
+                pmt_signal[mask==False] = 0
+                pix_x = self.tel_geom[tel_id].pix_x
+                pix_y = self.tel_geom[tel_id].pix_y
+            elif mode == "none":
+                pix_x = self.tel_geom[tel_id].pix_x
+                pix_y = self.tel_geom[tel_id].pix_y
+            else: 
+                raise Exception('cleaning mode "{}" not found'.format(mode))            
+            
+                
+                
+            try:
+                moments, moms2 = hillas_parameters(pix_x, pix_y,
+                                                    pmt_signal)
+            except :
+                print("caught error, ignoring this camera")
+                continue
+
             
             camera_rotation = -90.*u.deg
             #if tel_id in TelDict["LST"]          : camera_rotation = -110.893*u.deg
@@ -80,6 +167,8 @@ class FitGammaHillas:
             of the intersections of all great circles
         """
         
+        assert len(self.circles) >= 2, "need at least two telescopes, have {}".format(len(self.circles))
+        
         crossings = []
         for perm in combinations(self.circles.values(), 2):
             n1,n2 = perm[0].norm, perm[1].norm
@@ -93,7 +182,7 @@ class FitGammaHillas:
             if crossing[2] < 0: crossing *= -1
             crossings.append( crossing  )
         # averaging over the solutions of all permutations
-        return normalise(sum(crossings))*u.dimless, crossings
+        return linalg.normalise(sum(crossings))*u.dimless, crossings
             
             
 
@@ -124,14 +213,14 @@ class FitGammaHillas:
         
         # using the sum of the cosines of each direction with every other direction
         # don't use the product -- with many steep angles, the product will become too small and the weight (and the whole fit) useless
-        weights = [ np.sum( [ length( np.cross(A.norm,B.norm) ) for A in self.circles.values() ] ) for B in self.circles.values() ]
+        weights = [ np.sum( [ linalg.length( np.cross(A.norm,B.norm) ) for A in self.circles.values() ] ) for B in self.circles.values() ]
         
         # minimising the test function
         self.fit_result_origin = minimize( test_function, seed, args=(weights),
                                            method='BFGS', options={'disp': False}
                                          )
             
-        return np.array(normalise(self.fit_result_origin.x))*u.dimless
+        return np.array(linalg.normalise(self.fit_result_origin.x))*u.dimless
         
     def _MEst(self, origin, weights):
         """ calculates the M-Estimator:
@@ -166,7 +255,7 @@ class FitGammaHillas:
             
         """
 
-        ang = np.array([angle(origin,circ.norm) for circ in self.circles.values()])
+        ang = np.array([linalg.angle(origin,circ.norm) for circ in self.circles.values()])
         ang[ang>np.pi/2.] = np.pi-ang[ang>np.pi/2]
         return sum( weights*np.sqrt( 2.+ (ang-np.pi/2.)**2) )
     
@@ -189,10 +278,11 @@ class FitGammaHillas:
                 negative of the sum of the angles between the test direction
                 and all normal vectors of the given great circles
         """
-        #ang = np.array([angle(origin,circ.norm) for circ in self.circles.values()])
         #sin_ang = np.array([np.dot(origin,circ.norm) for circ in self.circles.values()])
-        sin_ang = np.array([length(np.cross(origin,circ.norm)) for circ in self.circles.values()])
+        sin_ang = np.array([linalg.length(np.cross(origin,circ.norm)) for circ in self.circles.values()])
         return -sum(weights*sin_ang)
+    
+        ang = np.array([linalg.angle(origin,circ.norm) for circ in self.circles.values()])
         ang[ang>np.pi/2.] = np.pi-ang[ang>np.pi/2]
         return -sum( weights*ang )
     
@@ -256,7 +346,7 @@ class GreatCircle:
         # not really necessary since the norm can be calculated with a and b just as well
         self.c      = np.cross( np.cross(self.a,self.b), self.a ) 
         # normal vector for the plane the great circle is in
-        self.norm   = normalise( np.cross(self.a,self.c) )
+        self.norm   = linalg.normalise( np.cross(self.a,self.c) )
         # some weight for this circle 
         # (put e.g. uncertainty on the Hillas parameters or number of PE in here)
         self.weight = 1.
