@@ -16,10 +16,17 @@ import numpy as np
 HIST_TYPE='bar'
 ALPHA=0.5
 
-def fetch_score(json_file_path):
+
+def parse_json_file(json_file_path):
     with open(json_file_path, "r") as fd:
-        score_dict = json.load(fd)
-    return score_dict
+        json_data = json.load(fd)
+    return json_data
+
+
+def extract_execution_time_list(json_dict):
+    io_list = json_dict["io"]
+    json_data = [image_dict["execution_time"] for image_dict in io_list if "execution_time" in image_dict]
+    return json_data
 
 
 def plot_hist(axis, data_list, label_list, logx, logy, overlaid):
@@ -107,36 +114,31 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    result_list = []
+    data_list = []
     label_list = []
 
     for json_file_path in json_file_path_list:
-        score_dict = fetch_score(json_file_path)
-        execution_time_list = score_dict["execution_time_list"]
+        json_dict = parse_json_file(json_file_path)
+
+        execution_time_list = extract_execution_time_list(json_dict)
 
         if max_abscissa is not None:
             execution_time_list = [val for val in execution_time_list if val <= max_abscissa]
 
-        execution_time_array = np.array(execution_time_list)
-        result_list.append(execution_time_array)
+        data_list.append(np.array(execution_time_list))
 
-        # METADATA
-        try:
-            label_list.append(score_dict["label"])
-        except:
-            algo_path = score_dict["algo"]
-            label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
+        label_list.append(json_dict["label"])
 
     # PLOT STATISTICS #########################################################
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    plot_hist(ax1, result_list, label_list, logx, logy, overlaid)
+    plot_hist(ax1, data_list, label_list, logx, logy, overlaid)
 
     ax1.axvline(x=0.00003, linewidth=1, color='gray', linestyle='dashed', label=r'30 $\mu$s')  # The maximum time allowed per event on CTA
 
     if tight:
-        result_array = np.array(result_list)
+        result_array = np.array(data_list)
         min_abscissa = result_array.min()
         max_abscissa = result_array.max()
         ax1.set_xlim(xmin=min_abscissa)

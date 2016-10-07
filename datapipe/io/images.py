@@ -39,7 +39,7 @@ class WrongHDUError(FitsError):
     """Exception raised when trying to access a wrong HDU in a FITS file.
 
     Attributes:
-        input_file_path -- the FITS file concerned by the error
+        file_path -- the FITS file concerned by the error
         hdu_index -- the HDU index concerned by the error
     """
 
@@ -53,12 +53,12 @@ class NotAnImageError(FitsError):
     valid image in the given HDU.
 
     Attributes:
-        input_file_path -- the FITS file concerned by the error
+        file_path -- the FITS file concerned by the error
         hdu_index -- the HDU index concerned by the error
     """
 
-    def __init__(self, input_file_path, hdu_index):
-        super(NotAnImageError, self).__init__("HDU {} in file {} doesn't contain any image.".format(self.hdu_index, self.file_path))
+    def __init__(self, file_path, hdu_index):
+        super(NotAnImageError, self).__init__("HDU {} in file {} doesn't contain any image.".format(hdu_index, file_path))
         self.file_path = file_path
         self.hdu_index = hdu_index
 
@@ -71,6 +71,52 @@ class WrongDimensionError(FitsError):
     def __init__(self):
         super(WrongDimensionError, self).__init__("The input image should be a 2D or a 3D numpy array.")
 
+class WrongFitsFileStructure(FitsError):
+    """Exception raised when trying to load a FITS file which doesn't contain a
+    valid structure (for benchmark).
+
+    Attributes:
+        file_path -- the FITS file concerned by the error
+    """
+
+    def __init__(self, file_path):
+        super(WrongFitsFileStructure, self).__init__("File {} doesn't contain a valid structure.".format(file_path))
+        self.file_path = file_path
+
+# LOAD BENCHMARK IMAGE #######################################################
+
+def load_benchmark_images(input_file_path):
+    """Return images contained in the given FITS file.
+
+    Parameters
+    ----------
+    input_file_path : str
+        The path of the FITS file to load
+
+    Returns
+    -------
+    dict
+        A dictionary containing the loaded images and their metadata
+
+    Raises
+    ------
+    WrongFitsFileStructure
+        If `input_file_path` doesn't contain a valid structure
+    """
+
+    hdu_list = fits.open(input_file_path)   # open the FITS file
+
+    if (len(hdu_list) != 2) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image):
+        hdu_list.close()
+        raise WrongFitsFileStructure(input_file_path)
+
+    input_img = hdu_list[0].data        # "hdu.data" is a Numpy Array
+    reference_img = hdu_list[1].data    # "hdu.data" is a Numpy Array
+    metadata_dict = {"npe": int(reference_img.sum())}    # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
+
+    hdu_list.close()
+
+    return input_img, reference_img, metadata_dict
 
 # LOAD AND SAVE FITS FILES ###################################################
 

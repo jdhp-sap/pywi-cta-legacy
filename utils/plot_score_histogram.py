@@ -17,10 +17,61 @@ import numpy as np
 HIST_TYPE='bar'
 ALPHA=0.5
 
-def fetch_score(json_file_path):
+
+def parse_json_file(json_file_path):
     with open(json_file_path, "r") as fd:
-        score_dict = json.load(fd)
-    return score_dict
+        json_data = json.load(fd)
+    return json_data
+
+
+def extract_score_list(json_dict, score_index):
+    io_list = json_dict["io"]
+    json_data = [image_dict["score"][score_index] for image_dict in io_list if "score" in image_dict]
+    return json_data
+
+
+def extract_min(data_list):
+    """Extract the min value from a nested list.
+
+    The following simpler version can't work because nested list can have
+    different lenght:
+
+    ``min_value = np.array(data_list).min()``
+
+    Parameters
+    ----------
+    data_list : list
+        A list of ndarray from wich the minimum value is extracted
+
+    Returns
+    -------
+    float
+        The minimum value of `data_list`
+    """
+    min_value = np.concatenate(data_list).min()
+    return min_value
+
+
+def extract_max(data_list):
+    """Extract the max value from a nested list.
+
+    The following simpler version can't work because nested list can have
+    different lenght:
+
+    ``max_value = np.array(data_list).max()``
+
+    Parameters
+    ----------
+    data_list : list
+        A list of ndarray from wich the maximum value is extracted
+
+    Returns
+    -------
+    float
+        The maximum value of `data_list`
+    """
+    max_value = np.concatenate(data_list).max()
+    return max_value
 
 
 def plot_hist(axis, data_list, label_list, logx, logy, overlaid):
@@ -29,9 +80,8 @@ def plot_hist(axis, data_list, label_list, logx, logy, overlaid):
 
     if logx:
         # Setup the logarithmic scale on the X axis
-        data_array = np.array(data_list)
-        vmin = np.log10(data_array.min())
-        vmax = np.log10(data_array.max())
+        vmin = np.log10(extract_min(data_list))
+        vmax = np.log10(extract_max(data_list))
         bins = np.logspace(vmin, vmax, 50) # Make a range from 10**vmin to 10**vmax
     else:
         bins = 50
@@ -113,39 +163,30 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    result_list = []
+    data_list = []
     label_list = []
 
     for json_file_path in json_file_path_list:
-        score_dict = fetch_score(json_file_path)
-        score_list = score_dict["score_list"]
+        json_dict = parse_json_file(json_file_path)
 
-        score_list = [score[score_index] for score in score_list] # TODO...
-        #score_list = [score for score in score_list if not math.isnan(score)] # TODO...
+        score_list = extract_score_list(json_dict, score_index)
 
         if max_abscissa is not None:
             score_list = [score for score in score_list if score <= max_abscissa]
 
-        score_array = np.array(score_list)
-        result_list.append(score_array)
+        data_list.append(np.array(score_list))
 
-        # METADATA
-        try:
-            label_list.append(score_dict["label"])
-        except:
-            algo_path = score_dict["algo"]
-            label_list.append(os.path.splitext(os.path.basename(algo_path))[0])
+        label_list.append(json_dict["label"])
 
     # PLOT STATISTICS #########################################################
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    plot_hist(ax1, result_list, label_list, logx, logy, overlaid)
+    plot_hist(ax1, data_list, label_list, logx, logy, overlaid)
 
     if tight:
-        result_array = np.array(result_list)
-        min_abscissa = result_array.min()
-        max_abscissa = result_array.max()
+        min_abscissa = extract_min(data_list)
+        max_abscissa = extract_max(data_list)
         ax1.set_xlim(xmin=min_abscissa)
         ax1.set_xlim(xmax=max_abscissa)
 

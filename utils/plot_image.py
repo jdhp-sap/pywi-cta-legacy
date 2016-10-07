@@ -45,8 +45,7 @@ def main():
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
-    parser.add_argument("--output", "-o", default=None,
-                        metavar="FILE",
+    parser.add_argument("--output", "-o", default=None, metavar="FILE",
                         help="The output file path (JSON)")
 
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
@@ -57,6 +56,7 @@ def main():
     args = parser.parse_args()
 
     quiet = args.quiet
+    output = args.output
     input_file_or_dir_path_list = args.fileargs
 
     for input_file_or_dir_path in input_file_or_dir_path_list:
@@ -90,7 +90,9 @@ def main():
 
             image_list = [input_img, reference_img] 
             title_list = ["Input image", "Reference image"] 
-            output = "{}.pdf".format(base_file_path)
+
+            if output is None:
+                output = "{}.pdf".format(base_file_path)
 
             if not quiet:
                 images.plot_list(image_list, title_list)

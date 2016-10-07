@@ -43,36 +43,63 @@ import datapipe.denoising
 from datapipe.benchmark import assess
 from datapipe.io import images
 
-import ctapipe.io
-from ctapipe.reco.cleaning import tailcuts_clean, dilate
+def tailcut(img, high_threshold=0, low_threshold=0, base_file_path="tailcut", verbose=False):
 
-def tailcut(img, high_threshold=10., low_threshold=8., base_file_path="tailcut", verbose=False):
-    """
-    vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
-    """
+    # COMPUTE MASKS #######################################
 
-    geom = ctapipe.io.CameraGeometry.from_name("astri", 1)  # TODO
+    # TODO
+#    img_sigma = np.std(img)
+    max_value = np.max(img)
 
-    print(geom)
+    # TODO
+#    high_mask = (img > (img_sigma * high_threshold)  
+#    low_mask = (img > (img_sigma * low_threshold)  
+    high_mask = (img > (max_value * high_threshold))
+    low_mask =  (img > (max_value * low_threshold))
 
-    #signal = convert...
+#    images.plot(high_mask, title="High mask")
+#    images.plot(low_mask, title="Low mask")
 
-    mask = tailcuts_clean(geom,
-                          signal,                   # TODO
-                          1,
-                          picture_thresh=high_threshold,
-                          boundary_thresh=low_threshold)
+    # MERGE MASKS #########################################
 
-    #if True not in mask: continue       # TODO ?????
-    dilate(geom, mask)                  # TODO ?
+    # Dilate the high_mask to create a mask of neighbors.
+    # For instance, if high_mask is equals to:
+    #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 1, 0, 0, 0, 1, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    # the dilated version of high_mask is equals to:
+    #    [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+    #     [0, 1, 1, 1, 0, 1, 1, 1, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    signal[mask == False] = 0
+    high_mask_dilated = np.zeros(high_mask.shape, dtype=np.bool)
+    high_mask_dilated[:] = high_mask
 
-    #                for ii in range(3):
-    #                    reco.cleaning.dilate(geom, cleanmask)
-    #                    image[cleanmask == 0] = 0  # zero noise pixels
+    high_mask_dilated[:-1,:] |= high_mask[1:,:]    # shift up
+    high_mask_dilated[1:,:]  |= high_mask[:-1,:]   # shift down
 
-    #cleaned_img = convert...
+    high_mask_dilated[:,:-1] |= high_mask_dilated[:,1:]   # shift left
+    high_mask_dilated[:,1:]  |= high_mask_dilated[:,:-1]  # shift right
+
+    # Merge high_mask_dilated and low_mask (using a logical AND)
+
+    final_mask = high_mask_dilated & low_mask
+
+    # PLOT MASK ###########################################
+
+    if verbose:
+        images.plot(final_mask, title="Tailcut mask")
+        images.mpl_save(final_mask,
+                        "{}_tailcut_mask.pdf".format(base_file_path),
+                        title="Tailcut mask")
+
+    # APPLY MASK ##########################################
+
+    cleaned_img = img * final_mask
 
     return cleaned_img
 
@@ -83,15 +110,15 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with the tailcut algorithm.")
 
+    parser.add_argument("--benchmark", "-b", metavar="STRING", 
+                        help="The benchmark method to use to assess the algorithm for the"
+                             "given images")
+
     parser.add_argument("--high_threshold", "-T", type=float, default=0, metavar="FLOAT", 
                         help="The 'high' threshold value (between 0 and 1)")
 
     parser.add_argument("--low_threshold", "-t", type=float, default=0, metavar="FLOAT", 
                         help="The 'low' threshold value (between 0 and 1)")
-
-    parser.add_argument("--benchmark", "-b", metavar="STRING", 
-                        help="The benchmark method to use to assess the algorithm for the"
-                             "given images")
 
     parser.add_argument("--plot", action="store_true",
                         help="Plot images")
@@ -110,20 +137,20 @@ def main():
 
     args = parser.parse_args()
 
+    benchmark_method = args.benchmark
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
-    benchmark_method = args.benchmark
     plot = args.plot
     saveplot = args.saveplot
     input_file_or_dir_path_list = args.fileargs
 
     if args.output is None:
-        output_file_path = "score_tailcut_benchmark_{}.json".format(benchmark_method)
+        output_file_path = "score_tailcut_jd_benchmark_{}.json".format(benchmark_method)
     else:
         output_file_path = args.output
 
     cleaning_function_params = {"high_threshold": high_threshold, "low_threshold": low_threshold}
-    cleaning_algorithm_label = "Tailcut"
+    cleaning_algorithm_label = "Tailcut (JD)"
 
     datapipe.denoising.run(tailcut,
                            cleaning_function_params,
