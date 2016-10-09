@@ -50,19 +50,12 @@ class Tailcut(AbstractCleaningAlgorithm):
         super(Tailcut, self).__init__()
         self.label = "Tailcut (JD)"  # Name to show in plots
 
-    def clean_image(self, img, high_threshold=0, low_threshold=0, base_file_path="tailcut_jd"):
+    def clean_image(self, img, high_threshold=10., low_threshold=5., base_file_path="tailcut_jd"):
 
         # COMPUTE MASKS #######################################
 
-        # TODO
-    #    img_sigma = np.std(img)
-        max_value = np.max(img)
-
-        # TODO
-    #    high_mask = (img > (img_sigma * high_threshold)  
-    #    low_mask = (img > (img_sigma * low_threshold)  
-        high_mask = (img > (max_value * high_threshold))
-        low_mask =  (img > (max_value * low_threshold))
+        high_mask = (img >= high_threshold)
+        low_mask =  (img >= low_threshold)
 
     #    images.plot(high_mask, title="High mask")
     #    images.plot(low_mask, title="Low mask")
