@@ -29,6 +29,7 @@ from astropy.io import fits
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+import os
 
 # EXCEPTIONS #################################################################
 
@@ -83,6 +84,7 @@ class WrongFitsFileStructure(FitsError):
         super(WrongFitsFileStructure, self).__init__("File {} doesn't contain a valid structure.".format(file_path))
         self.file_path = file_path
 
+
 # LOAD BENCHMARK IMAGE #######################################################
 
 def load_benchmark_images(input_file_path):
@@ -112,11 +114,80 @@ def load_benchmark_images(input_file_path):
 
     input_img = hdu_list[0].data        # "hdu.data" is a Numpy Array
     reference_img = hdu_list[1].data    # "hdu.data" is a Numpy Array
-    metadata_dict = {"npe": int(reference_img.sum())}    # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
+
+    metadata_dict = {}    
+
+    metadata_dict['npe'] = int(reference_img.sum())   # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
+
+    metadata_dict['tel_id'] = hdu_list[0].header['tel_id']
+
+    metadata_dict['optical_foclen'] = hdu_list[0].header['foclen']
+    metadata_dict['optical_foclen_unit'] = hdu_list[0].header.comments['foclen']
+
+    metadata_dict['event_id'] = hdu_list[0].header['event_id']
+
+    metadata_dict['mc_energy'] = hdu_list[0].header['energy']
+    metadata_dict['mc_energy_unit'] = hdu_list[0].header.comments['energy']
+
+    metadata_dict['mc_azimuth'] = hdu_list[0].header['mc_az']
+    metadata_dict['mc_azimuth_unit'] = hdu_list[0].header.comments['mc_az']
+
+    metadata_dict['mc_altitude'] = hdu_list[0].header['mc_alt']
+    metadata_dict['mc_altitude_unit'] = hdu_list[0].header.comments['mc_alt']
+
+    metadata_dict['mc_core_x'] = hdu_list[0].header['mc_corex']
+    metadata_dict['mc_core_x_unit'] = hdu_list[0].header.comments['mc_corex']
+
+    metadata_dict['mc_core_y'] = hdu_list[0].header['mc_corey']
+    metadata_dict['mc_core_y_unit'] = hdu_list[0].header.comments['mc_corey']
 
     hdu_list.close()
 
     return input_img, reference_img, metadata_dict
+
+
+# SAVE BENCHMARK IMAGE #######################################################
+
+def save_benchmark_images(img, pe_img, metadata, output_file_path):
+    """
+    Write a FITS file containing pe_img, output_file_path and metadata.
+
+    Parameters
+    ----------
+    img: ndarray
+        The "input image" to save (it should be a 2D Numpy array).
+    pe_img: ndarray
+        The "reference image" to save (it should be a 2D Numpy array).
+    output_file_path: str
+        The path of the output FITS file.
+    metadata: tuple
+        A dictionary containing all metadata to write in the FITS file.
+    """
+
+    if img.ndim != 2:
+        raise Exception("The input image should be a 2D numpy array.")
+
+    if pe_img.ndim != 2:
+        raise Exception("The input image should be a 2D numpy array.")
+
+    # http://docs.astropy.org/en/stable/io/fits/appendix/faq.html#how-do-i-create-a-multi-extension-fits-file-from-scratch
+    hdu0 = fits.PrimaryHDU(img)
+    hdu1 = fits.ImageHDU(pe_img)
+
+    for key, val in metadata.items():
+        if type(val) is tuple :
+            hdu0.header[key] = val[0]
+            hdu0.header.comments[key] = val[1]
+        else:
+            hdu0.header[key] = val
+
+    if os.path.isfile(output_file_path):
+        os.remove(output_file_path)
+
+    hdu_list = fits.HDUList([hdu0, hdu1])
+
+    hdu_list.writeto(output_file_path)
+
 
 # LOAD AND SAVE FITS FILES ###################################################
 

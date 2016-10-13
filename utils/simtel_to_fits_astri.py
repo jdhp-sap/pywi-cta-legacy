@@ -24,8 +24,7 @@
 ... TODO
 """
 
-__all__ = ['extract_images',
-           'save_fits']
+__all__ = ['extract_images']
 
 import argparse
 from astropy.io import fits
@@ -36,8 +35,9 @@ import ctapipe
 from ctapipe.io.hessio import hessio_event_source
 import pyhessio
 
+from datapipe.io import images
+from datapipe.io import geometry_converter
 import datapipe.io.montecarlo_calibration_astri as mc_calibration
-import datapipe.io.geometry_converter as geom_converter
 
 
 DEFAULT_TEL_FILTER = list(range(1, 34))   # TODO
@@ -107,7 +107,7 @@ def extract_images(simtel_file_path,
 
                     print("cropping ADC image")
 
-                    cropped_img = geom_converter.astry_to_2d_array(calibrated_image)
+                    cropped_img = geometry_converter.astry_to_2d_array(calibrated_image)
 
                     # GET AND CROP THE PHOTOELECTRON IMAGE ####################
 
@@ -115,7 +115,7 @@ def extract_images(simtel_file_path,
 
                     print("cropping PE image")
 
-                    cropped_pe_img = geom_converter.astry_to_2d_array(pe_image)
+                    cropped_pe_img = geometry_converter.astry_to_2d_array(pe_image)
 
                     # SAVE THE IMAGE ##########################################
 
@@ -137,13 +137,13 @@ def extract_images(simtel_file_path,
                     metadata['tel_id'] = tel_id
                     metadata['foclen'] = quantity_to_tuple(event.meta.optical_foclen[tel_id], 'm')
                     metadata['event_id'] = event_id
-                    metadata['mc_e'] =  quantity_to_tuple(event.mc.energy, 'TeV')
+                    metadata['energy'] =  quantity_to_tuple(event.mc.energy, 'TeV')
                     metadata['mc_az'] = quantity_to_tuple(event.mc.az, 'rad')
                     metadata['mc_alt'] = quantity_to_tuple(event.mc.alt, 'rad')
                     metadata['mc_corex'] = quantity_to_tuple(event.mc.core_x, 'm')
                     metadata['mc_corey'] = quantity_to_tuple(event.mc.core_y, 'm')
 
-                    save_fits(cropped_img, cropped_pe_img, output_file_path, metadata)
+                    images.save_benchmark_images(cropped_img, cropped_pe_img, metadata, output_file_path)
 
 
 def quantity_to_tuple(quantity, unit_str):
@@ -165,48 +165,6 @@ def quantity_to_tuple(quantity, unit_str):
         A tuple containing the value and the quantity.
     """
     return quantity.to(unit_str).value, quantity.to(unit_str).unit.to_string(format='FITS')
-
-
-def save_fits(img, pe_img, output_file_path, metadata):
-    """
-    Write a FITS file containing pe_img, output_file_path and metadata.
-
-    Parameters
-    ----------
-    img: ndarray
-        The "input image" to save (it should be a 2D Numpy array).
-    pe_img: ndarray
-        The "reference image" to save (it should be a 2D Numpy array).
-    output_file_path: str
-        The path of the output FITS file.
-    metadata: tuple
-        A dictionary containing all metadata to write in the FITS file.
-    """
-
-    if img.ndim != 2:
-        raise Exception("The input image should be a 2D numpy array.")
-
-    if pe_img.ndim != 2:
-        raise Exception("The input image should be a 2D numpy array.")
-
-    # http://docs.astropy.org/en/stable/io/fits/appendix/faq.html#how-do-i-create-a-multi-extension-fits-file-from-scratch
-    hdu0 = fits.PrimaryHDU(img)
-    hdu1 = fits.ImageHDU(pe_img)
-
-    for key, val in metadata.items():
-        if type(val) is tuple :
-            hdu0.header[key] = val[0]
-            hdu0.header.comments[key] = val[1]
-        else:
-            hdu0.header[key] = val
-
-    if os.path.isfile(output_file_path):
-        os.remove(output_file_path)
-
-    hdu_list = fits.HDUList([hdu0, hdu1])
-
-    hdu_list.writeto(output_file_path)
-
 
 
 def main():
