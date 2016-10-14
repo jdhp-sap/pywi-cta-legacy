@@ -24,13 +24,13 @@
 
 """
 
-__all__ = ['get_mc_calibration_coeffs',
+__all__ = ['get_mc_calibration_data',
            'apply_mc_calibration']
 
 import numpy as np
 import pyhessio
 
-def get_mc_calibration_coeffs(tel_id):
+def get_mc_calibration_data(tel_id):
     """
     Get the calibration coefficients from the MC data file to the data.
     This is ahack (until we have a real data structure for the calibrated
@@ -73,7 +73,7 @@ def apply_mc_calibration(adcs, tel_id, adc_treshold=3500.):
         ratios (one dimension for each channel).
     """
 
-    peds, gains = get_mc_calibration_coeffs(tel_id)
+    peds, gains = get_mc_calibration_data(tel_id)
 
     peds_ch0 = peds[0]
     peds_ch1 = peds[1]

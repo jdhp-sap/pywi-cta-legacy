@@ -28,8 +28,10 @@ __all__ = ['extract_images']
 
 import argparse
 from astropy.io import fits
+import datetime
 import numpy as np
 import os
+import sys
 
 import ctapipe
 from ctapipe.io.hessio import hessio_event_source
@@ -39,6 +41,7 @@ from datapipe.io import images
 from datapipe.io import geometry_converter
 import datapipe.io.montecarlo_calibration_astri as mc_calibration
 
+from datapipe import __version__ as VERSION
 
 DEFAULT_TEL_FILTER = list(range(1, 34))   # TODO
 
@@ -99,8 +102,9 @@ def extract_images(simtel_file_path,
 
                     print("calibrating")
 
-                    adc_channel_0 = event.dl0.tel[tel_id].adc_sums[0]      # TODO
-                    adc_channel_1 = event.dl0.tel[tel_id].adc_sums[1]      # TODO
+                    adc_sums = event.dl0.tel[tel_id].adc_sums
+                    adc_channel_0 = adc_sums[0]
+                    adc_channel_1 = adc_sums[1]
                     uncalibrated_image = np.array([adc_channel_0, adc_channel_1])
 
                     calibrated_image = mc_calibration.apply_mc_calibration(uncalibrated_image, tel_id)
@@ -134,16 +138,58 @@ def extract_images(simtel_file_path,
                     print("saving", output_file_path)
 
                     metadata = {}
+
                     metadata['tel_id'] = tel_id
-                    metadata['foclen'] = quantity_to_tuple(event.meta.optical_foclen[tel_id], 'm')
                     metadata['event_id'] = event_id
+                    metadata['simtel'] = simtel_file_path
+
+                    metadata['tel_trig'] = len(event.trig.tels_with_trigger)
+
                     metadata['energy'] =  quantity_to_tuple(event.mc.energy, 'TeV')
                     metadata['mc_az'] = quantity_to_tuple(event.mc.az, 'rad')
                     metadata['mc_alt'] = quantity_to_tuple(event.mc.alt, 'rad')
                     metadata['mc_corex'] = quantity_to_tuple(event.mc.core_x, 'm')
                     metadata['mc_corey'] = quantity_to_tuple(event.mc.core_y, 'm')
+                    metadata['mc_hfi'] = quantity_to_tuple(event.mc.h_first_int, 'm')
 
-                    images.save_benchmark_images(cropped_img, cropped_pe_img, metadata, output_file_path)
+                    metadata['count'] = int(event.count)
+                    
+                    metadata['run_id'] = int(event.dl0.run_id)
+                    metadata['tel_data'] = len(event.dl0.tels_with_data)
+
+                    metadata['foclen'] = quantity_to_tuple(event.meta.optical_foclen[tel_id], 'm')
+                    metadata['tel_posx'] = quantity_to_tuple(event.meta.tel_pos[tel_id][0], 'm')
+                    metadata['tel_posy'] = quantity_to_tuple(event.meta.tel_pos[tel_id][1], 'm')
+                    metadata['tel_posz'] = quantity_to_tuple(event.meta.tel_pos[tel_id][2], 'm')
+
+                    # TODO: Astropy fails to store the following data in FITS files
+                    #metadata['uid'] = os.getuid()
+                    #metadata['datetime'] = str(datetime.datetime.now())
+                    #metadata['version'] = VERSION
+                    #metadata['argv'] = " ".join(sys.argv).encode('ascii', errors='ignore').decode('ascii')
+                    #metadata['python'] = " ".join(sys.version.splitlines()).encode('ascii', errors='ignore').decode('ascii')
+                    #metadata['system'] = " ".join(os.uname())
+
+                    pedestal, gains = mc_calibration.get_mc_calibration_data(tel_id)
+                    cropped_pedestal = geometry_converter.astry_to_3d_array(pedestal)
+                    cropped_gains = geometry_converter.astry_to_3d_array(gains)
+
+                    adc_sums_array = np.array([adc_img[1] for adc_img in sorted(adc_sums.items())])
+                    cropped_adc_sums = geometry_converter.astry_to_3d_array(adc_sums_array)
+
+                    cropped_calibration = geometry_converter.astry_to_3d_array(event.dl0.tel[tel_id].calibration)
+
+                    cropped_pixel_pos = geometry_converter.astry_to_3d_array(event.meta.pixel_pos[tel_id])
+
+                    images.save_benchmark_images(img = cropped_img,
+                                                 pe_img = cropped_pe_img,
+                                                 adc_sums_img = cropped_adc_sums,
+                                                 pedestal_img = cropped_pedestal,
+                                                 gains_img = cropped_gains,
+                                                 calibration_img = cropped_calibration,
+                                                 pixel_pos = cropped_pixel_pos,
+                                                 metadata = metadata,
+                                                 output_file_path = output_file_path)
 
 
 def quantity_to_tuple(quantity, unit_str):

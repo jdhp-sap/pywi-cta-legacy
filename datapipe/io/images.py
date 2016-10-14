@@ -108,38 +108,66 @@ def load_benchmark_images(input_file_path):
 
     hdu_list = fits.open(input_file_path)   # open the FITS file
 
-    if (len(hdu_list) != 2) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image):
+    if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
         hdu_list.close()
         raise WrongFitsFileStructure(input_file_path)
 
-    input_img = hdu_list[0].data        # "hdu.data" is a Numpy Array
-    reference_img = hdu_list[1].data    # "hdu.data" is a Numpy Array
+    hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6 = hdu_list
+
+    input_img = hdu0.data        # "hdu.data" is a Numpy Array
+    reference_img = hdu1.data    # "hdu.data" is a Numpy Array
 
     metadata_dict = {}    
 
     metadata_dict['npe'] = int(reference_img.sum())   # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
 
-    metadata_dict['tel_id'] = hdu_list[0].header['tel_id']
+    metadata_dict['tel_id'] = hdu0.header['tel_id']
+    metadata_dict['event_id'] = hdu0.header['event_id']
+    metadata_dict['simtel_path'] = hdu0.header['simtel']
 
-    metadata_dict['optical_foclen'] = hdu_list[0].header['foclen']
-    metadata_dict['optical_foclen_unit'] = hdu_list[0].header.comments['foclen']
+    metadata_dict['num_tel_with_trigger'] = hdu0.header['tel_trig']
 
-    metadata_dict['event_id'] = hdu_list[0].header['event_id']
+    metadata_dict['mc_energy'] = hdu0.header['energy']
+    metadata_dict['mc_energy_unit'] = hdu0.header.comments['energy']
 
-    metadata_dict['mc_energy'] = hdu_list[0].header['energy']
-    metadata_dict['mc_energy_unit'] = hdu_list[0].header.comments['energy']
+    metadata_dict['mc_azimuth'] = hdu0.header['mc_az']
+    metadata_dict['mc_azimuth_unit'] = hdu0.header.comments['mc_az']
 
-    metadata_dict['mc_azimuth'] = hdu_list[0].header['mc_az']
-    metadata_dict['mc_azimuth_unit'] = hdu_list[0].header.comments['mc_az']
+    metadata_dict['mc_altitude'] = hdu0.header['mc_alt']
+    metadata_dict['mc_altitude_unit'] = hdu0.header.comments['mc_alt']
 
-    metadata_dict['mc_altitude'] = hdu_list[0].header['mc_alt']
-    metadata_dict['mc_altitude_unit'] = hdu_list[0].header.comments['mc_alt']
+    metadata_dict['mc_core_x'] = hdu0.header['mc_corex']
+    metadata_dict['mc_core_x_unit'] = hdu0.header.comments['mc_corex']
 
-    metadata_dict['mc_core_x'] = hdu_list[0].header['mc_corex']
-    metadata_dict['mc_core_x_unit'] = hdu_list[0].header.comments['mc_corex']
+    metadata_dict['mc_core_y'] = hdu0.header['mc_corey']
+    metadata_dict['mc_core_y_unit'] = hdu0.header.comments['mc_corey']
 
-    metadata_dict['mc_core_y'] = hdu_list[0].header['mc_corey']
-    metadata_dict['mc_core_y_unit'] = hdu_list[0].header.comments['mc_corey']
+    metadata_dict['mc_height_first_interaction'] = hdu0.header['mc_hfi']
+    metadata_dict['mc_height_first_interaction_unit'] = hdu0.header.comments['mc_hfi']
+
+    metadata_dict['ev_count'] = hdu0.header['count']
+    metadata_dict['run_id'] = hdu0.header['run_id']
+    metadata_dict['num_tel_with_data'] = hdu0.header['tel_data']
+
+    metadata_dict['optical_foclen'] = hdu0.header['foclen']
+    metadata_dict['optical_foclen_unit'] = hdu0.header.comments['foclen']
+
+    metadata_dict['tel_pos_x'] = hdu0.header['tel_posx']
+    metadata_dict['tel_pos_x_unit'] = hdu0.header.comments['tel_posx']
+
+    metadata_dict['tel_pos_y'] = hdu0.header['tel_posy']
+    metadata_dict['tel_pos_y_unit'] = hdu0.header.comments['tel_posy']
+
+    metadata_dict['tel_pos_z'] = hdu0.header['tel_posz']
+    metadata_dict['tel_pos_z_unit'] = hdu0.header.comments['tel_posz']
+
+    # TODO: Astropy fails to store the following data in FITS files
+    #metadata_dict['uid'] = hdu0.header.comments['uid']
+    #metadata_dict['date_time'] = hdu0.header.comments['datetime']
+    #metadata_dict['version'] = hdu0.header.comments['version']
+    #metadata_dict['argv'] = hdu0.header.comments['argv']
+    #metadata_dict['python_version'] = hdu0.header.comments['python']
+    #metadata_dict['system'] = hdu0.header.comments['system']
 
     hdu_list.close()
 
@@ -148,7 +176,7 @@ def load_benchmark_images(input_file_path):
 
 # SAVE BENCHMARK IMAGE #######################################################
 
-def save_benchmark_images(img, pe_img, metadata, output_file_path):
+def save_benchmark_images(img, pe_img, adc_sums_img, pedestal_img, gains_img, calibration_img, pixel_pos, metadata, output_file_path):
     """
     Write a FITS file containing pe_img, output_file_path and metadata.
 
@@ -170,9 +198,38 @@ def save_benchmark_images(img, pe_img, metadata, output_file_path):
     if pe_img.ndim != 2:
         raise Exception("The input image should be a 2D numpy array.")
 
+    if adc_sums_img.ndim != 3:
+        raise Exception("The input image should be a 3D numpy array.")
+
+    if pedestal_img.ndim != 3:
+        raise Exception("The input image should be a 3D numpy array.")
+
+    if gains_img.ndim != 3:
+        raise Exception("The input image should be a 3D numpy array.")
+
+    if calibration_img.ndim != 3:
+        raise Exception("The input image should be a 3D numpy array.")
+
+    if pixel_pos.ndim != 3:
+        raise Exception("The input image should be a 3D numpy array.")
+
     # http://docs.astropy.org/en/stable/io/fits/appendix/faq.html#how-do-i-create-a-multi-extension-fits-file-from-scratch
+    # http://docs.astropy.org/en/stable/generated/examples/io/create-mef.html#sphx-glr-generated-examples-io-create-mef-py
     hdu0 = fits.PrimaryHDU(img)
     hdu1 = fits.ImageHDU(pe_img)
+    hdu2 = fits.ImageHDU(adc_sums_img)
+    hdu3 = fits.ImageHDU(pedestal_img)
+    hdu4 = fits.ImageHDU(gains_img)
+    hdu5 = fits.ImageHDU(calibration_img)
+    hdu6 = fits.ImageHDU(pixel_pos)
+
+    hdu0.header["desc"] = "calibrated image"
+    hdu1.header["desc"] = "pe image"
+    hdu2.header["desc"] = "adc sum images"
+    hdu3.header["desc"] = "pedestal images"
+    hdu4.header["desc"] = "gains images"
+    hdu5.header["desc"] = "calibration images"
+    hdu6.header["desc"] = "pixels position"
 
     for key, val in metadata.items():
         if type(val) is tuple :
@@ -184,7 +241,7 @@ def save_benchmark_images(img, pe_img, metadata, output_file_path):
     if os.path.isfile(output_file_path):
         os.remove(output_file_path)
 
-    hdu_list = fits.HDUList([hdu0, hdu1])
+    hdu_list = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6])
 
     hdu_list.writeto(output_file_path)
 
