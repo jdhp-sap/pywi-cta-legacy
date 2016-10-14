@@ -44,6 +44,103 @@ from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgor
 from datapipe.benchmark import assess
 from datapipe.io import images
 
+
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+# DEBUG PLOT FUNCTION #########################################################
+
+def debug_plot(img, high_mask, final_mask, title=""):
+    """
+    img should be a 2D numpy array.
+    """
+    fig = plt.figure(figsize=(8.0, 8.0))
+    ax = fig.add_subplot(111)
+    ax.set_title("Original image")
+
+    im1 = ax.imshow(img,
+                   origin='lower',
+                   interpolation='nearest',
+                   vmin=min(img.min(), 0),
+                   cmap="gray")
+
+    plt.colorbar(im1) # draw the colorbar
+
+    #plt.show()
+    plt.savefig("tailcut_original.pdf", bbox_inches='tight')
+    plt.close('all')
+
+    ###########################################################################
+    
+    fig = plt.figure(figsize=(8.0, 8.0))
+    ax = fig.add_subplot(111)
+    ax.set_title("First threshold")
+
+    im1 = ax.imshow(img,
+                   origin='lower',
+                   interpolation='nearest',
+                   vmin=min(img.min(), 0),
+                   cmap="gray",
+                   alpha=0.5)
+
+    # http://stackoverflow.com/questions/17170229/setting-transparency-based-on-pixel-values-in-matplotlib
+    mask = np.ma.masked_where(high_mask < 0.9, high_mask) # TODO
+
+    im = ax.imshow(mask,
+                   origin='lower',
+                   interpolation='nearest',
+                   vmin=0,
+                   cmap="Reds",
+                   alpha=0.8)
+
+    plt.colorbar(im1) # draw the colorbar
+
+    #plt.show()
+    plt.savefig("tailcut_1st_threshold.pdf", bbox_inches='tight')
+    plt.close('all')
+
+    #########################################################################
+    
+    fig = plt.figure(figsize=(8.0, 8.0))
+    ax = fig.add_subplot(111)
+    ax.set_title("Second threshold")
+
+    im1 = ax.imshow(img,
+                   origin='lower',
+                   interpolation='nearest',
+                   vmin=min(img.min(), 0),
+                   cmap="gray",
+                   alpha=0.5)
+
+    mask = np.ma.masked_where(high_mask < 0.9, high_mask) # TODO
+
+    im = ax.imshow(mask,
+                   origin='lower',
+                   interpolation='nearest',
+                   vmin=0,
+                   cmap="Reds",
+                   alpha=0.5)
+
+    neighbors_mask = final_mask - high_mask
+
+    mask = np.ma.masked_where(neighbors_mask < 0.9, neighbors_mask) # TODO
+
+    im = ax.imshow(mask,
+                   origin='lower',
+                   interpolation='nearest',
+                   vmin=0,
+                   cmap="Greens",
+                   alpha=0.8)
+
+    plt.colorbar(im1) # draw the colorbar
+
+    #plt.show()
+    plt.savefig("tailcut_2nd_threshold.pdf", bbox_inches='tight')
+    plt.close('all')
+
+
+# TAILCUT #####################################################################
+
 class Tailcut(AbstractCleaningAlgorithm):
 
     def __init__(self):
@@ -96,6 +193,8 @@ class Tailcut(AbstractCleaningAlgorithm):
             images.mpl_save(final_mask,
                             "{}_tailcut_mask.pdf".format(base_file_path),
                             title="Tailcut mask")
+
+        #debug_plot(img, high_mask, final_mask, title="Tailcut mask")
 
         # APPLY MASK ##########################################
 
