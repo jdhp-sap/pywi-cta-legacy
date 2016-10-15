@@ -23,6 +23,7 @@
 import datetime
 import json
 import os
+import math
 import numpy as np
 import sys
 import time
@@ -47,6 +48,21 @@ class AbstractCleaningAlgorithm(object):
 
     def __str__(self):
         return "{}".format(self.algorithm_label)
+
+    # TODO: move this function in a dedicated module !!!!
+    def near_borders_signal_coef(self, img):
+        try:
+            x, y = img.shape
+            m = min(x, y)
+
+            for i in range(1, math.ceil(m/2)):
+                if img[i:-i, i:-i].sum() == 0:
+                    break
+            res = i
+        except:
+            res = -1
+
+        return res
 
     def run(self,
             cleaning_function_params,
@@ -99,6 +115,7 @@ class AbstractCleaningAlgorithm(object):
 
                         image_dict["score"] = score_tuple
                         image_dict["execution_time"] = execution_time
+                        image_dict["near_borders_signal_coef"] = self.near_borders_signal_coef(reference_img)
 
                     # PLOT IMAGES #########################################################
 
