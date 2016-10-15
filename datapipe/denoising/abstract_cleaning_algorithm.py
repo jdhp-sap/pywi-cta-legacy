@@ -55,7 +55,7 @@ class AbstractCleaningAlgorithm(object):
             x, y = img.shape
             m = min(x, y)
 
-            res = [img[i:-i, i:-i].sum() for i in range(1, math.ceil(m/2))]
+            res = [int(img.sum())] + [int(img[i:-i, i:-i].sum()) for i in range(1, math.ceil(m/2))]
 
             #for i in range(1, math.ceil(m/2)):
             #    if img[i:-i, i:-i].sum() == 0:
