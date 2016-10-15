@@ -39,7 +39,7 @@ __all__ = ['wavelet_transform']
 
 import argparse
 import os
-import tempfile
+import time
 
 import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
@@ -103,53 +103,56 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         if input_img.ndim != 2:
             raise WrongDimensionError()
 
-        # Make a temporary directory to store fits files
-        with tempfile.TemporaryDirectory() as temp_dir_path:
+        input_file_path = ".tmp_{}_{}_in.fits".format(os.getpid(), time.time())
+        mr_output_file_path = ".tmp_{}_{}_out.fits".format(os.getpid(), time.time())
 
-            input_file_path = os.path.join(temp_dir_path, "in.fits")
-            mr_output_file_path = os.path.join(temp_dir_path, "out.fits")
 
-            # WRITE THE INPUT FILE (FITS) ##########################
+        # WRITE THE INPUT FILE (FITS) ##########################
 
-            try:
-                images.save(input_img, input_file_path)
-            except:
-                print("Error on input FITS file:", input_file_path)
-                raise
+        try:
+            images.save(input_img, input_file_path)
+        except:
+            print("Error on input FITS file:", input_file_path)
+            raise
 
-            # EXECUTE MR_FILTER ####################################
+        # EXECUTE MR_FILTER ####################################
 
-            # TODO: improve the following lines
-            cmd = 'mr_filter'
-            cmd += ' -n{}'.format(number_of_scales)
-            cmd += ' -K' if suppress_last_scale else ''
-            cmd += ' -k' if suppress_isolated_pixels else ''
-            cmd += ' -C{}'.format(coef_detection_method)
-            cmd += ' -s{}'.format(k_sigma_noise_threshold)
-            cmd += ' -m{}'.format(noise_model)
-            cmd += ' "{}" {}'.format(input_file_path, mr_output_file_path)
+        # TODO: improve the following lines
+        cmd = 'mr_filter'
+        cmd += ' -n{}'.format(number_of_scales)
+        cmd += ' -K' if suppress_last_scale else ''
+        cmd += ' -k' if suppress_isolated_pixels else ''
+        cmd += ' -C{}'.format(coef_detection_method)
+        cmd += ' -s{}'.format(k_sigma_noise_threshold)
+        cmd += ' -m{}'.format(noise_model)
+        cmd += ' "{}" {}'.format(input_file_path, mr_output_file_path)
 
-            #cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
-            #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+        #cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+        #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
 
-            if self.verbose:
-                print(cmd)
+        if self.verbose:
+            print(cmd)
 
-            try:
-                os.system(cmd)
-            except:
-                print("Error on command:", cmd)
-                raise
+        try:
+            os.system(cmd)
+        except:
+            print("Error on command:", cmd)
+            raise
 
-            # READ THE MR_FILTER OUTPUT FILE #######################
+        # READ THE MR_FILTER OUTPUT FILE #######################
 
-            try:
-                cleaned_img = images.load(mr_output_file_path, 0)
-            except:
-                print("Error on output FITS file:", mr_output_file_path)
-                raise
+        try:
+            cleaned_img = images.load(mr_output_file_path, 0)
+        except:
+            print("Error on output FITS file:", mr_output_file_path)
+            raise
 
-        # The temporary directory and all its contents are removed now
+        # REMOVE FITS FILES ####################################
+
+        os.remove(input_file_path)
+        os.remove(mr_output_file_path)
+
+        # CHECK RESULT #########################################
 
         if cleaned_img.ndim != 2:
             raise WrongDimensionError()
