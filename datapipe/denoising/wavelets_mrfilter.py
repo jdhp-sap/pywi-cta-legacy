@@ -78,7 +78,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     suppress_isolated_pixels=True,
                     coef_detection_method=1,
                     k_sigma_noise_threshold=3,
-                    noise_model=3):
+                    noise_model=3,
+                    detect_only_positive_structure=False,
+                    suppress_positivity_constraint=False):
         """
         Do the wavelet transform.
 
@@ -89,10 +91,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         -C1        Coef_Detection_Method: K-SigmaNoise Threshold
         -s3        K-SigmaNoise Threshold = 3 sigma
         -m2        Noise model (try -m2 or -m10) -> -m10 works better but is much slower...
-
-        eventuellement -w pour le debug
-        -p  ?      Detect only positive structure
-        -P  ?      Suppress the positivity constraint
+        -p         Detect only positive structure
+        -P         Suppress the positivity constraint
 
         Raises
         ------
@@ -125,6 +125,10 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         cmd += ' -C{}'.format(coef_detection_method)
         cmd += ' -s{}'.format(k_sigma_noise_threshold)
         cmd += ' -m{}'.format(noise_model)
+        cmd += ' -p' if detect_only_positive_structure else ''
+        cmd += ' -P' if suppress_positivity_constraint else ''
+        self.label = "WT ({})".format(cmd)  # Name to show in plots
+
         cmd += ' "{}" {}'.format(input_file_path, mr_output_file_path)
 
         #cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
@@ -200,6 +204,12 @@ def main():
                             9: Stationary correlated noise
                             10: Poisson noise with few events""")
 
+    parser.add_argument("--detect-only-positive-structure", "-p", action="store_true",
+                        help="Detect only positive structure")
+
+    parser.add_argument("--suppress-positivity-constraint", "-P", action="store_true",
+                        help="Suppress positivity constraint")
+
     # COMMON OPTIONS
 
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
@@ -229,6 +239,8 @@ def main():
     coef_detection_method = args.coef_detection_method
     k_sigma_noise_threshold = args.k_sigma_noise_threshold
     noise_model = args.noise_model
+    detect_only_positive_structure = args.detect_only_positive_structure
+    suppress_positivity_constraint = args.suppress_positivity_constraint
 
     benchmark_method = args.benchmark
     plot = args.plot
@@ -248,6 +260,8 @@ def main():
                 "coef_detection_method": coef_detection_method,
                 "k_sigma_noise_threshold": k_sigma_noise_threshold,
                 "noise_model": noise_model,
+                "detect_only_positive_structure": detect_only_positive_structure,
+                "suppress_positivity_constraint": suppress_positivity_constraint
             }
 
     cleaning_algorithm = WaveletTransform()
