@@ -9,22 +9,22 @@ WT_MR_FILTER_PARAMS="-n4 -K -k -C1 -s3 -m3"
 
 # PROTONS #########
 
-echo "" # & echo "* PROTON MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_proton_mpd_null.json                  $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004              -o score_proton_mpd_fft.json                   $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON MPD TAILCUT"     & ./datapipe/denoising/tailcut_jd.py        -b mpd    ${TAILCUT_PARAMS}       -o score_proton_mpd_tailcut_jd.json            $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd    ${WT_MR_FILTER_PARAMS}  -o score_proton_mpd_wavelets_mrfilter.json     $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_proton_mpd_null.json                  $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004              -o score_proton_mpd_fft.json                   $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPD TAILCUT"     & ./datapipe/denoising/tailcut_jd.py        -b mpd    ${TAILCUT_PARAMS}       -o score_proton_mpd_tailcut_jd.json            $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd    ${WT_MR_FILTER_PARAMS}  -o score_proton_mpd_wavelets_mrfilter.json     $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
-echo "" # & echo "* PROTON MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_proton_mpdspd_null.json               $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON MPDSDP FFT"      & ./datapipe/denoising/fft.py               -b mpdspd -s -t0.004              -o score_proton_mpdspd_fft.json                $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo ""   & echo "* PROTON MPDSDP TAILCUT"  & ./datapipe/denoising/tailcut_jd.py        -b mpdspd ${TAILCUT_PARAMS}       -o score_proton_mpdspd_tailcut_jd.json         $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo ""   & echo "* PROTON MPDSDP WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b mpdspd ${WT_MR_FILTER_PARAMS}  -o score_proton_mpdspd_wavelets_mrfilter.json  $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_proton_mpdspd_null.json               $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON MPDSDP FFT"      & ./datapipe/denoising/fft.py               -b mpdspd -s -t0.004              -o score_proton_mpdspd_fft.json                $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo ""   & echo "* PROTON MPDSDP TAILCUT"  & ./datapipe/denoising/tailcut_jd.py        -b mpdspd ${TAILCUT_PARAMS}       -o score_proton_mpdspd_tailcut_jd.json         $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo ""   & echo "* PROTON MPDSDP WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b mpdspd ${WT_MR_FILTER_PARAMS}  -o score_proton_mpdspd_wavelets_mrfilter.json  $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
-echo "" # & echo "* PROTON SSPD NULL"       & ./datapipe/denoising/null.py              -b sspd                           -o score_proton_sspd_null.json                 $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* PROTON SSPD FFT"        & ./datapipe/denoising/fft.py               -b sspd   -s -t0.004              -o score_proton_sspd_fft.json                  $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo ""   & echo "* PROTON SSPD TAILCUT"    & ./datapipe/denoising/tailcut_jd.py        -b sspd   ${TAILCUT_PARAMS}       -o score_proton_sspd_tailcut_jd.json           $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-echo ""   & echo "* PROTON SSPD WAVELETS"   & ./datapipe/denoising/wavelets_mrfilter.py -b sspd   ${WT_MR_FILTER_PARAMS}  -o score_proton_sspd_wavelets_mrfilter.json    $(find ~/data/astri_mini_array/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON SSPD NULL"       & ./datapipe/denoising/null.py              -b sspd                           -o score_proton_sspd_null.json                 $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* PROTON SSPD FFT"        & ./datapipe/denoising/fft.py               -b sspd   -s -t0.004              -o score_proton_sspd_fft.json                  $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo ""   & echo "* PROTON SSPD TAILCUT"    & ./datapipe/denoising/tailcut_jd.py        -b sspd   ${TAILCUT_PARAMS}       -o score_proton_sspd_tailcut_jd.json           $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+echo ""   & echo "* PROTON SSPD WAVELETS"   & ./datapipe/denoising/wavelets_mrfilter.py -b sspd   ${WT_MR_FILTER_PARAMS}  -o score_proton_sspd_wavelets_mrfilter.json    $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
 #mkdir proton_cleaned_images
@@ -33,42 +33,42 @@ echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
 # GAMMAS ##########
 
-echo "" # & echo "* GAMMA MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_gamma_mpd_null.json                   $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004              -o score_gamma_mpd_fft.json                    $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut_jd.py        -b mpd    ${TAILCUT_PARAMS}       -o score_gamma_mpd_tailcut_jd.json             $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd    ${WT_MR_FILTER_PARAMS}  -o score_gamma_mpd_wavelets_mrfilter.json      $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_gamma_mpd_null.json                   $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd    -s -t0.004              -o score_gamma_mpd_fft.json                    $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut_jd.py        -b mpd    ${TAILCUT_PARAMS}       -o score_gamma_mpd_tailcut_jd.json             $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd    ${WT_MR_FILTER_PARAMS}  -o score_gamma_mpd_wavelets_mrfilter.json      $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
-echo "" # & echo "* GAMMA MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_gamma_mpdspd_null.json                $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPDSDP FFT"      & ./datapipe/denoising/fft.py               -b mpdspd -s -t0.004              -o score_gamma_mpdspd_fft.json                 $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPDSDP TAILCUT"  & ./datapipe/denoising/tailcut_jd.py        -b mpdspd ${TAILCUT_PARAMS}       -o score_gamma_mpdspd_tailcut_jd.json          $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA MPDSDP WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b mpdspd ${WT_MR_FILTER_PARAMS}  -o score_gamma_mpdspd_wavelets_mrfilter.json   $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_gamma_mpdspd_null.json                $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPDSDP FFT"      & ./datapipe/denoising/fft.py               -b mpdspd -s -t0.004              -o score_gamma_mpdspd_fft.json                 $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPDSDP TAILCUT"  & ./datapipe/denoising/tailcut_jd.py        -b mpdspd ${TAILCUT_PARAMS}       -o score_gamma_mpdspd_tailcut_jd.json          $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA MPDSDP WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b mpdspd ${WT_MR_FILTER_PARAMS}  -o score_gamma_mpdspd_wavelets_mrfilter.json   $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
-echo "" # & echo "* GAMMA SSPD NULL"       & ./datapipe/denoising/null.py              -b sspd                           -o score_gamma_sspd_null.json                  $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA SSPD FFT"        & ./datapipe/denoising/fft.py               -b sspd   -s -t0.004              -o score_gamma_sspd_fft.json                   $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA SSPD TAILCUT"    & ./datapipe/denoising/tailcut_jd.py        -b sspd   ${TAILCUT_PARAMS}       -o score_gamma_sspd_tailcut_jd.json            $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-echo "" # & echo "* GAMMA SSPD WAVELETS"   & ./datapipe/denoising/wavelets_mrfilter.py -b sspd   ${WT_MR_FILTER_PARAMS}  -o score_gamma_sspd_wavelets_mrfilter.json     $(find ~/data/astri_mini_array/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA SSPD NULL"       & ./datapipe/denoising/null.py              -b sspd                           -o score_gamma_sspd_null.json                  $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA SSPD FFT"        & ./datapipe/denoising/fft.py               -b sspd   -s -t0.004              -o score_gamma_sspd_fft.json                   $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA SSPD TAILCUT"    & ./datapipe/denoising/tailcut_jd.py        -b sspd   ${TAILCUT_PARAMS}       -o score_gamma_sspd_tailcut_jd.json            $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+echo "" # & echo "* GAMMA SSPD WAVELETS"   & ./datapipe/denoising/wavelets_mrfilter.py -b sspd   ${WT_MR_FILTER_PARAMS}  -o score_gamma_sspd_wavelets_mrfilter.json     $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
 # ALL GAMMAS ######
 
-echo "" # & echo "* GAMMA MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_gamma_mpd_null.json                   ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd -s -t0.004                 -o score_gamma_mpd_fft.json                    ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut_jd.py        -b mpd ${TAILCUT_PARAMS}          -o score_gamma_mpd_tailcut_jd.json             ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd ${WT_MR_FILTER_PARAMS}     -o score_gamma_mpd_wavelets_mrfilter.json      ~/data/astri_mini_array/fits/gamma
+echo "" # & echo "* GAMMA MPD NULL"        & ./datapipe/denoising/null.py              -b mpd                            -o score_gamma_mpd_null.json                   ~/astri_data/fits/gamma
+echo "" # & echo "* GAMMA MPD FFT"         & ./datapipe/denoising/fft.py               -b mpd -s -t0.004                 -o score_gamma_mpd_fft.json                    ~/astri_data/fits/gamma
+echo "" # & echo "* GAMMA MPD TAILCUT"     & ./datapipe/denoising/tailcut_jd.py        -b mpd ${TAILCUT_PARAMS}          -o score_gamma_mpd_tailcut_jd.json             ~/astri_data/fits/gamma
+echo "" # & echo "* GAMMA MPD WAVELETS"    & ./datapipe/denoising/wavelets_mrfilter.py -b mpd ${WT_MR_FILTER_PARAMS}     -o score_gamma_mpd_wavelets_mrfilter.json      ~/astri_data/fits/gamma
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
-echo "" # & echo "* GAMMA MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_gamma_mpdspd_null.json                ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA MPDSDP FFT"      & ./datapipe/denoising/fft.py               -b mpdspd -s -t0.004              -o score_gamma_mpdspd_fft.json                 ~/data/astri_mini_array/fits/gamma
-echo ""   & echo "* GAMMA MPDSDP TAILCUT"  & ./datapipe/denoising/tailcut_jd.py        -b mpdspd ${TAILCUT_PARAMS}       -o score_gamma_mpdspd_tailcut_jd.json          ~/data/astri_mini_array/fits/gamma
-echo ""   & echo "* GAMMA MPDSDP WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b mpdspd ${WT_MR_FILTER_PARAMS}  -o score_gamma_mpdspd_wavelets_mrfilter.json   ~/data/astri_mini_array/fits/gamma
+echo "" # & echo "* GAMMA MPDSDP NULL"     & ./datapipe/denoising/null.py              -b mpdspd                         -o score_gamma_mpdspd_null.json                ~/astri_data/fits/gamma
+echo "" # & echo "* GAMMA MPDSDP FFT"      & ./datapipe/denoising/fft.py               -b mpdspd -s -t0.004              -o score_gamma_mpdspd_fft.json                 ~/astri_data/fits/gamma
+echo ""   & echo "* GAMMA MPDSDP TAILCUT"  & ./datapipe/denoising/tailcut_jd.py        -b mpdspd ${TAILCUT_PARAMS}       -o score_gamma_mpdspd_tailcut_jd.json          ~/astri_data/fits/gamma
+echo ""   & echo "* GAMMA MPDSDP WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b mpdspd ${WT_MR_FILTER_PARAMS}  -o score_gamma_mpdspd_wavelets_mrfilter.json   ~/astri_data/fits/gamma
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
-echo "" # & echo "* GAMMA SSPD NULL"       & ./datapipe/denoising/null.py              -b sspd                           -o score_gamma_sspd_null.json                  ~/data/astri_mini_array/fits/gamma
-echo "" # & echo "* GAMMA SSPD FFT"        & ./datapipe/denoising/fft.py               -b sspd -s -t0.004                -o score_gamma_sspd_fft.json                   ~/data/astri_mini_array/fits/gamma
-echo ""   & echo "* GAMMA SSPD TAILCUT"    & ./datapipe/denoising/tailcut_jd.py        -b sspd ${TAILCUT_PARAMS}         -o score_gamma_sspd_tailcut_jd.json            ~/data/astri_mini_array/fits/gamma
-echo ""   & echo "* GAMMA SSPD WAVELETS"   & ./datapipe/denoising/wavelets_mrfilter.py -b sspd ${WT_MR_FILTER_PARAMS}    -o score_gamma_sspd_wavelets_mrfilter.json     ~/data/astri_mini_array/fits/gamma
+echo "" # & echo "* GAMMA SSPD NULL"       & ./datapipe/denoising/null.py              -b sspd                           -o score_gamma_sspd_null.json                  ~/astri_data/fits/gamma
+echo "" # & echo "* GAMMA SSPD FFT"        & ./datapipe/denoising/fft.py               -b sspd -s -t0.004                -o score_gamma_sspd_fft.json                   ~/astri_data/fits/gamma
+echo ""   & echo "* GAMMA SSPD TAILCUT"    & ./datapipe/denoising/tailcut_jd.py        -b sspd ${TAILCUT_PARAMS}         -o score_gamma_sspd_tailcut_jd.json            ~/astri_data/fits/gamma
+echo ""   & echo "* GAMMA SSPD WAVELETS"   & ./datapipe/denoising/wavelets_mrfilter.py -b sspd ${WT_MR_FILTER_PARAMS}    -o score_gamma_sspd_wavelets_mrfilter.json     ~/astri_data/fits/gamma
 echo "" # & for FILE in *.fits ; do rm $FILE ; done
 
 #mkdir gamma_cleaned_images
