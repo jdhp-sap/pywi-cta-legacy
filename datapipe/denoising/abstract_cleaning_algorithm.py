@@ -102,7 +102,10 @@ class AbstractCleaningAlgorithm(object):
                 try:
                     # READ THE INPUT FILE #################################################
 
-                    input_img, reference_img, metadata_dict = images.load_benchmark_images(input_file_path)
+                    images_dict, metadata_dict = images.load_benchmark_images(input_file_path)
+
+                    input_img = images_dict["input_image"]
+                    reference_img = images_dict["reference_image"]
 
                     image_dict.update(metadata_dict)
 

@@ -114,12 +114,23 @@ def load_benchmark_images(input_file_path):
 
     hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6 = hdu_list
 
-    input_img = hdu0.data        # "hdu.data" is a Numpy Array
-    reference_img = hdu1.data    # "hdu.data" is a Numpy Array
+    # IMAGES
 
-    metadata_dict = {}    
+    images_dict = {}
 
-    metadata_dict['npe'] = int(reference_img.sum())   # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
+    images_dict["input_image"] = hdu0.data        # "hdu.data" is a Numpy Array
+    images_dict["reference_image"] = hdu1.data    # "hdu.data" is a Numpy Array
+    images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
+    images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
+    images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
+    images_dict["calibration_image"] = hdu5.data  # "hdu.data" is a Numpy Array
+    images_dict["pixels_position"] = hdu6.data     # "hdu.data" is a Numpy Array
+
+    # METADATA
+
+    metadata_dict = {}
+
+    metadata_dict['npe'] = int(images_dict["reference_image"].sum())   # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
 
     metadata_dict['tel_id'] = hdu0.header['tel_id']
     metadata_dict['event_id'] = hdu0.header['event_id']
@@ -171,7 +182,7 @@ def load_benchmark_images(input_file_path):
 
     hdu_list.close()
 
-    return input_img, reference_img, metadata_dict
+    return images_dict, metadata_dict
 
 
 # SAVE BENCHMARK IMAGE #######################################################
