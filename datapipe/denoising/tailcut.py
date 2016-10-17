@@ -45,7 +45,7 @@ from datapipe.benchmark import assess
 from datapipe.io import images
 
 import ctapipe.io
-from ctapipe.reco.cleaning import tailcuts_clean, dilate
+from ctapipe.image.cleaning import tailcuts_clean, dilate
 
 class Tailcut(AbstractCleaningAlgorithm):
 
@@ -54,15 +54,24 @@ class Tailcut(AbstractCleaningAlgorithm):
         self.label = "Tailcut"  # Name to show in plots
 
     def clean_image(self, img, high_threshold=10., low_threshold=8., base_file_path="tailcut"):
-    """
-    vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
-    """
+        """
+        vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
+        """
 
-        geom = ctapipe.io.CameraGeometry.from_name("astri", 1)  # TODO
+        # TODO: clean these following hard coded values for Astri
+        num_pixels_x = 40
+        num_pixels_y = 40
+        range_x = (-0.142555996776, 0.142555996776)
+        range_y = (-0.142555996776, 0.142555996776)
 
-        print(geom)
+        #geom = ctapipe.io.CameraGeometry.from_name("astri", 1)  # TODO
 
-        #signal = convert...
+        geom = ctapipe.io.camera.make_rectangular_camera_geometry(num_pixels_x,
+                                                                  num_pixels_y,
+                                                                  range_x,
+                                                                  range_y)
+
+        signal = np.ravel(img)
 
         mask = tailcuts_clean(geom,
                               signal,                   # TODO
@@ -70,8 +79,8 @@ class Tailcut(AbstractCleaningAlgorithm):
                               picture_thresh=high_threshold,
                               boundary_thresh=low_threshold)
 
-        #if True not in mask: continue       # TODO ?????
-        dilate(geom, mask)                  # TODO ?
+        ##if True not in mask: continue       # TODO ?????
+        #dilate(geom, mask)                  # TODO ?
 
         signal[mask == False] = 0
 
@@ -79,7 +88,7 @@ class Tailcut(AbstractCleaningAlgorithm):
         #                    reco.cleaning.dilate(geom, cleanmask)
         #                    image[cleanmask == 0] = 0  # zero noise pixels
 
-        #cleaned_img = convert...
+        cleaned_img = signal.reshape(num_pixels_x, num_pixels_y)
 
         return cleaned_img
 
