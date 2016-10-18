@@ -5,30 +5,11 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import common_functions as common
+
 import argparse
-import json
-import numpy as np
 from matplotlib import pyplot as plt
 import os
-
-
-def parse_json_file(json_file_path):
-    with open(json_file_path, "r") as fd:
-        json_data = json.load(fd)
-    return json_data
-
-
-def extract_metadata_list(json_dict, key1, key2, exclude_aborted, aborted_only):
-    io_list = json_dict["io"]
-
-    if exclude_aborted:
-        json_data = [(image_dict[key1], image_dict[key2]) for image_dict in io_list if "error" not in image_dict]
-    elif aborted_only:
-        json_data = [(image_dict[key1], image_dict[key2]) for image_dict in io_list if "error" in image_dict]
-    else:
-        json_data = [(image_dict[key1], image_dict[key2]) for image_dict in io_list]
-
-    return json_data
 
 
 if __name__ == '__main__':
@@ -94,17 +75,16 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    json_dict = parse_json_file(json_file_path)
+    json_dict = common.parse_json_file(json_file_path)
 
-    metadata_array = np.array(extract_metadata_list(json_dict, key1, key2, exclude_aborted, aborted_only))
+    metadata_array = common.extract_metadata_2d_array(json_dict, key1, key2, exclude_aborted, aborted_only)
     label = json_dict["label"]
 
     # PLOT STATISTICS #########################################################
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    ax1.plot(metadata_array[:,0], metadata_array[:,1], '.', alpha=0.2)
-
+    common.plot_correlation(ax1, metadata_array[:,0], metadata_array[:,1], key1, key2, logx, logy)
 
     if title is not None:
         ax1.set_title(title, fontsize=20)
@@ -120,31 +100,6 @@ if __name__ == '__main__':
             ax1.set_title("{} - {} correlation ({})".format(key1, key2, errors_str), fontsize=20)
         else:
             ax1.set_title("{} - {} correlation".format(key1, key2), fontsize=20)
-
-    # Info box
-    ax1.text(0.95, 0.92,
-            "{} images".format(metadata_array.shape[0]),
-            verticalalignment = 'top',
-            horizontalalignment = 'right',
-            transform = ax1.transAxes,
-            bbox={'facecolor': 'white', 'alpha': 0.5, 'pad': 10})
-
-
-    ax1.set_xlabel(key1, fontsize=20)
-    ax1.set_ylabel(key2, fontsize=20)
-
-    plt.setp(ax1.get_xticklabels(), fontsize=14)
-    plt.setp(ax1.get_yticklabels(), fontsize=14)
-
-    if logx:
-        ax1.set_xscale("log")               # Activate log scale on X axis
-    else:
-        plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
-
-    if logy:
-        ax1.set_yscale("log")               # Activate log scale on X axis
-    else:
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
     # Save file and plot ########
 

@@ -5,22 +5,12 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import common_functions as common
+
 import argparse
 import json
 import numpy as np
 from matplotlib import pyplot as plt
-
-
-def parse_json_file(json_file_path):
-    with open(json_file_path, "r") as fd:
-        json_data = json.load(fd)
-    return json_data
-
-
-def extract_score_list(json_dict, score_index1, score_index2):
-    io_list = json_dict["io"]
-    json_data = [(image_dict["score"][score_index1], image_dict["score"][score_index2]) for image_dict in io_list if "score" in image_dict]
-    return json_data
 
 
 if __name__ == '__main__':
@@ -68,9 +58,9 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    json_dict = parse_json_file(json_file_path)
+    json_dict = common.parse_json_file(json_file_path)
 
-    score_array = np.array(extract_score_list(json_dict, score_index1, score_index2))
+    score_array = common.extract_score_2d_array(json_dict, score_index1, score_index2)
 
     label = json_dict["label"]
 
@@ -84,30 +74,18 @@ if __name__ == '__main__':
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    ax1.plot(score_array[:,0], score_array[:,1], '.', alpha=0.2)
-
-    ax1.legend(prop={'size': 20})
+    common.plot_correlation(ax1,
+                            score_array[:,0],
+                            score_array[:,1],
+                            "Score {}".format(score_index1),
+                            "Score {}".format(score_index2),
+                            logx,
+                            logy)
 
     if title is not None:
         ax1.set_title(title, fontsize=20)
     else:
         ax1.set_title("{} scores correlation".format(label), fontsize=20)
-
-    ax1.set_xlabel("Score {}".format(score_index1), fontsize=20)
-    ax1.set_ylabel("Score {}".format(score_index2), fontsize=20)
-
-    plt.setp(ax1.get_xticklabels(), fontsize=14)
-    plt.setp(ax1.get_yticklabels(), fontsize=14)
-
-    if logx:
-        ax1.set_xscale("log")               # Activate log scale on X axis
-    else:
-        plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
-
-    if logy:
-        ax1.set_yscale("log")               # Activate log scale on X axis
-    else:
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
     # Save file and plot ########
 
