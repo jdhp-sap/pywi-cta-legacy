@@ -42,6 +42,9 @@ if __name__ == '__main__':
     parser.add_argument("--index2", type=int, default=1, metavar="INT", 
                         help="The index of the score to plot in case of multivalued scores")
 
+    parser.add_argument("--hist2d", action="store_true",
+                        help="Display an histogram")
+
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
@@ -54,6 +57,7 @@ if __name__ == '__main__':
     logy = args.logy
     logz = args.logz
     title = args.title
+    hist2d = args.hist2d
     quiet = args.quiet
     json_file_path = args.fileargs[0]
 
@@ -78,22 +82,23 @@ if __name__ == '__main__':
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    #common.plot_correlation(ax1,
-    #                        score_array[:,0],
-    #                        score_array[:,1],
-    #                        "Score {}".format(score_index1),
-    #                        "Score {}".format(score_index2),
-    #                        logx,
-    #                        logy)
-
-    common.plot_hist2d(ax1,
-                       score_array[:,0],
-                       score_array[:,1],
-                       "Score {}".format(score_index1),
-                       "Score {}".format(score_index2),
-                       logx,
-                       logy,
-                       logz)
+    if hist2d:
+        common.plot_hist2d(ax1,
+                           score_array[:,0],
+                           score_array[:,1],
+                           "Score {}".format(score_index1),
+                           "Score {}".format(score_index2),
+                           logx,
+                           logy,
+                           logz)
+    else:
+        common.plot_correlation(ax1,
+                                score_array[:,0],
+                                score_array[:,1],
+                                "Score {}".format(score_index1),
+                                "Score {}".format(score_index2),
+                                logx,
+                                logy)
 
     if title is not None:
         ax1.set_title(title, fontsize=20)
