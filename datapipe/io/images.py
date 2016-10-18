@@ -375,7 +375,7 @@ def plot(img, title=""):
 ###############################################################################
 
 
-def _plot_list(img_list, title_list, metadata_dict=None):
+def _plot_list(img_list, title_list, main_title=None):
     fig, ax_tuple = plt.subplots(nrows=1, ncols=len(img_list), figsize=(12, 4))
 
     for img, title, ax in zip(img_list, title_list, ax_tuple):
@@ -389,15 +389,8 @@ def _plot_list(img_list, title_list, metadata_dict=None):
 
         plt.colorbar(im, ax=ax) # draw the colorbar
 
-    # Main title
-    if metadata_dict is not None:
-        title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
-                                                       metadata_dict['tel_id'],
-                                                       metadata_dict['event_id'],
-                                                       metadata_dict['mc_energy'],
-                                                       metadata_dict['mc_energy_unit'])
-
-        fig.suptitle(title, fontsize=18)
+    if main_title is not None:
+        fig.suptitle(main_title, fontsize=18)
         plt.subplots_adjust(top=0.85)
 
 
@@ -405,7 +398,16 @@ def plot_list(img_list, title_list, metadata_dict=None):
     """
     img should be a list of 2D numpy array.
     """
-    _plot_list(img_list, title_list, metadata_dict)
+
+    # Main title
+    if metadata_dict is not None:
+        main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
+                                                            metadata_dict['tel_id'],
+                                                            metadata_dict['event_id'],
+                                                            metadata_dict['mc_energy'],
+                                                            metadata_dict['mc_energy_unit'])
+
+    _plot_list(img_list, title_list, main_title)
     plt.show()
 
 
@@ -413,6 +415,14 @@ def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
     """
     img should be a list of 2D numpy array.
     """
-    _plot_list(img_list, title_list, metadata_dict)
+    # Main title
+    if metadata_dict is not None:
+        main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
+                                                            metadata_dict['tel_id'],
+                                                            metadata_dict['event_id'],
+                                                            metadata_dict['mc_energy'],
+                                                            metadata_dict['mc_energy_unit'])
+
+    _plot_list(img_list, title_list, main_title)
     plt.savefig(output_file_path, bbox_inches='tight')
     plt.close('all')
