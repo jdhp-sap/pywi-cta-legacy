@@ -102,12 +102,12 @@ class AbstractCleaningAlgorithm(object):
                 try:
                     # READ THE INPUT FILE #################################################
 
-                    images_dict, metadata_dict = images.load_benchmark_images(input_file_path)
+                    fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path)
 
-                    input_img = images_dict["input_image"]
-                    reference_img = images_dict["reference_image"]
+                    input_img = fits_images_dict["input_image"]
+                    reference_img = fits_images_dict["reference_image"]
 
-                    image_dict.update(metadata_dict)
+                    image_dict.update(fits_metadata_dict)
 
                     # CLEAN THE INPUT IMAGE ###############################################
 
@@ -134,10 +134,10 @@ class AbstractCleaningAlgorithm(object):
                         title_list = ["Input image", "Reference image", "Cleaned image"] 
 
                         if plot:
-                            images.plot_list(image_list, title_list, metadata_dict)
+                            images.plot_list(image_list, title_list, fits_metadata_dict)
 
                         if saveplot is not None:
-                            images.mpl_save_list(image_list, saveplot, title_list, metadata_dict)
+                            images.mpl_save_list(image_list, saveplot, title_list, fits_metadata_dict)
 
                 except Exception as e:
                     print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
