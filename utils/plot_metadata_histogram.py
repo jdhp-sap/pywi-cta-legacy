@@ -5,6 +5,8 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import common_functions as common
+
 import argparse
 import json
 #import math
@@ -16,12 +18,6 @@ import numpy as np
 # histtype : [‘bar’ | ‘barstacked’ | ‘step’ | ‘stepfilled’]
 HIST_TYPE='bar'
 ALPHA=0.5
-
-
-def parse_json_file(json_file_path):
-    with open(json_file_path, "r") as fd:
-        json_data = json.load(fd)
-    return json_data
 
 
 def extract_data_list(json_dict, key, exclude_aborted, aborted_only):
@@ -116,7 +112,7 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    json_dict = parse_json_file(json_file_path)
+    json_dict = common.parse_json_file(json_file_path)
 
     data_array = np.array(extract_data_list(json_dict, key, exclude_aborted, aborted_only))
     label = json_dict["label"]

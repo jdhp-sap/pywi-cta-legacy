@@ -5,18 +5,14 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import common_functions as common
+
 import argparse
 import json
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-
-
-def parse_json_file(json_file_path):
-    with open(json_file_path, "r") as fd:
-        json_data = json.load(fd)
-    return json_data
 
 
 def extract_score_list(json_dict, score_index):
@@ -68,7 +64,7 @@ if __name__ == '__main__':
     label_list = []
 
     for json_file_path in json_file_path_list:
-        json_dict = parse_json_file(json_file_path)
+        json_dict = common.parse_json_file(json_file_path)
 
         score_array = np.array(extract_score_list(json_dict, score_index))
         data_list.append(score_array)

@@ -5,17 +5,13 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import common_functions as common
+
 import argparse
 import json
 import math
 import numpy as np
 import operator
-
-def parse_json_file(json_file_path):
-    with open(json_file_path, "r") as fd:
-        json_data = json.load(fd)
-    return json_data
-
 
 def extract_score_list(json_dict, score_index):
     io_list = json_dict["io"]
@@ -48,7 +44,7 @@ if __name__ == '__main__':
 
     for json_file_path in json_file_path_list:
         try:
-            json_dict = parse_json_file(json_file_path)
+            json_dict = common.parse_json_file(json_file_path)
             score_array = np.array(extract_score_list(json_dict, score_index))
             mean_score = score_array.mean()
             if math.isnan(mean_score):

@@ -5,15 +5,11 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import common_functions as common
+
 import argparse
 import json
 import numpy as np
-
-
-def parse_json_file(json_file_path):
-    with open(json_file_path, "r") as fd:
-        json_data = json.load(fd)
-    return json_data
 
 
 def extract_data_list(json_dict):
@@ -39,7 +35,7 @@ if __name__ == '__main__':
 
     # FETCH SCORE #############################################################
 
-    json_data = parse_json_file(json_file_path)
+    json_data = common.parse_json_file(json_file_path)
 
     success_list, aborted_list = extract_data_list(json_data)
 

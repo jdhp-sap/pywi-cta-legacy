@@ -29,6 +29,8 @@ Example usages:
   ipython3 -- ./utils/plot_image.py ./test.fits
 """
 
+import common_functions as common
+
 import argparse
 import os
 import numpy as np

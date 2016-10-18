@@ -5,6 +5,8 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import common_functions as common
+
 import argparse
 import json
 import os
@@ -15,12 +17,6 @@ import numpy as np
 # histtype : [‘bar’ | ‘barstacked’ | ‘step’ | ‘stepfilled’]
 HIST_TYPE='bar'
 ALPHA=0.5
-
-
-def parse_json_file(json_file_path):
-    with open(json_file_path, "r") as fd:
-        json_data = json.load(fd)
-    return json_data
 
 
 def extract_execution_time_list(json_dict):
@@ -118,7 +114,7 @@ if __name__ == '__main__':
     label_list = []
 
     for json_file_path in json_file_path_list:
-        json_dict = parse_json_file(json_file_path)
+        json_dict = common.parse_json_file(json_file_path)
 
         execution_time_list = extract_execution_time_list(json_dict)
 
