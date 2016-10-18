@@ -74,14 +74,16 @@ def main():
 
             # READ THE INPUT FILE ##################################################
 
-            input_img = images.load(input_file_path, 0)
+            fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path)
+
+            input_img = fits_images_dict["input_image"]
+            reference_img = fits_images_dict["reference_image"]
 
             if input_img.ndim != 2:
                 raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-            # GET THE REFERENCE IMAGE #############################################
-
-            reference_img = images.load(input_file_path, 1)
+            if reference_img.ndim != 2:
+                raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
             # ASSESS OR PRINT THE CLEANED IMAGE ###################################
 
@@ -92,13 +94,13 @@ def main():
             title_list = ["Input image", "Reference image"] 
 
             if output is None:
-                output = "{}.pdf".format(base_file_path)
+                img_output = "{}.pdf".format(base_file_path)
 
             if not quiet:
-                images.plot_list(image_list, title_list)
+                images.plot_list(image_list, title_list, fits_metadata_dict)
 
-            print("Writing", output)
-            images.mpl_save_list(image_list, output, title_list)
+            print("Writing", img_output)
+            images.mpl_save_list(image_list, img_output, title_list, fits_metadata_dict)
 
 
 if __name__ == "__main__":
