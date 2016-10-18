@@ -38,11 +38,11 @@ export PYTHONPATH=.:$PYTHONPATH
 ./utils/plot_score_histogram2d.py --key "npe"        --logy --logz     --title "Energy conservation (protons)"  -q -o 2016_10_18_tailcut_long/score_proton_sspd_histogram2d_logz.pdf       2016_10_18_tailcut_long/score_proton_sspd_tailcut_jd.json    2016_10_18_tailcut_long/score_proton_sspd_tailcut.json
 
 
-./utils/plot_image_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ ($\gamma$)" -q -o 2016_10_18_tailcut_long/score_gamma_npe_tc.pdf      2016_10_18_tailcut_long/score_gamma_mpdspd_tailcut.json
-./utils/plot_image_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ ($\gamma$)" -q -o 2016_10_18_tailcut_long/score_gamma_npe_tc_jd.pdf   2016_10_18_tailcut_long/score_gamma_mpdspd_tailcut_jd.json
+./utils/plot_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ ($\gamma$)" -q -o 2016_10_18_tailcut_long/score_gamma_npe_tc.pdf      2016_10_18_tailcut_long/score_gamma_mpdspd_tailcut.json
+./utils/plot_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ ($\gamma$)" -q -o 2016_10_18_tailcut_long/score_gamma_npe_tc_jd.pdf   2016_10_18_tailcut_long/score_gamma_mpdspd_tailcut_jd.json
 
-./utils/plot_image_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ (protons)"  -q -o 2016_10_18_tailcut_long/score_proton_npe_tc.pdf     2016_10_18_tailcut_long/score_proton_mpdspd_tailcut.json
-./utils/plot_image_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ (protons)"  -q -o 2016_10_18_tailcut_long/score_proton_npe_tc_jd.pdf  2016_10_18_tailcut_long/score_proton_mpdspd_tailcut_jd.json
+./utils/plot_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ (protons)"  -q -o 2016_10_18_tailcut_long/score_proton_npe_tc.pdf     2016_10_18_tailcut_long/score_proton_mpdspd_tailcut.json
+./utils/plot_metadata_histogram.py --key "npe" --logx --logy --exclude-aborted --title "$\sum_i s^*_i$ (protons)"  -q -o 2016_10_18_tailcut_long/score_proton_npe_tc_jd.pdf  2016_10_18_tailcut_long/score_proton_mpdspd_tailcut_jd.json
 
 
 ./utils/plot_score_correlation.py --index1 0 --index2 1 --logx --logy -q -o 2016_10_18_tailcut_long/score_gamma_mpdspd_correlation_tailcut.pdf     2016_10_18_tailcut_long/score_gamma_mpdspd_tailcut.json
