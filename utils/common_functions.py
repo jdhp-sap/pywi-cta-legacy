@@ -137,7 +137,7 @@ def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
 
-def plot_hist2d(axis, x_array, y_array, logx=False, logy=False, logz=False, xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None):
+def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False, logz=False, xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None):
     """
     data_array must have the following shape: (2, N)
     """
@@ -231,4 +231,10 @@ def plot_hist2d(axis, x_array, y_array, logx=False, logy=False, logz=False, xmin
     axis.set_ylim(ymin=ybins[0])
     axis.set_ylim(ymax=ybins[-1])
 
+
+    axis.set_xlabel(x_label, fontsize=20)
+    axis.set_ylabel(y_label, fontsize=20)
+
+    plt.setp(axis.get_xticklabels(), fontsize=14)
+    plt.setp(axis.get_yticklabels(), fontsize=14)
 

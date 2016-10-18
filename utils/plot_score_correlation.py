@@ -25,6 +25,9 @@ if __name__ == '__main__':
     parser.add_argument("--logy", "-L", action="store_true", default=False,
                         help="Use a logaritmic scale on the Y axis")
 
+    parser.add_argument("--logz", action="store_true", default=False,
+                        help="Use a logaritmic scale on the Y axis")
+
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
                         help="The output file path")
@@ -49,6 +52,7 @@ if __name__ == '__main__':
 
     logx = args.logx
     logy = args.logy
+    logz = args.logz
     title = args.title
     quiet = args.quiet
     json_file_path = args.fileargs[0]
@@ -74,13 +78,22 @@ if __name__ == '__main__':
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    common.plot_correlation(ax1,
-                            score_array[:,0],
-                            score_array[:,1],
-                            "Score {}".format(score_index1),
-                            "Score {}".format(score_index2),
-                            logx,
-                            logy)
+    #common.plot_correlation(ax1,
+    #                        score_array[:,0],
+    #                        score_array[:,1],
+    #                        "Score {}".format(score_index1),
+    #                        "Score {}".format(score_index2),
+    #                        logx,
+    #                        logy)
+
+    common.plot_hist2d(ax1,
+                       score_array[:,0],
+                       score_array[:,1],
+                       "Score {}".format(score_index1),
+                       "Score {}".format(score_index2),
+                       logx,
+                       logy,
+                       logz)
 
     if title is not None:
         ax1.set_title(title, fontsize=20)

@@ -92,18 +92,23 @@ if __name__ == '__main__':
 
     for (axis, score_array, metadata_array, label) in zip(axis_array, score_array_list, metadata_array_list, label_list):
 
-        common.plot_hist2d(axis, score_array, metadata_array, logx, logy, logz, xmin, xmax, ymin, ymax, zmin=None, zmax=None)
-
-        axis.legend(prop={'size': 20})
+        common.plot_hist2d(axis,
+                           score_array,
+                           metadata_array,
+                           "score",
+                           key,
+                           logx,
+                           logy,
+                           logz,
+                           xmin,
+                           xmax,
+                           ymin,
+                           ymax,
+                           zmin=None,
+                           zmax=None)
 
         # Sub titles
         axis.set_title(label, fontsize=20)
-
-        axis.set_xlabel("score", fontsize=20)
-        axis.set_ylabel(key, fontsize=20)
-
-        plt.setp(axis.get_xticklabels(), fontsize=14)
-        plt.setp(axis.get_yticklabels(), fontsize=14)
 
 
     # Main title
