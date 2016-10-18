@@ -130,7 +130,9 @@ def load_benchmark_images(input_file_path):
 
     metadata_dict = {}
 
-    metadata_dict['npe'] = int(images_dict["reference_image"].sum())   # np.sum() returns numpy.int64 objects thus it must be casted with int() to avoid serialization errors with JSON...
+    metadata_dict['npe'] = float(images_dict["reference_image"].sum())       # np.sum() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
+    metadata_dict['min_npe'] = float(images_dict["reference_image"].min())   # np.min() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
+    metadata_dict['max_npe'] = float(images_dict["reference_image"].max())   # np.max() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
 
     metadata_dict['tel_id'] = hdu0.header['tel_id']
     metadata_dict['event_id'] = hdu0.header['event_id']
@@ -370,31 +372,10 @@ def plot(img, title=""):
     plt.show()
 
 
-def mpl_save_list(img_list, output_file_path, title_list):
-    """
-    img should be a list of 2D numpy array.
-    """
-    fig, ax_tuple = plt.subplots(nrows=1, ncols=len(img_list), figsize=(12, 4))
-
-    for img, title, ax in zip(img_list, title_list, ax_tuple):
-        ax.set_title(title, fontsize=18)
-
-        im = ax.imshow(img,
-                       origin='lower',
-                       interpolation='nearest',
-                       vmin=min(img.min(), 0),
-                       cmap=COLOR_MAP)
-
-        plt.colorbar(im, ax=ax) # draw the colorbar
-
-    plt.savefig(output_file_path, bbox_inches='tight')
-    plt.close('all')
+###############################################################################
 
 
-def plot_list(img_list, title_list):
-    """
-    img should be a list of 2D numpy array.
-    """
+def _plot_list(img_list, title_list, metadata_dict=None):
     fig, ax_tuple = plt.subplots(nrows=1, ncols=len(img_list), figsize=(12, 4))
 
     for img, title, ax in zip(img_list, title_list, ax_tuple):
@@ -408,5 +389,30 @@ def plot_list(img_list, title_list):
 
         plt.colorbar(im, ax=ax) # draw the colorbar
 
+    # Main title
+    if metadata_dict is not None:
+        title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
+                                                       metadata_dict['tel_id'],
+                                                       metadata_dict['event_id'],
+                                                       metadata_dict['mc_energy'],
+                                                       metadata_dict['mc_energy_unit'])
+
+        fig.suptitle(title, fontsize=18)
+        plt.subplots_adjust(top=0.85)
+
+
+def plot_list(img_list, title_list, metadata_dict=None):
+    """
+    img should be a list of 2D numpy array.
+    """
+    _plot_list(img_list, title_list, metadata_dict)
     plt.show()
 
+
+def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
+    """
+    img should be a list of 2D numpy array.
+    """
+    _plot_list(img_list, title_list, metadata_dict)
+    plt.savefig(output_file_path, bbox_inches='tight')
+    plt.close('all')

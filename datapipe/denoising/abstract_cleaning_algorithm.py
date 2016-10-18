@@ -134,10 +134,10 @@ class AbstractCleaningAlgorithm(object):
                         title_list = ["Input image", "Reference image", "Cleaned image"] 
 
                         if plot:
-                            images.plot_list(image_list, title_list)
+                            images.plot_list(image_list, title_list, metadata_dict)
 
                         if saveplot is not None:
-                            images.mpl_save_list(image_list, saveplot, title_list)
+                            images.mpl_save_list(image_list, saveplot, title_list, metadata_dict)
 
                 except Exception as e:
                     print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
