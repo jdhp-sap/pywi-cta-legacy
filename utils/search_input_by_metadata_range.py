@@ -16,7 +16,7 @@ import numpy as np
 
 def extract_input_path_and_meta_list(json_dict, key):
     io_list = json_dict["io"]
-    json_data = [(image_dict["input_file_path"], image_dict[key]) for image_dict in io_list if "score" in image_dict]
+    json_data = [(image_dict["input_file_path"], image_dict[key], image_dict["score"]) for image_dict in io_list if "score" in image_dict]
     return json_data
 
 
@@ -88,9 +88,9 @@ if __name__ == '__main__':
     print("Min:", min_value, file=sys.stderr)
     print("Max:", max_value, file=sys.stderr)
 
-    for file_path, value in filtered_data_list:
+    for file_path, value, score in filtered_data_list:
         #print(file_path)
-        print(file_path, value)
+        print(file_path, value, score)
 
     print(len(filtered_data_list), "inputs", file=sys.stderr)
 
