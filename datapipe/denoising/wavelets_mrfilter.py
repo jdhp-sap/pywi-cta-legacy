@@ -38,6 +38,7 @@ This script requires the mr_filter program
 __all__ = ['wavelet_transform']
 
 import argparse
+import numpy as np
 import os
 import time
 
@@ -106,6 +107,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         input_file_path = ".tmp_{}_{}_in.fits".format(os.getpid(), time.time())
         mr_output_file_path = ".tmp_{}_{}_out.fits".format(os.getpid(), time.time())
 
+#        # CHANGE THE SCALE #####################################
+#        
+#        input_img = np.log10(input_img + 10.)
 
         # WRITE THE INPUT FILE (FITS) ##########################
 
@@ -160,6 +164,10 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         if cleaned_img.ndim != 2:
             raise WrongDimensionError()
+
+#        # CHANGE THE SCALE #####################################
+#        
+#        cleaned_img = np.power(10., cleaned_img) - 10.
 
         return cleaned_img
 
