@@ -26,34 +26,46 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Make statistics on score files (JSON files).")
 
-    parser.add_argument("--best", "-b", type=int, default=None, metavar="INT",
+    parser.add_argument("--num-best-scores", "-b", type=int, default=None, metavar="INT",
                         help="Select the N best images")
 
-    parser.add_argument("--worst", "-w", type=int, default=None, metavar="INT",
+    parser.add_argument("--num-worst-scores", "-w", type=int, default=None, metavar="INT",
                         help="Select the N worst images")
 
-    parser.add_argument("--min", "-m", type=float, default=None, metavar="FLOAT",
+    parser.add_argument("--min-score", "-m", type=float, default=None, metavar="FLOAT",
                         help="The lower bound of the selected range")
 
-    parser.add_argument("--max", "-M", type=float, default=None, metavar="FLOAT",
+    parser.add_argument("--max-score", "-M", type=float, default=None, metavar="FLOAT",
                         help="The upper bound of the selected range")
 
-    parser.add_argument("--index", "-i", type=int, default=0, metavar="INT",
+    parser.add_argument("--score-index", "-i", type=int, default=0, metavar="INT",
                         help="The index of the score to plot in case of multivalued scores")
+
+    parser.add_argument("--metadata-key", "-k", metavar="KEY",
+                        help="The name of the metadata to filter")
+
+    parser.add_argument("--min-key-value", type=float, default=None, metavar="FLOAT",
+                        help="The lower bound of the selected range")
+
+    parser.add_argument("--max-key-value", type=float, default=None, metavar="FLOAT",
+                        help="The upper bound of the selected range")
 
     parser.add_argument("fileargs", nargs=1, metavar="FILE",
                         help="The JSON file to process")
 
     args = parser.parse_args()
 
-    num_best = args.best
-    num_worst = args.worst
-    min_score = args.min
-    max_score = args.max
-    score_index = args.index
+    num_best_scores = args.num_best_scores
+    num_worst_scores = args.num_worst_scores
+    min_score = args.min_score
+    max_score = args.max_score
+    score_index = args.score_index
+    metadata_key = args.metadata_key
+    min_key_value = args.min_key_value
+    max_key_value = args.max_key_value
     json_file_path = args.fileargs[0]
 
-    if (num_best is not None) and (num_worst is not None):
+    if (num_best_scores is not None) and (num_worst_scores is not None):
         raise Exception("--best and --worst options are not compatible")
 
     # FETCH SCORE #############################################################
@@ -77,11 +89,11 @@ if __name__ == '__main__':
     filtered_data_list = sorted(filtered_data_list, key=lambda item: item[1])
 
 
-    if num_best is not None:
-        filtered_data_list = filtered_data_list[:num_best]
+    if num_best_scores is not None:
+        filtered_data_list = filtered_data_list[:num_best_scores]
 
-    if num_worst is not None:
-        filtered_data_list = filtered_data_list[-num_worst:]
+    if num_worst_scores is not None:
+        filtered_data_list = filtered_data_list[-num_worst_scores:]
 
 
     print("Min:", min_score, file=sys.stderr)
