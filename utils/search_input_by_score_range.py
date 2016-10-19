@@ -14,9 +14,14 @@ import sys
 import numpy as np
 
 
-def extract_input_path_and_score_list(json_dict, score_index):
+def extract_input_path_with_score_and_meta_list(json_dict, score_index, meta_key=None):
     io_list = json_dict["io"]
-    json_data = [(image_dict["input_file_path"], float(image_dict["score"][score_index])) for image_dict in io_list if "score" in image_dict]
+
+    if meta_key is None:
+        json_data = [(image_dict["input_file_path"], float(image_dict["score"][score_index])) for image_dict in io_list if "score" in image_dict]
+    else:
+        json_data = [(image_dict["input_file_path"], float(image_dict["score"][score_index], image_dict[meta_key])) for image_dict in io_list if "score" in image_dict]
+
     return json_data
 
 
@@ -71,9 +76,9 @@ if __name__ == '__main__':
     # FETCH SCORE #############################################################
 
     json_dict = common.parse_json_file(json_file_path)
-    data_list = extract_input_path_and_score_list(json_dict, score_index)
+    data_list = extract_input_path_with_score_and_meta_list(json_dict, score_index, metadata_key)
 
-    # SEARCH INPUTS BY SCORE RANGE ############################################
+    # SETUP SCORE RANGE #######################################################
 
     score_list = [item[1] for item in data_list]
 
@@ -83,24 +88,45 @@ if __name__ == '__main__':
     if max_score is None:
         max_score = max(score_list)
 
+    # SETUP METADATA RANGE ####################################################
 
-    filtered_data_list = [item for item in data_list if ((item[1] >= min_score) and (item[1] <= max_score))]
+    if metadata_key is not None:
+        metadata_value_list = [item[2] for item in data_list]
 
-    filtered_data_list = sorted(filtered_data_list, key=lambda item: item[1])
+        if min_key_value is None:
+            min_key_value = min(metadata_value_list)
+
+        if max_key_value is None:
+            max_key_value = max(metadata_value_list)
+
+    # SEARCH INPUTS BY SCORE RANGE ############################################
+
+    if metadata_key is None:
+        filtered_data_list = [item for item in data_list if ((item[1] >= min_score) and (item[1] <= max_score))]
+    else:
+        filtered_data_list = [item for item in data_list if ((item[1] >= min_score) and (item[1] <= max_score) and (item[2] >= min_key_value) and (item[2] <= max_key_value))]
+
+    filtered_data_list = sorted(filtered_data_list, key=lambda item: item[1], reverse=True)
 
 
     if num_best_scores is not None:
-        filtered_data_list = filtered_data_list[:num_best_scores]
+        filtered_data_list = filtered_data_list[-num_best_scores:]
 
     if num_worst_scores is not None:
-        filtered_data_list = filtered_data_list[-num_worst_scores:]
+        filtered_data_list = filtered_data_list[:num_worst_scores]
 
 
     print("Min:", min_score, file=sys.stderr)
     print("Max:", max_score, file=sys.stderr)
 
-    for file_path, score in filtered_data_list:
-        #print(file_path)
-        print(file_path, score)
+    if metadata_key is None:
+        for file_path, score in filtered_data_list:
+            #print(file_path)
+            print(file_path, score)
+    else:
+        for file_path, score, meta_value in filtered_data_list:
+            #print(file_path)
+            print(file_path, score, meta_value)
 
     print(len(filtered_data_list), "inputs", file=sys.stderr)
+
