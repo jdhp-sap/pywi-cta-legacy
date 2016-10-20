@@ -182,6 +182,29 @@ def main():
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
 
+    parser.add_argument("--type-of-filtering", "-f", type=int, metavar="INTEGER",
+                        help="""Type of filtering:
+                            1: Multiresolution Hard K-Sigma Thresholding
+                            2: Multiresolution Soft K-Sigma Thresholding
+                            3: Iterative Multiresolution Thresholding
+                            4: Adjoint operator applied to the multiresolution support
+                            5: Bivariate Shrinkage
+                            6: Multiresolution Wiener Filtering
+                            7: Total Variation + Wavelet Constraint
+                            8: Wavelet Constraint Iterative Methods
+                            9: Median Absolute Deviation (MAD) Hard Thesholding
+                            10: Median Absolute Deviation (MAD) Soft Thesholding.
+                            Default=1.""")
+
+    parser.add_argument("--coef-detection-method", "-C", type=int, metavar="INTEGER",
+                        help="""Coef_Detection_Method:
+                            1: K-SigmaNoise Threshold
+                            2: False Discovery Rate (FDR) Theshold
+                            3: Universal Threshold
+                            4: SURE Threshold
+                            5: Multiscale SURE Threshold.
+                            Default=1.""")
+
     parser.add_argument("--type-of-multiresolution-transform", "-t", type=int, metavar="INTEGER",
                         help="""Type of multiresolution transform:
                             1: linear wavelet transform: a trous algorithm
@@ -240,26 +263,20 @@ def main():
                             4: Harr/Spline POS: H=Haar,G=[-1/4,1/2,-1/4],Ht=[1,3,3,1]/8,Gt=[1,6,1]/4.
                             Default=2.""")
 
-    parser.add_argument("--number-of-scales", "-n", type=int, metavar="INTEGER",
-            help="Number of scales used in the multiresolution transform. Default=4.")
-
-    parser.add_argument("--suppress-last-scale", "-K", action="store_true",
-                        help="Suppress the last scale (to have background pixels = 0)")
-
-    parser.add_argument("--suppress-isolated-pixels", "-k", action="store_true",
-                        help="Suppress isolated pixels in the support")
-
-    parser.add_argument("--coef-detection-method", "-C", type=int, metavar="INTEGER",
-                        help="""Coef_Detection_Method:
-                            1: K-SigmaNoise Threshold
-                            2: False Discovery Rate (FDR) Theshold
-                            3: Universal Threshold
-                            4: SURE Threshold
-                            5: Multiscale SURE Threshold.
-                            Default=1.""")
-
-    parser.add_argument("--k-sigma-noise-threshold", "-s", type=float, metavar="FLOAT",
-                        help="Thresholding at nsigma * SigmaNoise. Default=3.")
+#         [-u number_of_undecimated_scales]
+#             Number of undecimated scales used in the Undecimated Wavelet Transform
+#             Default is all scale.
+#
+#         [-g sigma]
+#             sigma = noise standard deviation
+#             default is automatically estimated.
+#
+#         [-c gain,sigma,mean]
+#             Poisson + readout noise, with:
+#                 gain = gain of the CCD
+#                 sigma = read-out noise standard deviation
+#                 mean = read-out noise mean
+#             default is no (Gaussian).
 
     parser.add_argument("--noise-model", "-m", type=int, metavar="INTEGER",
                         help="""Noise model:
@@ -274,31 +291,86 @@ def main():
                             9: Stationary correlated noise
                             10: Poisson noise with few events. Default=1.""")
 
+    parser.add_argument("--number-of-scales", "-n", type=int, metavar="INTEGER",
+                        help="Number of scales used in the multiresolution transform. Default=4.")
+
+    parser.add_argument("--k-sigma-noise-threshold", "-s", type=float, metavar="FLOAT",
+                        help="Thresholding at nsigma * SigmaNoise. Default=3.")
+
+#         [-i number_of_iterations]
+#             Maximum number of iterations
+#             default is 10.
+#
+#         [-e epsilon]
+#             Convergence parameter
+#             default is 0.001000.
+#             default is 0.000010 in case of poisson noise with few events.
+#
+#         [-w support_file_name]
+#             Creates an image from the multiresolution support
+#             and save to disk.
+
+    parser.add_argument("--suppress-isolated-pixels", "-k", action="store_true",
+                        help="Suppress isolated pixels in the support")
+
+    parser.add_argument("--suppress-last-scale", "-K", action="store_true",
+                        help="Suppress the last scale (to have background pixels = 0)")
+
     parser.add_argument("--detect-only-positive-structure", "-p", action="store_true",
                         help="Detect only positive structure")
 
+#         [-E Epsilon]
+#             Epsilon = precision for computing thresholds
+#                       (only used in case of poisson noise with few events)
+#             default is 1.00e-03
+#
+#         [-S SizeBlock]
+#             Size of the  blocks used for local variance estimation.
+#             default is 7.
+#
+#         [-N NiterSigmaClip]
+#             Iteration number used for local variance estimation.
+#             default is 1.
+
+    parser.add_argument("--first-detection-scale", "-F", type=int, metavar="INTEGER",
+                        help="First scale used for the detection. Default=1.")
+
+#         [-R RMS_Map_File_Name]
+#              RMS Map (only used with -m 5 and -m 9 options).
+ 
     parser.add_argument("--suppress-positivity-constraint", "-P", action="store_true",
                         help="Suppress positivity constraint")
 
     parser.add_argument("--maximum-level-constraint", action="store_true",
                         help="Add the maximum level constraint. Max value is 255.")
-
-    parser.add_argument("--type-of-filtering", "-f", type=int, metavar="INTEGER",
-                        help="""Type of filtering:
-                            1: Multiresolution Hard K-Sigma Thresholding
-                            2: Multiresolution Soft K-Sigma Thresholding
-                            3: Iterative Multiresolution Thresholding
-                            4: Adjoint operator applied to the multiresolution support
-                            5: Bivariate Shrinkage
-                            6: Multiresolution Wiener Filtering
-                            7: Total Variation + Wavelet Constraint
-                            8: Wavelet Constraint Iterative Methods
-                            9: Median Absolute Deviation (MAD) Hard Thesholding
-                            10: Median Absolute Deviation (MAD) Soft Thesholding.
-                            Default=1.""")
-
-    parser.add_argument("--first-detection-scale", "-F", type=int, metavar="INTEGER",
-                        help="First scale used for the detection. Default=1.")
+ 
+#         [-B BackgroundModelImage]
+#             Background Model Image: the background image is
+#             subtracted during the filtering.
+#             Default is no.
+#
+#         [-M Flat_Image]
+#             Flat Image: The solution is corrected from the flat (i.e. Sol = Input / Flat)
+#             Default is no.
+#
+#         [-h]
+#             write info used for computing the probability map.
+#             Default is no.
+#
+#         [-G RegulParam]
+#              Regularization parameter for the TV method.
+#              default is 0.100000
+#
+#         [-z]
+#             Use virtual memory.
+#                default limit size: 4
+#                default directory: .
+#
+#         [-Z VMSize:VMDIR]
+#             Use virtual memory.
+#                VMSize = limit size (megabytes)
+#                VMDIR = directory name
+#
 
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
