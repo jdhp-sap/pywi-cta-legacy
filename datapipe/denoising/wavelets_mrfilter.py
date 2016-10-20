@@ -74,16 +74,19 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
     def clean_image(self,
                     input_img,
-                    number_of_scales=4,
+                    type_of_multiresolution_transform=None,
+                    type_of_filters=None,
+                    type_of_non_orthog_filters=None,
+                    number_of_scales=None,
                     suppress_last_scale=True,
                     suppress_isolated_pixels=True,
-                    coef_detection_method=1,
-                    k_sigma_noise_threshold=3,
-                    noise_model=3,
+                    coef_detection_method=None,
+                    k_sigma_noise_threshold=None,
+                    noise_model=None,
                     detect_only_positive_structure=False,
                     suppress_positivity_constraint=False,
-                    type_of_filtering=1,
-                    first_detection_scale=1,
+                    type_of_filtering=None,
+                    first_detection_scale=None,
                     verbose=False):
         """
         Do the wavelet transform.
@@ -116,16 +119,19 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         # TODO: improve the following lines
         cmd = 'mr_filter'
-        cmd += ' -n{}'.format(number_of_scales)
+        cmd += ' -t{}'.format(type_of_multiresolution_transform) if type_of_multiresolution_transform is not None else ''
+        cmd += ' -T{}'.format(type_of_filters) if type_of_filters is not None else ''
+        cmd += ' -U{}'.format(type_of_non_orthog_filters) if type_of_non_orthog_filters is not None else ''
+        cmd += ' -n{}'.format(number_of_scales) if number_of_scales is not None else ''
         cmd += ' -K' if suppress_last_scale else ''
         cmd += ' -k' if suppress_isolated_pixels else ''
-        cmd += ' -C{}'.format(coef_detection_method)
-        cmd += ' -s{}'.format(k_sigma_noise_threshold)
-        cmd += ' -m{}'.format(noise_model)
+        cmd += ' -C{}'.format(coef_detection_method) if coef_detection_method is not None else ''
+        cmd += ' -s{}'.format(k_sigma_noise_threshold) if k_sigma_noise_threshold is not None else ''
+        cmd += ' -m{}'.format(noise_model) if noise_model is not None else ''
         cmd += ' -p' if detect_only_positive_structure else ''
         cmd += ' -P' if suppress_positivity_constraint else ''
-        cmd += ' -f{}'.format(type_of_filtering)
-        cmd += ' -F{}'.format(first_detection_scale)
+        cmd += ' -f{}'.format(type_of_filtering) if type_of_filtering is not None else ''
+        cmd += ' -F{}'.format(first_detection_scale) if first_detection_scale is not None else ''
         cmd += ' -v' if verbose else ''
         self.label = "WT ({})".format(cmd)  # Name to show in plots
 
@@ -134,7 +140,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         #cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
         #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
 
-        if self.verbose:
+        if verbose:
+            print()
             print(cmd)
 
         try:
@@ -174,65 +181,67 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
-#        [-t type_of_multiresolution_transform]
-#              1: linear wavelet transform: a trous algorithm
-#              2: bspline wavelet transform: a trous algorithm
-#              3: wavelet transform in Fourier space
-#              4: morphological median transform
-#              5: morphological minmax transform
-#              6: pyramidal linear wavelet transform
-#              7: pyramidal bspline wavelet transform
-#              8: pyramidal wavelet transform in Fourier space: algo 1 (diff. between two resolutions)
-#              9: Meyer's wavelets (compact support in Fourier space)
-#              10: pyramidal median transform (PMT)
-#              11: pyramidal laplacian
-#              12: morphological pyramidal minmax transform
-#              13: decomposition on scaling function
-#              14: Mallat's wavelet transform (7/9 filters)
-#              15: Feauveau's wavelet transform
-#              16: Feauveau's wavelet transform without undersampling
-#              17: Line Column Wavelet Transform (1D+1D)
-#              18: Haar's wavelet transform
-#              19: half-pyramidal transform
-#              20: mixed Half-pyramidal WT and Median method (WT-HPMT)
-#              21: undecimated diadic wavelet transform (two bands per scale)
-#              22: mixed WT and PMT method (WT-PMT)
-#              23: undecimated Haar transform: a trous algorithm (one band per scale)
-#              24: undecimated (bi-) orthogonal transform (three bands per scale)
-#              25: non orthogonal undecimated transform (three bands per scale)
-#              26: Isotropic and compact support wavelet in Fourier space
-#              27: pyramidal wavelet transform in Fourier space: algo 2 (diff. between the square of two resolutions)
-#              28: Fast Curvelet Transform
-#             default is bspline wavelet transform: a trous algorithm
-#
-#         [-T type_of_filters]
-#              1: Biorthogonal 7/9 filters
-#              2: Daubechies filter 4
-#              3: Biorthogonal 2/6 Haar filters
-#              4: Biorthogonal 2/10 Haar filters
-#              5: Odegard 9/7 filters
-#              6: 5/3 filter
-#              7: Battle-Lemarie filters (2 vanishing moments)
-#              8: Battle-Lemarie filters (4 vanishing moments)
-#              9: Battle-Lemarie filters (6 vanishing moments)
-#              10: User's filters
-#              11: Haar filter
-#              12: 3/5 filter
-#              13: 4/4 Linar spline filters
-#              14: Undefined sub-band filters
-#             default is Biorthogonal 7/9 filters
-#
-#
-#         [-U type_of_non_orthog_filters]
-#              1: SplineB3-Id+H:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H, Gt=Id+H
-#              2: SplineB3-Id:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
-#              3: SplineB2-Id: H=4[1,2,1]/4, Ht=H, G=Id-H*H, Gt=Id
-#              4: Harr/Spline POS: H=Haar,G=[-1/4,1/2,-1/4],Ht=[1,3,3,1]/8,Gt=[1,6,1]/4
-#             default is SplineB3-Id:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
 
+    parser.add_argument("--type-of-multiresolution-transform", "-t", type=int, metavar="INTEGER",
+                        help="""Type of multiresolution transform:
+                            1: linear wavelet transform: a trous algorithm
+                            2: bspline wavelet transform: a trous algorithm
+                            3: wavelet transform in Fourier space
+                            4: morphological median transform
+                            5: morphological minmax transform
+                            6: pyramidal linear wavelet transform
+                            7: pyramidal bspline wavelet transform
+                            8: pyramidal wavelet transform in Fourier space: algo 1 (diff. between two resolutions)
+                            9: Meyer's wavelets (compact support in Fourier space)
+                            10: pyramidal median transform (PMT)
+                            11: pyramidal laplacian
+                            12: morphological pyramidal minmax transform
+                            13: decomposition on scaling function
+                            14: Mallat's wavelet transform (7/9 filters)
+                            15: Feauveau's wavelet transform
+                            16: Feauveau's wavelet transform without undersampling
+                            17: Line Column Wavelet Transform (1D+1D)
+                            18: Haar's wavelet transform
+                            19: half-pyramidal transform
+                            20: mixed Half-pyramidal WT and Median method (WT-HPMT)
+                            21: undecimated diadic wavelet transform (two bands per scale)
+                            22: mixed WT and PMT method (WT-PMT)
+                            23: undecimated Haar transform: a trous algorithm (one band per scale)
+                            24: undecimated (bi-) orthogonal transform (three bands per scale)
+                            25: non orthogonal undecimated transform (three bands per scale)
+                            26: Isotropic and compact support wavelet in Fourier space
+                            27: pyramidal wavelet transform in Fourier space: algo 2 (diff. between the square of two resolutions)
+                            28: Fast Curvelet Transform.
+                            Default=2.""")
 
-    parser.add_argument("--number_of_scales", "-n", type=int, default=4, metavar="INTEGER",
-                        help="Number of scales used in the multiresolution transform")
+    parser.add_argument("--type-of-filters", "-T", type=int, metavar="INTEGER",
+                        help="""Type of filters:
+                            1: Biorthogonal 7/9 filters
+                            2: Daubechies filter 4
+                            3: Biorthogonal 2/6 Haar filters
+                            4: Biorthogonal 2/10 Haar filters
+                            5: Odegard 9/7 filters
+                            6: 5/3 filter
+                            7: Battle-Lemarie filters (2 vanishing moments)
+                            8: Battle-Lemarie filters (4 vanishing moments)
+                            9: Battle-Lemarie filters (6 vanishing moments)
+                            10: User's filters
+                            11: Haar filter
+                            12: 3/5 filter
+                            13: 4/4 Linar spline filters
+                            14: Undefined sub-band filters.
+                            Default=1.""")
+
+    parser.add_argument("--type-of-non-orthog-filters", "-U", type=int, metavar="INTEGER",
+                        help="""Type of non-orthogonal filters:
+                            1: SplineB3-Id+H:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H, Gt=Id+H
+                            2: SplineB3-Id:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
+                            3: SplineB2-Id: H=4[1,2,1]/4, Ht=H, G=Id-H*H, Gt=Id
+                            4: Harr/Spline POS: H=Haar,G=[-1/4,1/2,-1/4],Ht=[1,3,3,1]/8,Gt=[1,6,1]/4.
+                            Default=2.""")
+
+    parser.add_argument("--number-of-scales", "-n", type=int, metavar="INTEGER",
+            help="Number of scales used in the multiresolution transform. Default=4.")
 
     parser.add_argument("--suppress-last-scale", "-K", action="store_true",
                         help="Suppress the last scale (to have background pixels = 0)")
@@ -240,19 +249,19 @@ def main():
     parser.add_argument("--suppress-isolated-pixels", "-k", action="store_true",
                         help="Suppress isolated pixels in the support")
 
-    parser.add_argument("--coef-detection-method", "-C", type=int, default=1, metavar="INTEGER",
+    parser.add_argument("--coef-detection-method", "-C", type=int, metavar="INTEGER",
                         help="""Coef_Detection_Method:
                             1: K-SigmaNoise Threshold
                             2: False Discovery Rate (FDR) Theshold
                             3: Universal Threshold
                             4: SURE Threshold
-                            5: Multiscale SURE Threshold
-                            default is K-SigmaNoise Threshold""")
+                            5: Multiscale SURE Threshold.
+                            Default=1.""")
 
-    parser.add_argument("--k-sigma-noise-threshold", "-s", type=float, default=3, metavar="FLOAT",
-                        help="Thresholding at nsigma * SigmaNoise")
+    parser.add_argument("--k-sigma-noise-threshold", "-s", type=float, metavar="FLOAT",
+                        help="Thresholding at nsigma * SigmaNoise. Default=3.")
 
-    parser.add_argument("--noise-model", "-m", type=int, default=3, metavar="INTEGER",
+    parser.add_argument("--noise-model", "-m", type=int, metavar="INTEGER",
                         help="""Noise model:
                             1: Gaussian noise
                             2: Poisson noise
@@ -263,7 +272,7 @@ def main():
                             7: Undefined stationary noise
                             8: Undefined noise
                             9: Stationary correlated noise
-                            10: Poisson noise with few events""")
+                            10: Poisson noise with few events. Default=1.""")
 
     parser.add_argument("--detect-only-positive-structure", "-p", action="store_true",
                         help="Detect only positive structure")
@@ -274,7 +283,7 @@ def main():
     parser.add_argument("--maximum-level-constraint", action="store_true",
                         help="Add the maximum level constraint. Max value is 255.")
 
-    parser.add_argument("--type-of-filtering", "-f", type=int, default=1, metavar="INTEGER",
+    parser.add_argument("--type-of-filtering", "-f", type=int, metavar="INTEGER",
                         help="""Type of filtering:
                             1: Multiresolution Hard K-Sigma Thresholding
                             2: Multiresolution Soft K-Sigma Thresholding
@@ -285,10 +294,11 @@ def main():
                             7: Total Variation + Wavelet Constraint
                             8: Wavelet Constraint Iterative Methods
                             9: Median Absolute Deviation (MAD) Hard Thesholding
-                            10: Median Absolute Deviation (MAD) Soft Thesholding""")
+                            10: Median Absolute Deviation (MAD) Soft Thesholding.
+                            Default=1.""")
 
-    parser.add_argument("--first-detection-scale", "-F", type=int, default=1, metavar="INTEGER",
-                        help="First scale used for the detection")
+    parser.add_argument("--first-detection-scale", "-F", type=int, metavar="INTEGER",
+                        help="First scale used for the detection. Default=1.")
 
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
@@ -302,11 +312,10 @@ def main():
     parser.add_argument("--plot", action="store_true",
                         help="Plot images")
 
-    parser.add_argument("--saveplot", default=None, metavar="FILE",
+    parser.add_argument("--saveplot", metavar="FILE",
                         help="The output file where to save plotted images")
 
-    parser.add_argument("--output", "-o", default=None,
-                        metavar="FILE",
+    parser.add_argument("--output", "-o", metavar="FILE",
                         help="The output file path (JSON)")
 
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
@@ -316,6 +325,9 @@ def main():
 
     args = parser.parse_args()
 
+    type_of_multiresolution_transform = args.type_of_multiresolution_transform
+    type_of_filters = args.type_of_filters
+    type_of_non_orthog_filters = args.type_of_non_orthog_filters
     number_of_scales = args.number_of_scales
     suppress_last_scale = args.suppress_last_scale
     suppress_isolated_pixels = args.suppress_isolated_pixels
@@ -340,6 +352,9 @@ def main():
         output_file_path = args.output
 
     cleaning_function_params = {
+                "type_of_multiresolution_transform": type_of_multiresolution_transform,
+                "type_of_filters": type_of_filters,
+                "type_of_non_orthog_filters": type_of_non_orthog_filters,
                 "number_of_scales": number_of_scales,
                 "suppress_last_scale": suppress_last_scale,
                 "suppress_isolated_pixels": suppress_isolated_pixels,
