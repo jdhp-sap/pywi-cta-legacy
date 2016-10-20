@@ -81,19 +81,12 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     k_sigma_noise_threshold=3,
                     noise_model=3,
                     detect_only_positive_structure=False,
-                    suppress_positivity_constraint=False):
+                    suppress_positivity_constraint=False,
+                    type_of_filtering=1,
+                    first_detection_scale=1,
+                    verbose=False):
         """
         Do the wavelet transform.
-
-        mr_filter
-        -K         Suppress the last scale (to have background pixels = 0)
-        -k         Suppress isolated pixels in the support
-        -F2        First scale used for the detection (smooth the resulting image)
-        -C1        Coef_Detection_Method: K-SigmaNoise Threshold
-        -s3        K-SigmaNoise Threshold = 3 sigma
-        -m2        Noise model (try -m2 or -m10) -> -m10 works better but is much slower...
-        -p         Detect only positive structure
-        -P         Suppress the positivity constraint
 
         Raises
         ------
@@ -131,6 +124,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         cmd += ' -m{}'.format(noise_model)
         cmd += ' -p' if detect_only_positive_structure else ''
         cmd += ' -P' if suppress_positivity_constraint else ''
+        cmd += ' -f{}'.format(type_of_filtering)
+        cmd += ' -F{}'.format(first_detection_scale)
+        cmd += ' -v' if verbose else ''
         self.label = "WT ({})".format(cmd)  # Name to show in plots
 
         cmd += ' "{}" {}'.format(input_file_path, mr_output_file_path)
@@ -178,6 +174,63 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
+#        [-t type_of_multiresolution_transform]
+#              1: linear wavelet transform: a trous algorithm
+#              2: bspline wavelet transform: a trous algorithm
+#              3: wavelet transform in Fourier space
+#              4: morphological median transform
+#              5: morphological minmax transform
+#              6: pyramidal linear wavelet transform
+#              7: pyramidal bspline wavelet transform
+#              8: pyramidal wavelet transform in Fourier space: algo 1 (diff. between two resolutions)
+#              9: Meyer's wavelets (compact support in Fourier space)
+#              10: pyramidal median transform (PMT)
+#              11: pyramidal laplacian
+#              12: morphological pyramidal minmax transform
+#              13: decomposition on scaling function
+#              14: Mallat's wavelet transform (7/9 filters)
+#              15: Feauveau's wavelet transform
+#              16: Feauveau's wavelet transform without undersampling
+#              17: Line Column Wavelet Transform (1D+1D)
+#              18: Haar's wavelet transform
+#              19: half-pyramidal transform
+#              20: mixed Half-pyramidal WT and Median method (WT-HPMT)
+#              21: undecimated diadic wavelet transform (two bands per scale)
+#              22: mixed WT and PMT method (WT-PMT)
+#              23: undecimated Haar transform: a trous algorithm (one band per scale)
+#              24: undecimated (bi-) orthogonal transform (three bands per scale)
+#              25: non orthogonal undecimated transform (three bands per scale)
+#              26: Isotropic and compact support wavelet in Fourier space
+#              27: pyramidal wavelet transform in Fourier space: algo 2 (diff. between the square of two resolutions)
+#              28: Fast Curvelet Transform
+#             default is bspline wavelet transform: a trous algorithm
+#
+#         [-T type_of_filters]
+#              1: Biorthogonal 7/9 filters
+#              2: Daubechies filter 4
+#              3: Biorthogonal 2/6 Haar filters
+#              4: Biorthogonal 2/10 Haar filters
+#              5: Odegard 9/7 filters
+#              6: 5/3 filter
+#              7: Battle-Lemarie filters (2 vanishing moments)
+#              8: Battle-Lemarie filters (4 vanishing moments)
+#              9: Battle-Lemarie filters (6 vanishing moments)
+#              10: User's filters
+#              11: Haar filter
+#              12: 3/5 filter
+#              13: 4/4 Linar spline filters
+#              14: Undefined sub-band filters
+#             default is Biorthogonal 7/9 filters
+#
+#
+#         [-U type_of_non_orthog_filters]
+#              1: SplineB3-Id+H:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H, Gt=Id+H
+#              2: SplineB3-Id:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
+#              3: SplineB2-Id: H=4[1,2,1]/4, Ht=H, G=Id-H*H, Gt=Id
+#              4: Harr/Spline POS: H=Haar,G=[-1/4,1/2,-1/4],Ht=[1,3,3,1]/8,Gt=[1,6,1]/4
+#             default is SplineB3-Id:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
+
+
     parser.add_argument("--number_of_scales", "-n", type=int, default=4, metavar="INTEGER",
                         help="Number of scales used in the multiresolution transform")
 
@@ -218,6 +271,28 @@ def main():
     parser.add_argument("--suppress-positivity-constraint", "-P", action="store_true",
                         help="Suppress positivity constraint")
 
+    parser.add_argument("--maximum-level-constraint", action="store_true",
+                        help="Add the maximum level constraint. Max value is 255.")
+
+    parser.add_argument("--type-of-filtering", "-f", type=int, default=1, metavar="INTEGER",
+                        help="""Type of filtering:
+                            1: Multiresolution Hard K-Sigma Thresholding
+                            2: Multiresolution Soft K-Sigma Thresholding
+                            3: Iterative Multiresolution Thresholding
+                            4: Adjoint operator applied to the multiresolution support
+                            5: Bivariate Shrinkage
+                            6: Multiresolution Wiener Filtering
+                            7: Total Variation + Wavelet Constraint
+                            8: Wavelet Constraint Iterative Methods
+                            9: Median Absolute Deviation (MAD) Hard Thesholding
+                            10: Median Absolute Deviation (MAD) Soft Thesholding""")
+
+    parser.add_argument("--first-detection-scale", "-F", type=int, default=1, metavar="INTEGER",
+                        help="First scale used for the detection")
+
+    parser.add_argument("--verbose", "-v", action="store_true",
+                        help="Verbose mode")
+
     # COMMON OPTIONS
 
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
@@ -249,6 +324,9 @@ def main():
     noise_model = args.noise_model
     detect_only_positive_structure = args.detect_only_positive_structure
     suppress_positivity_constraint = args.suppress_positivity_constraint
+    type_of_filtering = args.type_of_filtering
+    first_detection_scale = args.first_detection_scale 
+    verbose = args.verbose
 
     benchmark_method = args.benchmark
     plot = args.plot
@@ -269,7 +347,10 @@ def main():
                 "k_sigma_noise_threshold": k_sigma_noise_threshold,
                 "noise_model": noise_model,
                 "detect_only_positive_structure": detect_only_positive_structure,
-                "suppress_positivity_constraint": suppress_positivity_constraint
+                "suppress_positivity_constraint": suppress_positivity_constraint,
+                "type_of_filtering": type_of_filtering,
+                "first_detection_scale": first_detection_scale,
+                "verbose": verbose
             }
 
     cleaning_algorithm = WaveletTransform()
