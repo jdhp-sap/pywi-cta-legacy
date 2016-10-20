@@ -87,6 +87,10 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     suppress_positivity_constraint=False,
                     type_of_filtering=None,
                     first_detection_scale=None,
+                    number_of_iterations=None,
+                    epsilon=None,
+                    support_file_name=None,
+                    precision=None,
                     verbose=False):
         """
         Do the wavelet transform.
@@ -132,6 +136,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         cmd += ' -P' if suppress_positivity_constraint else ''
         cmd += ' -f{}'.format(type_of_filtering) if type_of_filtering is not None else ''
         cmd += ' -F{}'.format(first_detection_scale) if first_detection_scale is not None else ''
+        cmd += ' -i{}'.format(number_of_iterations) if number_of_iterations is not None else ''
+        cmd += ' -e{}'.format(epsilon) if epsilon is not None else ''
+        cmd += ' -w{}'.format(support_file_name) if support_file_name is not None else ''
+        cmd += ' -E{}'.format(precision) if precision is not None else ''
+
         cmd += ' -v' if verbose else ''
         self.label = "WT ({})".format(cmd)  # Name to show in plots
 
@@ -291,24 +300,20 @@ def main():
                             9: Stationary correlated noise
                             10: Poisson noise with few events. Default=1.""")
 
-    parser.add_argument("--number-of-scales", "-n", type=int, metavar="INTEGER",
+    parser.add_argument("--number-of-scales", "-n", type=int, metavar="integer",
                         help="Number of scales used in the multiresolution transform. Default=4.")
 
     parser.add_argument("--k-sigma-noise-threshold", "-s", type=float, metavar="FLOAT",
                         help="Thresholding at nsigma * SigmaNoise. Default=3.")
 
-#         [-i number_of_iterations]
-#             Maximum number of iterations
-#             default is 10.
-#
-#         [-e epsilon]
-#             Convergence parameter
-#             default is 0.001000.
-#             default is 0.000010 in case of poisson noise with few events.
-#
-#         [-w support_file_name]
-#             Creates an image from the multiresolution support
-#             and save to disk.
+    parser.add_argument("--number-of-iterations", "-i", type=int, metavar="integer",
+                        help="Maximum number of iterations. Default=10.")
+
+    parser.add_argument("--epsilon", "-e", type=float, metavar="FLOAT",
+                        help="Convergence parameter. Default=0.001000 or 0.000010 in case of poisson noise with few events.")
+ 
+    parser.add_argument("--support-file-name", "-w", metavar="FILE",
+                        help="Creates an image from the multiresolution support and save to disk.")
 
     parser.add_argument("--suppress-isolated-pixels", "-k", action="store_true",
                         help="Suppress isolated pixels in the support")
@@ -319,11 +324,9 @@ def main():
     parser.add_argument("--detect-only-positive-structure", "-p", action="store_true",
                         help="Detect only positive structure")
 
-#         [-E Epsilon]
-#             Epsilon = precision for computing thresholds
-#                       (only used in case of poisson noise with few events)
-#             default is 1.00e-03
-#
+    parser.add_argument("--precision", "-E", type=float, metavar="FLOAT",
+                        help="Epsilon = precision for computing thresholds (only used in case of poisson noise with few events). Default=1.00e-03.")
+
 #         [-S SizeBlock]
 #             Size of the  blocks used for local variance estimation.
 #             default is 7.
@@ -410,6 +413,10 @@ def main():
     suppress_positivity_constraint = args.suppress_positivity_constraint
     type_of_filtering = args.type_of_filtering
     first_detection_scale = args.first_detection_scale 
+    number_of_iterations = args.number_of_iterations 
+    epsilon = args.epsilon 
+    support_file_name = args.support_file_name 
+    precision = args.precision 
     verbose = args.verbose
 
     benchmark_method = args.benchmark
@@ -437,6 +444,10 @@ def main():
                 "suppress_positivity_constraint": suppress_positivity_constraint,
                 "type_of_filtering": type_of_filtering,
                 "first_detection_scale": first_detection_scale,
+                "number_of_iterations": number_of_iterations,
+                "epsilon": epsilon,
+                "support_file_name": support_file_name,
+                "precision": precision,
                 "verbose": verbose
             }
 
