@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import copy
 import datetime
 import json
 import os
@@ -111,8 +112,11 @@ class AbstractCleaningAlgorithm(object):
 
                     # CLEAN THE INPUT IMAGE ###############################################
 
+                    # Copy the image (otherwise some cleaning functions like Tailcut may change it)
+                    input_img_copy = copy.deepcopy(input_img)
+
                     initial_time = time.perf_counter()
-                    cleaned_img = self.clean_image(input_img, **cleaning_function_params)
+                    cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
                     execution_time = time.perf_counter() - initial_time
 
                     # ASSESS OR PRINT THE CLEANED IMAGE ###################################
