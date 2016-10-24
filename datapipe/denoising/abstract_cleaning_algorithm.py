@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import copy
 import datetime
 import json
 import os
@@ -111,8 +112,11 @@ class AbstractCleaningAlgorithm(object):
 
                     # CLEAN THE INPUT IMAGE ###############################################
 
+                    # Copy the image (otherwise some cleaning functions like Tailcut may change it)
+                    input_img_copy = copy.deepcopy(input_img)
+
                     initial_time = time.perf_counter()
-                    cleaned_img = self.clean_image(input_img, **cleaning_function_params)
+                    cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
                     execution_time = time.perf_counter() - initial_time
 
                     # ASSESS OR PRINT THE CLEANED IMAGE ###################################
@@ -137,7 +141,14 @@ class AbstractCleaningAlgorithm(object):
                             images.plot_list(image_list, title_list, fits_metadata_dict)
 
                         if saveplot is not None:
-                            images.mpl_save_list(image_list, saveplot, title_list, fits_metadata_dict)
+                            if len(input_file_or_dir_path_list) > 1:
+                                basename, extension = os.path.splitext(saveplot)
+                                plot_file_path = "{}_E{}_T{}{}".format(basename, fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"], extension)
+                            else:
+                                plot_file_path = saveplot
+
+                            print("Saving {}".format(plot_file_path))
+                            images.mpl_save_list(image_list, plot_file_path, title_list, fits_metadata_dict)
 
                 except Exception as e:
                     print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
