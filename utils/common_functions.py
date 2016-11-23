@@ -232,8 +232,8 @@ def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False
     axis.set_ylim(ymax=ybins[-1])
 
 
-    axis.set_xlabel(x_label, fontsize=20)
-    axis.set_ylabel(y_label, fontsize=20)
+    axis.set_xlabel(x_label, fontsize=16)
+    axis.set_ylabel(y_label, fontsize=16)
 
     plt.setp(axis.get_xticklabels(), fontsize=14)
     plt.setp(axis.get_yticklabels(), fontsize=14)

@@ -77,6 +77,11 @@ if __name__ == '__main__':
         metadata_array = common.extract_metadata_array(json_dict, key)
         metadata_array_list.append(metadata_array)
 
+        #if json_dict["label"] == "Tailcut (JD)":
+        #    json_dict["label"] = "Tailcut"
+        #else:
+        #    json_dict["label"] = "Wavelet Transform"
+
         label_list.append(json_dict["label"])
 
     xmin = common.extract_min(score_array_list)
@@ -95,8 +100,8 @@ if __name__ == '__main__':
         common.plot_hist2d(axis,
                            score_array,
                            metadata_array,
-                           "score",
-                           key,
+                           "Score (the lower the better)",
+                           "Total counts in refernce image (PE)",
                            logx,
                            logy,
                            logz,
