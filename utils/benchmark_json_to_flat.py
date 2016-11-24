@@ -34,12 +34,13 @@ import os
 def save_np_array(output_file_path, data_array, header_list):
     print(output_file_path)
 
+    # See http://docs.astropy.org/en/stable/io/fits/usage/table.html
     np.savetxt(output_file_path,
                data_array,
                fmt="%s",                      # See http://stackoverflow.com/questions/16621351/how-to-use-python-numpy-savetxt-to-write-strings-and-float-number-to-an-ascii-fi
-               #delimiter=" ",
-               header="; ".join(header_list),
-               #comments="# "                 # String that will be prepended to the ``header`` and ``footer`` strings, to mark them as comments. Default: '# '.
+               delimiter=",",
+               header=",".join(header_list),
+               comments=""                 # String that will be prepended to the ``header`` and ``footer`` strings, to mark them as comments. Default: '# '.
                )
 
 def extract_columns(image_dict):
@@ -52,7 +53,9 @@ def extract_columns(image_dict):
            ]
     return line
 
+
 OUTPUT_HEADER_LIST = ["JSON input file", "Event ID", "Tel ID", "MC energy", "NPE", "E shape", "E energy"]
+#OUTPUT_DTYPE_LIST = ['', '', '', '', '', '', '']
 
 
 def main():
