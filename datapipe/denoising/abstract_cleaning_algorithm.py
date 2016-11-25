@@ -80,6 +80,8 @@ class AbstractCleaningAlgorithm(object):
             plot=False,
             saveplot=None):
 
+        image_counter = 0
+
         if benchmark_method is not None:
             io_list = []
 
@@ -95,6 +97,9 @@ class AbstractCleaningAlgorithm(object):
                 input_file_path_list = [input_file_or_dir_path]
 
             for input_file_path in input_file_path_list:
+
+                image_counter += 1
+                print("* PROCESS IMAGE NUMBER", image_counter)
 
                 # CLEAN ONE IMAGE #########################################################
 
