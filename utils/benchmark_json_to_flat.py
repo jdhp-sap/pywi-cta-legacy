@@ -31,7 +31,7 @@ import numpy as np
 import os
 
 
-def save_np_array(output_file_path, data_array, header_list):
+def save_csv(output_file_path, data_array, header_list):
     print(output_file_path)
 
     # See http://docs.astropy.org/en/stable/io/fits/usage/table.html
@@ -44,17 +44,78 @@ def save_np_array(output_file_path, data_array, header_list):
                )
 
 def extract_columns(image_dict):
-    line = [image_dict["event_id"],
+    line = [
+            image_dict["event_id"],
             image_dict["tel_id"],
-            image_dict["mc_energy"],
             image_dict["npe"],
+            image_dict["input_file_path"],
+            image_dict["execution_time"],
+            image_dict["ev_count"],
+            image_dict["mc_energy"],
+            image_dict["mc_energy_unit"],
+            image_dict["mc_altitude"],
+            image_dict["mc_altitude_unit"],
+            image_dict["mc_azimuth"],
+            image_dict["mc_azimuth_unit"],
+            image_dict["mc_core_x"],
+            image_dict["mc_core_x_unit"],
+            image_dict["mc_core_y"],
+            image_dict["mc_core_y_unit"],
+            image_dict["mc_height_first_interaction"],
+            image_dict["mc_height_first_interaction_unit"],
+            image_dict["num_tel_with_data"],
+            image_dict["num_tel_with_trigger"],
+            image_dict["optical_foclen"],
+            image_dict["optical_foclen_unit"],
+            image_dict["run_id"],
+            image_dict["simtel_path"],
+            image_dict["tel_pos_x"],
+            image_dict["tel_pos_x_unit"],
+            image_dict["tel_pos_y"],
+            image_dict["tel_pos_y_unit"],
+            image_dict["tel_pos_z"],
+            image_dict["tel_pos_z_unit"],
             image_dict["score"][0],
             image_dict["score"][1]
            ]
     return line
 
 
-OUTPUT_HEADER_LIST = ["JSON input file", "Event ID", "Tel ID", "MC energy", "NPE", "E shape", "E energy"]
+OUTPUT_HEADER_LIST = [
+                      "JSON input file",
+                      "Event ID",
+                      "Tel ID",
+                      "NPE",
+                      "FITS input file",
+                      "Execution time",
+                      "EV count",
+                      "MC energy",
+                      "mC energy unit",
+                      "MC altitude",
+                      "MC altitude unit",
+                      "MC azimuth",
+                      "MC azimuth unit",
+                      "MC core x",
+                      "MC core x unit",
+                      "MC core y",
+                      "MC core y unit",
+                      "MC height first interaction",
+                      "MC height first interaction unit",
+                      "Num tel with data",
+                      "Num tel with trigger",
+                      "Optical foclen",
+                      "Optical foclen unit",
+                      "Run id",
+                      "Simtel path",
+                      "Tel pos x",
+                      "Tel pos x unit",
+                      "Tel pos y",
+                      "Tel pos y unit",
+                      "Tel pos z",
+                      "Tel pos z unit",
+                      "E shape",
+                      "E energy"
+                     ]
 #OUTPUT_DTYPE_LIST = ['', '', '', '', '', '', '']
 
 
@@ -98,7 +159,7 @@ def main():
 
     # SAVE FILE ###############################################################
 
-    save_np_array(output_file_path, global_output_array, OUTPUT_HEADER_LIST)
+    save_csv(output_file_path, global_output_array, OUTPUT_HEADER_LIST)
 
 
 if __name__ == "__main__":
