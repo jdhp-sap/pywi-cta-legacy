@@ -1,6 +1,7 @@
 #!/bin/sh
 
 export PYTHONPATH=.:$PYTHONPATH
+source activate cta
 
 NUM_IMG=1000
 
