@@ -99,7 +99,7 @@ class AbstractCleaningAlgorithm(object):
             for input_file_path in input_file_path_list:
 
                 image_counter += 1
-                print("* PROCESS IMAGE NUMBER", image_counter)
+                print("* {}: PROCESS IMAGE NUMBER {}".format(self.label, image_counter))
 
                 # CLEAN ONE IMAGE #########################################################
 
