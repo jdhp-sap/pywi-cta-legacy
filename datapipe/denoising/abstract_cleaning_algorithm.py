@@ -127,12 +127,13 @@ class AbstractCleaningAlgorithm(object):
                     # ASSESS OR PRINT THE CLEANED IMAGE ###################################
 
                     if benchmark_method is not None:
-                        score_tuple = assess.assess_image_cleaning(input_img,
-                                                                   cleaned_img,
-                                                                   reference_img,
-                                                                   benchmark_method)
+                        score_tuple, score_name_tuple = assess.assess_image_cleaning(input_img,
+                                                                                     cleaned_img,
+                                                                                     reference_img,
+                                                                                     benchmark_method)
 
                         image_dict["score"] = score_tuple
+                        image_dict["score_name"] = score_name_tuple
                         image_dict["execution_time"] = execution_time
                         image_dict["near_borders_signal_coef"] = near_borders_signal_coef(reference_img)
 
