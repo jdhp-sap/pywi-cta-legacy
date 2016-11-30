@@ -54,18 +54,21 @@ class TestAssess(unittest.TestCase):
 
         # Output image ################
 
-        output_img = assess.normalize(input_img)
+        output_img = assess.normalize_array(input_img)
 
         # Test ########################
 
         np.testing.assert_array_equal(output_img, expected_output_img)
 
 
-    # Test the "assess_image_cleaning_meth2" function #########################
+    ###########################################################################
+    ###########################################################################
+    # Test the "metric2" function                                             #
+    ###########################################################################
+    ###########################################################################
 
-    def test_assess_image_cleaning_meth2_input(self):
-        """Check the input of the "assess_image_cleaning_meth2"
-        function."""
+    def test_metric2_input(self):
+        """Check the input of the "metric2" function."""
 
         #######################################################################
         # Test 1: sum on output image is 0                                    #
@@ -93,13 +96,10 @@ class TestAssess(unittest.TestCase):
 
         expected_mark = None
 
-        # Mark ########################
-
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
-
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        with self.assertRaises(assess.EmptyOutputImageError):
+            mark = assess.metric2(input_image, output_image, reference_image)
 
 
         #######################################################################
@@ -128,13 +128,10 @@ class TestAssess(unittest.TestCase):
 
         expected_mark = None
 
-        # Mark ########################
-
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
-
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        with self.assertRaises(assess.EmptyReferenceImageError):
+            mark = assess.metric2(input_image, output_image, reference_image)
 
 
         #######################################################################
@@ -163,13 +160,10 @@ class TestAssess(unittest.TestCase):
 
         expected_mark = None
 
-        # Mark ########################
-
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
-
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        with self.assertRaises(assess.EmptyOutputImageError):
+            mark = assess.metric2(input_image, output_image, reference_image)
 
 
         #######################################################################
@@ -198,18 +192,14 @@ class TestAssess(unittest.TestCase):
 
         expected_mark = None
 
-        # Mark ########################
-
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
-
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        with self.assertRaises(assess.EmptyReferenceImageError):
+            mark = assess.metric2(input_image, output_image, reference_image)
 
 
-    def test_assess_image_cleaning_meth2_output(self):
-        """Check the output of the "assess_image_cleaning_meth2"
-        function."""
+    def test_metric2_output(self):
+        """Check the output of the "metric2" function."""
 
         #######################################################################
         # Test 1: perfect output                                              #
@@ -233,15 +223,15 @@ class TestAssess(unittest.TestCase):
     
         # Expected mark ###############
 
-        expected_mark = np.array([0., 0.])
+        expected_mark = 0.
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
+        mark = assess.metric2(input_image, output_image, reference_image)
 
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        np.testing.assert_equal(mark, expected_mark)
 
 
         #######################################################################
@@ -266,15 +256,15 @@ class TestAssess(unittest.TestCase):
     
         # Expected mark ###############
 
-        expected_mark = np.array([0., 0.])
+        expected_mark = 0.
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
+        mark = assess.metric2(input_image, output_image, reference_image)
 
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        np.testing.assert_equal(mark, expected_mark)
 
 
         #######################################################################
@@ -299,15 +289,15 @@ class TestAssess(unittest.TestCase):
     
         # Expected mark ###############
 
-        expected_mark = np.array([0., 9.])
+        expected_mark = 0.
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
+        mark = assess.metric2(input_image, output_image, reference_image)
 
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        np.testing.assert_equal(mark, expected_mark)
 
 
         #######################################################################
@@ -332,15 +322,15 @@ class TestAssess(unittest.TestCase):
     
         # Expected mark ###############
 
-        expected_mark = np.array([0., 0.9])
+        expected_mark = 0.
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
+        mark = assess.metric2(input_image, output_image, reference_image)
 
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        np.testing.assert_equal(mark, expected_mark)
 
 
         #######################################################################
@@ -363,15 +353,15 @@ class TestAssess(unittest.TestCase):
     
         # Expected mark ###############
 
-        expected_mark = np.array([0.02, 0.])
+        expected_mark = 0.02
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
+        mark = assess.metric2(input_image, output_image, reference_image)
 
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        np.testing.assert_equal(mark, expected_mark)
 
 
         #######################################################################
@@ -394,15 +384,15 @@ class TestAssess(unittest.TestCase):
     
         # Expected mark ###############
 
-        expected_mark = np.array([0.1, 0.])
+        expected_mark = 0.1
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
+        mark = assess.metric2(input_image, output_image, reference_image)
 
         # Test ########################
 
-        np.testing.assert_array_equal(mark, expected_mark)
+        np.testing.assert_equal(mark, expected_mark)
 
 
         #######################################################################
@@ -425,15 +415,616 @@ class TestAssess(unittest.TestCase):
     
         # Expected mark ###############
 
-        expected_mark = np.array([0.01, 0.])
+        expected_mark = 0.01
 
         # Mark ########################
 
-        mark = assess.assess_image_cleaning_meth2(input_image, output_image, reference_image)
+        mark = assess.metric2(input_image, output_image, reference_image)
 
         # Test ########################
 
-        np.testing.assert_array_almost_equal(mark, expected_mark, decimal=10)
+        np.testing.assert_almost_equal(mark, expected_mark, decimal=10)
+
+    ###########################################################################
+    ###########################################################################
+    # Test the "metric3" function                                             #
+    ###########################################################################
+    ###########################################################################
+
+    def test_metric3_input(self):
+        """Check the input of the "metric3" function."""
+
+        #######################################################################
+        # Test 1: sum on reference image is 0                                 #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[0, 0, 0, 0],
+                                    [0, 0, 0, 0],
+                                    [0, 0, 0, 0]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Test ########################
+
+        with self.assertRaises(assess.EmptyReferenceImageError):
+            mark = assess.metric3(input_image, output_image, reference_image)
+
+
+        #######################################################################
+        # Test 2: sum on reference image is 0                                 #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[0., 0., 0., 0.],
+                                    [0., 0., 0., 0.],
+                                    [0., 0., 0., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Test ########################
+
+        with self.assertRaises(assess.EmptyReferenceImageError):
+            mark = assess.metric3(input_image, output_image, reference_image)
+
+
+    def test_metric3_output(self):
+        """Check the output of the "metric3" function."""
+
+        #######################################################################
+        # Test 1: perfect output                                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1, 2, 2, 1],
+                                    [1, 3, 3, 1],
+                                    [1, 2, 2, 1]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric3(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 2: perfect output                                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[.1, .2, .2, .1],
+                                 [.1, .3, .3, .1],
+                                 [.1, .2, .2, .1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[.1, .2, .2, .1],
+                                    [.1, .3, .3, .1],
+                                    [.1, .2, .2, .1]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric3(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 3: perfect shape but 10 time the energy                        #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[10., 20., 20., 10.],
+                                 [10., 30., 30., 10.],
+                                 [10., 20., 20., 10.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 2., 2., 1.],
+                                    [1., 3., 3., 1.],
+                                    [1., 2., 2., 1.]])
+    
+        # Expected mark ###############
+
+        expected_mark = 9.
+
+        # Mark ########################
+
+        mark = assess.metric3(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 4: perfect shape but the energy divided by 10                  #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[0.1, 0.2, 0.2, 0.1],
+                                 [0.1, 0.3, 0.3, 0.1],
+                                 [0.1, 0.2, 0.2, 0.1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 2., 2., 1.],
+                                    [1., 3., 3., 1.],
+                                    [1., 2., 2., 1.]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.9
+
+        # Mark ########################
+
+        mark = assess.metric3(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 5: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 1., 1., 1., 2.],
+                                    [1., 1., 1., 1., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric3(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 6: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[2., 2., 2., 2., 2.],
+                                    [0., 0., 0., 0., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric3(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 7: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 1., 1., 1., 1.5],
+                                    [1., 1., 1., 1., 0.5]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric3(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_almost_equal(mark, expected_mark, decimal=10)
+
+
+    ###########################################################################
+    ###########################################################################
+    # Test the "metric4" function                                             #
+    ###########################################################################
+    ###########################################################################
+
+    def test_metric4_input(self):
+        """Check the input of the "metric4" function."""
+
+        #######################################################################
+        # Test 1: sum on reference image is 0                                 #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[0, 0, 0, 0],
+                                    [0, 0, 0, 0],
+                                    [0, 0, 0, 0]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Test ########################
+
+        with self.assertRaises(assess.EmptyReferenceImageError):
+            mark = assess.metric4(input_image, output_image, reference_image)
+
+
+        #######################################################################
+        # Test 2: sum on reference image is 0                                 #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = np.array([[1, 2, 2, 1],
+                                [1, 3, 3, 1],
+                                [1, 2, 2, 1]])
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[0., 0., 0., 0.],
+                                    [0., 0., 0., 0.],
+                                    [0., 0., 0., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = None
+
+        # Test ########################
+
+        with self.assertRaises(assess.EmptyReferenceImageError):
+            mark = assess.metric4(input_image, output_image, reference_image)
+
+
+    def test_metric4_output(self):
+        """Check the output of the "metric4" function."""
+
+        #######################################################################
+        # Test 1: perfect output                                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1, 2, 2, 1],
+                                 [1, 3, 3, 1],
+                                 [1, 2, 2, 1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1, 2, 2, 1],
+                                    [1, 3, 3, 1],
+                                    [1, 2, 2, 1]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric4(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 2: perfect output                                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[.1, .2, .2, .1],
+                                 [.1, .3, .3, .1],
+                                 [.1, .2, .2, .1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[.1, .2, .2, .1],
+                                    [.1, .3, .3, .1],
+                                    [.1, .2, .2, .1]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric4(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 3: perfect shape but 10 time the energy                        #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[10., 20., 20., 10.],
+                                 [10., 30., 30., 10.],
+                                 [10., 20., 20., 10.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 2., 2., 1.],
+                                    [1., 3., 3., 1.],
+                                    [1., 2., 2., 1.]])
+    
+        # Expected mark ###############
+
+        expected_mark = 9.
+
+        # Mark ########################
+
+        mark = assess.metric4(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 4: perfect shape but the energy divided by 10                  #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[0.1, 0.2, 0.2, 0.1],
+                                 [0.1, 0.3, 0.3, 0.1],
+                                 [0.1, 0.2, 0.2, 0.1]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 2., 2., 1.],
+                                    [1., 3., 3., 1.],
+                                    [1., 2., 2., 1.]])
+    
+        # Expected mark ###############
+
+        expected_mark = -0.9
+
+        # Mark ########################
+
+        mark = assess.metric4(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 5: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 1., 1., 1., 2.],
+                                    [1., 1., 1., 1., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric4(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 6: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[2., 2., 2., 2., 2.],
+                                    [0., 0., 0., 0., 0.]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric4(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_equal(mark, expected_mark)
+
+
+        #######################################################################
+        # Test 7: perfect energy but wrong shape                              #
+        #######################################################################
+
+        # Input image #################
+
+        input_image = None
+
+        # Output image ################
+
+        output_image = np.array([[1., 1., 1., 1., 1.],
+                                 [1., 1., 1., 1., 1.]])
+
+        # Reference image #############
+
+        reference_image = np.array([[1., 1., 1., 1., 1.5],
+                                    [1., 1., 1., 1., 0.5]])
+    
+        # Expected mark ###############
+
+        expected_mark = 0.
+
+        # Mark ########################
+
+        mark = assess.metric4(input_image, output_image, reference_image)
+
+        # Test ########################
+
+        np.testing.assert_almost_equal(mark, expected_mark, decimal=10)
     
 
 if __name__ == '__main__':
