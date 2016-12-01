@@ -96,6 +96,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     precision=None,
                     offset_after_calibration=None,
                     correction_offset=None,
+                    input_image_scale='linear',
                     verbose=False):
         """
         Do the wavelet transform.
@@ -117,9 +118,20 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         if offset_after_calibration is not None:
             input_img = input_img + offset_after_calibration
 
-#        # CHANGE THE SCALE #####################################
-#        
-#        input_img = np.log10(input_img + 10.)
+        # CHANGE THE SCALE #####################################
+        
+        if input_image_scale == 'log':
+            if verbose:
+                print("Apply log scale")
+            #images.plot(input_img)
+            input_img = np.log10(input_img)
+            #images.plot(input_img)
+        elif input_image_scale == 'sqrt':
+            if verbose:
+                print("Apply sqrt scale")
+            #images.plot(input_img)
+            input_img = np.sqrt(input_img)
+            #images.plot(input_img)
 
         # WRITE THE INPUT FILE (FITS) ##########################
 
@@ -187,9 +199,16 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         if cleaned_img.ndim != 2:
             raise WrongDimensionError()
 
-#        # CHANGE THE SCALE #####################################
-#        
-#        cleaned_img = np.power(10., cleaned_img) - 10.
+        # CHANGE THE SCALE #####################################
+        
+        if input_image_scale == 'log':
+            if verbose:
+                print("Invert log scale")
+            cleaned_img = np.power(10., cleaned_img)
+        elif input_image_scale == 'sqrt':
+            if verbose:
+                print("Invert sqrt scale")
+            cleaned_img = np.power(2., cleaned_img)
 
         # INVERT THE OFFSET ####################################
         
@@ -208,6 +227,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
 
         #print(cleaned_img)
+        #images.plot_hist(cleaned_img)
         #images.plot_hist(cleaned_img, num_bins=500, x_max=5)
 
         return cleaned_img
@@ -414,6 +434,9 @@ def main():
     parser.add_argument("--correction-offset", action="store_true",
                         help="Apply a correction offset to the output image.")
 
+    parser.add_argument("--input-image-scale", default="linear",
+                        help="Use a different scale for the input image ('linear', 'log' or 'sqrt'). Default='linear'.")
+
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
 
@@ -459,6 +482,7 @@ def main():
     precision = args.precision
     offset_after_calibration = args.offset_after_calibration
     correction_offset = args.correction_offset
+    input_image_scale = args.input_image_scale
     verbose = args.verbose
 
     benchmark_method = args.benchmark
@@ -493,6 +517,7 @@ def main():
                 "precision": precision,
                 "offset_after_calibration": offset_after_calibration,
                 "correction_offset": correction_offset,
+                "input_image_scale": input_image_scale,
                 "verbose": verbose
             }
 
