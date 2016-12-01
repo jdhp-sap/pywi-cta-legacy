@@ -1,5 +1,14 @@
 # TODO
 
+## Skeleton
+
+- [ ] Make one branch for Tkinter projects, one branch for PyGTK projects, one branch for PyQT projects, ...
+- [ ] Add docs/
+- [ ] Add tests/
+- [ ] Add common tools: travis, ...
+
+## Version 0.1
+
 - [ ] Rename this project "SAp CTA Data Pipeline"
 - [ ] Simtel should be a class to load files only once
 - [ ] Add the following command: "dp-simtel-ls-telescopes [telid]" (dp-simtel-count is based on this function)

@@ -4,16 +4,16 @@ SAp Data Pipeline Standalone Scripts
 
 Copyright (c) 2016 Jeremie DECOCK (www.jdhp.org) and Tino Michael
 
-
-* Source code: https://github.com/jdhp-sap/data-pipeline-standalone-scripts
-* Issue tracker: https://github.com/jdhp-sap/data-pipeline-standalone-scripts/issues
-* SAp Data Pipeline Standalone Scripts on PyPI: https://pypi.python.org/pypi/data-pipeline-standalone-scripts
+* Online documentation: http://datapipe.readthedocs.org
+* Source code: https://github.com/jdhp-sap/sap-cta-data-pipeline
+* Issue tracker: https://github.com/jdhp-sap/sap-cta-data-pipeline/issues
+* datapipe on PyPI: https://pypi.python.org/pypi/datapipe
 
 
 Description
 ===========
 
-TODO...
+Signal processing for gamma-ray science
 
 Note:
 
@@ -23,7 +23,7 @@ Note:
 Dependencies
 ============
 
--  Python >= 3.0
+*  Python >= 3.0
 
 .. _install:
 
@@ -33,52 +33,58 @@ Installation
 Gnu/Linux
 ---------
 
-You can install, upgrade, uninstall SAp Data Pipeline Standalone Scripts with
-these commands (in a terminal)::
+You can install, upgrade, uninstall SAp CTA data pipeline with these commands (in a
+terminal)::
 
-    pip install --pre data-pipeline-standalone-scripts
-    pip install --upgrade data-pipeline-standalone-scripts
-    pip uninstall data-pipeline-standalone-scripts
+    pip install --pre datapipe
+    pip install --upgrade datapipe
+    pip uninstall datapipe
 
-Or, if you have downloaded the SAp Data Pipeline Standalone Scripts source code::
+Or, if you have downloaded the SAp CTA data pipeline source code::
 
     python3 setup.py install
 
 .. There's also a package for Debian/Ubuntu::
 .. 
-..     sudo apt-get install data-pipeline-standalone-scripts
+..     sudo apt-get install datapipe
 
 Windows
 -------
 
-You can install, upgrade, uninstall SAp Data Pipeline Standalone Scripts with
-these commands (in a `command prompt`_)::
+.. Note:
+.. 
+..     The following installation procedure has been tested to work with Python
+..     3.4 under Windows 7.
+..     It should also work with recent Windows systems.
 
-    py -m pip install --pre data-pipeline-standalone-scripts
-    py -m pip install --upgrade data-pipeline-standalone-scripts
-    py -m pip uninstall data-pipeline-standalone-scripts
+You can install, upgrade, uninstall SAp CTA data pipeline with these commands (in a
+`command prompt`_)::
 
-Or, if you have downloaded the SAp Data Pipeline Standalone Scripts source code::
+    py -m pip install --pre datapipe
+    py -m pip install --upgrade datapipe
+    py -m pip uninstall datapipe
+
+Or, if you have downloaded the SAp CTA data pipeline source code::
 
     py setup.py install
 
 MacOSX
 -------
 
-Note:
+.. Note:
+.. 
+..     The following installation procedure has been tested to work with Python
+..     3.5 under MacOSX 10.9 (*Mavericks*).
+..     It should also work with recent MacOSX systems.
 
-    The following installation procedure has been tested to work with Python
-    3.5 under MacOSX 10.9 (*Mavericks*).
-    It should also work with recent MacOSX systems.
+You can install, upgrade, uninstall SAp CTA data pipeline with these commands (in a
+terminal)::
 
-You can install, upgrade, uninstall SAp Data Pipeline Standalone Scripts with
-these commands (in a terminal)::
+    pip install --pre datapipe
+    pip install --upgrade datapipe
+    pip uninstall datapipe
 
-    pip install --pre data-pipeline-standalone-scripts
-    pip install --upgrade data-pipeline-standalone-scripts
-    pip uninstall data-pipeline-standalone-scripts
-
-Or, if you have downloaded the SAp Data Pipeline Standalone Scripts source code::
+Or, if you have downloaded the SAp CTA data pipeline source code::
 
     python3 setup.py install
 
@@ -154,3 +160,4 @@ Scripts Bug Tracker at:
 
     https://github.com/jeremiedecock/web-crawlers/issues
 
+.. _SAp CTA data pipeline: http://www.jdhp.org/software_en.html#datapipe

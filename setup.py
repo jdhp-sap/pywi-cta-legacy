@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# SAp Data Pipeline Standalone Scripts
+# SAp CTA data pipeline
 
 # The MIT License
 #
@@ -41,7 +41,17 @@ try:
 except ImportError:
     from distutils.core import setup
 
+
+# SETUP VARIABLES #############################################################
+
 from datapipe import __version__ as VERSION
+
+AUTHOR_NAME = 'Jeremie DECOCK and Tino Michael'
+AUTHOR_EMAIL = 'jd.jdhp@gmail.com'
+
+PYTHON_PACKAGE_NAME = 'datapipe'
+PROJECT_SHORT_DESC = 'Signal processing for gamma-ray science'
+PROJECT_WEB_SITE_URL = 'http://www.jdhp.org/software_en.html#datapipe'
 
 # See :  http://pypi.python.org/pypi?%3Aaction=list_classifiers
 CLASSIFIERS = ['Development Status :: 4 - Beta',
@@ -54,9 +64,7 @@ CLASSIFIERS = ['Development Status :: 4 - Beta',
                'Topic :: Software Development :: Libraries :: Python Modules',
                'Topic :: Software Development :: Libraries :: Application Frameworks']
 
-
 KEYWORDS = 'sap data pipeline'
-
 
 # You can either specify manually the list of packages to include in the
 # distribution or use "setuptools.find_packages()" to include them
@@ -64,20 +72,27 @@ KEYWORDS = 'sap data pipeline'
 # project).
 PACKAGES = find_packages()
 #PACKAGES = ['datapipe']
-print("PACKAGES:", PACKAGES)
 
 
 # The following list contains all dependencies that Python will try to
 # install with this project
+# E.g. INSTALL_REQUIRES = ['pyserial >= 2.6']
 INSTALL_REQUIRES = []
 
 
+# E.g. SCRIPTS = ["examples/pyax12demo"]
 SCRIPTS = []
 
 
 # Entry point can be used to create plugins or to automatically generate
 # system commands to call specific functions.
 # Syntax: "name_of_the_command_to_make = package.module:function".
+# E.g.:
+#   ENTRY_POINTS = {
+#     'console_scripts': [
+#         'pyax12gui = pyax12.gui:run',
+#     ],
+#   }
 ENTRY_POINTS = {
   'console_scripts': [
       'dp-simtel-count = datapipe.io.simtel:main_count_simtel_events',
@@ -96,16 +111,18 @@ def get_long_description():
     return desc
 
 
-setup(author='Jeremie DECOCK and Tino Michael',
-      author_email='jd.jdhp@gmail.com',
-      maintainer='Jeremie DECOCK',
-      maintainer_email='jd.jdhp@gmail.com',
+###############################################################################
 
-      name='data-pipeline-standalone-scripts',
-      description='SAp Data Pipeline Standalone Scripts',
+setup(author=AUTHOR_NAME,
+      author_email=AUTHOR_EMAIL,
+      maintainer=AUTHOR_NAME,
+      maintainer_email=AUTHOR_EMAIL,
+
+      name=PYTHON_PACKAGE_NAME,
+      description=PROJECT_SHORT_DESC,
       long_description=get_long_description(),
-      url='http://www.jdhp.org/',
-      download_url='http://www.jdhp.org/',# Where the package can be downloaded
+      url=PROJECT_WEB_SITE_URL,
+      download_url=PROJECT_WEB_SITE_URL, # Where the package can be downloaded
 
       classifiers=CLASSIFIERS,
       #license='MIT',            # Useless if license is already in CLASSIFIERS
