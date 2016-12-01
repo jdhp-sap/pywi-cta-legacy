@@ -94,6 +94,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     epsilon=None,
                     support_file_name=None,
                     precision=None,
+                    offset_after_calibration=None,
                     verbose=False):
         """
         Do the wavelet transform.
@@ -109,6 +110,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         input_file_path = ".tmp_{}_{}_in.fits".format(os.getpid(), time.time())
         mr_output_file_path = ".tmp_{}_{}_out.fits".format(os.getpid(), time.time())
+
+        # APPLY AN OFFSET ######################################
+        
+        if offset_after_calibration is not None:
+            input_img = input_img + offset_after_calibration
 
 #        # CHANGE THE SCALE #####################################
 #        
@@ -183,6 +189,14 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 #        # CHANGE THE SCALE #####################################
 #        
 #        cleaned_img = np.power(10., cleaned_img) - 10.
+
+        # INVERT THE OFFSET ####################################
+        
+        if (offset_after_calibration is not None) and (not suppress_last_scale):
+            #cleaned_img = cleaned_img - offset_after_calibration
+            cleaned_img = cleaned_img - cleaned_img.min()
+
+        images.plot_hist(cleaned_img)
 
         # KILL ISOLATED PIXELS #################################
         
@@ -386,6 +400,10 @@ def main():
 #                VMDIR = directory name
 #
 
+    parser.add_argument("--offset-after-calibration", type=float, metavar="FLOAT",
+                        default=0.,
+                        help="Value added to all pixels of the input image after calibration. Default=0.")
+
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
 
@@ -424,11 +442,12 @@ def main():
     detect_only_positive_structure = args.detect_only_positive_structure
     suppress_positivity_constraint = args.suppress_positivity_constraint
     type_of_filtering = args.type_of_filtering
-    first_detection_scale = args.first_detection_scale 
-    number_of_iterations = args.number_of_iterations 
-    epsilon = args.epsilon 
-    support_file_name = args.support_file_name 
-    precision = args.precision 
+    first_detection_scale = args.first_detection_scale
+    number_of_iterations = args.number_of_iterations
+    epsilon = args.epsilon
+    support_file_name = args.support_file_name
+    precision = args.precision
+    offset_after_calibration = args.offset_after_calibration
     verbose = args.verbose
 
     benchmark_method = args.benchmark
@@ -461,6 +480,7 @@ def main():
                 "epsilon": epsilon,
                 "support_file_name": support_file_name,
                 "precision": precision,
+                "offset_after_calibration": offset_after_calibration,
                 "verbose": verbose
             }
 
