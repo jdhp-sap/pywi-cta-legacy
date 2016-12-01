@@ -46,6 +46,8 @@ import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.io import images
 
+from datapipe.denoising.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
+
 
 # EXCEPTIONS #################################################################
 
@@ -78,8 +80,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     type_of_filters=None,
                     type_of_non_orthog_filters=None,
                     number_of_scales=None,
-                    suppress_last_scale=True,
-                    suppress_isolated_pixels=True,
+                    suppress_last_scale=False,
+                    suppress_isolated_pixels=False,
+                    kill_isolated_pixels=False,
                     coef_detection_method=None,
                     k_sigma_noise_threshold=None,
                     noise_model=None,
@@ -128,7 +131,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         cmd += ' -U{}'.format(type_of_non_orthog_filters) if type_of_non_orthog_filters is not None else ''
         cmd += ' -n{}'.format(number_of_scales) if number_of_scales is not None else ''
         cmd += ' -K' if suppress_last_scale else ''
-        cmd += ' -k' if suppress_isolated_pixels else ''
+        cmd += ' -k' if suppress_isolated_pixels else ''      # You should use scipy implementation instead (datapipe/denoising/kill_isolated_pixels.py); it's much more efficient
         cmd += ' -C{}'.format(coef_detection_method) if coef_detection_method is not None else ''
         cmd += ' -s{}'.format(k_sigma_noise_threshold) if k_sigma_noise_threshold is not None else ''
         cmd += ' -m{}'.format(noise_model) if noise_model is not None else ''
@@ -180,6 +183,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 #        # CHANGE THE SCALE #####################################
 #        
 #        cleaned_img = np.power(10., cleaned_img) - 10.
+
+        # KILL ISOLATED PIXELS #################################
+        
+        if kill_isolated_pixels:
+            cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
 
         return cleaned_img
 
@@ -318,6 +326,9 @@ def main():
     parser.add_argument("--suppress-isolated-pixels", "-k", action="store_true",
                         help="Suppress isolated pixels in the support")
 
+    parser.add_argument("--kill-isolated-pixels", action="store_true",
+                        help="Suppress isolated pixels in the support (scipy implementation)")
+
     parser.add_argument("--suppress-last-scale", "-K", action="store_true",
                         help="Suppress the last scale (to have background pixels = 0)")
 
@@ -406,6 +417,7 @@ def main():
     number_of_scales = args.number_of_scales
     suppress_last_scale = args.suppress_last_scale
     suppress_isolated_pixels = args.suppress_isolated_pixels
+    kill_isolated_pixels = args.kill_isolated_pixels
     coef_detection_method = args.coef_detection_method
     k_sigma_noise_threshold = args.k_sigma_noise_threshold
     noise_model = args.noise_model
@@ -437,6 +449,7 @@ def main():
                 "number_of_scales": number_of_scales,
                 "suppress_last_scale": suppress_last_scale,
                 "suppress_isolated_pixels": suppress_isolated_pixels,
+                "kill_isolated_pixels": kill_isolated_pixels,
                 "coef_detection_method": coef_detection_method,
                 "k_sigma_noise_threshold": k_sigma_noise_threshold,
                 "noise_model": noise_model,
