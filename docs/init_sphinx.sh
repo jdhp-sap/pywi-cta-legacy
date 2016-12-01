@@ -1,14 +1,17 @@
 #!/bin/sh
 
-PROJECT_VERSION=$(python -c "import sys ; sys.path.append('..') ; print('.'.join(__import__('datapipe').__version__[:2]))")
-PROJECT_RELEASE=$(python -c "import sys ; sys.path.append('..') ; print('.'.join(__import__('datapipe').__version__))")
+PROJECT_VERSION=$(python -c "import sys ; sys.path.append('..') ; print('.'.join(__import__('datapipe').__version__.split('.')[:2]))")
+PROJECT_RELEASE=$(python -c "import sys ; sys.path.append('..') ; print('.'.join(__import__('datapipe').__version__.split('.')))")
+
+echo ${PROJECT_VERSION}
+echo ${PROJECT_RELEASE}
 
 sphinx-quickstart \
     --sep \
     --project="SAp CTA data pipeline" \
     --author="Jérémie DECOCK" \
-    -v "PROJECT_VERSION" \             # The short X.Y version.
-    --release="PROJECT_RELEASE" \      # The full version, including alpha/beta/rc tags.
+    -v "${PROJECT_VERSION}" \             # The short X.Y version.
+    --release="${PROJECT_RELEASE}" \      # The full version, including alpha/beta/rc tags.
     --language=en \
     --suffix=".rst" \
     --master="index" \
