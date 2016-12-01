@@ -373,9 +373,11 @@ def plot(img, title=""):
     plt.show()
 
 
-def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=5):
+def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=None):
     """
     """
+
+    img = img.flatten()   # return a flatten *copy* of the image
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
