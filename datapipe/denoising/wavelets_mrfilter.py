@@ -95,6 +95,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     support_file_name=None,
                     precision=None,
                     offset_after_calibration=None,
+                    correction_offset=None,
                     verbose=False):
         """
         Do the wavelet transform.
@@ -193,15 +194,21 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         # INVERT THE OFFSET ####################################
         
         if (offset_after_calibration is not None) and (not suppress_last_scale):
-            #cleaned_img = cleaned_img - offset_after_calibration
-            cleaned_img = cleaned_img - cleaned_img.min()
+            cleaned_img = cleaned_img - offset_after_calibration
 
-        images.plot_hist(cleaned_img)
+        # CORRECTION OFFSET ####################################
+
+        if correction_offset is not None:
+            cleaned_img = cleaned_img - cleaned_img.min()
+            cleaned_img[cleaned_img < 1.0] = 0.
 
         # KILL ISOLATED PIXELS #################################
         
         if kill_isolated_pixels:
             cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
+
+        #print(cleaned_img)
+        #images.plot_hist(cleaned_img, num_bins=500, x_max=5)
 
         return cleaned_img
 
@@ -404,6 +411,9 @@ def main():
                         default=0.,
                         help="Value added to all pixels of the input image after calibration. Default=0.")
 
+    parser.add_argument("--correction-offset", action="store_true",
+                        help="Apply a correction offset to the output image.")
+
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
 
@@ -448,6 +458,7 @@ def main():
     support_file_name = args.support_file_name
     precision = args.precision
     offset_after_calibration = args.offset_after_calibration
+    correction_offset = args.correction_offset
     verbose = args.verbose
 
     benchmark_method = args.benchmark
@@ -481,6 +492,7 @@ def main():
                 "support_file_name": support_file_name,
                 "precision": precision,
                 "offset_after_calibration": offset_after_calibration,
+                "correction_offset": correction_offset,
                 "verbose": verbose
             }
 
