@@ -24,7 +24,7 @@
 This module contains unit tests for the "denoising.tailcut" module.
 """
 
-from datapipe.denoising.tailcut import Tailcut
+from datapipe.denoising.tailcut_jd import Tailcut
 
 import numpy as np
 
