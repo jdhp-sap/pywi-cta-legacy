@@ -13,7 +13,7 @@ Copyright (c) 2016 Jeremie DECOCK (www.jdhp.org) and Tino Michael
 Description
 ===========
 
-Signal processing for gamma-ray science
+Signal processing for gamma-ray science.
 
 Note:
 
@@ -158,6 +158,7 @@ Bug reports
 To search for bugs or report them, please use the SAp Data Pipeline Standalone
 Scripts Bug Tracker at:
 
-    https://github.com/jeremiedecock/web-crawlers/issues
+    https://github.com/jdhp-sap/sap-cta-data-pipeline/issues
+
 
 .. _SAp CTA data pipeline: http://www.jdhp.org/software_en.html#datapipe
