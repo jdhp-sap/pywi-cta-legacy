@@ -26,6 +26,7 @@ __all__ = ['load',
            'plot']
 
 from astropy.io import fits
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
@@ -368,6 +369,35 @@ def plot(img, title=""):
                    cmap=COLOR_MAP)
 
     plt.colorbar(im) # draw the colorbar
+
+    plt.show()
+
+
+def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=5):
+    """
+    """
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
+
+    if logx:
+        # Setup the logarithmic scale on the X axis
+        vmin = np.log10(img.min())
+        vmax = np.log10(img.max())
+        bins = np.logspace(vmin, vmax, num_bins) # Make a range from 10**vmin to 10**vmax
+    else:
+        bins = num_bins
+
+    if x_max is not None:
+        ax.set_xlim(xmax=x_max)
+
+    res_tuple = ax.hist(img,
+                        bins=bins,
+                        log=logy,               # Set log scale on the Y axis
+                        histtype='bar',
+                        alpha=1)
+
+    if logx:
+        ax.set_xscale("log")               # Activate log scale on X axis
 
     plt.show()
 
