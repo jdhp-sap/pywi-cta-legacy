@@ -20,6 +20,10 @@ echo "TEST_DENOISING_TAILCUT"
 
 echo
 echo
+echo "TEST_KILL_ISOLATED_PIXELS"
+./tests/test_kill_isolated_pixels.py
+
+echo
+echo
 echo "TEST_IO_IMAGES"
 ./tests/test_io_images.py
-
