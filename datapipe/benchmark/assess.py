@@ -21,7 +21,9 @@
 # THE SOFTWARE.
 
 __all__ = ['normalize_array',
-           'metric1',
+           'metric1a',
+           'metric1b',
+           'metric1c',
            'metric2',
            'metric3',
            'metric4',
@@ -108,9 +110,9 @@ def normalize_array(input_array):
 # METRIC FUNCTIONS                                                            #
 ###############################################################################
 
-# Mean-Squared Error (MSE) (with or without Normalization) ####################
+# Mean-Squared Error (MSE) ####################################################
 
-def metric1(input_img, output_image, reference_image, params=None):
+def metric1a(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Mean-Squared Error* (MSE) metric.
 
@@ -118,25 +120,13 @@ def metric1(input_img, output_image, reference_image, params=None):
 
     .. math::
 
-        \text{MSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \hat{\boldsymbol{S}}_n - \boldsymbol{S}^*_n \right)^{\circ 2} \right\rangle
-
-    if ``normalize_images = True``,
-    otherwise it applies
-
-    .. math::
-
         \text{MSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \hat{\boldsymbol{S}} - \boldsymbol{S}^* \right)^{\circ 2} \right\rangle
 
     with:
     
-    - :math:`\hat{\boldsymbol{S}}` and :math:`\hat{\boldsymbol{S}}_n`
-      respectively the algorithm's output image (i.e. the *cleaned* image),
-      and the normalized version of this array
-      (using :meth:`datapipe.benchmark.assess.normalize_array`);
-    - :math:`\boldsymbol{S}^*` and :math:`\boldsymbol{S}^*_n`
-      respectively the reference image (i.e. the *clean* image)
-      and the normalized version of this array
-      (using :meth:`datapipe.benchmark.assess.normalize_array`);
+    - :math:`\hat{\boldsymbol{S}}` the algorithm's output image (i.e. the
+      *cleaned* image);
+    - :math:`\boldsymbol{S}^*` the reference image (i.e. the *clean* image);
     - :math:`\langle \boldsymbol{S} \rangle` the average of matrix
       :math:`\boldsymbol{S}`;
     - :math:`\boldsymbol{S}^{\circ 2}` the
@@ -149,7 +139,7 @@ def metric1(input_img, output_image, reference_image, params=None):
     Note
     ----
     This function is not well-suited to high dynamic range images handled with
-    this project.
+    this project (errors are correlated with energy levels).
 
     Parameters
     ----------
@@ -160,6 +150,8 @@ def metric1(input_img, output_image, reference_image, params=None):
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
+    params: dict
+        Additional options.
 
     Returns
     -------
@@ -174,9 +166,131 @@ def metric1(input_img, output_image, reference_image, params=None):
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
     
-    if (params is not None) and ('normalize_images' in params) and (params['normalize_images']):
-        output_image = normalize_array(output_image)
-        reference_image = normalize_array(reference_image)
+    score = np.mean(np.square(output_image - reference_image))
+
+    return score
+
+
+# Normalized Root Mean-Squared Error (NRMSE) ##################################
+
+def metric1b(input_img, output_image, reference_image, params=None):
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
+    with the *Normalized Root Mean-Squared Error* (NRMSE) metric.
+
+    It applies
+
+    .. math::
+
+        \text{NRMSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{\sqrt{\text{MSE}}}{\sqrt{ \left\langle \hat{\boldsymbol{S}} \circ \boldsymbol{S}^* \right\rangle }}
+
+    with:
+    
+    - :math:`\hat{\boldsymbol{S}}` the algorithm's output image (i.e. the
+      *cleaned* image);
+    - :math:`\boldsymbol{S}^*` the reference image (i.e. the *clean* image);
+    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix
+      :math:`\boldsymbol{S}`;
+    - :math:`\circ` the
+      `Hadamar product <https://en.wikipedia.org/wiki/Hadamard_product_(matrices)>`_
+      (i.e. the element wise product operator).
+
+    See http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-nrmse and
+    https://en.wikipedia.org/wiki/Root-mean-square_deviation for more information.
+
+    Parameters
+    ----------
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_image: 2D ndarray
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+    params: dict
+        Additional options.
+
+    Returns
+    -------
+    float
+        The score of the image cleaning algorithm for the given image.
+
+    
+    """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
+    
+    #if (params is not None) and ('nrmse_normalize_type' in params) and (params['nrmse_normalize_type'].lower() == 'euclidian'):
+    #    denom = 
+    # TODO: see https://github.com/scikit-image/scikit-image/blob/master/skimage/measure/simple_metrics.py#L82
+
+    mse = metric1a(input_img, output_image, reference_image, params)
+    denom = np.sqrt(np.mean((reference_image * output_image), dtype=np.float64))
+    score = np.sqrt(mse) / denom
+
+    return score
+
+
+# Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################
+
+def metric1c(input_img, output_image, reference_image, params=None):
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
+    with a (unusually) normalized version of the *Root Mean-Squared Error*
+    (RMSE) metric.
+
+    It applies
+
+    .. math::
+
+        \text{uNRMSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \left( \hat{\boldsymbol{S}}_n - \boldsymbol{S}^*_n \right)^{\circ 2} \right)^{\circ \frac{1}{2}} \right\rangle
+
+    with:
+    
+    - :math:`\hat{\boldsymbol{S}}_n`
+      the algorithm's normalized output image (i.e. the *cleaned* image),
+      (using :meth:`datapipe.benchmark.assess.normalize_array`);
+    - :math:`\boldsymbol{S}^*_n`
+      the normalized reference image (i.e. the *clean* image)
+      (using :meth:`datapipe.benchmark.assess.normalize_array`);
+    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix
+      :math:`\boldsymbol{S}`;
+    - :math:`\boldsymbol{S}^{\circ 2}` the
+      `Hadamar power <https://en.wikipedia.org/wiki/Hadamard_product_(matrices)#Analogous_operations>`_
+      (i.e. the element wise square) of matrix :math:`\boldsymbol{S}`.
+
+    Note
+    ----
+    This function is not robust to noise on extreme values.
+
+    Parameters
+    ----------
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_image: 2D ndarray
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+    params: dict
+        Additional options.
+
+    Returns
+    -------
+    float
+        The score of the image cleaning algorithm for the given image.
+
+    
+    """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
+    
+    output_image = normalize_array(output_image)
+    reference_image = normalize_array(reference_image)
 
     score = np.mean(np.square(output_image - reference_image))
 
@@ -212,6 +326,8 @@ def metric2(input_img, output_image, reference_image, params=None):
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
+    params: dict
+        Additional options.
 
     Returns
     -------
@@ -265,6 +381,8 @@ def metric3(input_img, output_image, reference_image, params=None):
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
+    params: dict
+        Additional options.
 
     Returns
     -------
@@ -315,6 +433,8 @@ def metric4(input_img, output_image, reference_image, params=None):
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
+    params: dict
+        Additional options.
 
     Returns
     -------
@@ -379,6 +499,8 @@ def metric5(input_img, output_image, reference_image, params=None):
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
+    params: dict
+        Additional options.
 
     Returns
     -------
@@ -428,6 +550,8 @@ def metric6(input_img, output_image, reference_image, params=None):
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
+    params: dict
+        Additional options.
 
     Returns
     -------
@@ -455,37 +579,43 @@ def metric6(input_img, output_image, reference_image, params=None):
 ###############################################################################
 
 BENCHMARK_DICT = {
-    "mse":      (metric1,),
+    "mse":      (metric1a,),
+    "nrmse":    (metric1b,),
+    "unrmse":   (metric1c,),
     "e_shape":  (metric2,),
     "e_energy": (metric3,),
     "mpdspd":   (metric2, metric3),
     "sspd":     (metric4,),
     "ssim":     (metric5,),
     "psnr":     (metric6,),
-    "all":      (metric1, metric2, metric3, metric4, metric5, metric6)
+    "all":      (metric1a, metric1b, metric2, metric3, metric4, metric5, metric6)
 }
 
 METRIC_NAME_DICT = {
-    metric1: "mse",
-    metric2: "e_shape",
-    metric3: "e_energy",
-    metric4: "sspd",
-    metric5: "ssim",
-    metric6: "psnr"
+    metric1a: "mse",
+    metric1b: "nrmse",
+    metric1c: "unrmse",
+    metric2:  "e_shape",
+    metric3:  "e_energy",
+    metric4:  "sspd",
+    metric5:  "ssim",
+    metric6:  "psnr"
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
-    - "mse":      (metric1)
-    - "e_shape":  (metric2)
-    - "e_energy": (metric3)
-    - "mpdspd":   (metric2, metric3)
-    - "sspd":     (metric4)
-    - "ssim":     (metric5)
-    - "psnr":     (metric6)
-    - "all":      (metric1, metric2, metric3, metric4, metric5, metric6)
+    - "mse":      (:meth:`metric1a`)
+    - "nrmse":    (:meth:`metric1b`)
+    - "unrmse":   (:meth:`metric1c`)
+    - "e_shape":  (:meth:`metric2`)
+    - "e_energy": (:meth:`metric3`)
+    - "mpdspd":   (:meth:`metric2`, :meth:`metric3`)
+    - "sspd":     (:meth:`metric4`)
+    - "ssim":     (:meth:`metric5`)
+    - "psnr":     (:meth:`metric6`)
+    - "all":      (:meth:`metric1a`, :meth:`metric1b`, :meth:`metric2`, :meth:`metric3`, :meth:`metric4`, :meth:`metric5`, :meth:`metric6`)
 
     Parameters
     ----------
@@ -496,6 +626,8 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
     reference_img: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
+    params: dict
+        Additional options.
 
     Returns
     -------
