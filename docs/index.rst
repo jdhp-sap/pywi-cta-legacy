@@ -6,11 +6,25 @@
 SAp CTA data pipeline's documentation
 =====================================
 
+Signal processing for gamma-ray science.
+
+Note:
+
+    This project is in beta stage.
+
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
+   intro
+   API <api>
+   developer
+
+* Online documentation: http://datapipe.readthedocs.org
+* Source code: https://github.com/jdhp-sap/sap-cta-data-pipeline
+* Issue tracker: https://github.com/jdhp-sap/sap-cta-data-pipeline/issues
+* datapipe on PyPI: https://pypi.python.org/pypi/datapipe
 
 
 Indices and tables
@@ -20,3 +34,11 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+Credits
+=======
+
+Created by `Jérémie Decock`_ and Tino Michael.
+
+
+.. _Jérémie Decock: http://www.jdhp.org
