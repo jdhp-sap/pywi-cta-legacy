@@ -25,13 +25,16 @@ __all__ = ['normalize_array',
            'metric2',
            'metric3',
            'metric4',
+           'metric5',
            'assess_image_cleaning']
 
 import numpy as np
 from astropy.units import Quantity
 import astropy.units as u
 
-import sys
+from skimage.measure import compare_ssim as ssim
+from skimage.measure import compare_psnr as psnr
+from skimage.measure import compare_nrmse as nrmse
 
 
 ###############################################################################
@@ -90,6 +93,12 @@ def normalize_array(input_array):
         The normalized version of the input image (keeping the same dimension
         and shape)
     """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
+
     output_array = (input_array - input_array.min()) / (input_array.max() - input_array.min())
     return output_array
 
@@ -139,6 +148,11 @@ def metric1(input_img, output_image, reference_image, params=None):
     float
         The score of the image cleaning algorithm for the given image.
     """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
     
     if (params is not None) and ('normalize_images' in params) and (params['normalize_images']):
         normalized_diff_array = normalize_array(output_image) - normalize_array(reference_image)
@@ -182,6 +196,11 @@ def metric2(input_img, output_image, reference_image, params=None):
     float
         The score of the image cleaning algorithm for the given image.
     """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
     
     sum_output_image = float(np.sum(output_image))
     sum_reference_image = float(np.sum(reference_image))
@@ -230,6 +249,11 @@ def metric3(input_img, output_image, reference_image, params=None):
     float
         The score of the image cleaning algorithm for the given image.
     """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
     
     sum_output_image = float(np.sum(output_image))
     sum_reference_image = float(np.sum(reference_image))
@@ -275,6 +299,11 @@ def metric4(input_img, output_image, reference_image, params=None):
     float
         The score of the image cleaning algorithm for the given image.
     """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
     
     sum_output_image = float(np.sum(output_image))
     sum_reference_image = float(np.sum(reference_image))
@@ -287,6 +316,79 @@ def metric4(input_img, output_image, reference_image, params=None):
     return mark
 
 
+# Structural Similarity Index Measure (SSIM) ##################################
+
+def metric5(input_img, output_image, reference_image, params=None):
+    r"""Compute the score of `output_image` regarding `reference_image`
+    with the *Structural Similarity Index Measure* (SSIM) metric.
+
+    See [1]_, [2]_, [3]_ and [4]_ for more information.
+    
+    The SSIM index is calculated on various windows of an image.
+    The measure between two windows :math:`x` and :math:`y` of common size
+    :math:`N.N` is:
+
+    .. math::
+        \hbox{SSIM}(x,y) = \frac{(2\mu_x\mu_y + c_1)(2\sigma_{xy} + c_2)}{(\mu_x^2 + \mu_y^2 + c_1)(\sigma_x^2 + \sigma_y^2 + c_2)}
+
+    with:
+
+    * :math:`\scriptstyle\mu_x` the average of :math:`\scriptstyle x`;
+    * :math:`\scriptstyle\mu_y` the average of :math:`\scriptstyle y`;
+    * :math:`\scriptstyle\sigma_x^2` the variance of :math:`\scriptstyle x`;
+    * :math:`\scriptstyle\sigma_y^2` the variance of :math:`\scriptstyle y`;
+    * :math:`\scriptstyle \sigma_{xy}` the covariance of :math:`\scriptstyle x` and :math:`\scriptstyle y`;
+    * :math:`\scriptstyle c_1 = (k_1L)^2`, :math:`\scriptstyle c_2 = (k_2L)^2` two variables to stabilize the division with weak denominator;
+    * :math:`\scriptstyle L` the dynamic range of the pixel-values (typically this is :math:`\scriptstyle 2^{\#bits\ per\ pixel}-1`);
+    * :math:`\scriptstyle k_1 = 0.01` and :math:`\scriptstyle k_2 = 0.03` by default.
+
+    The SSIM index satisfies the condition of symmetry:
+
+    .. math::
+
+        \text{SSIM}(x, y) = \text{SSIM}(y, x)
+
+    Parameters
+    ----------
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_image: 2D ndarray
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+
+    Returns
+    -------
+    float
+        The score of the image cleaning algorithm for the given image.
+
+    References
+    ----------
+    .. [1] Wang, Z., Bovik, A. C., Sheikh, H. R., & Simoncelli, E. P.
+       (2004). Image quality assessment: From error visibility to
+       structural similarity. IEEE Transactions on Image Processing,
+       13, 600-612.
+       https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf,
+       DOI:10.1.1.11.2477
+    .. [2] Avanaki, A. N. (2009). Exact global histogram specification
+       optimized for structural similarity. Optical Review, 16, 613-621.
+       http://arxiv.org/abs/0901.0065,
+       DOI:10.1007/s10043-009-0119-z
+    .. [3] http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-ssim
+    .. [4] https://en.wikipedia.org/wiki/Structural_similarity
+    """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
+
+    ssim_val, ssim_image = ssim(output_image, reference_image, full=True, gaussian_weights=True, sigma=0.5)
+
+    return ssim_val
+
+
 ###############################################################################
 # ASSESS FUNCTIONS DRIVER                                                     #
 ###############################################################################
@@ -297,14 +399,16 @@ BENCHMARK_DICT = {
     "e_energy": (metric3,),
     "mpdspd":   (metric2, metric3),
     "sspd":     (metric4,),
-    "all":      (metric2, metric3, metric4)
+    "ssim":     (metric5,),
+    "all":      (metric2, metric3, metric4, metric5)
 }
 
 METRIC_NAME_DICT = {
     metric1: "mpd",
     metric2: "e_shape",
     metric3: "e_energy",
-    metric4: "sspd"
+    metric4: "sspd",
+    metric5: "ssim"
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
@@ -316,7 +420,8 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
     - "e_energy": (metric3)
     - "mpdspd":   (metric2, metric3)
     - "sspd":     (metric4)
-    - "all":      (metric2, metric3, metric4)
+    - "ssim":     (metric5)
+    - "all":      (metric2, metric3, metric4, metric5)
 
     Parameters
     ----------
