@@ -68,12 +68,16 @@ class EmptyReferenceImageError(AssessError):
 ###############################################################################
 
 def normalize_array(input_array):
-    r"""Normalize the given image such that its pixels value fit between 0.0 and
-    1.0.
+    r"""Normalize the given image such that its pixels value fit between 0.0
+    and 1.0.
+
+    It applies
 
     .. math::
 
         \text{normalize}(\boldsymbol{s}) = \frac{ \boldsymbol{s} - \text{min}(\boldsymbol{s}) }{ \text{max}(\boldsymbol{s}) - \text{min}(\boldsymbol{s}) }
+
+    where :math:`\boldsymbol{s}` is the input array.
 
     Parameters
     ----------
@@ -82,7 +86,7 @@ def normalize_array(input_array):
 
     Returns
     -------
-    output_array : Numpy array
+    Numpy array
         The normalized version of the input image (keeping the same dimension
         and shape)
     """
@@ -97,15 +101,15 @@ def normalize_array(input_array):
 # Mean Pixel Difference with Normalization (mpd) ##############################
 
 def metric1(input_img, output_image, reference_image, params=None):
-    r"""
-    TODO...
+    r"""Compute the score of `output_image` regarding `reference_image`.
 
-    if `normalize_images` = True:
+    It applies
 
     .. math::
 
         f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \text{normalize}(\hat{\boldsymbol{s}}) - \text{normalize}(\boldsymbol{s}^*) \right) \right)
 
+    if `normalize_images = True`,
     else
 
     .. math::
@@ -114,16 +118,18 @@ def metric1(input_img, output_image, reference_image, params=None):
 
     Parameters
     ----------
-    output_image: 2D numpy.array
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
         The cleaned image returned by the image cleanning algorithm to assess.
-    reference_image: 2D numpy.array
+    reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
 
     Returns
     -------
-    The mark (float number) of the image cleaning algorithm for the given
-    image.
+    float
+        The score of the image cleaning algorithm for the given image.
     """
     
     if (params is not None) and ('normalize_images' in params) and (params['normalize_images']):
@@ -139,8 +145,7 @@ def metric1(input_img, output_image, reference_image, params=None):
 # Mean Pixel Difference 2 #####################################################
 
 def metric2(input_img, output_image, reference_image, params=None):
-    r"""
-    TODO...
+    r"""Compute the score of `output_image` regarding `reference_image`.
 
     .. math::
 
@@ -148,17 +153,18 @@ def metric2(input_img, output_image, reference_image, params=None):
 
     Parameters
     ----------
-    output_image: 2D numpy.array
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
         The cleaned image returned by the image cleanning algorithm to assess.
-    reference_image: 2D numpy.array
+    reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
 
     Returns
     -------
-    mark : 1D Numpy array containing float numbers
-        The mark (float number) of the image cleaning algorithm for the given
-        image.
+    float
+        The score of the image cleaning algorithm for the given image.
     """
     
     sum_output_image = float(np.sum(output_image))
@@ -178,8 +184,7 @@ def metric2(input_img, output_image, reference_image, params=None):
 # Relative Total Counts Difference (mpdspd) ###################################
 
 def metric3(input_img, output_image, reference_image, params=None):
-    r"""
-    TODO...
+    r"""Compute the score of `output_image` regarding `reference_image`.
 
     .. math::
 
@@ -187,17 +192,18 @@ def metric3(input_img, output_image, reference_image, params=None):
 
     Parameters
     ----------
-    output_image: 2D numpy.array
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
         The cleaned image returned by the image cleanning algorithm to assess.
-    reference_image: 2D numpy.array
+    reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
 
     Returns
     -------
-    mark : 1D Numpy array containing float numbers
-        The mark (float number) of the image cleaning algorithm for the given
-        image.
+    float
+        The score of the image cleaning algorithm for the given image.
     """
     
     sum_output_image = float(np.sum(output_image))
@@ -214,22 +220,22 @@ def metric3(input_img, output_image, reference_image, params=None):
 # Signed Relative Total Counts Difference (sspd) ##############################
 
 def metric4(input_img, output_image, reference_image, params=None):
-    """
-    TODO...
+    r"""Compute the score of `output_image` regarding `reference_image`.
 
     Parameters
     ----------
-    output_image: 2D numpy.array
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
         The cleaned image returned by the image cleanning algorithm to assess.
-    reference_image: 2D numpy.array
+    reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
 
     Returns
     -------
-    mark : 1D Numpy array containing float numbers
-        The mark (float number) of the image cleaning algorithm for the given
-        image.
+    float
+        The score of the image cleaning algorithm for the given image.
     """
     
     sum_output_image = float(np.sum(output_image))
@@ -268,19 +274,18 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
 
     Parameters
     ----------
-    input_img: 2D numpy.array
+    input_img: 2D ndarray
         The RAW original image.
-    output_img: 2D numpy.array
+    output_img: 2D ndarray
         The cleaned image returned by the image cleanning algorithm to assess.
-    reference_img: 2D numpy.array
+    reference_img: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
 
     Returns
     -------
-    mark : a tuple of float numbers
-        The mark (may be multivalued) of the image cleaning algorithm for the
-        given image.
+    tuple of float numbers
+        The score(s) of the image cleaning algorithm for the given image.
     """
 
     try:
