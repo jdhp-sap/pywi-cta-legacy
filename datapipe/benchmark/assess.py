@@ -26,6 +26,7 @@ __all__ = ['normalize_array',
            'metric3',
            'metric4',
            'metric5',
+           'metric6',
            'assess_image_cleaning']
 
 import numpy as np
@@ -389,6 +390,45 @@ def metric5(input_img, output_image, reference_image, params=None):
     return ssim_val
 
 
+# Peak Signal-to-Noise Ratio (PSNR) ###########################################
+
+def metric6(input_img, output_image, reference_image, params=None):
+    r"""Compute the score of `output_image` regarding `reference_image`
+    with the *Peak Signal-to-Noise Ratio* (PSNR) metric.
+
+    See [5]_ and [6]_ for more information.
+    
+    Parameters
+    ----------
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_image: 2D ndarray
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+
+    Returns
+    -------
+    float
+        The score of the image cleaning algorithm for the given image.
+
+    References
+    ----------
+    .. [5] http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.compare_psnr
+    .. [6] https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
+    """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
+
+    psnr_val = psnr(output_image, reference_image, dynamic_range=1e3)
+
+    return psnr_val
+
+
 ###############################################################################
 # ASSESS FUNCTIONS DRIVER                                                     #
 ###############################################################################
@@ -400,6 +440,7 @@ BENCHMARK_DICT = {
     "mpdspd":   (metric2, metric3),
     "sspd":     (metric4,),
     "ssim":     (metric5,),
+    "psnr":     (metric6,),
     "all":      (metric2, metric3, metric4, metric5)
 }
 
@@ -408,7 +449,8 @@ METRIC_NAME_DICT = {
     metric2: "e_shape",
     metric3: "e_energy",
     metric4: "sspd",
-    metric5: "ssim"
+    metric5: "ssim",
+    metric6: "psnr"
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
@@ -421,7 +463,8 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
     - "mpdspd":   (metric2, metric3)
     - "sspd":     (metric4)
     - "ssim":     (metric5)
-    - "all":      (metric2, metric3, metric4, metric5)
+    - "psnr":     (metric6)
+    - "all":      (metric2, metric3, metric4, metric5, metric6)
 
     Parameters
     ----------
