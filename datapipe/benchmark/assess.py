@@ -79,9 +79,9 @@ def normalize_array(input_array):
 
     .. math::
 
-        \text{normalize}(\boldsymbol{s}) = \frac{ \boldsymbol{s} - \text{min}(\boldsymbol{s}) }{ \text{max}(\boldsymbol{s}) - \text{min}(\boldsymbol{s}) }
+        \text{normalize}(\boldsymbol{S}) = \frac{ \boldsymbol{S} - \text{min}(\boldsymbol{S}) }{ \text{max}(\boldsymbol{S}) - \text{min}(\boldsymbol{S}) }
 
-    where :math:`\boldsymbol{s}` is the input array (an image).
+    where :math:`\boldsymbol{S}` is the input array (an image).
 
     Parameters
     ----------
@@ -108,31 +108,48 @@ def normalize_array(input_array):
 # METRIC FUNCTIONS                                                            #
 ###############################################################################
 
-# Mean Pixel Difference with Normalization (mpd) ##############################
+# Mean-Squared Error (MSE) (with or without Normalization) ####################
 
 def metric1(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`.
-
-    This function is **depreciated** as it is not adapted to high dynamic range
-    images handled with this project.
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
+    with the *Mean-Squared Error* (MSE) metric.
 
     It applies
 
     .. math::
 
-        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \text{normalize}(\hat{\boldsymbol{s}}) - \text{normalize}(\boldsymbol{s}^*) \right) \right)
+        \text{MSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \hat{\boldsymbol{S}}_n - \boldsymbol{S}^*_n \right)^{\circ 2} \right\rangle
 
-    if `normalize_images = True`,
+    if ``normalize_images = True``,
     otherwise it applies
 
     .. math::
 
-        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \hat{\boldsymbol{s}} - \boldsymbol{s}^* \right) \right)
+        \text{MSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \hat{\boldsymbol{S}} - \boldsymbol{S}^* \right)^{\circ 2} \right\rangle
 
-    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
-    (i.e. the *cleaned* image)
-    and :math:`\boldsymbol{s}^*` the reference image
-    (i.e. the *clean* image).
+    with:
+    
+    - :math:`\hat{\boldsymbol{S}}` and :math:`\hat{\boldsymbol{S}}_n`
+      respectively the algorithm's output image (i.e. the *cleaned* image),
+      and the normalized version of this array
+      (using :meth:`datapipe.benchmark.assess.normalize_array`);
+    - :math:`\boldsymbol{S}^*` and :math:`\boldsymbol{S}^*_n`
+      respectively the reference image (i.e. the *clean* image)
+      and the normalized version of this array
+      (using :meth:`datapipe.benchmark.assess.normalize_array`);
+    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix
+      :math:`\boldsymbol{S}`;
+    - :math:`\boldsymbol{S}^{\circ 2}` the
+      `Hadamar power <https://en.wikipedia.org/wiki/Hadamard_product_(matrices)#Analogous_operations>`_
+      (i.e. the element wise square) of matrix :math:`\boldsymbol{S}`.
+
+    See http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-mse
+    for more information.
+
+    Note
+    ----
+    This function is not well-suited to high dynamic range images handled with
+    this project.
 
     Parameters
     ----------
@@ -148,6 +165,8 @@ def metric1(input_img, output_image, reference_image, params=None):
     -------
     float
         The score of the image cleaning algorithm for the given image.
+
+    
     """
 
     # Copy and cast images to prevent tricky bugs
@@ -156,31 +175,33 @@ def metric1(input_img, output_image, reference_image, params=None):
     reference_image = reference_image.astype('float64', copy=True)
     
     if (params is not None) and ('normalize_images' in params) and (params['normalize_images']):
-        normalized_diff_array = normalize_array(output_image) - normalize_array(reference_image)
-        mark = np.mean(np.abs(normalized_diff_array))
-    else:
-        diff_array = output_image - reference_image
-        mark = np.mean(np.abs(diff_array))
+        output_image = normalize_array(output_image)
+        reference_image = normalize_array(reference_image)
 
-    return mark
+    score = np.mean(np.square(output_image - reference_image))
+
+    return score
 
 
 # Mean Pixel Difference 2 #####################################################
 
 def metric2(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{shape}}` metric.
 
     It applies
 
     .. math::
 
-        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \frac{\hat{\boldsymbol{s}}}{\sum_i \hat{\boldsymbol{s}}_i} - \frac{\boldsymbol{s}^*}{\sum_i \boldsymbol{s}^*_i} \right) \right)
+        f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \text{abs} \left( \frac{\hat{\boldsymbol{S}}}{\sum_i \hat{\boldsymbol{S}}_i} - \frac{\boldsymbol{S}^*}{\sum_i \boldsymbol{S}^*_i} \right) \right\rangle
 
-    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
-    (i.e. the *cleaned* image)
-    and :math:`\boldsymbol{s}^*` the reference image
-    (i.e. the *clean* image).
+    with:
+    
+    - :math:`\hat{\boldsymbol{S}}` the algorithm's output image
+      (i.e. the *cleaned* image);
+    - :math:`\boldsymbol{S}^*` the reference image (i.e. the *clean* image);
+    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix
+      :math:`\boldsymbol{S}`.
 
     Parameters
     ----------
@@ -220,7 +241,7 @@ def metric2(input_img, output_image, reference_image, params=None):
 # Relative Total Counts Difference (mpdspd) ###################################
 
 def metric3(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}^+_{\text{energy}}`
     (a.k.a. *relative total counts difference*) metric.
 
@@ -228,11 +249,11 @@ def metric3(input_img, output_image, reference_image, params=None):
 
     .. math::
 
-        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \frac{ \text{abs} \left( \sum_i \hat{\boldsymbol{s}}_i - \sum_i \boldsymbol{s}^*_i \right) }{ \sum_i \boldsymbol{s}^*_i }
+        f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{ \text{abs} \left( \sum_i \hat{\boldsymbol{S}}_i - \sum_i \boldsymbol{S}^*_i \right) }{ \sum_i \boldsymbol{S}^*_i }
 
-    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
+    with :math:`\hat{\boldsymbol{S}}` the algorithm's output image
     (i.e. the *cleaned* image)
-    and :math:`\boldsymbol{s}^*` the reference image
+    and :math:`\boldsymbol{S}^*` the reference image
     (i.e. the *clean* image).
 
     Parameters
@@ -270,7 +291,7 @@ def metric3(input_img, output_image, reference_image, params=None):
 # Signed Relative Total Counts Difference (sspd) ##############################
 
 def metric4(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{energy}}`
     (a.k.a. *signed relative total counts difference*) metric.
     
@@ -278,11 +299,11 @@ def metric4(input_img, output_image, reference_image, params=None):
 
     .. math::
 
-        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \frac{ \sum_i \hat{\boldsymbol{s}}_i - \sum_i \boldsymbol{s}^*_i }{ \sum_i \boldsymbol{s}^*_i }
+        f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{ \sum_i \hat{\boldsymbol{S}}_i - \sum_i \boldsymbol{S}^*_i }{ \sum_i \boldsymbol{S}^*_i }
 
-    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
+    with :math:`\hat{\boldsymbol{S}}` the algorithm's output image
     (i.e. the *cleaned* image)
-    and :math:`\boldsymbol{s}^*` the reference image
+    and :math:`\boldsymbol{S}^*` the reference image
     (i.e. the *clean* image).
 
     Parameters
@@ -320,7 +341,7 @@ def metric4(input_img, output_image, reference_image, params=None):
 # Structural Similarity Index Measure (SSIM) ##################################
 
 def metric5(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Structural Similarity Index Measure* (SSIM) metric.
 
     See [1]_, [2]_, [3]_ and [4]_ for more information.
@@ -393,7 +414,7 @@ def metric5(input_img, output_image, reference_image, params=None):
 # Peak Signal-to-Noise Ratio (PSNR) ###########################################
 
 def metric6(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Peak Signal-to-Noise Ratio* (PSNR) metric.
 
     See [5]_ and [6]_ for more information.
@@ -434,18 +455,18 @@ def metric6(input_img, output_image, reference_image, params=None):
 ###############################################################################
 
 BENCHMARK_DICT = {
-    "mpd":      (metric1,),
+    "mse":      (metric1,),
     "e_shape":  (metric2,),
     "e_energy": (metric3,),
     "mpdspd":   (metric2, metric3),
     "sspd":     (metric4,),
     "ssim":     (metric5,),
     "psnr":     (metric6,),
-    "all":      (metric2, metric3, metric4, metric5)
+    "all":      (metric1, metric2, metric3, metric4, metric5, metric6)
 }
 
 METRIC_NAME_DICT = {
-    metric1: "mpd",
+    metric1: "mse",
     metric2: "e_shape",
     metric3: "e_energy",
     metric4: "sspd",
@@ -457,14 +478,14 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
-    - "mpd":      (metric1)
+    - "mse":      (metric1)
     - "e_shape":  (metric2)
     - "e_energy": (metric3)
     - "mpdspd":   (metric2, metric3)
     - "sspd":     (metric4)
     - "ssim":     (metric5)
     - "psnr":     (metric6)
-    - "all":      (metric2, metric3, metric4, metric5, metric6)
+    - "all":      (metric1, metric2, metric3, metric4, metric5, metric6)
 
     Parameters
     ----------
