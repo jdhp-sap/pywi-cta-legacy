@@ -77,7 +77,7 @@ def normalize_array(input_array):
 
         \text{normalize}(\boldsymbol{s}) = \frac{ \boldsymbol{s} - \text{min}(\boldsymbol{s}) }{ \text{max}(\boldsymbol{s}) - \text{min}(\boldsymbol{s}) }
 
-    where :math:`\boldsymbol{s}` is the input array.
+    where :math:`\boldsymbol{s}` is the input array (an image).
 
     Parameters
     ----------
@@ -103,6 +103,9 @@ def normalize_array(input_array):
 def metric1(input_img, output_image, reference_image, params=None):
     r"""Compute the score of `output_image` regarding `reference_image`.
 
+    This function is **depreciated** as it is not adapted to high dynamic range
+    images handled with this project.
+
     It applies
 
     .. math::
@@ -110,11 +113,16 @@ def metric1(input_img, output_image, reference_image, params=None):
         f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \text{normalize}(\hat{\boldsymbol{s}}) - \text{normalize}(\boldsymbol{s}^*) \right) \right)
 
     if `normalize_images = True`,
-    else
+    otherwise it applies
 
     .. math::
 
         f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \hat{\boldsymbol{s}} - \boldsymbol{s}^* \right) \right)
+
+    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
+    (i.e. the *cleaned* image)
+    and :math:`\boldsymbol{s}^*` the reference image
+    (i.e. the *clean* image).
 
     Parameters
     ----------
@@ -145,11 +153,19 @@ def metric1(input_img, output_image, reference_image, params=None):
 # Mean Pixel Difference 2 #####################################################
 
 def metric2(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`.
+    r"""Compute the score of `output_image` regarding `reference_image`
+    with the :math:`\mathcal{E}_{\text{shape}}` metric.
+
+    It applies
 
     .. math::
 
         f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \frac{\hat{\boldsymbol{s}}}{\sum_i \hat{\boldsymbol{s}}_i} - \frac{\boldsymbol{s}^*}{\sum_i \boldsymbol{s}^*_i} \right) \right)
+
+    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
+    (i.e. the *cleaned* image)
+    and :math:`\boldsymbol{s}^*` the reference image
+    (i.e. the *clean* image).
 
     Parameters
     ----------
@@ -184,11 +200,20 @@ def metric2(input_img, output_image, reference_image, params=None):
 # Relative Total Counts Difference (mpdspd) ###################################
 
 def metric3(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`.
+    r"""Compute the score of `output_image` regarding `reference_image`
+    with the :math:`\mathcal{E}^+_{\text{energy}}`
+    (a.k.a. *relative total counts difference*) metric.
+
+    It applies
 
     .. math::
 
         f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \frac{ \text{abs} \left( \sum_i \hat{\boldsymbol{s}}_i - \sum_i \boldsymbol{s}^*_i \right) }{ \sum_i \boldsymbol{s}^*_i }
+
+    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
+    (i.e. the *cleaned* image)
+    and :math:`\boldsymbol{s}^*` the reference image
+    (i.e. the *clean* image).
 
     Parameters
     ----------
@@ -220,7 +245,20 @@ def metric3(input_img, output_image, reference_image, params=None):
 # Signed Relative Total Counts Difference (sspd) ##############################
 
 def metric4(input_img, output_image, reference_image, params=None):
-    r"""Compute the score of `output_image` regarding `reference_image`.
+    r"""Compute the score of `output_image` regarding `reference_image`
+    with the :math:`\mathcal{E}_{\text{energy}}`
+    (a.k.a. *signed relative total counts difference*) metric.
+    
+    It applies
+
+    .. math::
+
+        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \frac{ \sum_i \hat{\boldsymbol{s}}_i - \sum_i \boldsymbol{s}^*_i }{ \sum_i \boldsymbol{s}^*_i }
+
+    with :math:`\hat{\boldsymbol{s}}` the algorithm's output image
+    (i.e. the *cleaned* image)
+    and :math:`\boldsymbol{s}^*` the reference image
+    (i.e. the *clean* image).
 
     Parameters
     ----------
@@ -270,7 +308,15 @@ METRIC_NAME_DICT = {
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
-    """TODO...
+    r"""Compute the score of `output_image` regarding `reference_image`
+    with the `benchmark_method` metrics:
+
+    - "mpd":      (metric1)
+    - "e_shape":  (metric2)
+    - "e_energy": (metric3)
+    - "mpdspd":   (metric2, metric3)
+    - "sspd":     (metric4)
+    - "all":      (metric2, metric3, metric4)
 
     Parameters
     ----------
