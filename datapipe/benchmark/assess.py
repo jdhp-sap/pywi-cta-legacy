@@ -21,6 +21,10 @@
 # THE SOFTWARE.
 
 __all__ = ['normalize_array',
+           'metric1',
+           'metric2',
+           'metric3',
+           'metric4',
            'assess_image_cleaning']
 
 import numpy as np
@@ -64,8 +68,12 @@ class EmptyReferenceImageError(AssessError):
 ###############################################################################
 
 def normalize_array(input_array):
-    """Normalize the given image such that its pixels value fit between 0.0 and
+    r"""Normalize the given image such that its pixels value fit between 0.0 and
     1.0.
+
+    .. math::
+
+        \text{normalize}(\boldsymbol{s}) = \frac{ \boldsymbol{s} - \text{min}(\boldsymbol{s}) }{ \text{max}(\boldsymbol{s}) - \text{min}(\boldsymbol{s}) }
 
     Parameters
     ----------
@@ -89,8 +97,20 @@ def normalize_array(input_array):
 # Mean Pixel Difference with Normalization (mpd) ##############################
 
 def metric1(input_img, output_image, reference_image, params=None):
-    """
+    r"""
     TODO...
+
+    if `normalize_images` = True:
+
+    .. math::
+
+        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \text{normalize}(\hat{\boldsymbol{s}}) - \text{normalize}(\boldsymbol{s}^*) \right) \right)
+
+    else
+
+    .. math::
+
+        f(\hat{\boldsymbol{s}}, \boldsymbol{s}^*) = \text{mean} \left( \text{abs} \left( \hat{\boldsymbol{s}} - \boldsymbol{s}^* \right) \right)
 
     Parameters
     ----------
@@ -119,7 +139,7 @@ def metric1(input_img, output_image, reference_image, params=None):
 # Mean Pixel Difference 2 #####################################################
 
 def metric2(input_img, output_image, reference_image, params=None):
-    """
+    r"""
     TODO...
 
     .. math::
@@ -158,7 +178,7 @@ def metric2(input_img, output_image, reference_image, params=None):
 # Relative Total Counts Difference (mpdspd) ###################################
 
 def metric3(input_img, output_image, reference_image, params=None):
-    """
+    r"""
     TODO...
 
     .. math::
