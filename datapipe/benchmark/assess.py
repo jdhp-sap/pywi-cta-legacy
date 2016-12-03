@@ -250,10 +250,10 @@ def metric1(input_img, output_image, reference_image, params=None):
     
     - :math:`\hat{\boldsymbol{S}}_n`
       the algorithm's normalized output image (i.e. the *cleaned* image),
-      (using :meth:`datapipe.benchmark.assess.normalize_array`);
+      (using :func:`normalize_array`);
     - :math:`\boldsymbol{S}^*_n`
       the normalized reference image (i.e. the *clean* image)
-      (using :meth:`datapipe.benchmark.assess.normalize_array`);
+      (using :func:`normalize_array`);
     - :math:`\langle \boldsymbol{S} \rangle` the average of matrix
       :math:`\boldsymbol{S}`;
     - :math:`\boldsymbol{S}^{\circ 2}` the
@@ -606,16 +606,16 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
-    - "mse":      :meth:`metric_mse`
-    - "nrmse":    :meth:`metric_nrmse`
-    - "unrmse":   :meth:`metric1`
-    - "e_shape":  :meth:`metric2`
-    - "e_energy": :meth:`metric3`
-    - "mpdspd":   :meth:`metric2`, :meth:`metric3`
-    - "sspd":     :meth:`metric4`
-    - "ssim":     :meth:`metric_ssim`
-    - "psnr":     :meth:`metric_psnr`
-    - "all":      :meth:`metric_mse`, :meth:`metric_nrmse`, :meth:`metric2`, :meth:`metric3`, :meth:`metric4`, :meth:`metric_ssim`, :meth:`metric_psnr`
+    - "mse":      :func:`metric_mse`
+    - "nrmse":    :func:`metric_nrmse`
+    - "unrmse":   :func:`metric1`
+    - "e_shape":  :func:`metric2`
+    - "e_energy": :func:`metric3`
+    - "mpdspd":   :func:`metric2`, :func:`metric3`
+    - "sspd":     :func:`metric4`
+    - "ssim":     :func:`metric_ssim`
+    - "psnr":     :func:`metric_psnr`
+    - "all":      :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`
 
     Parameters
     ----------
