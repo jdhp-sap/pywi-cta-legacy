@@ -21,14 +21,14 @@
 # THE SOFTWARE.
 
 __all__ = ['normalize_array',
-           'metric1a',
-           'metric1b',
-           'metric1c',
+           'metric_mse',
+           'metric_nrmse',
+           'metric1',
            'metric2',
            'metric3',
            'metric4',
-           'metric5',
-           'metric6',
+           'metric_ssim',
+           'metric_psnr',
            'assess_image_cleaning']
 
 import numpy as np
@@ -112,7 +112,7 @@ def normalize_array(input_array):
 
 # Mean-Squared Error (MSE) ####################################################
 
-def metric1a(input_img, output_image, reference_image, params=None):
+def metric_mse(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Mean-Squared Error* (MSE) metric.
 
@@ -173,7 +173,7 @@ def metric1a(input_img, output_image, reference_image, params=None):
 
 # Normalized Root Mean-Squared Error (NRMSE) ##################################
 
-def metric1b(input_img, output_image, reference_image, params=None):
+def metric_nrmse(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Normalized Root Mean-Squared Error* (NRMSE) metric.
 
@@ -226,7 +226,7 @@ def metric1b(input_img, output_image, reference_image, params=None):
     #    denom = 
     # TODO: see https://github.com/scikit-image/scikit-image/blob/master/skimage/measure/simple_metrics.py#L82
 
-    mse = metric1a(input_img, output_image, reference_image, params)
+    mse = metric_mse(input_img, output_image, reference_image, params)
     denom = np.sqrt(np.mean((reference_image * output_image), dtype=np.float64))
     score = np.sqrt(mse) / denom
 
@@ -235,7 +235,7 @@ def metric1b(input_img, output_image, reference_image, params=None):
 
 # Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################
 
-def metric1c(input_img, output_image, reference_image, params=None):
+def metric1(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with a (unusually) normalized version of the *Root Mean-Squared Error*
     (RMSE) metric.
@@ -460,7 +460,7 @@ def metric4(input_img, output_image, reference_image, params=None):
 
 # Structural Similarity Index Measure (SSIM) ##################################
 
-def metric5(input_img, output_image, reference_image, params=None):
+def metric_ssim(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Structural Similarity Index Measure* (SSIM) metric.
 
@@ -535,7 +535,7 @@ def metric5(input_img, output_image, reference_image, params=None):
 
 # Peak Signal-to-Noise Ratio (PSNR) ###########################################
 
-def metric6(input_img, output_image, reference_image, params=None):
+def metric_psnr(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Peak Signal-to-Noise Ratio* (PSNR) metric.
 
@@ -579,43 +579,43 @@ def metric6(input_img, output_image, reference_image, params=None):
 ###############################################################################
 
 BENCHMARK_DICT = {
-    "mse":      (metric1a,),
-    "nrmse":    (metric1b,),
-    "unrmse":   (metric1c,),
+    "mse":      (metric_mse,),
+    "nrmse":    (metric_nrmse,),
+    "unrmse":   (metric1,),
     "e_shape":  (metric2,),
     "e_energy": (metric3,),
     "mpdspd":   (metric2, metric3),
     "sspd":     (metric4,),
-    "ssim":     (metric5,),
-    "psnr":     (metric6,),
-    "all":      (metric1a, metric1b, metric2, metric3, metric4, metric5, metric6)
+    "ssim":     (metric_ssim,),
+    "psnr":     (metric_psnr,),
+    "all":      (metric_mse, metric_nrmse, metric2, metric3, metric4, metric_ssim, metric_psnr)
 }
 
 METRIC_NAME_DICT = {
-    metric1a: "mse",
-    metric1b: "nrmse",
-    metric1c: "unrmse",
-    metric2:  "e_shape",
-    metric3:  "e_energy",
-    metric4:  "sspd",
-    metric5:  "ssim",
-    metric6:  "psnr"
+    metric_mse:   "mse",
+    metric_nrmse: "nrmse",
+    metric1:      "unrmse",
+    metric2:      "e_shape",
+    metric3:      "e_energy",
+    metric4:      "sspd",
+    metric_ssim:  "ssim",
+    metric_psnr:  "psnr"
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
-    - "mse":      (:meth:`metric1a`)
-    - "nrmse":    (:meth:`metric1b`)
-    - "unrmse":   (:meth:`metric1c`)
-    - "e_shape":  (:meth:`metric2`)
-    - "e_energy": (:meth:`metric3`)
-    - "mpdspd":   (:meth:`metric2`, :meth:`metric3`)
-    - "sspd":     (:meth:`metric4`)
-    - "ssim":     (:meth:`metric5`)
-    - "psnr":     (:meth:`metric6`)
-    - "all":      (:meth:`metric1a`, :meth:`metric1b`, :meth:`metric2`, :meth:`metric3`, :meth:`metric4`, :meth:`metric5`, :meth:`metric6`)
+    - "mse":      :meth:`metric_mse`
+    - "nrmse":    :meth:`metric_nrmse`
+    - "unrmse":   :meth:`metric1`
+    - "e_shape":  :meth:`metric2`
+    - "e_energy": :meth:`metric3`
+    - "mpdspd":   :meth:`metric2`, :meth:`metric3`
+    - "sspd":     :meth:`metric4`
+    - "ssim":     :meth:`metric_ssim`
+    - "psnr":     :meth:`metric_psnr`
+    - "all":      :meth:`metric_mse`, :meth:`metric_nrmse`, :meth:`metric2`, :meth:`metric3`, :meth:`metric4`, :meth:`metric_ssim`, :meth:`metric_psnr`
 
     Parameters
     ----------
