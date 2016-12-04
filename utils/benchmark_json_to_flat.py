@@ -78,7 +78,7 @@ def extract_columns(image_dict):
            ]
 
     for index, (score, score_name) in enumerate(zip(image_dict["score"], image_dict["score_name"])):
-        print(index, score_name, score)
+        #print(index, score_name, score)
 
         if score_name in score_name_list:
             if score_name_list.index(score_name) == index:
@@ -87,6 +87,7 @@ def extract_columns(image_dict):
                 raise(Exception("Inconsistent data: wrong index"))
         else:
             score_name_list.append(score_name)
+            line.append(score)
 
     return line
 
