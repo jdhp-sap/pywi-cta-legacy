@@ -74,10 +74,20 @@ def extract_columns(image_dict):
             image_dict["tel_pos_y"],
             image_dict["tel_pos_y_unit"],
             image_dict["tel_pos_z"],
-            image_dict["tel_pos_z_unit"],
-            image_dict["score"][0],
-            image_dict["score"][1]
+            image_dict["tel_pos_z_unit"]
            ]
+
+    for index, (score, score_name) in enumerate(zip(image_dict["score"], image_dict["score_name"])):
+        print(index, score_name, score)
+
+        if score_name in score_name_list:
+            if score_name_list.index(score_name) == index:
+                line.append(score)
+            else:
+                raise(Exception("Inconsistent data: wrong index"))
+        else:
+            score_name_list.append(score_name)
+
     return line
 
 
@@ -112,11 +122,11 @@ OUTPUT_HEADER_LIST = [
                       "Tel pos y",
                       "Tel pos y unit",
                       "Tel pos z",
-                      "Tel pos z unit",
-                      "E shape",
-                      "E energy"
+                      "Tel pos z unit"
                      ]
 #OUTPUT_DTYPE_LIST = ['', '', '', '', '', '', '']
+
+score_name_list = []
 
 
 def main():
@@ -159,7 +169,7 @@ def main():
 
     # SAVE FILE ###############################################################
 
-    save_csv(output_file_path, global_output_array, OUTPUT_HEADER_LIST)
+    save_csv(output_file_path, global_output_array, OUTPUT_HEADER_LIST + score_name_list)
 
 
 if __name__ == "__main__":
