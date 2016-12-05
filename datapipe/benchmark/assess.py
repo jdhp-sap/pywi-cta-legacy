@@ -649,7 +649,7 @@ def metric_hillas_theta(input_img, output_image, reference_image, params=None):
     output_image_parameter_theta = output_image_parameters[7].value
     reference_image_parameter_theta = reference_image_parameters[7].value
 
-    delta = reference_image_parameter_theta - output_image_parameter_theta
+    delta = reference_image_parameter_theta - output_image_parameter_theta     # TODO (MSE, ...) ?
 
     return delta
 
