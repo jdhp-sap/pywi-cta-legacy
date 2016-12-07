@@ -28,6 +28,7 @@ See: http://gtk3-matplotlib-cookbook.readthedocs.org/en/latest/
 from gi.repository import Gtk as gtk
 
 import datetime
+import os
 
 import matplotlib.pyplot as plt
 
@@ -35,11 +36,11 @@ from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as Figur
 
 class BenchmarkPlotsContainer(gtk.Box):
 
-    def __init__(self, images_list_model):
+    def __init__(self, input_directory_path):
 
         super(BenchmarkPlotsContainer, self).__init__(orientation=gtk.Orientation.VERTICAL, spacing=6)
 
-        self.images_list_model = images_list_model
+        self.input_directory_path = input_directory_path
 
         self.set_border_width(18)
 
@@ -76,4 +77,9 @@ class BenchmarkPlotsContainer(gtk.Box):
         num_job_adverts = 0
         label = gtk.Label(label="{} job adverts registred".format(num_job_adverts))
         self.pack_start(label, expand=False, fill=False, padding=0)
+
+    
+    def selection_changed_callback(self, file_name):
+        file_path = os.path.join(self.input_directory_path, file_name)
+        print(file_path)
 

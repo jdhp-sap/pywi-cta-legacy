@@ -23,17 +23,18 @@
 from gi.repository import Gtk as gtk
 
 import json
+import os
 
 class ImageInformationContainer(gtk.Grid):
 
-    def __init__(self, images_list_model):
+    def __init__(self, input_directory_path):
         """
         ...
         """
 
         super(ImageInformationContainer, self).__init__()
 
-        self.images_list_model = images_list_model
+        self.input_directory_path = input_directory_path
 
         # Make textview widget
         self.desc_textview = gtk.TextView()
@@ -60,6 +61,7 @@ class ImageInformationContainer(gtk.Grid):
         self.attach(desc_scrolled_window, left=0, top=0, width=1, height=1)
 
 
-    def set_image_information(self, text):
-        self.desc_textview.get_buffer().set_text(text)
+    def selection_changed_callback(self, file_name):
+        file_path = os.path.join(self.input_directory_path, file_name)
+        self.desc_textview.get_buffer().set_text(file_path)
 

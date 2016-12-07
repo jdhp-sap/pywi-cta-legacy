@@ -62,16 +62,16 @@ class MainWindow(gtk.Window):
         # Image information container #########################################
 
         # Information container
-        images_information_container = image_information_container_mod.ImageInformationContainer(self.images_list_model)
+        images_information_container = image_information_container_mod.ImageInformationContainer(input_directory_path)
 
         # Images treeview
-        self.images_treeview1 = images_list_view_mod.ImagesListView(self.images_list_model.liststore, images_information_container) # TODO!!!
+        images_treeview1 = images_list_view_mod.ImagesListView(self.images_list_model.liststore, images_information_container)
 
         scrolled_images_treeview1 = gtk.ScrolledWindow()
         scrolled_images_treeview1.set_border_width(18)
         scrolled_images_treeview1.set_shadow_type(gtk.ShadowType.IN)
         scrolled_images_treeview1.set_policy(gtk.PolicyType.AUTOMATIC, gtk.PolicyType.ALWAYS)
-        scrolled_images_treeview1.add(self.images_treeview1)
+        scrolled_images_treeview1.add(images_treeview1)
 
         # Paned container
         image_information_paned_container = gtk.Paned(orientation=gtk.Orientation.VERTICAL)
@@ -84,22 +84,22 @@ class MainWindow(gtk.Window):
 
         # Benchmark container #################################################
 
+        # Benchmark plots container
+        benchmark_plots_container = benchmark_plots_container_mod.BenchmarkPlotsContainer(input_directory_path)
+
         # Images treeview
-        self.images_treeview2 = images_list_view_mod.ImagesListView(self.images_list_model.liststore, None) # TODO!!!
+        images_treeview2 = images_list_view_mod.ImagesListView(self.images_list_model.liststore, benchmark_plots_container)
 
         scrolled_images_treeview2 = gtk.ScrolledWindow()
         scrolled_images_treeview2.set_border_width(18)
         scrolled_images_treeview2.set_shadow_type(gtk.ShadowType.IN)
         scrolled_images_treeview2.set_policy(gtk.PolicyType.AUTOMATIC, gtk.PolicyType.ALWAYS)
-        scrolled_images_treeview2.add(self.images_treeview2)
-
-        # Benchmark plots container
-        self.benchmark_plots_container = benchmark_plots_container_mod.BenchmarkPlotsContainer(self.images_list_model)
+        scrolled_images_treeview2.add(images_treeview2)
 
         # Paned container
         benchmark_paned_container = gtk.Paned(orientation=gtk.Orientation.VERTICAL)
         benchmark_paned_container.add1(scrolled_images_treeview2)
-        benchmark_paned_container.add2(self.benchmark_plots_container)
+        benchmark_paned_container.add2(benchmark_plots_container)
 
         # The position in pixels of the divider (i.e. the default size of the top pane)
         benchmark_paned_container.set_position(400)

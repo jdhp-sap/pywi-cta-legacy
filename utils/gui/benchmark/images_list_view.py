@@ -29,14 +29,14 @@ TREE_VIEW_COLUMN_LABEL_LIST = ["File name", "Event ID", "Tel ID", "MC energy", "
 
 class ImagesListView(gtk.TreeView):
 
-    def __init__(self, liststore, image_information_container):
+    def __init__(self, liststore, callback_container):
         """
         ...
         """
 
         super(ImagesListView, self).__init__(liststore)
 
-        self.image_information_container = image_information_container 
+        self.callback_container = callback_container 
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
@@ -73,16 +73,16 @@ class ImagesListView(gtk.TreeView):
         model, treeiter = selection.get_selected()
         if treeiter != None:
             file_name = model[treeiter][0]
-            event_id = model[treeiter][1]
-            tel_id = model[treeiter][2]
-            mc_energy = model[treeiter][3]
-            npe = model[treeiter][4]
+            #event_id = model[treeiter][1]
+            #tel_id = model[treeiter][2]
+            #mc_energy = model[treeiter][3]
+            #npe = model[treeiter][4]
 
-            text  = "File name: {}\n".format(file_name)
-            text += "Event ID: {}\n".format(event_id)
-            text += "Tel ID: {}\n".format(tel_id)
-            text += "MC energy: {}\n".format(mc_energy)
-            text += "NPE: {}\n".format(npe)
+            #text  = "File name: {}\n".format(file_name)
+            #text += "Event ID: {}\n".format(event_id)
+            #text += "Tel ID: {}\n".format(tel_id)
+            #text += "MC energy: {}\n".format(mc_energy)
+            #text += "NPE: {}\n".format(npe)
 
-            self.image_information_container.set_image_information(text)
+            self.callback_container.selection_changed_callback(file_name)
 
