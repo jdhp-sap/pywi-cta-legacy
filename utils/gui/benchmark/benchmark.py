@@ -32,7 +32,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk as gtk
 
 import argparse
-#import fcntl  # TODO: use GtkApplication instead
 import os
 import sys
 
@@ -44,7 +43,6 @@ import image_information_container as image_information_container_mod
 
 import images_list_model as images_list_model_mod
 
-LOCK_FILENAME = ".lock"  # TODO: use GtkApplication instead
 
 class MainWindow(gtk.Window):
 
@@ -63,8 +61,11 @@ class MainWindow(gtk.Window):
 
         # Image information container #########################################
 
+        # Information container
+        images_information_container = image_information_container_mod.ImageInformationContainer(self.images_list_model)
+
         # Images treeview
-        self.images_treeview1 = images_list_view_mod.ImagesListView(self.images_list_model.liststore, None) # TODO!!!
+        self.images_treeview1 = images_list_view_mod.ImagesListView(self.images_list_model.liststore, images_information_container) # TODO!!!
 
         scrolled_images_treeview1 = gtk.ScrolledWindow()
         scrolled_images_treeview1.set_border_width(18)
@@ -72,13 +73,10 @@ class MainWindow(gtk.Window):
         scrolled_images_treeview1.set_policy(gtk.PolicyType.AUTOMATIC, gtk.PolicyType.ALWAYS)
         scrolled_images_treeview1.add(self.images_treeview1)
 
-        # Information container
-        self.information_container = image_information_container_mod.ImageInformationContainer(self, self.images_list_model)
-
         # Paned container
         image_information_paned_container = gtk.Paned(orientation=gtk.Orientation.VERTICAL)
         image_information_paned_container.add1(scrolled_images_treeview1)
-        image_information_paned_container.add2(self.information_container)
+        image_information_paned_container.add2(images_information_container)
 
         # The position in pixels of the divider (i.e. the default size of the top pane)
         image_information_paned_container.set_position(400)
@@ -134,34 +132,11 @@ def main():
 
     ###########################################################################
 
-    # Acquire an exclusive lock on LOCK_FILENAME
-    fd = open(LOCK_FILENAME, "w")  # TODO: use GtkApplication instead
-
-#    try:  # TODO: use GtkApplication instead
-#        # LOCK_EX = acquire an exclusive lock on fd
-#        # LOCK_NB = make a nonblocking request
-#        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)  # TODO: use GtkApplication instead
-#
-#        ###################################
-
     window = MainWindow(input_directory_path)
 
     window.connect("delete-event", gtk.main_quit) # ask to quit the application when the close button is clicked
     window.show_all()                             # display the window
     gtk.main()                                    # GTK+ main loop
-
-        ###################################
-
-#        # LOCK_UN = unlock fd
-#        fcntl.flock(fd, fcntl.LOCK_UN)  # TODO: use GtkApplication instead
-#    except IOError:  # TODO: use GtkApplication instead
-#        #print(LOCK_FILENAME + " is locked ; another instance is running. Exit.")
-#        dialog = gtk.MessageDialog(parent=None, flags=0, message_type=gtk.MessageType.ERROR, buttons=gtk.ButtonsType.OK, message_format="Another instance is running in the same directory")
-#        dialog.format_secondary_text("Exit.")
-#        dialog.run()
-#        dialog.destroy()
-#
-#        sys.exit(1)
 
 
 if __name__ == '__main__':

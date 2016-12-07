@@ -35,7 +35,7 @@ from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as Figur
 
 class BenchmarkPlotsContainer(gtk.Box):
 
-    def __init__(self, job_adverts_model):
+    def __init__(self, images_list_model):
 
         super(BenchmarkPlotsContainer, self).__init__(orientation=gtk.Orientation.VERTICAL, spacing=6)
 

@@ -26,15 +26,14 @@ import json
 
 class ImageInformationContainer(gtk.Grid):
 
-    def __init__(self, main_window, job_adverts_model):
+    def __init__(self, images_list_model):
         """
         ...
         """
 
         super(ImageInformationContainer, self).__init__()
 
-        self.main_window = main_window
-        self.job_adverts_model = job_adverts_model
+        self.images_list_model = images_list_model
 
         # Make textview widget
         self.desc_textview = gtk.TextView()
@@ -62,5 +61,5 @@ class ImageInformationContainer(gtk.Grid):
 
         #######################################################################
 
-        self.desc_textview.get_buffer().set_text("TODO...")
+        self.desc_textview.get_buffer().set_text("")
 

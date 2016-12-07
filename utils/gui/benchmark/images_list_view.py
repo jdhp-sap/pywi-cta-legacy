@@ -29,14 +29,14 @@ TREE_VIEW_COLUMN_LABEL_LIST = ["File name", "Event ID", "Tel ID", "MC energy", "
 
 class ImagesListView(gtk.TreeView):
 
-    def __init__(self, liststore, edit_container):
+    def __init__(self, liststore, images_information_container):
         """
         ...
         """
 
         super(ImagesListView, self).__init__(liststore)
 
-        self.edit_container = edit_container
+        self.images_information_container = images_information_container 
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
@@ -68,17 +68,21 @@ class ImagesListView(gtk.TreeView):
         select = self.get_selection()
         select.connect("changed", self.treeViewSelectionChangedCallBack)
 
-        # Connect to the "row-activated" signal (double click)
-        self.connect("row-activated", treeview_double_click_cb)
-
 
     def treeViewSelectionChangedCallBack(self, selection):
-        self.edit_container.clearCallBack()
+        model, treeiter = selection.get_selected()
+        if treeiter != None:
+            file_name = model[treeiter][0]
+            event_id = model[treeiter][1]
+            tel_id = model[treeiter][2]
+            mc_energy = model[treeiter][3]
+            npe = model[treeiter][4]
 
+            text  = "File name: {}\n".format(file_name)
+            text += "Event ID: {}\n".format(event_id)
+            text += "Tel ID: {}\n".format(tel_id)
+            text += "MC energy: {}\n".format(mc_energy)
+            text += "NPE: {}\n".format(npe)
 
-def treeview_double_click_cb(tree_view, tree_path, tree_view_column):
-    """Inspired from http://stackoverflow.com/questions/17109634/hyperlink-in-cellrenderertext-markup"""
-    model = tree_view.get_model()
-    url = model[tree_path][0]
-    webbrowser.open(url)
+            self.images_information_container.desc_textview.get_buffer().set_text(text)
 
