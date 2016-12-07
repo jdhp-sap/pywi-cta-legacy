@@ -23,6 +23,7 @@
 from gi.repository import Gtk as gtk
 
 import json
+import math
 import os
 
 from datapipe.io import images
@@ -73,7 +74,9 @@ def get_fits_files_list(directory_path):
 def parse_fits_files(dir_name, fits_file_name_list):
     fits_metadata_list = []
 
-    for file_name in fits_file_name_list:
+    # Parse the input files
+
+    for file_index, file_name in enumerate(fits_file_name_list):
         metadata_dict = {}
 
         # Read the input file
@@ -99,6 +102,16 @@ def parse_fits_files(dir_name, fits_file_name_list):
         metadata_dict["mc_energy_unit"] = str(fits_metadata_dict["mc_energy_unit"]) # TODO
 
         fits_metadata_list.append(metadata_dict)
+
+        # Progress bar
+        num_files = len(fits_file_name_list)
+        relative_steps = math.ceil(num_files / 100.)
+
+        if (file_index % relative_steps) == 0:
+            progress_str = "{:.2f}% ({}/{})".format((file_index + 1)/num_files * 100,
+                                                file_index + 1,
+                                                num_files)
+            print(progress_str)
 
     return fits_metadata_list 
 
