@@ -50,15 +50,7 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         # Matplotlib ##################
 
-        # TODO: plot nb d'annonces ajoutées (pour chaque catégories) par jour
-        # TODO: plot nb sites web visités par jour (full et partial)
-        # TODO: plot nb de candidatures envoyées
-        x_list = range(90)
-        y_list = [0 for x in x_list]
-
         self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111)
-        self.ax.plot(x_list, y_list)
 
         # Scrolled window #############
 
@@ -95,5 +87,19 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         # Update the widget ###########
 
-        print(file_path)
+        self.clear_figure()
 
+        ax = self.fig.add_subplot(111)
+
+        x_list = range(90)
+        y_list = [fits_metadata_dict["npe"] for x in x_list]
+
+        ax = self.fig.add_subplot(111)
+        ax.plot(x_list, y_list)
+
+        self.fig.canvas.draw()
+
+
+    def clear_figure(self):
+        self.fig.clf()
+        self.fig.canvas.draw()

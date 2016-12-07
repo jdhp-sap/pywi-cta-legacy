@@ -76,5 +76,5 @@ class ImageInformationContainer(gtk.Grid):
         text += "NPE: {}\n".format(fits_metadata_dict["npe"])
         text += "MC Energy: {} {}\n".format(fits_metadata_dict["mc_energy"], fits_metadata_dict["mc_energy_unit"])
 
-        # Update the widget
+        # Update the widget ###########
         self.desc_textview.get_buffer().set_text(text)
