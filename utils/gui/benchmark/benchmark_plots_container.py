@@ -39,6 +39,7 @@ from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as Figur
 
 from datapipe.io import images
 from datapipe.denoising import tailcut as tailcut_mod
+from datapipe.denoising import wavelets_mrfilter as wavelets_mod
 
 ###############################################################################
 
@@ -104,11 +105,27 @@ class BenchmarkPlotsContainer(gtk.Box):
         #input_img_copy = copy.deepcopy(input_img)
         input_img_copy = input_img.astype('float64', copy=True)
 
-        cleaning_algorithm = tailcut_mod.Tailcut()
+        tailcut = tailcut_mod.Tailcut()
         
         initial_time = time.perf_counter()
-        tailcut_cleaned_img = cleaning_algorithm.clean_image(input_img_copy, high_threshold=10, low_threshold=5)
-        execution_time = time.perf_counter() - initial_time
+        tailcut_cleaned_img = tailcut.clean_image(input_img_copy, high_threshold=10, low_threshold=5)
+        tailcut_execution_time = time.perf_counter() - initial_time
+        print("Tailcut execution time: ", tailcut_execution_time) # TODO
+
+        # Wavelets ####################
+
+        #input_img_copy = copy.deepcopy(input_img)
+        input_img_copy = input_img.astype('float64', copy=True)
+
+        wavelets = wavelets_mod.WaveletTransform()
+        
+        initial_time = time.perf_counter()
+        wavelets_cleaned_img = wavelets.clean_image(input_img_copy,
+                                                    number_of_scales=4,
+                                                    suppress_last_scale=True,
+                                                    suppress_isolated_pixels=True)
+        wavelets_execution_time = time.perf_counter() - initial_time
+        print("Wavelets execution time: ", wavelets_execution_time) # TODO
 
         # Update the widget ###########
 
@@ -122,8 +139,9 @@ class BenchmarkPlotsContainer(gtk.Box):
         self._draw_image(ax1, input_img, "Input")
         self._draw_image(ax2, reference_img, "Reference")
         self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
+        self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
         #self._draw_histogram(ax3, input_img)
-        self._draw_histogram(ax4, reference_img)
+        #self._draw_histogram(ax4, reference_img)
 
         self.fig.canvas.draw()
 
