@@ -53,10 +53,9 @@ class BenchmarkPlotsContainer(gtk.Box):
         today = datetime.date.today()
         day_interval = datetime.timedelta(days=1)
 
-        count_list = [job_advert["date"] for job_advert in job_adverts_model.json_database["job_adverts"].values()]
         for i in x_list:
             date_str = datetime.date.isoformat(today - i * day_interval)
-            y_list[i] = count_list.count(date_str)
+            y_list[i] = 0
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -73,7 +72,7 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         # Label
 
-        num_job_adverts = len(job_adverts_model.json_database["job_adverts"])
+        num_job_adverts = 0
         label = gtk.Label(label="{} job adverts registred".format(num_job_adverts))
         self.pack_start(label, expand=False, fill=False, padding=0)
 

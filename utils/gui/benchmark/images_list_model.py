@@ -32,8 +32,6 @@ class ImagesListModel(object):
 
     def __init__(self, input_directory_path):
 
-        self.json_database = {"job_adverts": {}, "job_searchs": {}}  # TODO
-
         self.input_directory_path = input_directory_path
 
         # Parse the input directory
@@ -43,18 +41,20 @@ class ImagesListModel(object):
         self.fits_metadata_list = parse_fits_files(self.input_directory_path, self.fits_file_name_list)
 
         # Creating the gtk.ListStore model
-        self.liststore = gtk.ListStore(str, str, str, str, int, str, str)
+        self.liststore = gtk.ListStore(str,    # File name
+                                       int,    # Event ID
+                                       int,    # Tel ID
+                                       float,  # MC energy
+                                       float)  # NPE
 
         for image_metadata_dict in self.fits_metadata_list:
-            url = image_metadata_dict["file_name"]          # TODO
-            tooltip = image_metadata_dict["file_name"]      # TODO
-            file_name = image_metadata_dict["file_name"]     # TODO
-            event_id = image_metadata_dict["event_id"]  # TODO
-            tel_id = image_metadata_dict["tel_id"]           # TODO
-            npe = image_metadata_dict["npe"]              # TODO
-            mc_energy = image_metadata_dict["mc_energy"]         # TODO
+            file_name = image_metadata_dict["file_name"]
+            event_id = image_metadata_dict["event_id"]
+            tel_id = image_metadata_dict["tel_id"]
+            mc_energy = image_metadata_dict["mc_energy"]
+            npe = image_metadata_dict["npe"]
 
-            self.liststore.append([url, tooltip, file_name, event_id, tel_id, mc_energy, npe])
+            self.liststore.append([file_name, event_id, tel_id, mc_energy, npe])
 
 
 def get_fits_files_list(directory_path):
@@ -79,7 +79,7 @@ def parse_fits_files(dir_name, fits_file_name_list):
     for file_index, file_name in enumerate(fits_file_name_list):
         metadata_dict = {}
 
-        # Read the input file
+        # Read the input file #########
 
         fits_images_dict, fits_metadata_dict = images.load_benchmark_images(os.path.join(dir_name, file_name))
 
@@ -92,18 +92,19 @@ def parse_fits_files(dir_name, fits_file_name_list):
         if reference_img.ndim != 2:
             raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-        # Fill the dict
+        # Fill the dict ###############
+        
+        metadata_dict["mc_energy_unit"] = fits_metadata_dict["mc_energy_unit"] # TODO
 
         metadata_dict["file_name"] = file_name
-        metadata_dict["event_id"] = str(fits_metadata_dict["event_id"])             # TODO
-        metadata_dict["tel_id"] = int(fits_metadata_dict["tel_id"])                 # TODO
-        metadata_dict["npe"] = str(fits_metadata_dict["npe"])                       # TODO
-        metadata_dict["mc_energy"] = str(fits_metadata_dict["mc_energy"])           # TODO
-        metadata_dict["mc_energy_unit"] = str(fits_metadata_dict["mc_energy_unit"]) # TODO
+        metadata_dict["event_id"] = fits_metadata_dict["event_id"]
+        metadata_dict["tel_id"] = fits_metadata_dict["tel_id"]
+        metadata_dict["mc_energy"] = fits_metadata_dict["mc_energy"]
+        metadata_dict["npe"] = fits_metadata_dict["npe"]
 
         fits_metadata_list.append(metadata_dict)
 
-        # Progress bar
+        # Progress bar ################
         num_files = len(fits_file_name_list)
         relative_steps = math.ceil(num_files / 100.)
 

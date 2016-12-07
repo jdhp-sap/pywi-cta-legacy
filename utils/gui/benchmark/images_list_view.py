@@ -25,7 +25,7 @@ from gi.repository import Pango as pango
 
 import webbrowser
 
-TREE_VIEW_COLUMN_LABEL_LIST = ["Url", "Tooltip", "File name", "Event ID", "Tel ID", "MC energy", "NPE"]
+TREE_VIEW_COLUMN_LABEL_LIST = ["File name", "Event ID", "Tel ID", "MC energy", "NPE"]
 
 class ImagesListView(gtk.TreeView):
 
@@ -47,27 +47,22 @@ class ImagesListView(gtk.TreeView):
 
             column.set_resizable(True)       # Let the column be resizable
 
-            if column_title == "NPE":
+            if column_title == "File name":
                 renderer.set_property("ellipsize", pango.EllipsizeMode.END)
                 renderer.set_property("ellipsize-set", True)
 
-            if column_title in ("Url", "Tooltip"):
-                column.set_visible(False) # Hide the "url" column (this column should not be displayed but is required for tooltip and webbrowser redirection)
-
             if column_title == "File name":
-                column.set_sort_column_id(2)
+                column.set_sort_column_id(0)
             elif column_title == "Event ID":
-                column.set_sort_column_id(3)
+                column.set_sort_column_id(1)
             elif column_title == "Tel ID":
-                column.set_sort_column_id(4)
+                column.set_sort_column_id(2)
             elif column_title == "MC energy":
-                column.set_sort_column_id(5)
+                column.set_sort_column_id(3)
             elif column_title == "NPE":
-                column.set_sort_column_id(6)
+                column.set_sort_column_id(4)
 
             self.append_column(column)
-
-        self.set_tooltip_column(1)  # set the tooltip
 
         # Connect to the "changed" signal (simple click)
         select = self.get_selection()
