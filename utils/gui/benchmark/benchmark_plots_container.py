@@ -69,13 +69,16 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.color_map = DEFAULT_COLOR_MAP
         self.show_color_bar = True
 
-        # Scrolled window #############
+        # Entry #######################
+        self.entry = gtk.Entry()
+        self.entry.set_text("-K -k -C1 -m3 -s3 -n4")
 
-        scrolled_window = gtk.ScrolledWindow()
-        self.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+        # Fill the box container ######
 
         canvas = FigureCanvas(self.fig)
-        scrolled_window.add_with_viewport(canvas)
+        self.pack_start(canvas, expand=True, fill=True, padding=0)
+        self.pack_start(self.entry, expand=False, fill=False, padding=0)
+
 
     
     def selection_changed_callback(self, file_name):
