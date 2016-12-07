@@ -83,15 +83,6 @@ def parse_fits_files(dir_name, fits_file_name_list):
 
         fits_images_dict, fits_metadata_dict = images.load_benchmark_images(os.path.join(dir_name, file_name))
 
-        input_img = fits_images_dict["input_image"]
-        reference_img = fits_images_dict["reference_image"]
-
-        if input_img.ndim != 2:
-            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
-
-        if reference_img.ndim != 2:
-            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
-
         # Fill the dict ###############
         
         metadata_dict["mc_energy_unit"] = fits_metadata_dict["mc_energy_unit"] # TODO

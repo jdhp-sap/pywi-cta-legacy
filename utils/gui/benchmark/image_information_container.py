@@ -25,6 +25,8 @@ from gi.repository import Gtk as gtk
 import json
 import os
 
+from datapipe.io import images
+
 class ImageInformationContainer(gtk.Grid):
 
     def __init__(self, input_directory_path):
@@ -63,5 +65,16 @@ class ImageInformationContainer(gtk.Grid):
 
     def selection_changed_callback(self, file_name):
         file_path = os.path.join(self.input_directory_path, file_name)
-        self.desc_textview.get_buffer().set_text(file_path)
 
+        # Read the selected file #########
+        fits_images_dict, fits_metadata_dict = images.load_benchmark_images(file_path)
+
+        # Fill the dict ###############
+        text  = "File: {}\n\n".format(file_path)
+        text += "Event ID: {}\n".format(fits_metadata_dict["event_id"])
+        text += "Tel ID: {}\n".format(fits_metadata_dict["tel_id"])
+        text += "NPE: {}\n".format(fits_metadata_dict["npe"])
+        text += "MC Energy: {} {}\n".format(fits_metadata_dict["mc_energy"], fits_metadata_dict["mc_energy_unit"])
+
+        # Update the widget
+        self.desc_textview.get_buffer().set_text(text)
