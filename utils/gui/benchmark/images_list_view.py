@@ -29,14 +29,14 @@ TREE_VIEW_COLUMN_LABEL_LIST = ["File name", "Event ID", "Tel ID", "MC energy", "
 
 class ImagesListView(gtk.TreeView):
 
-    def __init__(self, liststore, images_information_container):
+    def __init__(self, liststore, image_information_container):
         """
         ...
         """
 
         super(ImagesListView, self).__init__(liststore)
 
-        self.images_information_container = images_information_container 
+        self.image_information_container = image_information_container 
 
         # Creating the treeview, making it use the filter as a model, and
         # adding the columns
@@ -84,5 +84,5 @@ class ImagesListView(gtk.TreeView):
             text += "MC energy: {}\n".format(mc_energy)
             text += "NPE: {}\n".format(npe)
 
-            self.images_information_container.desc_textview.get_buffer().set_text(text)
+            self.image_information_container.set_image_information(text)
 

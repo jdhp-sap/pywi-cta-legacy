@@ -39,10 +39,11 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         super(BenchmarkPlotsContainer, self).__init__(orientation=gtk.Orientation.VERTICAL, spacing=6)
 
+        self.images_list_model = images_list_model
+
         self.set_border_width(18)
 
-
-        # Matplotlib
+        # Matplotlib ##################
 
         # TODO: plot nb d'annonces ajoutées (pour chaque catégories) par jour
         # TODO: plot nb sites web visités par jour (full et partial)
@@ -62,7 +63,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         ax.plot(x_list, y_list)
 
 
-        # Scrolled window
+        # Scrolled window #############
 
         scrolled_window = gtk.ScrolledWindow()
         self.pack_start(scrolled_window, expand=True, fill=True, padding=0)
@@ -70,7 +71,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         canvas = FigureCanvas(fig)
         scrolled_window.add_with_viewport(canvas)
 
-        # Label
+        # Label #######################
 
         num_job_adverts = 0
         label = gtk.Label(label="{} job adverts registred".format(num_job_adverts))

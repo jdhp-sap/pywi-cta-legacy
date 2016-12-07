@@ -59,7 +59,7 @@ class ImageInformationContainer(gtk.Grid):
         # Add the widgets to the container
         self.attach(desc_scrolled_window, left=0, top=0, width=1, height=1)
 
-        #######################################################################
 
-        self.desc_textview.get_buffer().set_text("")
+    def set_image_information(self, text):
+        self.desc_textview.get_buffer().set_text(text)
 
