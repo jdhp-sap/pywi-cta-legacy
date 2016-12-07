@@ -31,12 +31,14 @@ import datetime
 import math
 import numpy as np
 import os
+import time
 
 import matplotlib.pyplot as plt
 
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 
 from datapipe.io import images
+from datapipe.denoising import tailcut as tailcut_mod
 
 ###############################################################################
 
@@ -97,6 +99,17 @@ class BenchmarkPlotsContainer(gtk.Box):
         if reference_img.ndim != 2:
             raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
+        # Tailcut #####################
+
+        #input_img_copy = copy.deepcopy(input_img)
+        input_img_copy = input_img.astype('float64', copy=True)
+
+        cleaning_algorithm = tailcut_mod.Tailcut()
+        
+        initial_time = time.perf_counter()
+        tailcut_cleaned_img = cleaning_algorithm.clean_image(input_img_copy, high_threshold=10, low_threshold=5)
+        execution_time = time.perf_counter() - initial_time
+
         # Update the widget ###########
 
         self.clear_figure()
@@ -106,9 +119,10 @@ class BenchmarkPlotsContainer(gtk.Box):
         ax3 = self.fig.add_subplot(223)
         ax4 = self.fig.add_subplot(224)
 
-        self._draw_image(ax1, input_img)
-        self._draw_image(ax2, reference_img)
-        self._draw_histogram(ax3, input_img)
+        self._draw_image(ax1, input_img, "Input")
+        self._draw_image(ax2, reference_img, "Reference")
+        self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
+        #self._draw_histogram(ax3, input_img)
         self._draw_histogram(ax4, reference_img)
 
         self.fig.canvas.draw()
@@ -119,7 +133,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.fig.canvas.draw()
 
 
-    def _draw_image(self, axis, image_array):
+    def _draw_image(self, axis, image_array, title):
 
         # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
 
@@ -134,6 +148,8 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         if self.show_color_bar:
             plt.colorbar(im, ax=axis)
+
+        axis.set_title(title)
 
         # IMSHOW DOESN'T WORK WITH PYTHON GTK3 THROUGH CAIRO (NOT IMPLEMENTED ERROR) !
         #im = axis.imshow(image_array)
