@@ -97,7 +97,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     offset_after_calibration=None,
                     correction_offset=None,
                     input_image_scale='linear',
-                    verbose=False):
+                    verbose=False,
+                    raw_option_string=None):
         """
         Do the wavelet transform.
 
@@ -145,27 +146,31 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         # TODO: improve the following lines
         cmd = 'mr_filter'
-        cmd += ' -t{}'.format(type_of_multiresolution_transform) if type_of_multiresolution_transform is not None else ''
-        cmd += ' -T{}'.format(type_of_filters) if type_of_filters is not None else ''
-        cmd += ' -U{}'.format(type_of_non_orthog_filters) if type_of_non_orthog_filters is not None else ''
-        cmd += ' -n{}'.format(number_of_scales) if number_of_scales is not None else ''
-        cmd += ' -K' if suppress_last_scale else ''
-        cmd += ' -k' if suppress_isolated_pixels else ''      # You should use scipy implementation instead (datapipe/denoising/kill_isolated_pixels.py); it's much more efficient
-        cmd += ' -C{}'.format(coef_detection_method) if coef_detection_method is not None else ''
-        cmd += ' -s{}'.format(k_sigma_noise_threshold) if k_sigma_noise_threshold is not None else ''
-        cmd += ' -m{}'.format(noise_model) if noise_model is not None else ''
-        cmd += ' -p' if detect_only_positive_structure else ''
-        cmd += ' -P' if suppress_positivity_constraint else ''
-        cmd += ' -f{}'.format(type_of_filtering) if type_of_filtering is not None else ''
-        cmd += ' -F{}'.format(first_detection_scale) if first_detection_scale is not None else ''
-        cmd += ' -i{}'.format(number_of_iterations) if number_of_iterations is not None else ''
-        cmd += ' -e{}'.format(epsilon) if epsilon is not None else ''
-        cmd += ' -w{}'.format(support_file_name) if support_file_name is not None else ''
-        cmd += ' -E{}'.format(precision) if precision is not None else ''
 
-        cmd += ' -v' if verbose else ''
+        if raw_option_string is None:
+            cmd += ' -t{}'.format(type_of_multiresolution_transform) if type_of_multiresolution_transform is not None else ''
+            cmd += ' -T{}'.format(type_of_filters) if type_of_filters is not None else ''
+            cmd += ' -U{}'.format(type_of_non_orthog_filters) if type_of_non_orthog_filters is not None else ''
+            cmd += ' -n{}'.format(number_of_scales) if number_of_scales is not None else ''
+            cmd += ' -K' if suppress_last_scale else ''
+            cmd += ' -k' if suppress_isolated_pixels else ''      # You should use scipy implementation instead (datapipe/denoising/kill_isolated_pixels.py); it's much more efficient
+            cmd += ' -C{}'.format(coef_detection_method) if coef_detection_method is not None else ''
+            cmd += ' -s{}'.format(k_sigma_noise_threshold) if k_sigma_noise_threshold is not None else ''
+            cmd += ' -m{}'.format(noise_model) if noise_model is not None else ''
+            cmd += ' -p' if detect_only_positive_structure else ''
+            cmd += ' -P' if suppress_positivity_constraint else ''
+            cmd += ' -f{}'.format(type_of_filtering) if type_of_filtering is not None else ''
+            cmd += ' -F{}'.format(first_detection_scale) if first_detection_scale is not None else ''
+            cmd += ' -i{}'.format(number_of_iterations) if number_of_iterations is not None else ''
+            cmd += ' -e{}'.format(epsilon) if epsilon is not None else ''
+            cmd += ' -w{}'.format(support_file_name) if support_file_name is not None else ''
+            cmd += ' -E{}'.format(precision) if precision is not None else ''
+
+            cmd += ' -v' if verbose else ''
+        else:
+            cmd += ' ' + raw_option_string
+
         self.label = "WT ({})".format(cmd)  # Name to show in plots
-
         cmd += ' "{}" {}'.format(input_file_path, mr_output_file_path)
 
         #cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)

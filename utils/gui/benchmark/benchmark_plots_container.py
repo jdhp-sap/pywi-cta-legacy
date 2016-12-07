@@ -118,12 +118,13 @@ class BenchmarkPlotsContainer(gtk.Box):
         input_img_copy = input_img.astype('float64', copy=True)
 
         wavelets = wavelets_mod.WaveletTransform()
+
+        option_string = self.entry.get_text()
+        print(option_string)
         
         initial_time = time.perf_counter()
         wavelets_cleaned_img = wavelets.clean_image(input_img_copy,
-                                                    number_of_scales=4,
-                                                    suppress_last_scale=True,
-                                                    suppress_isolated_pixels=True)
+                                                    raw_option_string=option_string)
         wavelets_execution_time = time.perf_counter() - initial_time
 
         # Execution time ##############
