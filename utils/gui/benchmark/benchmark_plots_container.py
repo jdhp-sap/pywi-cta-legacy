@@ -44,6 +44,8 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         self.input_directory_path = input_directory_path
 
+        # Box attributes ##############
+
         self.set_border_width(18)
 
         # Matplotlib ##################
@@ -54,31 +56,17 @@ class BenchmarkPlotsContainer(gtk.Box):
         x_list = range(90)
         y_list = [0 for x in x_list]
 
-        today = datetime.date.today()
-        day_interval = datetime.timedelta(days=1)
-
-        for i in x_list:
-            date_str = datetime.date.isoformat(today - i * day_interval)
-            y_list[i] = 0
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.plot(x_list, y_list)
-
+        self.fig = plt.figure()
+        self.ax = self.fig.add_subplot(111)
+        self.ax.plot(x_list, y_list)
 
         # Scrolled window #############
 
         scrolled_window = gtk.ScrolledWindow()
         self.pack_start(scrolled_window, expand=True, fill=True, padding=0)
 
-        canvas = FigureCanvas(fig)
+        canvas = FigureCanvas(self.fig)
         scrolled_window.add_with_viewport(canvas)
-
-        # Label #######################
-
-        num_job_adverts = 0
-        label = gtk.Label(label="{} job adverts registred".format(num_job_adverts))
-        self.pack_start(label, expand=False, fill=False, padding=0)
 
     
     def selection_changed_callback(self, file_name):
@@ -105,6 +93,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         text += "NPE: {}\n".format(fits_metadata_dict["npe"])
         text += "MC Energy: {} {}\n".format(fits_metadata_dict["mc_energy"], fits_metadata_dict["mc_energy_unit"])
 
-        # Update the widget
+        # Update the widget ###########
+
         print(file_path)
 
