@@ -40,6 +40,7 @@ from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as Figur
 from datapipe.io import images
 from datapipe.denoising import tailcut as tailcut_mod
 from datapipe.denoising import wavelets_mrfilter as wavelets_mod
+from datapipe.benchmark import assess as assess_mod
 
 ###############################################################################
 
@@ -110,7 +111,6 @@ class BenchmarkPlotsContainer(gtk.Box):
         initial_time = time.perf_counter()
         tailcut_cleaned_img = tailcut.clean_image(input_img_copy, high_threshold=10, low_threshold=5)
         tailcut_execution_time = time.perf_counter() - initial_time
-        print("Tailcut execution time: ", tailcut_execution_time) # TODO
 
         # Wavelets ####################
 
@@ -125,7 +125,29 @@ class BenchmarkPlotsContainer(gtk.Box):
                                                     suppress_last_scale=True,
                                                     suppress_isolated_pixels=True)
         wavelets_execution_time = time.perf_counter() - initial_time
+
+        # Execution time ##############
+
+        print("Tailcut execution time: ", tailcut_execution_time) # TODO
         print("Wavelets execution time: ", wavelets_execution_time) # TODO
+
+        # Tailcut scores ##############
+
+        tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                         tailcut_cleaned_img,
+                                                                                         reference_img,
+                                                                                         benchmark_method="all")
+
+        print("TC:", tailcut_score_tuple, tailcut_score_name_tuple)
+
+        # Wavelets scores #############
+
+        wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                           wavelets_cleaned_img,
+                                                                                           reference_img,
+                                                                                           benchmark_method="all")
+
+        print("WT:", wavelets_score_tuple, wavelets_score_name_tuple)
 
         # Update the widget ###########
 
@@ -140,8 +162,11 @@ class BenchmarkPlotsContainer(gtk.Box):
         self._draw_image(ax2, reference_img, "Reference")
         self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
         self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
-        #self._draw_histogram(ax3, input_img)
-        #self._draw_histogram(ax4, reference_img)
+
+        #self._draw_histogram(ax1, input_img, "Input")
+        #self._draw_histogram(ax2, reference_img, "Reference")
+        #self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut")
+        #self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets")
 
         self.fig.canvas.draw()
 
