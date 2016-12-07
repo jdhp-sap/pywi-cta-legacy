@@ -28,6 +28,7 @@ See: http://gtk3-matplotlib-cookbook.readthedocs.org/en/latest/
 from gi.repository import Gtk as gtk
 
 import datetime
+import math
 import os
 
 import matplotlib.pyplot as plt
@@ -35,6 +36,18 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 
 from datapipe.io import images
+
+###############################################################################
+
+DEFAULT_COLOR_MAP = "gnuplot2" # "gray"
+
+# histogram types : [‘bar’ | ‘barstacked’ | ‘step’ | ‘stepfilled’]
+HISTOGRAM_TYPE = 'bar'
+
+#IMAGE_INTERPOLATION = 'bilinear'   # "smooth" map
+IMAGE_INTERPOLATION = 'nearest'    # "raw" (non smooth) map
+
+###############################################################################
 
 class BenchmarkPlotsContainer(gtk.Box):
 
@@ -51,6 +64,9 @@ class BenchmarkPlotsContainer(gtk.Box):
         # Matplotlib ##################
 
         self.fig = plt.figure()
+
+        self.color_map = DEFAULT_COLOR_MAP
+        self.show_color_bar = True
 
         # Scrolled window #############
 
@@ -77,25 +93,23 @@ class BenchmarkPlotsContainer(gtk.Box):
         if reference_img.ndim != 2:
             raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-        # Fill the dict ###############
-        
-        text  = "File: {}\n\n".format(file_path)
-        text += "Event ID: {}\n".format(fits_metadata_dict["event_id"])
-        text += "Tel ID: {}\n".format(fits_metadata_dict["tel_id"])
-        text += "NPE: {}\n".format(fits_metadata_dict["npe"])
-        text += "MC Energy: {} {}\n".format(fits_metadata_dict["mc_energy"], fits_metadata_dict["mc_energy_unit"])
-
         # Update the widget ###########
 
         self.clear_figure()
 
-        ax = self.fig.add_subplot(111)
+        ax1 = self.fig.add_subplot(241)
+        ax2 = self.fig.add_subplot(242)
+        ax3 = self.fig.add_subplot(243)
+        ax4 = self.fig.add_subplot(244)
+        ax5 = self.fig.add_subplot(245)
+        ax6 = self.fig.add_subplot(246)
+        ax7 = self.fig.add_subplot(247)
+        ax8 = self.fig.add_subplot(248)
 
-        x_list = range(90)
-        y_list = [fits_metadata_dict["npe"] for x in x_list]
-
-        ax = self.fig.add_subplot(111)
-        ax.plot(x_list, y_list)
+        #self._draw_image(ax1, input_img)
+        #self._draw_image(ax2, reference_img)
+        self._draw_histogram(ax5, input_img)
+        self._draw_histogram(ax6, reference_img)
 
         self.fig.canvas.draw()
 
@@ -103,3 +117,37 @@ class BenchmarkPlotsContainer(gtk.Box):
     def clear_figure(self):
         self.fig.clf()
         self.fig.canvas.draw()
+
+
+    def _draw_histogram(self, axis, image_array):
+
+        #axis.set_title(self.file_path)
+        bins = math.ceil(image_array.max() - image_array.min())
+        print(bins)
+
+        # nparray.ravel(): Return a flattened array.
+        values, bins, patches = axis.hist(image_array.ravel(),
+                                          histtype=HISTOGRAM_TYPE,
+                                          bins=bins,
+                                          #range=(0., 255.),
+                                          fc='k',
+                                          ec='k')
+
+        axis.set_xlim([image_array.min(), image_array.max()])
+
+
+    def _draw_image(self, axis, image_array):
+
+            if image_array.ndim == 1:
+                image_array = np.tile(image_array, (256, 1))  # TODO ?
+                axis.get_yaxis().set_visible(False)
+
+            im = axis.imshow(image_array,
+                             origin='lower',
+                             interpolation=IMAGE_INTERPOLATION,
+                             cmap=self.color_map)
+
+            #axis.set_axis_off()
+
+            if self.show_color_bar:
+                plt.colorbar(im) # draw the colorbar
