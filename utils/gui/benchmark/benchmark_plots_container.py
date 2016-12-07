@@ -98,19 +98,15 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         self.clear_figure()
 
-        ax1 = self.fig.add_subplot(241)
-        ax2 = self.fig.add_subplot(242)
-        ax3 = self.fig.add_subplot(243)
-        ax4 = self.fig.add_subplot(244)
-        ax5 = self.fig.add_subplot(245)
-        ax6 = self.fig.add_subplot(246)
-        ax7 = self.fig.add_subplot(247)
-        ax8 = self.fig.add_subplot(248)
+        ax1 = self.fig.add_subplot(221)
+        ax2 = self.fig.add_subplot(222)
+        ax3 = self.fig.add_subplot(223)
+        ax4 = self.fig.add_subplot(224)
 
         self._draw_image(ax1, input_img)
         self._draw_image(ax2, reference_img)
-        self._draw_histogram(ax5, input_img)
-        self._draw_histogram(ax6, reference_img)
+        self._draw_histogram(ax3, input_img)
+        self._draw_histogram(ax4, reference_img)
 
         self.fig.canvas.draw()
 
@@ -124,30 +120,25 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
 
-        # make these smaller to increase the resolution
         dx, dy = 1, 1
 
         # generate 2 2d grids for the x & y bounds
         y, x = np.mgrid[slice(0, image_array.shape[0], dy), slice(0, image_array.shape[1], dx)]  # TODO !!!
 
-        #print("x", x.shape)
-        #print("y", y.shape)
-        #print("z", image_array.shape)
-
         z_min, z_max = image_array.min(), image_array.max()
 
-        axis.pcolor(x, y, image_array, cmap=self.color_map, vmin=z_min, vmax=z_max)
+        im = axis.pcolor(x, y, image_array, cmap=self.color_map, vmin=z_min, vmax=z_max)
+
+        if self.show_color_bar:
+            plt.colorbar(im, ax=axis)
 
         # IMSHOW DOESN'T WORK WITH PYTHON GTK3 THROUGH CAIRO (NOT IMPLEMENTED ERROR) !
         #im = axis.imshow(image_array)
-
         #im = axis.imshow(image_array,
         #                 origin='lower',
         #                 interpolation=IMAGE_INTERPOLATION,
         #                 cmap=self.color_map)
-
         #axis.set_axis_off()
-
         #if self.show_color_bar:
         #    plt.colorbar(im) # draw the colorbar
 

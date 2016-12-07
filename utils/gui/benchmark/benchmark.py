@@ -97,7 +97,7 @@ class MainWindow(gtk.Window):
         scrolled_images_treeview2.add(images_treeview2)
 
         # Paned container
-        benchmark_paned_container = gtk.Paned(orientation=gtk.Orientation.VERTICAL)
+        benchmark_paned_container = gtk.Paned(orientation=gtk.Orientation.HORIZONTAL)
         benchmark_paned_container.add1(scrolled_images_treeview2)
         benchmark_paned_container.add2(benchmark_plots_container)
 
