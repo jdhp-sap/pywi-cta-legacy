@@ -29,6 +29,7 @@ from gi.repository import Gtk as gtk
 
 import datetime
 import math
+import numpy as np
 import os
 
 import matplotlib.pyplot as plt
@@ -106,8 +107,8 @@ class BenchmarkPlotsContainer(gtk.Box):
         ax7 = self.fig.add_subplot(247)
         ax8 = self.fig.add_subplot(248)
 
-        #self._draw_image(ax1, input_img)
-        #self._draw_image(ax2, reference_img)
+        self._draw_image(ax1, input_img)
+        self._draw_image(ax2, reference_img)
         self._draw_histogram(ax5, input_img)
         self._draw_histogram(ax6, reference_img)
 
@@ -119,11 +120,42 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.fig.canvas.draw()
 
 
+    def _draw_image(self, axis, image_array):
+
+        # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
+
+        # make these smaller to increase the resolution
+        dx, dy = 1, 1
+
+        # generate 2 2d grids for the x & y bounds
+        y, x = np.mgrid[slice(0, image_array.shape[0], dy), slice(0, image_array.shape[1], dx)]  # TODO !!!
+
+        #print("x", x.shape)
+        #print("y", y.shape)
+        #print("z", image_array.shape)
+
+        z_min, z_max = image_array.min(), image_array.max()
+
+        axis.pcolor(x, y, image_array, cmap=self.color_map, vmin=z_min, vmax=z_max)
+
+        # IMSHOW DOESN'T WORK WITH PYTHON GTK3 THROUGH CAIRO (NOT IMPLEMENTED ERROR) !
+        #im = axis.imshow(image_array)
+
+        #im = axis.imshow(image_array,
+        #                 origin='lower',
+        #                 interpolation=IMAGE_INTERPOLATION,
+        #                 cmap=self.color_map)
+
+        #axis.set_axis_off()
+
+        #if self.show_color_bar:
+        #    plt.colorbar(im) # draw the colorbar
+
+
     def _draw_histogram(self, axis, image_array):
 
         #axis.set_title(self.file_path)
         bins = math.ceil(image_array.max() - image_array.min())
-        print(bins)
 
         # nparray.ravel(): Return a flattened array.
         values, bins, patches = axis.hist(image_array.ravel(),
@@ -134,20 +166,3 @@ class BenchmarkPlotsContainer(gtk.Box):
                                           ec='k')
 
         axis.set_xlim([image_array.min(), image_array.max()])
-
-
-    def _draw_image(self, axis, image_array):
-
-            if image_array.ndim == 1:
-                image_array = np.tile(image_array, (256, 1))  # TODO ?
-                axis.get_yaxis().set_visible(False)
-
-            im = axis.imshow(image_array,
-                             origin='lower',
-                             interpolation=IMAGE_INTERPOLATION,
-                             cmap=self.color_map)
-
-            #axis.set_axis_off()
-
-            if self.show_color_bar:
-                plt.colorbar(im) # draw the colorbar
