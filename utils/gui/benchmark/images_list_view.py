@@ -25,7 +25,7 @@ from gi.repository import Pango as pango
 
 import webbrowser
 
-TREE_VIEW_COLUMN_LABEL_LIST = ["File name", "Event ID", "Tel ID", "MC energy", "NPE"]
+TREE_VIEW_COLUMN_LABEL_LIST = ["Event ID", "Tel ID", "MC energy", "NPE", "File name"]
 
 class ImagesListView(gtk.TreeView):
 
@@ -51,15 +51,15 @@ class ImagesListView(gtk.TreeView):
                 renderer.set_property("ellipsize", pango.EllipsizeMode.END)
                 renderer.set_property("ellipsize-set", True)
 
-            if column_title == "File name":
+            if column_title == "Event ID":
                 column.set_sort_column_id(0)
-            elif column_title == "Event ID":
-                column.set_sort_column_id(1)
             elif column_title == "Tel ID":
-                column.set_sort_column_id(2)
+                column.set_sort_column_id(1)
             elif column_title == "MC energy":
-                column.set_sort_column_id(3)
+                column.set_sort_column_id(2)
             elif column_title == "NPE":
+                column.set_sort_column_id(3)
+            elif column_title == "File name":
                 column.set_sort_column_id(4)
 
             self.append_column(column)
@@ -72,17 +72,6 @@ class ImagesListView(gtk.TreeView):
     def treeViewSelectionChangedCallBack(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter != None:
-            file_name = model[treeiter][0]
-            #event_id = model[treeiter][1]
-            #tel_id = model[treeiter][2]
-            #mc_energy = model[treeiter][3]
-            #npe = model[treeiter][4]
-
-            #text  = "File name: {}\n".format(file_name)
-            #text += "Event ID: {}\n".format(event_id)
-            #text += "Tel ID: {}\n".format(tel_id)
-            #text += "MC energy: {}\n".format(mc_energy)
-            #text += "NPE: {}\n".format(npe)
-
+            file_name = model[treeiter][4]
             self.callback_container.selection_changed_callback(file_name)
 

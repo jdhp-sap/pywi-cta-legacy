@@ -41,20 +41,20 @@ class ImagesListModel(object):
         self.fits_metadata_list = parse_fits_files(self.input_directory_path, self.fits_file_name_list)
 
         # Creating the gtk.ListStore model
-        self.liststore = gtk.ListStore(str,    # File name
-                                       int,    # Event ID
+        self.liststore = gtk.ListStore(int,    # Event ID
                                        int,    # Tel ID
                                        float,  # MC energy
-                                       float)  # NPE
+                                       float,  # NPE
+                                       str)    # File name
 
         for image_metadata_dict in self.fits_metadata_list:
-            file_name = image_metadata_dict["file_name"]
             event_id = image_metadata_dict["event_id"]
             tel_id = image_metadata_dict["tel_id"]
             mc_energy = image_metadata_dict["mc_energy"]
             npe = image_metadata_dict["npe"]
+            file_name = image_metadata_dict["file_name"]
 
-            self.liststore.append([file_name, event_id, tel_id, mc_energy, npe])
+            self.liststore.append([event_id, tel_id, mc_energy, npe, file_name])
 
 
 def get_fits_files_list(directory_path):
@@ -75,6 +75,7 @@ def parse_fits_files(dir_name, fits_file_name_list):
     fits_metadata_list = []
 
     # Parse the input files
+    mc_energy_unit = None
 
     for file_index, file_name in enumerate(fits_file_name_list):
         metadata_dict = {}
@@ -85,13 +86,17 @@ def parse_fits_files(dir_name, fits_file_name_list):
 
         # Fill the dict ###############
         
-        metadata_dict["mc_energy_unit"] = fits_metadata_dict["mc_energy_unit"] # TODO
+        if mc_energy_unit is None:
+            mc_energy_unit = fits_metadata_dict["mc_energy_unit"] # TODO
+        else:
+            if mc_energy_unit != fits_metadata_dict["mc_energy_unit"]:
+                raise Exception("Inconsistent data")
 
-        metadata_dict["file_name"] = file_name
         metadata_dict["event_id"] = fits_metadata_dict["event_id"]
         metadata_dict["tel_id"] = fits_metadata_dict["tel_id"]
         metadata_dict["mc_energy"] = fits_metadata_dict["mc_energy"]
         metadata_dict["npe"] = fits_metadata_dict["npe"]
+        metadata_dict["file_name"] = file_name
 
         fits_metadata_list.append(metadata_dict)
 
