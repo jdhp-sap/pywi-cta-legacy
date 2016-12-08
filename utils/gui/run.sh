@@ -21,6 +21,8 @@ ANACONDAPYTHONPATH=/Users/jdecock/anaconda/lib/python35.zip:/Users/jdecock/anaco
 # Thus:
 # - Set both paths but give Anaconda a higher priority
 
+source activate cta
+
 export PYTHONPATH=$MACPORTSPYTHONPATH:$PYTHONPATH
 export PYTHONPATH=$ANACONDAPYTHONPATH:$PYTHONPATH
 
