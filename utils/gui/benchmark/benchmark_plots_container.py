@@ -140,21 +140,26 @@ class BenchmarkPlotsContainer(gtk.Box):
 
             # Tailcut scores ##############
 
-            tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
-                                                                                             tailcut_cleaned_img,
-                                                                                             reference_img,
-                                                                                             benchmark_method="all")
-
-            print("TC:", tailcut_score_tuple, tailcut_score_name_tuple)
+            try:
+                tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                                 tailcut_cleaned_img,
+                                                                                                 reference_img,
+                                                                                                 benchmark_method="all")
+                print("TC:", tailcut_score_tuple, tailcut_score_name_tuple)
+            except assess_mod.AssessError:
+                print("TC: ", str(assess_mod.AssessError))
 
             # Wavelets scores #############
 
-            wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
-                                                                                               wavelets_cleaned_img,
-                                                                                               reference_img,
-                                                                                               benchmark_method="all")
+            try:
+                wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                                   wavelets_cleaned_img,
+                                                                                                   reference_img,
+                                                                                                   benchmark_method="all")
 
-            print("WT:", wavelets_score_tuple, wavelets_score_name_tuple)
+                print("WT:", wavelets_score_tuple, wavelets_score_name_tuple)
+            except assess_mod.AssessError:
+                print("WT: ", str(assess_mod.AssessError))
 
             # Update the widget ###########
 
