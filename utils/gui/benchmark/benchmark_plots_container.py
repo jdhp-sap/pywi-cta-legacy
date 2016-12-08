@@ -61,6 +61,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         super(BenchmarkPlotsContainer, self).__init__(orientation=gtk.Orientation.VERTICAL, spacing=6)
 
         self.input_directory_path = input_directory_path
+        self.current_file_path = None
 
         # Box attributes ##############
 
@@ -76,6 +77,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         # Entry #######################
         self.entry = gtk.Entry()
         self.entry.set_text("-K -k -C1 -m3 -s3 -n4")
+        self.entry.connect("activate", self.update_plots)  # call "print_text()" function when the "Enter" key is pressed in the entry
 
         # Fill the box container ######
 
@@ -83,93 +85,97 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.pack_start(canvas, expand=True, fill=True, padding=0)
         self.pack_start(self.entry, expand=False, fill=False, padding=0)
 
-
     
     def selection_changed_callback(self, file_name):
-        file_path = os.path.join(self.input_directory_path, file_name)
+        self.current_file_path = os.path.join(self.input_directory_path, file_name)
+        self.update_plots()
 
-        # Read the selected file #########
 
-        fits_images_dict, fits_metadata_dict = images.load_benchmark_images(file_path)
+    def update_plots(self, data=None):        # data is for event callers
 
-        input_img = fits_images_dict["input_image"]
-        reference_img = fits_images_dict["reference_image"]
+        if self.current_file_path is not None:
+            # Read the selected file #########
 
-        if input_img.ndim != 2:
-            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+            fits_images_dict, fits_metadata_dict = images.load_benchmark_images(self.current_file_path)
 
-        if reference_img.ndim != 2:
-            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+            input_img = fits_images_dict["input_image"]
+            reference_img = fits_images_dict["reference_image"]
 
-        # Tailcut #####################
+            if input_img.ndim != 2:
+                raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-        #input_img_copy = copy.deepcopy(input_img)
-        input_img_copy = input_img.astype('float64', copy=True)
+            if reference_img.ndim != 2:
+                raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-        tailcut = tailcut_mod.Tailcut()
-        
-        initial_time = time.perf_counter()
-        tailcut_cleaned_img = tailcut.clean_image(input_img_copy, high_threshold=10, low_threshold=5)
-        tailcut_execution_time = time.perf_counter() - initial_time
+            # Tailcut #####################
 
-        # Wavelets ####################
+            #input_img_copy = copy.deepcopy(input_img)
+            input_img_copy = input_img.astype('float64', copy=True)
 
-        #input_img_copy = copy.deepcopy(input_img)
-        input_img_copy = input_img.astype('float64', copy=True)
+            tailcut = tailcut_mod.Tailcut()
+            
+            initial_time = time.perf_counter()
+            tailcut_cleaned_img = tailcut.clean_image(input_img_copy, high_threshold=10, low_threshold=5)
+            tailcut_execution_time = time.perf_counter() - initial_time
 
-        wavelets = wavelets_mod.WaveletTransform()
+            # Wavelets ####################
 
-        option_string = self.entry.get_text()
-        print(option_string)
-        
-        initial_time = time.perf_counter()
-        wavelets_cleaned_img = wavelets.clean_image(input_img_copy,
-                                                    raw_option_string=option_string)
-        wavelets_execution_time = time.perf_counter() - initial_time
+            #input_img_copy = copy.deepcopy(input_img)
+            input_img_copy = input_img.astype('float64', copy=True)
 
-        # Execution time ##############
+            wavelets = wavelets_mod.WaveletTransform()
 
-        print("Tailcut execution time: ", tailcut_execution_time) # TODO
-        print("Wavelets execution time: ", wavelets_execution_time) # TODO
+            option_string = self.entry.get_text()
+            print(option_string)
+            
+            initial_time = time.perf_counter()
+            wavelets_cleaned_img = wavelets.clean_image(input_img_copy,
+                                                        raw_option_string=option_string)
+            wavelets_execution_time = time.perf_counter() - initial_time
 
-        # Tailcut scores ##############
+            # Execution time ##############
 
-        tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
-                                                                                         tailcut_cleaned_img,
-                                                                                         reference_img,
-                                                                                         benchmark_method="all")
+            print("Tailcut execution time: ", tailcut_execution_time) # TODO
+            print("Wavelets execution time: ", wavelets_execution_time) # TODO
 
-        print("TC:", tailcut_score_tuple, tailcut_score_name_tuple)
+            # Tailcut scores ##############
 
-        # Wavelets scores #############
+            tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                             tailcut_cleaned_img,
+                                                                                             reference_img,
+                                                                                             benchmark_method="all")
 
-        wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
-                                                                                           wavelets_cleaned_img,
-                                                                                           reference_img,
-                                                                                           benchmark_method="all")
+            print("TC:", tailcut_score_tuple, tailcut_score_name_tuple)
 
-        print("WT:", wavelets_score_tuple, wavelets_score_name_tuple)
+            # Wavelets scores #############
 
-        # Update the widget ###########
+            wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                               wavelets_cleaned_img,
+                                                                                               reference_img,
+                                                                                               benchmark_method="all")
 
-        self.clear_figure()
+            print("WT:", wavelets_score_tuple, wavelets_score_name_tuple)
 
-        ax1 = self.fig.add_subplot(221)
-        ax2 = self.fig.add_subplot(222)
-        ax3 = self.fig.add_subplot(223)
-        ax4 = self.fig.add_subplot(224)
+            # Update the widget ###########
 
-        self._draw_image(ax1, input_img, "Input")
-        self._draw_image(ax2, reference_img, "Reference")
-        self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
-        self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
+            self.clear_figure()
 
-        #self._draw_histogram(ax1, input_img, "Input")
-        #self._draw_histogram(ax2, reference_img, "Reference")
-        #self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut")
-        #self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets")
+            ax1 = self.fig.add_subplot(221)
+            ax2 = self.fig.add_subplot(222)
+            ax3 = self.fig.add_subplot(223)
+            ax4 = self.fig.add_subplot(224)
 
-        self.fig.canvas.draw()
+            self._draw_image(ax1, input_img, "Input")
+            self._draw_image(ax2, reference_img, "Reference")
+            self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
+            self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
+
+            #self._draw_histogram(ax1, input_img, "Input")
+            #self._draw_histogram(ax2, reference_img, "Reference")
+            #self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut")
+            #self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets")
+
+            self.fig.canvas.draw()
 
 
     def clear_figure(self):
