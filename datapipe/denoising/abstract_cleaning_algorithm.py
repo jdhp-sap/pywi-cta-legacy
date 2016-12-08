@@ -118,7 +118,8 @@ class AbstractCleaningAlgorithm(object):
                     # CLEAN THE INPUT IMAGE ###############################################
 
                     # Copy the image (otherwise some cleaning functions like Tailcut may change it)
-                    input_img_copy = copy.deepcopy(input_img)
+                    #input_img_copy = copy.deepcopy(input_img)
+                    input_img_copy = input_img.astype('float64', copy=True)
 
                     initial_time = time.perf_counter()
                     cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
