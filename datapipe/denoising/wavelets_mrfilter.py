@@ -95,7 +95,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     support_file_name=None,
                     precision=None,
                     offset_after_calibration=None,
-                    correction_offset=None,
+                    correction_offset=False,
                     input_image_scale='linear',
                     verbose=False,
                     raw_option_string=None):
@@ -117,6 +117,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         # APPLY AN OFFSET ######################################
         
         if offset_after_calibration is not None:
+            if verbose:
+                print("Apply an offset after calibration:", offset_after_calibration)
             input_img = input_img + offset_after_calibration
 
         # CHANGE THE SCALE #####################################
@@ -222,13 +224,17 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         # CORRECTION OFFSET ####################################
 
-        if correction_offset is not None:
+        if correction_offset:
+            if verbose:
+                print("Apply a correction offset after cleaning")
             cleaned_img = cleaned_img - cleaned_img.min()
             cleaned_img[cleaned_img < 1.0] = 0.
 
         # KILL ISOLATED PIXELS #################################
         
         if kill_isolated_pixels:
+            if verbose:
+                print("Kill isolated pixels")
             cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
 
         #print(cleaned_img)
@@ -433,7 +439,6 @@ def main():
 #
 
     parser.add_argument("--offset-after-calibration", type=float, metavar="FLOAT",
-                        default=0.,
                         help="Value added to all pixels of the input image after calibration. Default=0.")
 
     parser.add_argument("--correction-offset", action="store_true",
