@@ -34,6 +34,7 @@ import os
 import time
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 
@@ -41,6 +42,9 @@ from datapipe.io import images
 from datapipe.denoising import tailcut as tailcut_mod
 from datapipe.denoising import wavelets_mrfilter as wavelets_mod
 from datapipe.benchmark import assess as assess_mod
+
+import astropy.units as u
+from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters
 
 ###############################################################################
 
@@ -282,6 +286,22 @@ class BenchmarkPlotsContainer(gtk.Box):
                 self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
                 self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
 
+                if self.plot_ellipse_shower:
+                    try:
+                        self.plot_ellipse_shower_on_image(ax2, reference_img)
+                    except:
+                        pass
+
+                    try:
+                        self.plot_ellipse_shower_on_image(ax3, tailcut_cleaned_img)
+                    except:
+                        pass
+
+                    try:
+                        self.plot_ellipse_shower_on_image(ax4, wavelets_cleaned_img)
+                    except:
+                        pass
+
             self.fig.canvas.draw()
 
 
@@ -361,4 +381,24 @@ class BenchmarkPlotsContainer(gtk.Box):
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
         axis.set_title(title)
+
+
+    def plot_ellipse_shower_on_image(self, axis, image_array):
+        """Based on Fabio's notebook."""
+
+        x = np.arange(0, np.shape(image_array)[0], 1)
+        y = np.arange(0, np.shape(image_array)[1], 1)
+        xx, yy = np.meshgrid(x, y)
+
+        hillas = hillas_parameters(xx.flatten() * u.meter,
+                                   yy.flatten() * u.meter,
+                                   image_array.flatten())
+
+        centroid = (hillas.cen_x.value, hillas.cen_y.value)
+        length = hillas.length.value
+        width = hillas.width.value
+        angle = hillas.psi.to(u.rad).value
+
+        ellipse = Ellipse(xy=centroid, width=width, height=length, angle=np.degrees(angle), fill=False, color='red', lw=2)
+        axis.axes.add_patch(ellipse)
 
