@@ -62,6 +62,7 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         self.input_directory_path = input_directory_path
         self.current_file_path = None
+        self.kill_isolated_pixels = False
 
         # Box attributes ##############
 
@@ -75,17 +76,39 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.show_color_bar = True
 
         # Entry #######################
-        self.entry = gtk.Entry()
-        self.entry.set_text("-K -k -C1 -m3 -s3 -n4")
-        self.entry.connect("activate", self.update_plots)  # call "print_text()" function when the "Enter" key is pressed in the entry
+
+        self.wavelets_options_entry = gtk.Entry()
+        self.wavelets_options_entry.set_text("-K -k -C1 -m3 -s3 -n4")
+        self.wavelets_options_entry.connect("activate", self.update_plots)  # call "print_text()" function when the "Enter" key is pressed in the entry
+
+        # Kill isolated pixels ########
+
+        self.kill_isolated_pixels_switch = gtk.Switch()
+        self.kill_isolated_pixels_switch.connect("notify::active", self.kill_isolated_pixels_switch_callback)
+        self.kill_isolated_pixels_switch.set_active(False)
+
+        kill_isolated_pixels_label = gtk.Label(label="Kill isolated pixels")
 
         # Fill the box container ######
 
+        wavelets_options_horizontal_box = gtk.Box(orientation = gtk.Orientation.HORIZONTAL, spacing=6)   # 6 pixels are placed between children
+        wavelets_options_horizontal_box.pack_start(self.wavelets_options_entry, expand=True, fill=True, padding=0)
+        wavelets_options_horizontal_box.pack_start(kill_isolated_pixels_label, expand=False, fill=False, padding=0)
+        wavelets_options_horizontal_box.pack_start(self.kill_isolated_pixels_switch, expand=False, fill=False, padding=0)
+
         canvas = FigureCanvas(self.fig)
         self.pack_start(canvas, expand=True, fill=True, padding=0)
-        self.pack_start(self.entry, expand=False, fill=False, padding=0)
+        self.pack_start(wavelets_options_horizontal_box, expand=False, fill=False, padding=0)
 
+
+    def kill_isolated_pixels_switch_callback(self, data=None, param=None):
+        if self.kill_isolated_pixels_switch.get_active():
+            self.kill_isolated_pixels = True
+        else:
+            self.kill_isolated_pixels = False
+        self.update_plots()
     
+
     def selection_changed_callback(self, file_name):
         self.current_file_path = os.path.join(self.input_directory_path, file_name)
         self.update_plots()
@@ -125,11 +148,13 @@ class BenchmarkPlotsContainer(gtk.Box):
 
             wavelets = wavelets_mod.WaveletTransform()
 
-            option_string = self.entry.get_text()
+            option_string = self.wavelets_options_entry.get_text()
             print(option_string)
             
             initial_time = time.perf_counter()
             wavelets_cleaned_img = wavelets.clean_image(input_img_copy,
+                                                        kill_isolated_pixels=self.kill_isolated_pixels,
+                                                        verbose=True,
                                                         raw_option_string=option_string)
             wavelets_execution_time = time.perf_counter() - initial_time
 
