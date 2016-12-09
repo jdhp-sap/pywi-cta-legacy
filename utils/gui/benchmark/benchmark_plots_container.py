@@ -62,7 +62,17 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         self.input_directory_path = input_directory_path
         self.current_file_path = None
+
+        # Plot options ################
+
+        self.plot_histogram = False
+        self.plot_log_scale = False
+        self.plot_ellipse_shower = False
+
+        # Wavelets options ############
+
         self.kill_isolated_pixels = False
+        self.offset_after_calibration = False
 
         # Box attributes ##############
 
@@ -75,7 +85,31 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.color_map = DEFAULT_COLOR_MAP
         self.show_color_bar = True
 
-        # Entry #######################
+        # Plot histogram ##############
+
+        self.plot_histogram_switch = gtk.Switch()
+        self.plot_histogram_switch.connect("notify::active", self.plot_histogram_switch_callback)
+        self.plot_histogram_switch.set_active(False)
+
+        plot_histogram_label = gtk.Label(label="Plot histograms")
+
+        # Plot log scale ##############
+
+        self.plot_log_scale_switch = gtk.Switch()
+        self.plot_log_scale_switch.connect("notify::active", self.plot_log_scale_switch_callback)
+        self.plot_log_scale_switch.set_active(False)
+
+        plot_log_scale_label = gtk.Label(label="Plot log scale")
+
+        # Plot ellipse shower #########
+
+        self.plot_ellipse_shower_switch = gtk.Switch()
+        self.plot_ellipse_shower_switch.connect("notify::active", self.plot_ellipse_shower_switch_callback)
+        self.plot_ellipse_shower_switch.set_active(False)
+
+        plot_ellipse_shower_label = gtk.Label(label="Plot ellipse shower")
+
+        # Wavelets options entry ######
 
         self.wavelets_options_entry = gtk.Entry()
         self.wavelets_options_entry.set_text("-K -k -C1 -m3 -s3 -n4")
@@ -91,14 +125,56 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         # Fill the box container ######
 
+        # Plot options box
+        plot_options_horizontal_box = gtk.Box(orientation = gtk.Orientation.HORIZONTAL, spacing=6)   # 6 pixels are placed between children
+
+        plot_options_horizontal_box.pack_start(plot_histogram_label, expand=False, fill=False, padding=0)
+        plot_options_horizontal_box.pack_start(self.plot_histogram_switch, expand=False, fill=False, padding=0)
+
+        plot_options_horizontal_box.pack_start(plot_log_scale_label, expand=False, fill=False, padding=0)
+        plot_options_horizontal_box.pack_start(self.plot_log_scale_switch, expand=False, fill=False, padding=0)
+
+        plot_options_horizontal_box.pack_start(plot_ellipse_shower_label, expand=False, fill=False, padding=0)
+        plot_options_horizontal_box.pack_start(self.plot_ellipse_shower_switch, expand=False, fill=False, padding=0)
+
+        # Wavelet options box
         wavelets_options_horizontal_box = gtk.Box(orientation = gtk.Orientation.HORIZONTAL, spacing=6)   # 6 pixels are placed between children
+
         wavelets_options_horizontal_box.pack_start(self.wavelets_options_entry, expand=True, fill=True, padding=0)
+
         wavelets_options_horizontal_box.pack_start(kill_isolated_pixels_label, expand=False, fill=False, padding=0)
         wavelets_options_horizontal_box.pack_start(self.kill_isolated_pixels_switch, expand=False, fill=False, padding=0)
 
+        ###
         canvas = FigureCanvas(self.fig)
+
         self.pack_start(canvas, expand=True, fill=True, padding=0)
+        self.pack_start(plot_options_horizontal_box, expand=False, fill=False, padding=0)
         self.pack_start(wavelets_options_horizontal_box, expand=False, fill=False, padding=0)
+
+
+    def plot_histogram_switch_callback(self, data=None, param=None):
+        if self.plot_histogram_switch.get_active():
+            self.plot_histogram = True
+        else:
+            self.plot_histogram = False
+        self.update_plots()
+
+
+    def plot_log_scale_switch_callback(self, data=None, param=None):
+        if self.plot_log_scale_switch.get_active():
+            self.plot_log_scale = True
+        else:
+            self.plot_log_scale = False
+        self.update_plots()
+
+
+    def plot_ellipse_shower_switch_callback(self, data=None, param=None):
+        if self.plot_ellipse_shower_switch.get_active():
+            self.plot_ellipse_shower = True
+        else:
+            self.plot_ellipse_shower = False
+        self.update_plots()
 
 
     def kill_isolated_pixels_switch_callback(self, data=None, param=None):
@@ -195,15 +271,16 @@ class BenchmarkPlotsContainer(gtk.Box):
             ax3 = self.fig.add_subplot(223)
             ax4 = self.fig.add_subplot(224)
 
-            self._draw_image(ax1, input_img, "Input")
-            self._draw_image(ax2, reference_img, "Reference")
-            self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
-            self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
-
-            #self._draw_histogram(ax1, input_img, "Input")
-            #self._draw_histogram(ax2, reference_img, "Reference")
-            #self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut")
-            #self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets")
+            if self.plot_histogram:
+                self._draw_histogram(ax1, input_img, "Input")
+                self._draw_histogram(ax2, reference_img, "Reference")
+                self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut")
+                self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets")
+            else:
+                self._draw_image(ax1, input_img, "Input")
+                self._draw_image(ax2, reference_img, "Reference")
+                self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
+                self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
 
             self.fig.canvas.draw()
 
@@ -242,17 +319,46 @@ class BenchmarkPlotsContainer(gtk.Box):
         #    plt.colorbar(im) # draw the colorbar
 
 
-    def _draw_histogram(self, axis, image_array):
+    def _draw_histogram(self, axis, image_array, title):
+
+        image_array_copy = image_array.astype('float64', copy=True)
+        image_array_1d = image_array.ravel()
+
+        vmin = image_array_1d.min()
+        vmax = image_array_1d.max()
 
         #axis.set_title(self.file_path)
-        bins = math.ceil(image_array.max() - image_array.min())
+        bins = int(abs(math.ceil(vmax) - math.floor(vmin)))
+
+        if (bins > 100) and self.plot_log_scale and (vmin > 0):  # TODO: workaround when vmin<0 !
+            logx = True
+            # Setup the logarithmic scale on the X axis
+            vmin = np.log10(vmin)
+            vmax = np.log10(vmax)
+            bins = np.logspace(vmin, vmax, 100) # Make a range from 10**vmin to 10**vmax
+
+            #positive_indices = (image_array_pos > 0)
+            #negative_indices = (image_array_pos < 0)
+        else:
+            logx = False
 
         # nparray.ravel(): Return a flattened array.
-        values, bins, patches = axis.hist(image_array.ravel(),
+        values, bins, patches = axis.hist(image_array_1d.ravel(),
                                           histtype=HISTOGRAM_TYPE,
                                           bins=bins,
+                                          log=self.plot_log_scale,               # Set log scale on the Y axis
                                           #range=(0., 255.),
-                                          fc='k',
-                                          ec='k')
+                                          alpha=0.5)
 
-        axis.set_xlim([image_array.min(), image_array.max()])
+        axis.set_xlim([vmin, vmax])  # TODO: may cause problems when logx == True
+
+        if logx:
+            axis.set_xscale("log")               # Activate log scale on X axis
+        else:
+            plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+
+        if not self.plot_log_scale:
+            plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+        axis.set_title(title)
+
