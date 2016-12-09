@@ -70,11 +70,11 @@ class ImageInformationContainer(gtk.Grid):
         fits_images_dict, fits_metadata_dict = images.load_benchmark_images(file_path)
 
         # Fill the dict ###############
+
         text  = "File: {}\n\n".format(file_path)
-        text += "Event ID: {}\n".format(fits_metadata_dict["event_id"])
-        text += "Tel ID: {}\n".format(fits_metadata_dict["tel_id"])
-        text += "NPE: {}\n".format(fits_metadata_dict["npe"])
-        text += "MC Energy: {} {}\n".format(fits_metadata_dict["mc_energy"], fits_metadata_dict["mc_energy_unit"])
+        
+        for key in sorted(fits_metadata_dict):
+            text += "{}: {}\n".format(key, fits_metadata_dict[key])
 
         # Update the widget ###########
         self.desc_textview.get_buffer().set_text(text)
