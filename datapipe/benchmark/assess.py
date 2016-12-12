@@ -664,8 +664,8 @@ def metric_hillas_theta2(input_img, output_image, reference_image, params=None):
     with the *Hillas parameter theta*.
 
     It works exactly like :func:`metric_hillas_theta` except that isolated
-    pixels are removed from the ``reference_image`` (using
-    :func:`datapipe.denoising.kill_isolated_pixels`) before the evaluation.
+    pixels are removed from the ``reference_image`` before the evaluation
+    (using :func:`datapipe.denoising.kill_isolated_pixels`).
 
     Parameters
     ----------
@@ -690,8 +690,8 @@ def metric_hillas_theta2(input_img, output_image, reference_image, params=None):
     reference_image = reference_image.astype('float64', copy=True)
     reference_image = kill_isolated_pixels(reference_image, threshold=0.2)
 
-    # Apply self.metric_hillas_theta()
-    delta = self.metric_hillas_theta(input_img, output_image, reference_image, params)
+    # Apply metric_hillas_theta()
+    delta = metric_hillas_theta(input_img, output_image, reference_image, params)
 
     return delta
 
