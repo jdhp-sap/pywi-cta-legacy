@@ -32,7 +32,7 @@ import numpy as np
 import os
 
 
-def save(output_file_path, data_array, header_list):
+def save(output_file_path, data_array, header_list, dtype_list):
     print(output_file_path)
 
     if output_file_path.lower().endswith('.csv'):
@@ -48,7 +48,7 @@ def save(output_file_path, data_array, header_list):
 
     elif output_file_path.lower().endswith(('.fits', '.fit')):
 
-        table = astropy.table.Table(names=header_list)
+        table = astropy.table.Table(names=header_list, dtype=dtype_list)
 
         for row in data_array:
             table.add_row(row)
@@ -142,7 +142,40 @@ OUTPUT_HEADER_LIST = [
                       "Tel pos z",
                       "Tel pos z unit"
                      ]
-#OUTPUT_DTYPE_LIST = ['', '', '', '', '', '', '']
+
+OUTPUT_DTYPE_LIST = [
+                     "S256", # JSON input file
+                     "i4",   # Event ID
+                     "i4",   # Tel ID
+                     "f8",   # NPE
+                     "S256", # FITS input file
+                     "f8",   # Execution time
+                     "i4",   # EV count
+                     "f8",   # MC energy
+                     "S16",  # mC energy unit
+                     "f8",   # MC altitude
+                     "S16",  # MC altitude unit
+                     "f8",   # MC azimuth
+                     "S16",  # MC azimuth unit
+                     "f8",   # MC core x
+                     "S16",  # MC core x unit
+                     "f8",   # MC core y
+                     "S16",  # MC core y unit
+                     "f8",   # MC height first interaction
+                     "S16",  # MC height first interaction unit
+                     "i4",   # Num tel with data
+                     "i4",   # Num tel with trigger
+                     "f8",   # Optical foclen
+                     "S16",  # Optical foclen unit
+                     "i4",   # Run id
+                     "S256", # Simtel path
+                     "f8",   # Tel pos x
+                     "S16",  # Tel pos x unit
+                     "f8",   # Tel pos y
+                     "S16",  # Tel pos y unit
+                     "f8",   # Tel pos z
+                     "S16",  # Tel pos z unit
+                    ]
 
 score_name_list = []
 
@@ -187,7 +220,10 @@ def main():
 
     # SAVE FILE ###############################################################
 
-    save(output_file_path, global_output_array, OUTPUT_HEADER_LIST + score_name_list)
+    save(output_file_path,
+         global_output_array,
+         OUTPUT_HEADER_LIST + score_name_list,
+         OUTPUT_DTYPE_LIST + ["f8",] * len(score_name_list))
 
 
 if __name__ == "__main__":
