@@ -72,6 +72,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.plot_histogram = False
         self.plot_log_scale = False
         self.plot_ellipse_shower = False
+        self.show_scores = True
 
         # Wavelets options ############
 
@@ -245,22 +246,49 @@ class BenchmarkPlotsContainer(gtk.Box):
 
             # Tailcut scores ##############
 
+            tailcut_title_suffix = r""
             try:
                 tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
                                                                                                  tailcut_cleaned_img,
                                                                                                  reference_img,
                                                                                                  benchmark_method="all")
+
+                if self.show_scores:
+                    for name, score in zip(tailcut_score_name_tuple, tailcut_score_tuple):
+                        if name == "e_shape":
+                            tailcut_title_suffix += r" $\mathcal{E}_s$="
+                            tailcut_title_suffix += "{:.2e}".format(score)
+                        elif name == "e_energy":
+                            tailcut_title_suffix += r" $\mathcal{E}_e$="
+                            tailcut_title_suffix += "{:.2e}".format(score)
+                        elif name == "hillas_theta":
+                            tailcut_title_suffix += r" $\delta\theta$="
+                            tailcut_title_suffix += "{:.2f}".format(score)
+
                 print("TC:", tailcut_score_tuple, tailcut_score_name_tuple)
             except assess_mod.AssessError:
                 print("TC: ", str(assess_mod.AssessError))
 
             # Wavelets scores #############
 
+            wavelets_title_suffix = r""
             try:
                 wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
                                                                                                    wavelets_cleaned_img,
                                                                                                    reference_img,
                                                                                                    benchmark_method="all")
+
+                if self.show_scores:
+                    for name, score in zip(wavelets_score_name_tuple, wavelets_score_tuple):
+                        if name == "e_shape":
+                            wavelets_title_suffix += r" $\mathcal{E}_s$="
+                            wavelets_title_suffix += "{:.2e}".format(score)
+                        elif name == "e_energy":
+                            wavelets_title_suffix += r" $\mathcal{E}_e$="
+                            wavelets_title_suffix += "{:.2e}".format(score)
+                        elif name == "hillas_theta":
+                            wavelets_title_suffix += r" $\delta\theta$="
+                            wavelets_title_suffix += "{:.2f}".format(score)
 
                 print("WT:", wavelets_score_tuple, wavelets_score_name_tuple)
             except assess_mod.AssessError:
@@ -278,13 +306,13 @@ class BenchmarkPlotsContainer(gtk.Box):
             if self.plot_histogram:
                 self._draw_histogram(ax1, input_img, "Input")
                 self._draw_histogram(ax2, reference_img, "Reference")
-                self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut")
-                self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets")
+                self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
+                self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
             else:
                 self._draw_image(ax1, input_img, "Input")
                 self._draw_image(ax2, reference_img, "Reference")
-                self._draw_image(ax3, tailcut_cleaned_img, "Tailcut")
-                self._draw_image(ax4, wavelets_cleaned_img, "Wavelets")
+                self._draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
+                self._draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
 
                 if self.plot_ellipse_shower:
                     try:
