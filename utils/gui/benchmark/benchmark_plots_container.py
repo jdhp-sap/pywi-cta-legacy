@@ -397,8 +397,13 @@ class BenchmarkPlotsContainer(gtk.Box):
         centroid = (hillas.cen_x.value, hillas.cen_y.value)
         length = hillas.length.value
         width = hillas.width.value
-        angle = hillas.psi.to(u.rad).value
+        angle = hillas.psi.to(u.rad).value    # TODO
+
+        #print("DEBUG:", hillas[7].value, angle, np.degrees(angle))
 
         ellipse = Ellipse(xy=centroid, width=width, height=length, angle=np.degrees(angle), fill=False, color='red', lw=2)
         axis.axes.add_patch(ellipse)
+
+        title = axis.axes.get_title()
+        axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
 
