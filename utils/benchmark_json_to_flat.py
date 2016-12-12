@@ -27,21 +27,38 @@ Convert benchmark's JSON files to flat files.
 import common_functions as common
 
 import argparse
+import astropy.table
 import numpy as np
 import os
 
 
-def save_csv(output_file_path, data_array, header_list):
+def save(output_file_path, data_array, header_list):
     print(output_file_path)
 
-    # See http://docs.astropy.org/en/stable/io/fits/usage/table.html
-    np.savetxt(output_file_path,
-               data_array,
-               fmt="%s",                      # See http://stackoverflow.com/questions/16621351/how-to-use-python-numpy-savetxt-to-write-strings-and-float-number-to-an-ascii-fi
-               delimiter=",",
-               header=",".join(header_list),
-               comments=""                 # String that will be prepended to the ``header`` and ``footer`` strings, to mark them as comments. Default: '# '.
-               )
+    if output_file_path.lower().endswith('.csv'):
+
+        # See http://docs.astropy.org/en/stable/io/fits/usage/table.html
+        np.savetxt(output_file_path,
+                   data_array,
+                   fmt="%s",                      # See http://stackoverflow.com/questions/16621351/how-to-use-python-numpy-savetxt-to-write-strings-and-float-number-to-an-ascii-fi
+                   delimiter=",",
+                   header=",".join(header_list),
+                   comments=""                 # String that will be prepended to the ``header`` and ``footer`` strings, to mark them as comments. Default: '# '.
+                   )
+
+    elif output_file_path.lower().endswith(('.fits', '.fit')):
+
+        table = astropy.table.Table(names=header_list)
+
+        for row in data_array:
+            table.add_row(row)
+
+        #print(table)
+        table.write(output_file_path, overwrite=True)
+
+    else:
+        raise Exception('Unknown output format.')
+
 
 def extract_columns(image_dict):
     line = [
@@ -170,7 +187,7 @@ def main():
 
     # SAVE FILE ###############################################################
 
-    save_csv(output_file_path, global_output_array, OUTPUT_HEADER_LIST + score_name_list)
+    save(output_file_path, global_output_array, OUTPUT_HEADER_LIST + score_name_list)
 
 
 if __name__ == "__main__":
