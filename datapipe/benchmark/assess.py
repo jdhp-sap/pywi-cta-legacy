@@ -31,6 +31,7 @@ __all__ = ['get_hillas_parameters',
            'metric_ssim',
            'metric_psnr',
            'metric_hillas_theta',
+           'metric_hillas_theta2',
            'assess_image_cleaning']
 
 import numpy as np
@@ -39,6 +40,8 @@ from astropy.units import Quantity
 import astropy.units as u
 
 from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters
+
+from datapipe.denoising.kill_isolated_pixels import kill_isolated_pixels
 
 from skimage.measure import compare_ssim as ssim
 from skimage.measure import compare_psnr as psnr
@@ -654,22 +657,62 @@ def metric_hillas_theta(input_img, output_image, reference_image, params=None):
     return delta
 
 
+# Hillas theta ################################################################
+
+def metric_hillas_theta2(input_img, output_image, reference_image, params=None):
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
+    with the *Hillas parameter theta*.
+
+    It works exactly like :func:`metric_hillas_theta` except that isolated
+    pixels are removed from the ``reference_image`` (using
+    :func:`datapipe.denoising.kill_isolated_pixels`) before the evaluation.
+
+    Parameters
+    ----------
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_image: 2D ndarray
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+    params: dict
+        Additional options.
+
+    Returns
+    -------
+    float
+        The score of the image cleaning algorithm for the given image.
+    """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    reference_image = reference_image.astype('float64', copy=True)
+    reference_image = kill_isolated_pixels(reference_image, threshold=0.2)
+
+    # Apply self.metric_hillas_theta()
+    delta = self.metric_hillas_theta(input_img, output_image, reference_image, params)
+
+    return delta
+
+
 ###############################################################################
 # ASSESS FUNCTIONS DRIVER                                                     #
 ###############################################################################
 
 BENCHMARK_DICT = {
-    "mse":          (metric_mse,),
-    "nrmse":        (metric_nrmse,),
-    "unrmse":       (metric1,),
-    "e_shape":      (metric2,),
-    "e_energy":     (metric3,),
-    "mpdspd":       (metric2, metric3),
-    "sspd":         (metric4,),
-    "ssim":         (metric_ssim,),
-    "psnr":         (metric_psnr,),
-    "hillas_theta": (metric_hillas_theta,),
-    "all":          (metric_mse, metric_nrmse, metric2, metric3, metric4, metric_ssim, metric_psnr, metric_hillas_theta)
+    "mse":           (metric_mse,),
+    "nrmse":         (metric_nrmse,),
+    "unrmse":        (metric1,),
+    "e_shape":       (metric2,),
+    "e_energy":      (metric3,),
+    "mpdspd":        (metric2, metric3),
+    "sspd":          (metric4,),
+    "ssim":          (metric_ssim,),
+    "psnr":          (metric_psnr,),
+    "hillas_theta":  (metric_hillas_theta,),
+    "hillas_theta2": (metric_hillas_theta2,),
+    "all":           (metric_mse, metric_nrmse, metric2, metric3, metric4, metric_ssim, metric_psnr, metric_hillas_theta, metric_hillas_theta2)
 }
 
 METRIC_NAME_DICT = {
@@ -682,23 +725,25 @@ METRIC_NAME_DICT = {
     metric_ssim:          "ssim",
     metric_psnr:          "psnr",
     metric_hillas_theta:  "hillas_theta"
+    metric_hillas_theta2: "hillas_theta2"
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
-    - "mse":          :func:`metric_mse`
-    - "nrmse":        :func:`metric_nrmse`
-    - "unrmse":       :func:`metric1`
-    - "e_shape":      :func:`metric2`
-    - "e_energy":     :func:`metric3`
-    - "mpdspd":       :func:`metric2`, :func:`metric3`
-    - "sspd":         :func:`metric4`
-    - "ssim":         :func:`metric_ssim`
-    - "psnr":         :func:`metric_psnr`
-    - "hillas_theta": :func:`metric_hillas_theta`
-    - "all":          :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`, :func:`metric_hillas_theta`
+    - "mse":           :func:`metric_mse`
+    - "nrmse":         :func:`metric_nrmse`
+    - "unrmse":        :func:`metric1`
+    - "e_shape":       :func:`metric2`
+    - "e_energy":      :func:`metric3`
+    - "mpdspd":        :func:`metric2`, :func:`metric3`
+    - "sspd":          :func:`metric4`
+    - "ssim":          :func:`metric_ssim`
+    - "psnr":          :func:`metric_psnr`
+    - "hillas_theta":  :func:`metric_hillas_theta`
+    - "hillas_theta2": :func:`metric_hillas_theta2`
+    - "all":           :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`, :func:`metric_hillas_theta`, :func:`metric_hillas_theta2`
 
     Parameters
     ----------
