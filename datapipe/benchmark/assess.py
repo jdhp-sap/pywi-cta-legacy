@@ -724,7 +724,7 @@ METRIC_NAME_DICT = {
     metric4:              "sspd",
     metric_ssim:          "ssim",
     metric_psnr:          "psnr",
-    metric_hillas_theta:  "hillas_theta"
+    metric_hillas_theta:  "hillas_theta",
     metric_hillas_theta2: "hillas_theta2"
 }
 
