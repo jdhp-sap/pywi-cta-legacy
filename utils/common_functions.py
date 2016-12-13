@@ -13,12 +13,37 @@ import matplotlib.colors
 #import matplotlib.ticker
 
 
+# JSON PARSER #################################################################
+
+
 def parse_json_file(json_file_path):
     with open(json_file_path, "r") as fd:
         json_data = json.load(fd)
     return json_data
 
-###############################################################################
+
+# FILTERS (RETURN A SUBSET OF JSON_DICT) ######################################
+
+
+def image_filter_equals(json_dict, key, value):
+    """Return a version of `json_dict` where only `io` list items (images) with
+    `key`==`velue` are kept."""
+
+    json_dict["io"] = [image_dict for image_dict in json_dict["io"] if image_dict[key]==value]
+
+    return json_dict
+
+
+def image_filter_range(json_dict, key, min_value, max_value):
+    """Return a version of `json_dict` where only `io` list items (images) with
+    `key`'s value in range `[min_velue ; max_value]` are kept."""
+
+    json_dict["io"] = [image_dict for image_dict in json_dict["io"] if min_value <= image_dict[key] <= max_value]
+
+    return json_dict
+
+
+# JSON TO 1D OR 2D ARRAYS #####################################################
 
 def extract_score_array(json_dict, score_index):
     io_list = json_dict["io"]
@@ -102,7 +127,7 @@ def extract_max(data_list):
     max_value = np.concatenate(data_list).max()
     return max_value
 
-###############################################################################
+# PLOT FUNCTIONS ##############################################################
 
 def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=False):
     """
@@ -137,10 +162,57 @@ def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
 
+def plot_hist1d(axis,
+                data_list,
+                label_list,
+                logx=False,
+                logy=False,
+                xmin=None,
+                xmax=None,
+                overlaid=False,
+                hist_type='bar',
+                alpha=0.5):
+
+    if logx:
+        # Setup the logarithmic scale on the X axis
+        vmin = np.log10(extract_min(data_list))
+        vmax = np.log10(extract_max(data_list))
+        bins = np.logspace(vmin, vmax, 50) # Make a range from 10**vmin to 10**vmax
+    else:
+        bins = 50
+
+    if overlaid:
+        for data_array, label in zip(data_list, label_list):
+            res_tuple = axis.hist(data_array,
+                                  bins=bins,
+                                  log=logy,           # Set log scale on the Y axis
+                                  histtype=hist_type,
+                                  alpha=alpha,
+                                  label=label)
+    else:
+        res_tuple = axis.hist(data_list,
+                              bins=bins,
+                              log=logy,               # Set log scale on the Y axis
+                              histtype=hist_type,
+                              alpha=alpha,
+                              label=label_list)
+
+    axis.legend(prop={'size': 20})
+    axis.set_ylabel("Count", fontsize=20)
+
+    plt.setp(axis.get_xticklabels(), fontsize=14)
+    plt.setp(axis.get_yticklabels(), fontsize=14)
+
+    if logx:
+        axis.set_xscale("log")               # Activate log scale on X axis
+    else:
+        plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+
+    if not logy:
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+
 def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False, logz=False, xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None):
-    """
-    data_array must have the following shape: (2, N)
-    """
 
     if xmin is None:
         xmin = x_array.min()
