@@ -32,8 +32,9 @@ if __name__ == '__main__':
     parser.add_argument("--logy", "-L", action="store_true", default=False,
                         help="Use a logaritmic scale on the Y axis")
 
-    parser.add_argument("--metric", "-m", default=None,
-                        help="The metric to plot")
+    parser.add_argument("--metric", "-m", required=True,
+                        metavar="STRING",
+                        help="The metric name to plot")
 
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
@@ -83,6 +84,8 @@ if __name__ == '__main__':
     label_list = []
 
     for json_file_path in json_file_path_list:
+        print("Parsing {}...".format(json_file_path))
+
         json_dict = common.parse_json_file(json_file_path)
 
         label = json_dict["label"]
@@ -97,9 +100,6 @@ if __name__ == '__main__':
 
         print(len(json_dict["io"]), "images")
 
-        #metric = 3  # TODO
-        metric = 7  # TODO
-
         score_array1 = common.extract_score_array(json_dict1, metric)  # 100 GeV to 1 TeV
         score_array2 = common.extract_score_array(json_dict2, metric)  # 1 TeV to 10 TeV
         score_array3 = common.extract_score_array(json_dict3, metric)  # 10 TeV to 100 TeV
@@ -113,6 +113,8 @@ if __name__ == '__main__':
         label_list.append(json_dict["label"])
 
     # PLOT STATISTICS #########################################################
+
+    print("Plotting...")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(16, 9))
 
@@ -147,6 +149,8 @@ if __name__ == '__main__':
     
     if title is not None:
         plt.suptitle(title, fontsize=20)
+    else:
+        plt.suptitle(metric, fontsize=20)
 #    else:
 #        if exclude_aborted:
 #            errors_str = "exclude errors"
