@@ -45,9 +45,36 @@ def image_filter_range(json_dict, key, min_value, max_value):
 
 # JSON TO 1D OR 2D ARRAYS #####################################################
 
-def extract_score_array(json_dict, score_index):
+def extract_score_array(json_dict, metric):
+
+    if isinstance(metric, int):
+        score_array = _extract_score_array_index(json_dict, metric)
+    elif isinstance(metric, str):
+        score_array = _extract_score_array_name(json_dict, metric)
+    else:
+        raise TypeError("Wrong type")
+
+    return score_array
+
+
+def _extract_score_array_index(json_dict, score_index):
     io_list = json_dict["io"]
     score_list = [image_dict["score"][score_index] for image_dict in io_list if "score" in image_dict]
+    score_array = np.array(score_list)
+    return score_array
+
+
+def _extract_score_array_name(json_dict, metric):
+    io_list = json_dict["io"]
+
+    score_list = []
+    for image_dict in io_list:
+        if "score" in image_dict and "score_name" in image_dict:
+            score = [pair[1] for pair in zip(image_dict["score_name"], image_dict["score"]) if pair[0] == metric]   # TODO: a bit dirty...
+            if len(score) != 1:
+                raise Exception("{} has {} occurrences in the score list (should have exactly one occurrence)".format(metric, len(score)))
+            score_list.append(score[0])
+
     score_array = np.array(score_list)
     return score_array
 
