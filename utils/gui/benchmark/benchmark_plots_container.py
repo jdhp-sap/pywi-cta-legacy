@@ -115,6 +115,11 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         plot_ellipse_shower_label = gtk.Label(label="Plot ellipse shower")
 
+        # Save plots ##################
+
+        self.save_plots_button = gtk.Button(label="Save")
+        self.save_plots_button.connect("clicked", self.save_plots_button_callback)
+
         # Wavelets options entry ######
 
         self.wavelets_options_entry = gtk.Entry()
@@ -150,6 +155,8 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         plot_options_horizontal_box.pack_start(plot_ellipse_shower_label, expand=False, fill=False, padding=0)
         plot_options_horizontal_box.pack_start(self.plot_ellipse_shower_switch, expand=False, fill=False, padding=0)
+
+        plot_options_horizontal_box.pack_start(self.save_plots_button, expand=False, fill=False, padding=0)
 
         # Wavelet options box
         wavelets_options_horizontal_box = gtk.Box(orientation = gtk.Orientation.HORIZONTAL, spacing=6)   # 6 pixels are placed between children
@@ -194,6 +201,10 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.update_plots()
 
 
+    def save_plots_button_callback(self, data=None, param=None):
+        self.update_plots(save=True)
+
+
     def kill_isolated_pixels_switch_callback(self, data=None, param=None):
         if self.kill_isolated_pixels_switch.get_active():
             self.kill_isolated_pixels = True
@@ -220,7 +231,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.update_plots()
 
 
-    def update_plots(self, data=None):        # data is for event callers
+    def update_plots(self, data=None, save=False):        # data is for event callers
 
         if self.current_file_path is not None:
             # Read the selected file #########
@@ -357,7 +368,12 @@ class BenchmarkPlotsContainer(gtk.Box):
                     except:
                         pass
 
-            self.fig.canvas.draw()
+            if save:
+                output_file_path = "ev{}_tel{}.pdf".format(fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]) # TODO: add WT options
+                print("Save", output_file_path)
+                plt.savefig(output_file_path, bbox_inches='tight')
+            else:
+                self.fig.canvas.draw()
 
 
     def clear_figure(self):
