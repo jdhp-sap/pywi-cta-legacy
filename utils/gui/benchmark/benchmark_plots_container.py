@@ -77,7 +77,8 @@ class BenchmarkPlotsContainer(gtk.Box):
         # Wavelets options ############
 
         self.kill_isolated_pixels = False
-        self.offset_after_calibration = False
+        self.offset_after_calibration = None
+        self.input_image_scale = 'linear'
 
         # Box attributes ##############
 
@@ -128,6 +129,14 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         kill_isolated_pixels_label = gtk.Label(label="Kill isolated pixels")
 
+        # Log image ###################
+
+        self.log_image_switch = gtk.Switch()
+        self.log_image_switch.connect("notify::active", self.log_image_switch_callback)
+        self.log_image_switch.set_active(False)
+
+        log_image_label = gtk.Label(label="Log image")
+
         # Fill the box container ######
 
         # Plot options box
@@ -149,6 +158,9 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         wavelets_options_horizontal_box.pack_start(kill_isolated_pixels_label, expand=False, fill=False, padding=0)
         wavelets_options_horizontal_box.pack_start(self.kill_isolated_pixels_switch, expand=False, fill=False, padding=0)
+
+        wavelets_options_horizontal_box.pack_start(log_image_label, expand=False, fill=False, padding=0)
+        wavelets_options_horizontal_box.pack_start(self.log_image_switch, expand=False, fill=False, padding=0)
 
         ###
         canvas = FigureCanvas(self.fig)
@@ -187,6 +199,19 @@ class BenchmarkPlotsContainer(gtk.Box):
             self.kill_isolated_pixels = True
         else:
             self.kill_isolated_pixels = False
+        self.update_plots()
+
+
+    def log_image_switch_callback(self, data=None, param=None):
+        if self.log_image_switch.get_active():
+            # Switch is "true"
+            self.offset_after_calibration = 10   # TODO
+            #self.input_image_scale = 'sqrt'
+            self.input_image_scale = 'log'
+        else:
+            # Switch is on "false"
+            self.offset_after_calibration = None   # TODO
+            self.input_image_scale = 'linear'
         self.update_plots()
     
 
@@ -235,6 +260,8 @@ class BenchmarkPlotsContainer(gtk.Box):
             initial_time = time.perf_counter()
             wavelets_cleaned_img = wavelets.clean_image(input_img_copy,
                                                         kill_isolated_pixels=self.kill_isolated_pixels,
+                                                        input_image_scale=self.input_image_scale,
+                                                        offset_after_calibration=self.offset_after_calibration,
                                                         verbose=True,
                                                         raw_option_string=option_string)
             wavelets_execution_time = time.perf_counter() - initial_time
