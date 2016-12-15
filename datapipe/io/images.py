@@ -458,3 +458,14 @@ def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
     _plot_list(img_list, title_list, main_title)
     plt.savefig(output_file_path, bbox_inches='tight')
     plt.close('all')
+
+
+# DEBUG #######################################################################
+
+def export_image_as_plain_text(image, output_file_path):
+    fd = open(output_file_path, 'w')
+    for x in image:
+        for y in x:
+            print("{:5.2f}".format(y), end=" ", file=fd)
+        print("", file=fd)
+    fd.close()
