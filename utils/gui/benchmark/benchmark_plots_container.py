@@ -284,7 +284,7 @@ class BenchmarkPlotsContainer(gtk.Box):
 
             # Tailcut scores ##############
 
-            tailcut_title_suffix = r""
+            tailcut_title_suffix = ""
             try:
                 tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
                                                                                                  tailcut_cleaned_img,
@@ -294,22 +294,28 @@ class BenchmarkPlotsContainer(gtk.Box):
                 if self.show_scores:
                     for name, score in zip(tailcut_score_name_tuple, tailcut_score_tuple):
                         if name == "e_shape":
-                            tailcut_title_suffix += r" $\mathcal{E}_s$="
+                            tailcut_title_suffix += " Es="
                             tailcut_title_suffix += "{:.2e}".format(score)
                         elif name == "e_energy":
-                            tailcut_title_suffix += r" $\mathcal{E}_e$="
+                            tailcut_title_suffix += " Ee="
                             tailcut_title_suffix += "{:.2e}".format(score)
                         elif name == "hillas_theta":
-                            tailcut_title_suffix += r" $\delta\theta$="
+                            tailcut_title_suffix += " Th="
                             tailcut_title_suffix += "{:.2f}".format(score)
 
-                print("TC:", tailcut_score_tuple, tailcut_score_name_tuple)
+                print("Tailcut:")
+                for name in tailcut_score_name_tuple:
+                    print("{:>20}".format(name), end=" ")
+                print()
+                for score in tailcut_score_tuple:
+                    print("{:20.12f}".format(score), end=" ")
+                print()
             except assess_mod.AssessError:
-                print("TC: ", str(assess_mod.AssessError))
+                print("Tailcut: ", str(assess_mod.AssessError))
 
             # Wavelets scores #############
 
-            wavelets_title_suffix = r""
+            wavelets_title_suffix = ""
             try:
                 wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
                                                                                                    wavelets_cleaned_img,
@@ -319,18 +325,24 @@ class BenchmarkPlotsContainer(gtk.Box):
                 if self.show_scores:
                     for name, score in zip(wavelets_score_name_tuple, wavelets_score_tuple):
                         if name == "e_shape":
-                            wavelets_title_suffix += r" $\mathcal{E}_s$="
+                            wavelets_title_suffix += " Es="
                             wavelets_title_suffix += "{:.2e}".format(score)
                         elif name == "e_energy":
-                            wavelets_title_suffix += r" $\mathcal{E}_e$="
+                            wavelets_title_suffix += " Ee="
                             wavelets_title_suffix += "{:.2e}".format(score)
                         elif name == "hillas_theta":
-                            wavelets_title_suffix += r" $\delta\theta$="
+                            wavelets_title_suffix += " Th="
                             wavelets_title_suffix += "{:.2f}".format(score)
 
-                print("WT:", wavelets_score_tuple, wavelets_score_name_tuple)
+                print("Wavelets:")
+                for name in wavelets_score_name_tuple:
+                    print("{:>20}".format(name), end=" ")
+                print()
+                for score in wavelets_score_tuple:
+                    print("{:20.12f}".format(score), end=" ")
+                print()
             except assess_mod.AssessError:
-                print("WT: ", str(assess_mod.AssessError))
+                print("Wavelets: ", str(assess_mod.AssessError))
 
             # Update the widget ###########
 
@@ -441,8 +453,6 @@ class BenchmarkPlotsContainer(gtk.Box):
                                           #range=(0., 255.),
                                           alpha=0.5)
 
-        axis.set_xlim([vmin, vmax])  # TODO: may cause problems when logx == True
-
         if logx:
             axis.set_xscale("log")               # Activate log scale on X axis
         else:
@@ -452,6 +462,9 @@ class BenchmarkPlotsContainer(gtk.Box):
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
         axis.set_title(title)
+
+        axis.set_xlim([vmin, vmax + 1])  # TODO: ("+1") is to see the last bin. This line may cause problems when logx == True
+        #axis.set_ylim(ymin=0)            # TODO: it doesn't work, all bins equals to 1 are not visible because they are hidden in the axis
 
 
     def plot_ellipse_shower_on_image(self, axis, image_array):
