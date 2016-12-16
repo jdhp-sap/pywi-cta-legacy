@@ -35,6 +35,7 @@ import time
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
+from matplotlib.colors import LogNorm
 
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 
@@ -48,7 +49,7 @@ from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters
 
 ###############################################################################
 
-DEFAULT_COLOR_MAP = "gnuplot2" # "gray"
+DEFAULT_COLOR_MAP = plt.cm.gnuplot2  # plt.cm.OrRd # plt.cm.gray
 
 # histogram types : [‘bar’ | ‘barstacked’ | ‘step’ | ‘stepfilled’]
 HISTOGRAM_TYPE = 'bar'
@@ -89,6 +90,8 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.fig = plt.figure()
 
         self.color_map = DEFAULT_COLOR_MAP
+        self.color_map.set_bad(color='black')   # Set to black pixels with value <= 0 in log scale (by default it's white). See http://stackoverflow.com/questions/22548813/python-color-map-but-with-all-zero-values-mapped-to-black
+
         self.show_color_bar = True
 
         # Plot histogram ##############
@@ -406,14 +409,19 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         z_min, z_max = image_array.min(), image_array.max()
 
-        im = axis.pcolor(x, y, image_array, cmap=self.color_map, vmin=z_min, vmax=z_max)
+        if self.plot_log_scale:
+            # See http://matplotlib.org/examples/pylab_examples/pcolor_log.html
+            #     http://stackoverflow.com/questions/2546475/how-can-i-draw-a-log-normalized-imshow-plot-with-a-colorbar-representing-the-raw
+            im = axis.pcolor(x, y, image_array, norm=LogNorm(vmin=0.01, vmax=image_array.max()), cmap=self.color_map)  # TODO: "vmin=0.01" is an arbitrary choice...
+        else:
+            im = axis.pcolor(x, y, image_array, cmap=self.color_map, vmin=z_min, vmax=z_max)
 
         if self.show_color_bar:
             plt.colorbar(im, ax=axis)
 
         axis.set_title(title)
 
-        # IMSHOW DOESN'T WORK WITH PYTHON GTK3 THROUGH CAIRO (NOT IMPLEMENTED ERROR) !
+        # IMSHOW DOESN'T WORK WITH PYTHON GTK3 THROUGH CAIRO ("NOT IMPLEMENTED ERROR") !
         #im = axis.imshow(image_array)
         #im = axis.imshow(image_array,
         #                 origin='lower',
