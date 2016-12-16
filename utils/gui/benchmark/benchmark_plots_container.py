@@ -383,7 +383,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                     except:
                         pass
 
-            plt.suptitle("{:.3f} TeV ({} photoelectrons in reference image)".format(fits_metadata_dict["mc_energy"], int(fits_metadata_dict["npe"])), fontsize=20)
+            plt.suptitle("{:.3f} TeV ({} photoelectrons in reference image) - Event {} - Telescope {}".format(fits_metadata_dict["mc_energy"], int(fits_metadata_dict["npe"]), fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]), fontsize=18)
 
             if save:
                 output_file_path = "ev{}_tel{}.pdf".format(fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]) # TODO: add WT options
