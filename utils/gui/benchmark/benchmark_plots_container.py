@@ -386,7 +386,26 @@ class BenchmarkPlotsContainer(gtk.Box):
             plt.suptitle("{:.3f} TeV ({} photoelectrons in reference image) - Event {} - Telescope {}".format(fits_metadata_dict["mc_energy"], int(fits_metadata_dict["npe"]), fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]), fontsize=18)
 
             if save:
-                output_file_path = "ev{}_tel{}.pdf".format(fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]) # TODO: add WT options
+                output_file_path_base = "ev{}_tel{}".format(fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]) # TODO: add WT options
+
+                if self.plot_histogram:
+                    output_file_path_base += "_hist"
+
+                if self.plot_log_scale:
+                    output_file_path_base += "_log"
+
+                ## Save in PDF
+                #output_file_path = output_file_path_base + ".pdf"
+                #print("Save", output_file_path)
+                #plt.savefig(output_file_path, bbox_inches='tight')
+
+                ## Save in SVG
+                #output_file_path = output_file_path_base + ".svg"
+                #print("Save", output_file_path)
+                #plt.savefig(output_file_path, bbox_inches='tight')
+
+                # Save in PNG
+                output_file_path = output_file_path_base + ".png"
                 print("Save", output_file_path)
                 plt.savefig(output_file_path, bbox_inches='tight')
             else:
