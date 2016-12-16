@@ -295,6 +295,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                                                                                                  benchmark_method="all")
 
                 if self.show_scores:
+                    tailcut_title_suffix += " ("
                     for name, score in zip(tailcut_score_name_tuple, tailcut_score_tuple):
                         if name == "e_shape":
                             tailcut_title_suffix += " Es="
@@ -305,6 +306,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                         elif name == "hillas_theta":
                             tailcut_title_suffix += " Th="
                             tailcut_title_suffix += "{:.2f}".format(score)
+                    tailcut_title_suffix += " )"
 
                 print("Tailcut:")
                 for name in tailcut_score_name_tuple:
@@ -326,6 +328,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                                                                                                    benchmark_method="all")
 
                 if self.show_scores:
+                    wavelets_title_suffix += " ("
                     for name, score in zip(wavelets_score_name_tuple, wavelets_score_tuple):
                         if name == "e_shape":
                             wavelets_title_suffix += " Es="
@@ -336,6 +339,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                         elif name == "hillas_theta":
                             wavelets_title_suffix += " Th="
                             wavelets_title_suffix += "{:.2f}".format(score)
+                    wavelets_title_suffix += " )"
 
                 print("Wavelets:")
                 for name in wavelets_score_name_tuple:
@@ -493,7 +497,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         axis.set_title(title)
 
         axis.set_xlim([vmin, vmax + 1])  # TODO: ("+1") is to see the last bin. This line may cause problems when logx == True
-        #axis.set_ylim(ymin=0)            # TODO: it doesn't work, all bins equals to 1 are not visible because they are hidden in the axis
+        axis.set_ylim(ymin=0.1)            # TODO: it doesn't work, all bins equals to 1 are not visible because they are hidden in the axis
 
 
     def plot_ellipse_shower_on_image(self, axis, image_array):
