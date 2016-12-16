@@ -44,8 +44,11 @@ from datapipe.denoising import tailcut as tailcut_mod
 from datapipe.denoising import wavelets_mrfilter as wavelets_mod
 from datapipe.benchmark import assess as assess_mod
 
+from ctapipe.utils import linalg
+
 import astropy.units as u
-from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters
+from ctapipe.image.hillas import hillas_parameters_1 as hillas_parameters_1
+from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters_2
 
 ###############################################################################
 
@@ -74,6 +77,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.plot_log_scale = False
         self.plot_ellipse_shower = False
         self.show_scores = True
+        self.show_perpendicular_hit_distribution = True
 
         # Wavelets options ############
 
@@ -368,7 +372,10 @@ class BenchmarkPlotsContainer(gtk.Box):
             else:
                 self._draw_image(ax1, input_img, "Input")
                 self._draw_image(ax2, reference_img, "Reference")
-                self._draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
+                if self.show_perpendicular_hit_distribution:
+                    self._draw_normalized_signal_histogram(ax3, reference_img, wavelets_cleaned_img, "Perpendicular hit distribution")
+                else:
+                    self._draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
                 self._draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
 
                 if self.plot_ellipse_shower:
@@ -377,10 +384,11 @@ class BenchmarkPlotsContainer(gtk.Box):
                     except:
                         pass
 
-                    try:
-                        self.plot_ellipse_shower_on_image(ax3, tailcut_cleaned_img)
-                    except:
-                        pass
+                    if not self.show_perpendicular_hit_distribution:
+                        try:
+                            self.plot_ellipse_shower_on_image(ax3, tailcut_cleaned_img)
+                        except:
+                            pass
 
                     try:
                         self.plot_ellipse_shower_on_image(ax4, wavelets_cleaned_img)
@@ -496,8 +504,71 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         axis.set_title(title)
 
-        axis.set_xlim([vmin, vmax + 1])  # TODO: ("+1") is to see the last bin. This line may cause problems when logx == True
+        axis.set_xlim([vmin, vmax + 1])    # TODO: ("+1") is to see the last bin. This line may cause problems when logx == True
         axis.set_ylim(ymin=0.1)            # TODO: it doesn't work, all bins equals to 1 are not visible because they are hidden in the axis
+
+
+    def _draw_normalized_signal_histogram(self, axis, ref_image_array, cleaned_image_array, title):
+        print("*** SUM OF WT: {} ***".format(cleaned_image_array.sum()))
+
+        size_m = 0.1  # Size of the "phase space" in meter
+
+         # TODO: clean these following hard coded values for Astri
+        num_pixels_x = 40
+        num_pixels_y = 40
+
+        x = np.linspace(-0.142555996776, 0.142555996776, num_pixels_x)
+        y = np.linspace(-0.142555996776, 0.142555996776, num_pixels_y)
+
+        #x = np.arange(0, np.shape(ref_image_array)[0], 1)          # TODO: wrong values -10 10 21
+        #y = np.arange(0, np.shape(ref_image_array)[1], 1)          # TODO: wrong values  (30, ...)
+
+        xx, yy = np.meshgrid(x, y)
+
+        # Based on Tino's evaluate_cleaning.py (l. 277)
+        hillas = {}
+        hillas['ref.'] = hillas_parameters_1(xx.flatten() * u.meter,
+                                             yy.flatten() * u.meter,
+                                             ref_image_array.flatten())[0]
+        hillas['cleaned'] = hillas_parameters_1(xx.flatten() * u.meter,
+                                                yy.flatten() * u.meter,
+                                                cleaned_image_array.flatten())[0]
+
+        for k, signal in {'ref.': ref_image_array, 'cleaned': cleaned_image_array}.items():
+
+            h = hillas[k]
+
+            # p1 = center of the ellipse
+            p1_x = h.cen_x
+            p1_y = h.cen_y
+
+            # p2 = intersection between the ellipse and the shower track
+            p2_x = p1_x + h.length * np.cos(h.psi + np.pi/2)
+            p2_y = p1_y + h.length * np.sin(h.psi + np.pi/2)
+
+            # slope of the shower track
+            T = linalg.normalise(np.array([p1_x-p2_x, p1_y-p2_y]))
+
+            x = xx.flatten()
+            y = yy.flatten()
+
+            # Manhattan distance of pixels to the center of the ellipse
+            D = [p1_x-x, p1_y-y]
+
+            # Pixels in the new base
+            dl = D[0]*T[0] + D[1]*T[1]
+            dp = D[0]*T[1] - D[1]*T[0]
+
+            # nparray.ravel(): Return a flattened array.
+            values, bins, patches = axis.hist(dp.ravel(),
+                                              histtype='step',
+                                              label=k,
+                                              bins=np.linspace(-size_m, size_m, 31))          # -10 10 21
+        
+        axis.set_xlim([-size_m, size_m])
+
+        axis.legend(prop={'size': 16}, loc='lower left')
+        axis.set_title(title)
 
 
     def plot_ellipse_shower_on_image(self, axis, image_array):
@@ -507,9 +578,9 @@ class BenchmarkPlotsContainer(gtk.Box):
         y = np.arange(0, np.shape(image_array)[1], 1)
         xx, yy = np.meshgrid(x, y)
 
-        hillas = hillas_parameters(xx.flatten() * u.meter,
-                                   yy.flatten() * u.meter,
-                                   image_array.flatten())
+        hillas = hillas_parameters_2(xx.flatten() * u.meter,
+                                     yy.flatten() * u.meter,
+                                     image_array.flatten())
 
         centroid = (hillas.cen_x.value, hillas.cen_y.value)
         length = hillas.length.value
