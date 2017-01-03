@@ -198,7 +198,9 @@ def plot_hist1d(axis,
                 xmax=None,
                 overlaid=False,
                 hist_type='bar',
-                alpha=0.5):
+                alpha=0.5,
+                xlabel=None,
+                xylabel_fontsize=20):
 
     if logx:
         # Setup the logarithmic scale on the X axis
@@ -225,7 +227,9 @@ def plot_hist1d(axis,
                               label=label_list)
 
     axis.legend(prop={'size': 20})
-    axis.set_ylabel("Count", fontsize=20)
+    axis.set_ylabel("Count", fontsize=xylabel_fontsize)
+    if xlabel is not None:
+        axis.set_xlabel(xlabel, fontsize=xylabel_fontsize)
 
     plt.setp(axis.get_xticklabels(), fontsize=14)
     plt.setp(axis.get_yticklabels(), fontsize=14)

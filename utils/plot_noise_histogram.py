@@ -130,22 +130,30 @@ if __name__ == '__main__':
     common.plot_hist1d(axis=ax1,
                        data_list=np.array(data_list1).flatten(), # data_list1,
                        label_list=[],
-                       logy=logy)
+                       logy=logy,
+                       xlabel="Photoelectrons",
+                       xylabel_fontsize=16)
 
     common.plot_hist1d(axis=ax2,
                        data_list=np.array(data_list2).flatten(), # data_list2,
                        label_list=[],
-                       logy=logy)
+                       logy=logy,
+                       xlabel="Photoelectrons",
+                       xylabel_fontsize=16)
 
     common.plot_hist1d(axis=ax3,
                        data_list=np.array(data_list3).flatten(), # data_list3,
                        label_list=[],
-                       logy=logy)
+                       logy=logy,
+                       xlabel="Photoelectrons",
+                       xylabel_fontsize=16)
 
     common.plot_hist1d(axis=ax4,
                        data_list=np.array(data_list4).flatten(), # data_list4,
                        label_list=[],
-                       logy=logy)
+                       logy=logy,
+                       xlabel="Photoelectrons",
+                       xylabel_fontsize=16)
 
     ax1.set_title("100 GeV to 1 TeV", fontsize=20)
     ax2.set_title("1 TeV to 10 TeV", fontsize=20)
@@ -153,11 +161,16 @@ if __name__ == '__main__':
     ax4.set_title("100 TeV to 1000 TeV", fontsize=20)
     
     if title is not None:
-        plt.suptitle(title, fontsize=20)
+        plt.suptitle(title, fontsize=22)
     else:
-        plt.suptitle("Noise histogram", fontsize=20)
+        plt.suptitle("Noise histogram", fontsize=22)
 
     # Save file and plot ########
+
+    plt.tight_layout()
+
+    # http://stackoverflow.com/questions/8248467/matplotlib-tight-layout-doesnt-take-into-account-figure-suptitle
+    plt.subplots_adjust(top=0.9)
 
     plt.savefig(output_file_path, bbox_inches='tight')
 
