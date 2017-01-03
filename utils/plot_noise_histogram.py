@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Make statistics on score files (stored in JSON files).
+Make statistics on the noise of benchmark FITS files.
 """
 
 import common_functions as common
@@ -12,13 +12,15 @@ from matplotlib import pyplot as plt
 import os
 
 import math
-
-import copy
+import numpy as np
 
 from datapipe.io import images
 
 
 def get_fits_files_list(directory_path):
+    """
+    Return the list of all FITS file's path in `directory_path`.
+    """
 
     # Parse the input directory
     print("Parsing", directory_path)
@@ -77,7 +79,7 @@ if __name__ == '__main__':
 
     # PARSE OPTIONS ###########################################################
 
-    parser = argparse.ArgumentParser(description="Make statistics on score files (JSON files).")
+    parser = argparse.ArgumentParser(description="Make statistics on the noise of benchmark FITS files.")
 
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
@@ -126,22 +128,22 @@ if __name__ == '__main__':
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(16, 9))
 
     common.plot_hist1d(axis=ax1,
-                       data_list=data_list1,
+                       data_list=np.array(data_list1).flatten(), # data_list1,
                        label_list=[],
                        logy=logy)
 
     common.plot_hist1d(axis=ax2,
-                       data_list=data_list2,
+                       data_list=np.array(data_list2).flatten(), # data_list2,
                        label_list=[],
                        logy=logy)
 
     common.plot_hist1d(axis=ax3,
-                       data_list=data_list3,
+                       data_list=np.array(data_list3).flatten(), # data_list3,
                        label_list=[],
                        logy=logy)
 
     common.plot_hist1d(axis=ax4,
-                       data_list=data_list4,
+                       data_list=np.array(data_list4).flatten(), # data_list4,
                        label_list=[],
                        logy=logy)
 
@@ -153,7 +155,7 @@ if __name__ == '__main__':
     if title is not None:
         plt.suptitle(title, fontsize=20)
     else:
-        plt.suptitle(metric, fontsize=20)
+        plt.suptitle("Noise histogram", fontsize=20)
 
     # Save file and plot ########
 
