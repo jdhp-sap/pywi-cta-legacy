@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 #import matplotlib.ticker
 
+import math
+
 
 # JSON PARSER #################################################################
 
@@ -129,7 +131,7 @@ def extract_min(data_list):
     float
         The minimum value of `data_list`
     """
-    min_value = np.concatenate(data_list).min()
+    min_value = np.ravel(data_list).min()
     return min_value
 
 
@@ -151,7 +153,7 @@ def extract_max(data_list):
     float
         The maximum value of `data_list`
     """
-    max_value = np.concatenate(data_list).max()
+    max_value = np.ravel(data_list).max()
     return max_value
 
 # PLOT FUNCTIONS ##############################################################
@@ -200,15 +202,63 @@ def plot_hist1d(axis,
                 hist_type='bar',
                 alpha=0.5,
                 xlabel=None,
-                xylabel_fontsize=20):
+                xylabel_fontsize=20,
+                title=None,
+                linear_xlabel_style='sci',
+                linear_ylabel_style='sci',
+                num_bins=None,
+                show_info_box=True,
+                info_box_x_location=0.03,
+                info_box_y_location=0.95,
+                info_box_num_samples=True,
+                info_box_mean=True,
+                info_box_rms=True,
+                info_box_std=False):
+    """
+    Fill a matplotlib axis with a 1 dimension histogram.
+
+    data_list should be a list (or a tuple) of numpy arrays.
+    """
+
+    if not isinstance(data_list, (list, tuple)):
+        raise ValueError("Wrong data type: {} (list or tuple expected)".format(str(type(data_list))))
+
+    if not isinstance(label_list, (list, tuple)):
+        raise ValueError("Wrong data type: {} (list or tuple expected)".format(str(type(label_list))))
+
+    if len(label_list) > 0 and (len(label_list) != len(data_list)):
+        raise ValueError("Inconsistent data: len(label_list)={}, len(data_list)={}".format(str(len(label_list)), str(len(data_list))))
+
+    # Simulate info box when len(data_list) > 0
+    if len(label_list) > 0 and show_info_box:
+        for index, (data_array, label) in enumerate(zip(data_list, label_list)):
+            if info_box_num_samples:
+                num_samples = data_array.shape[0]
+                label += " num={:n}".format(num_samples)
+
+            if info_box_mean:
+                mean = data_array.mean()
+                label += r" $\bar{x}$=" + "{:.3g}".format(mean)
+
+            if info_box_rms:
+                rms = np.sqrt(np.mean(np.square(data_array)))
+                label += " rms={:e}".format(rms)
+
+            if info_box_std:
+                std = data_array.std()
+                label += r" $\sigma$=" + "{:.3g}".format(std)
+
+            label_list[index] = label
 
     if logx:
         # Setup the logarithmic scale on the X axis
         vmin = np.log10(extract_min(data_list))
         vmax = np.log10(extract_max(data_list))
-        bins = np.logspace(vmin, vmax, 50) # Make a range from 10**vmin to 10**vmax
+        bins = np.logspace(vmin, vmax, num_bins if num_bins is not None else 50) # Make a range from 10**vmin to 10**vmax
+    elif num_bins is not None:
+        bins = np.linspace(extract_min(data_list), extract_max(data_list), num_bins)
     else:
-        bins = 50
+        bins = range(math.floor(extract_min(data_list)), math.ceil(extract_max(data_list)))
 
     if overlaid:
         for data_array, label in zip(data_list, label_list):
@@ -227,20 +277,51 @@ def plot_hist1d(axis,
                               label=label_list)
 
     axis.legend(prop={'size': 20})
+
     axis.set_ylabel("Count", fontsize=xylabel_fontsize)
     if xlabel is not None:
         axis.set_xlabel(xlabel, fontsize=xylabel_fontsize)
+
+    if title is not None:
+        axis.set_title(title, fontsize=20)
 
     plt.setp(axis.get_xticklabels(), fontsize=14)
     plt.setp(axis.get_yticklabels(), fontsize=14)
 
     if logx:
         axis.set_xscale("log")               # Activate log scale on X axis
-    else:
-        plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    elif linear_xlabel_style == 'sci':
+        axis.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 
-    if not logy:
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+    if (not logy) and (linear_ylabel_style == 'sci'):
+        axis.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+    # Info box
+    if show_info_box and (len(data_list) == 1):
+        info_list = []
+
+        if info_box_num_samples:
+            num_samples = data_list[0].shape[0]
+            info_list.append("Num samples: {:n}".format(num_samples))
+
+        if info_box_mean:
+            mean = data_list[0].mean()
+            info_list.append("Mean: {:g}".format(mean))
+
+        if info_box_rms:
+            rms = np.sqrt(np.mean(np.square(data_list[0])))
+            #info_list.append("RMS: {:g}".format(rms))
+
+        if info_box_std:
+            std = data_list[0].std()
+            info_list.append("STD: {:g}".format(std))
+
+        axis.text(info_box_x_location, info_box_y_location,
+                  "\n".join(info_list),
+                  verticalalignment = 'top',
+                  horizontalalignment = 'left',
+                  transform = axis.transAxes,
+                  bbox={'facecolor': 'white', 'alpha': 0.5, 'pad': 10})
 
 
 def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False, logz=False, xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None):
