@@ -1,14 +1,10 @@
 from extract_and_crop_simtel_images import crop_astri_image
-from matplotlib2tikz import save as tikzsave
-def tikz_save(arg, **kwargs):
-    tikzsave(arg, figureheight = '\\figureheight',
-                  figurewidth  = '\\figurewidth', **kwargs)
 
 from sys import exit, path
 from os.path import expandvars
 path.append(expandvars("$CTA_SOFT/tino_cta/"))
 from modules.ImageCleaning import EdgeEventException, UnknownModeException
-from helper_functions import apply_mc_calibration_ASTRI
+from helper_functions import *
 
 old=False
 
@@ -51,8 +47,6 @@ class EventClassifier:
                  ranges=[[2, 8]],
                  nbins=[6],):
 
-        self.cleaner = None
-
         self.class_list = class_list
         self.axisNames = axisNames
         self.ranges = ranges
@@ -67,25 +61,25 @@ class EventClassifier:
         self.total_images    = 0
         self.selected_images = 0
 
-    def setup_geometry(self, h_telescopes, h_cameras, h_optics, phi=180.*u.deg, theta=20.*u.deg):
-        Ver = 'Feb2016'
-        TelVer = 'TelescopeTable_Version{}'.format(Ver)
-        CamVer = 'CameraTable_Version{}_TelID'.format(Ver)
-        OptVer = 'OpticsTable_Version{}_TelID'.format(Ver)
+    #def setup_geometry(self, h_telescopes, h_cameras, h_optics, phi=180.*u.deg, theta=20.*u.deg):
+        #Ver = 'Feb2016'
+        #TelVer = 'TelescopeTable_Version{}'.format(Ver)
+        #CamVer = 'CameraTable_Version{}_TelID'.format(Ver)
+        #OptVer = 'OpticsTable_Version{}_TelID'.format(Ver)
 
-        self.telescopes = h_telescopes[TelVer]
-        self.cameras    = lambda tel_id : h_cameras[CamVer+str(tel_id)]
-        self.optics     = lambda tel_id : h_optics [OptVer+str(tel_id)]
+        #self.telescopes = h_telescopes[TelVer]
+        #self.cameras    = lambda tel_id : h_cameras[CamVer+str(tel_id)]
+        #self.optics     = lambda tel_id : h_optics [OptVer+str(tel_id)]
 
-        self.tel_phi   =  phi
-        self.tel_theta =  theta
+        #self.tel_phi   =  phi
+        #self.tel_theta =  theta
 
-        self.tel_geom = {}
-        for tel_idx, tel_id in enumerate(self.telescopes['TelID']):
-            self.tel_geom[tel_id] = \
-                CameraGeometry.guess(self.cameras(tel_id)['PixX'].to(u.m),
-                                     self.cameras(tel_id)['PixY'].to(u.m),
-                                     self.telescopes['FL'][tel_idx] * u.m)
+        #self.tel_geom = {}
+        #for tel_idx, tel_id in enumerate(self.telescopes['TelID']):
+            #self.tel_geom[tel_id] = \
+                #CameraGeometry.guess(self.cameras(tel_id)['PixX'].to(u.m),
+                                     #self.cameras(tel_id)['PixY'].to(u.m),
+                                     #self.telescopes['FL'][tel_idx] * u.m)
 
     def create_empty_class_dict(self, class_list):
         mydict = {}
@@ -101,7 +95,7 @@ class EventClassifier:
         return mydict
 
     def equalise_nevents(self, NEvents):
-        for cl in ["p", "g"]:
+        for cl in self.Features.keys():
             self.Features[cl] = self.Features[cl][:NEvents]
             self.MCEnergy[cl] = self.MCEnergy[cl][:NEvents]
 
@@ -116,7 +110,7 @@ class EventClassifier:
         if clf is None:
             clf = RandomForestClassifier(
                 n_estimators=40, max_depth=None,
-                min_samples_split=1, random_state=0)
+                min_samples_split=2, random_state=0)
         clf.fit(trainFeatures, trainClasses)
         self.clf = clf
 
@@ -169,9 +163,8 @@ class EventClassifier:
                     trainClasses  += [cl]*len(ev)
 
             if clf is None:
-                clf = RandomForestClassifier(
-                    n_estimators=40, max_depth=None,
-                    min_samples_split=1, random_state=0)
+                clf = RandomForestClassifier(n_estimators=40, max_depth=None,
+                                             min_samples_split=2, random_state=0)
             clf.fit(trainFeatures, trainClasses)
 
             '''
