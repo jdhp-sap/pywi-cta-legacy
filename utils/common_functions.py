@@ -193,7 +193,7 @@ def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=
 
 def plot_hist1d(axis,
                 data_list,
-                label_list,
+                label_list=[],
                 logx=False,
                 logy=False,
                 xmin=None,
@@ -204,9 +204,10 @@ def plot_hist1d(axis,
                 xlabel=None,
                 xylabel_fontsize=20,
                 title=None,
-                linear_xlabel_style='sci',
+                linear_xlabel_style=None,   # 'sci'
                 linear_ylabel_style='sci',
                 num_bins=None,
+                tight=False,
                 show_info_box=True,
                 info_box_x_location=0.03,
                 info_box_y_location=0.95,
@@ -258,12 +259,16 @@ def plot_hist1d(axis,
     elif num_bins is not None:
         bins = np.linspace(extract_min(data_list), extract_max(data_list), num_bins)
     else:
-        bins = range(math.floor(extract_min(data_list)), math.ceil(extract_max(data_list)))
+        # bins=[0, 1, 2, 3] make the following bins: [0,1[, [1,2[ and [2,3]
+        # For more information, see:
+        # - https://docs.scipy.org/doc/numpy/reference/generated/numpy.histogram.html
+        # - http://stackoverflow.com/questions/15177203/how-is-the-pyplot-histogram-bins-interpreted
+        bins = list(range(math.floor(extract_min(data_list)), math.floor(extract_max(data_list)) + 2))
 
     if overlaid:
         for data_array, label in zip(data_list, label_list):
             res_tuple = axis.hist(data_array,
-                                  bins=bins,
+                                  #bins=bins,
                                   log=logy,           # Set log scale on the Y axis
                                   histtype=hist_type,
                                   alpha=alpha,
@@ -276,18 +281,46 @@ def plot_hist1d(axis,
                               alpha=alpha,
                               label=label_list)
 
+    print(bins)
+    print(res_tuple)
+
+    # Legend
     axis.legend(prop={'size': 20})
 
+    # Labels
     axis.set_ylabel("Count", fontsize=xylabel_fontsize)
     if xlabel is not None:
         axis.set_xlabel(xlabel, fontsize=xylabel_fontsize)
 
+    # Title
     if title is not None:
         axis.set_title(title, fontsize=20)
 
+    # Tick labels size
     plt.setp(axis.get_xticklabels(), fontsize=14)
     plt.setp(axis.get_yticklabels(), fontsize=14)
 
+    # xmin and xmax
+    if tight:
+        if logx:
+            xmin = np.log10(extract_min(data_list))
+            xmax = np.log10(extract_max(data_list))
+        else:
+            xmin = extract_min(data_list)
+            xmax = extract_max(data_list)
+
+    if xmin is not None:
+        axis.set_xlim(xmin=xmin)
+
+    if xmax is not None:
+        axis.set_xlim(xmax=xmax)
+
+    if logy:
+        axis.set_ylim(ymin=0.1)
+    else:
+        axis.set_ylim(ymin=0)
+
+    # Log scale and tick label format
     if logx:
         axis.set_xscale("log")               # Activate log scale on X axis
     elif linear_xlabel_style == 'sci':
@@ -322,6 +355,8 @@ def plot_hist1d(axis,
                   horizontalalignment = 'left',
                   transform = axis.transAxes,
                   bbox={'facecolor': 'white', 'alpha': 0.5, 'pad': 10})
+
+    return res_tuple
 
 
 def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False, logz=False, xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None):
@@ -422,3 +457,33 @@ def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False
     plt.setp(axis.get_xticklabels(), fontsize=14)
     plt.setp(axis.get_yticklabels(), fontsize=14)
 
+###############################################################################
+
+def test_hist1d():
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
+
+    # Check the (solved) bug occuring on the last bin when bins = integer list
+    #data = np.array([1, 1, 1,
+    #                 2, 2, 2,
+    #                 3, 3, 3])
+    #data = np.array([1, 1, 1,
+    #                 2, 2, 2,
+    #                 3.1, 3.1, 3.1])
+    #data = np.array([1.1, 1.1, 1.1,
+    #                 2, 2, 2,
+    #                 3, 3, 3])
+    #data = np.array([0.5, 0.5, 0.5,
+    #                 1.5, 1.5, 1.5,
+    #                 2.5, 2.5, 2.5])
+
+    # Check the (solved) bug on invisible bins when bin values = 1 and y scale is log
+    data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                     2,
+                     3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+    hist = plot_hist1d(ax1, [data], logy=True)
+
+    print(hist)
+    plt.show()
+
+if __name__ == '__main__':
+    test_hist1d()
