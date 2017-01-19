@@ -8,8 +8,6 @@ Make statistics on score files (stored in JSON files).
 import common_functions as common
 
 import argparse
-import json
-#import math
 import os
 
 import matplotlib.pyplot as plt
@@ -31,25 +29,6 @@ def extract_data_list(json_dict, key, exclude_aborted, aborted_only):
         json_data = [image_dict[key] for image_dict in io_list]
 
     return json_data
-
-
-def plot_hist(axis, data_array, logx, logy):
-    """
-    """
-
-    if logx:
-        # Setup the logarithmic scale on the X axis
-        vmin = np.log10(data_array.min())
-        vmax = np.log10(data_array.max())
-        bins = np.logspace(vmin, vmax, 50) # Make a range from 10**vmin to 10**vmax
-    else:
-        bins = 50
-
-    res_tuple = axis.hist(data_array,
-                          bins=bins,
-                          log=logy,               # Set log scale on the Y axis
-                          histtype=HIST_TYPE,
-                          alpha=ALPHA)
 
 
 if __name__ == '__main__':
@@ -122,21 +101,9 @@ if __name__ == '__main__':
     print("max:", data_array.max())
     print("mean:", data_array.mean())
 
-    # PLOT STATISTICS #########################################################
+    # SET TITLE ###############################################################
 
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
-
-    plot_hist(ax1, data_array, logx, logy)
-
-    if tight:
-        min_abscissa = data_array.min()
-        max_abscissa = data_array.max()
-        ax1.set_xlim(xmin=min_abscissa)
-        ax1.set_xlim(xmax=max_abscissa)
-
-    if title is not None:
-        ax1.set_title(title, fontsize=20)
-    else:
+    if title is None:
         if exclude_aborted:
             errors_str = "exclude errors"
         elif aborted_only:
@@ -145,34 +112,21 @@ if __name__ == '__main__':
             errors_str = None
 
         if errors_str is not None:
-            ax1.set_title("{} ({}) - {}".format(key, errors_str, label), fontsize=20)
+            title = "{} ({}) histogram for {}".format(key, errors_str, label)
         else:
-            ax1.set_title("{} - {}".format(key, label), fontsize=20)
+            title = "{} histogram for {}".format(key, label)
 
-    # Info box
-    ax1.text(0.95, 0.92,
-            "{} images".format(data_array.shape[0]),
-            verticalalignment = 'top',
-            horizontalalignment = 'right',
-            transform = ax1.transAxes,
-            bbox={'facecolor': 'white', 'alpha': 0.5, 'pad': 10})
+    # PLOT STATISTICS #########################################################
 
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    ax1.set_xlabel(key, fontsize=20)
-    ax1.set_ylabel("Count", fontsize=20)
+    common.plot_hist1d(ax1,
+                       [data_array],
+                       logx=logx,
+                       logy=logy,
+                       title=title)
 
-    plt.setp(ax1.get_xticklabels(), fontsize=14)
-    plt.setp(ax1.get_yticklabels(), fontsize=14)
-
-    if logx:
-        ax1.set_xscale("log")               # Activate log scale on X axis
-    else:
-        plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
-
-    if not logy:
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
-
-    # Save file and plot ########
+    # SAVE FILE AND PLOT ######################################################
 
     plt.savefig(output_file_path, bbox_inches='tight')
 
