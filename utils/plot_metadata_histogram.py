@@ -124,7 +124,9 @@ if __name__ == '__main__':
                        [data_array],
                        logx=logx,
                        logy=logy,
-                       title=title)
+                       xlabel=key,
+                       title=title,
+                       tight=tight)
 
     # SAVE FILE AND PLOT ######################################################
 
