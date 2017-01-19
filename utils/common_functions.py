@@ -257,7 +257,8 @@ def plot_hist1d(axis,
         vmax = np.log10(extract_max(data_list))
         bins = np.logspace(vmin, vmax, num_bins if num_bins is not None else 50) # Make a range from 10**vmin to 10**vmax
     elif num_bins is not None:
-        bins = np.linspace(extract_min(data_list), extract_max(data_list), num_bins)
+        #bins = np.linspace(extract_min(data_list), extract_max(data_list) + 1, num_bins + 1)
+        bins = num_bins
     else:
         # bins=[0, 1, 2, 3] make the following bins: [0,1[, [1,2[ and [2,3]
         # For more information, see:
@@ -462,7 +463,7 @@ def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False
 def test_hist1d():
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    # Check the (solved) bug occuring on the last bin when bins = integer list
+    ## Check the (solved) bug occuring on the last bin when bins = integer list
     #data = np.array([1, 1, 1,
     #                 2, 2, 2,
     #                 3, 3, 3])
@@ -476,14 +477,36 @@ def test_hist1d():
     #                 1.5, 1.5, 1.5,
     #                 2.5, 2.5, 2.5])
 
-    # Check the (solved) bug on invisible bins when bin values = 1 and y scale is log
-    data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                     2,
-                     3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
-    hist = plot_hist1d(ax1, [data], logy=True)
+    #hist = plot_hist1d(ax1, [data], logy=True)
+
+
+    ## Check the (solved) bug on invisible bins when bin values = 1 and y scale is log
+    #data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    #                 2,
+    #                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+
+    #hist = plot_hist1d(ax1, [data], logy=True)
+
+
+    ## Check with linscale
+    #data = np.array([1, 1, 1,
+    #                 2, 2, 2,
+    #                 3, 3, 3])
+    #data = np.array([1, 1, 1,
+    #                 2, 2, 2,
+    #                 3.1, 3.1, 3.1])
+    #data = np.array([1.1, 1.1, 1.1,
+    #                 2, 2, 2,
+    #                 3, 3, 3])
+    #data = np.array([0.5, 0.5, 0.5,
+    #                 1.5, 1.5, 1.5,
+    #                 2.5, 2.5, 2.5])
+
+    #hist = plot_hist1d(ax1, [data], num_bins=3)
 
     print(hist)
     plt.show()
 
 if __name__ == '__main__':
     test_hist1d()
+
