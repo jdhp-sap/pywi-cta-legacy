@@ -5,6 +5,8 @@
 Make statistics on score files (stored in JSON files).
 """
 
+import copy
+
 import json
 import numpy as np
 
@@ -214,12 +216,15 @@ def plot_hist1d(axis,
                 info_box_num_samples=True,
                 info_box_mean=True,
                 info_box_rms=True,
-                info_box_std=False):
+                info_box_std=False,
+                verbose=False):
     """
     Fill a matplotlib axis with a 1 dimension histogram.
 
     data_list should be a list (or a tuple) of numpy arrays.
     """
+
+    label_list = copy.deepcopy(label_list)
 
     if not isinstance(data_list, (list, tuple)):
         raise ValueError("Wrong data type: {} (list or tuple expected)".format(str(type(data_list))))
@@ -231,7 +236,7 @@ def plot_hist1d(axis,
         raise ValueError("Inconsistent data: len(label_list)={}, len(data_list)={}".format(str(len(label_list)), str(len(data_list))))
 
     # Simulate info box when len(data_list) > 0
-    if len(label_list) > 0 and show_info_box:
+    if len(label_list) > 1 and show_info_box:
         for index, (data_array, label) in enumerate(zip(data_list, label_list)):
             if info_box_num_samples:
                 num_samples = data_array.shape[0]
@@ -282,8 +287,9 @@ def plot_hist1d(axis,
                               alpha=alpha,
                               label=label_list)
 
-    print(bins)
-    print(res_tuple)
+    if verbose:
+        print(bins)
+        print(res_tuple)
 
     # Legend
     axis.legend(prop={'size': 20})
