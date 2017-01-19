@@ -25,80 +25,6 @@ def extract_score_list(json_dict, score_index):
     json_data = [image_dict["score"][score_index] for image_dict in io_list if "score" in image_dict]
     return json_data
 
-
-def extract_min(data_list):
-    """Extract the min value from a nested list.
-
-    The following simpler version can't work because nested list can have
-    different lenght:
-
-    ``min_value = np.array(data_list).min()``
-
-    Parameters
-    ----------
-    data_list : list
-        A list of ndarray from wich the minimum value is extracted
-
-    Returns
-    -------
-    float
-        The minimum value of `data_list`
-    """
-    min_value = np.concatenate(data_list).min()
-    return min_value
-
-
-def extract_max(data_list):
-    """Extract the max value from a nested list.
-
-    The following simpler version can't work because nested list can have
-    different lenght:
-
-    ``max_value = np.array(data_list).max()``
-
-    Parameters
-    ----------
-    data_list : list
-        A list of ndarray from wich the maximum value is extracted
-
-    Returns
-    -------
-    float
-        The maximum value of `data_list`
-    """
-    max_value = np.concatenate(data_list).max()
-    return max_value
-
-
-def plot_hist(axis, data_list, label_list, logx, logy, overlaid):
-    """
-    """
-
-    if logx:
-        # Setup the logarithmic scale on the X axis
-        vmin = np.log10(extract_min(data_list))
-        vmax = np.log10(extract_max(data_list))
-        bins = np.logspace(vmin, vmax, 50) # Make a range from 10**vmin to 10**vmax
-    else:
-        bins = 50
-
-    if overlaid:
-        for data_array, label in zip(data_list, label_list):
-            res_tuple = axis.hist(data_array,
-                                  bins=bins,
-                                  log=logy,           # Set log scale on the Y axis
-                                  histtype=HIST_TYPE,
-                                  alpha=ALPHA,
-                                  label=label)
-    else:
-        res_tuple = axis.hist(data_list,
-                              bins=bins,
-                              log=logy,               # Set log scale on the Y axis
-                              histtype=HIST_TYPE,
-                              alpha=ALPHA,
-                              label=label_list)
-
-
 if __name__ == '__main__':
 
     # PARSE OPTIONS ###########################################################
@@ -178,38 +104,17 @@ if __name__ == '__main__':
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
 
-    plot_hist(ax1, data_list, label_list, logx, logy, overlaid)
-
-    if tight:
-        min_abscissa = extract_min(data_list)
-        max_abscissa = extract_max(data_list)
-        ax1.set_xlim(xmin=min_abscissa)
-        ax1.set_xlim(xmax=max_abscissa)
-
-    if max_abscissa is not None:
-        ax1.set_xlim(xmax=max_abscissa)
-
-    ax1.legend(prop={'size': 20})
-
-    if title is not None:
-        ax1.set_title(title, fontsize=20)
-    else:
-        suffix = " (index {})".format(score_index)
-        ax1.set_title("Score" + suffix, fontsize=20)
-
-    ax1.set_xlabel("Score", fontsize=20)
-    ax1.set_ylabel("Count", fontsize=20)
-
-    plt.setp(ax1.get_xticklabels(), fontsize=14)
-    plt.setp(ax1.get_yticklabels(), fontsize=14)
-
-    if logx:
-        ax1.set_xscale("log")               # Activate log scale on X axis
-    else:
-        plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
-
-    if not logy:
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+    common.plot_hist1d(ax1,
+                       data_list,
+                       label_list=label_list,
+                       logx=logx,
+                       logy=logy,
+                       xmax=max_abscissa,
+                       overlaid=overlaid,
+                       xlabel="Score",
+                       title=title,
+                       num_bins=30,
+                       tight=tight)
 
     # Save file and plot ########
 
