@@ -129,7 +129,9 @@ def plot_ellipse_shower_on_image(axis, image_array):
 
 def plot_perpendicular_hit_distribution(axis, image_array, title):
 
-    ref_image_array, cleaned_image_array = copy.deepcopy(image_array), copy.deepcopy(image_array)
+    image_array = copy.deepcopy(image_array)
+
+    ###
 
     size_m = 0.2  # Size of the "phase space" in meter
 
@@ -146,51 +148,45 @@ def plot_perpendicular_hit_distribution(axis, image_array, title):
     xx, yy = np.meshgrid(x, y)
 
     # Based on Tino's evaluate_cleaning.py (l. 277)
-    hillas = {}
-    hillas['ref.'] = hillas_parameters_1(xx.flatten() * u.meter,
-                                         yy.flatten() * u.meter,
-                                         ref_image_array.flatten())[0]
-    hillas['cleaned'] = hillas_parameters_1(xx.flatten() * u.meter,
-                                            yy.flatten() * u.meter,
-                                            cleaned_image_array.flatten())[0]
+    hillas = hillas_parameters_1(xx.flatten() * u.meter,
+                                 yy.flatten() * u.meter,
+                                 image_array.flatten())[0]
 
-    for k, signal in {'ref.': ref_image_array, 'cleaned': cleaned_image_array}.items():
+    ###
 
-        h = hillas[k]
+    # p1 = center of the ellipse
+    p1_x = hillas.cen_x
+    p1_y = hillas.cen_y
 
-        # p1 = center of the ellipse
-        p1_x = h.cen_x
-        p1_y = h.cen_y
+    # p2 = intersection between the ellipse and the shower track
+    p2_x = p1_x + hillas.length * np.cos(hillas.psi + np.pi/2)
+    p2_y = p1_y + hillas.length * np.sin(hillas.psi + np.pi/2)
 
-        # p2 = intersection between the ellipse and the shower track
-        p2_x = p1_x + h.length * np.cos(h.psi + np.pi/2)
-        p2_y = p1_y + h.length * np.sin(h.psi + np.pi/2)
+    # slope of the shower track
+    T = linalg.normalise(np.array([p1_x-p2_x, p1_y-p2_y]))
 
-        # slope of the shower track
-        T = linalg.normalise(np.array([p1_x-p2_x, p1_y-p2_y]))
+    x = xx.flatten()
+    y = yy.flatten()
 
-        x = xx.flatten()
-        y = yy.flatten()
+    # Manhattan distance of pixels to the center of the ellipse
+    D = [p1_x-x, p1_y-y]
 
-        # Manhattan distance of pixels to the center of the ellipse
-        D = [p1_x-x, p1_y-y]
+    # Pixels in the new base
+    dl = D[0]*T[0] + D[1]*T[1]
+    dp = D[0]*T[1] - D[1]*T[0]
 
-        # Pixels in the new base
-        dl = D[0]*T[0] + D[1]*T[1]
-        dp = D[0]*T[1] - D[1]*T[0]
-
-        # nparray.ravel(): Return a flattened array.
-        values, bins, patches = axis.hist(dp.ravel(),
-                                          histtype='step',
-                                          label=k,
-                                          bins=np.linspace(-size_m, size_m, 31))          # -10 10 21
+    # nparray.ravel(): Return a flattened array.
+    values, bins, patches = axis.hist(dp.ravel(),
+                                      histtype='step',
+                                      bins=np.linspace(-size_m, size_m, 31))          # -10 10 21
     
+    ###
+
     axis.set_xlim([-size_m, size_m])
 
     axis.set_xlabel('Distance to the shower axis (m)', fontsize=14)
     axis.set_ylabel('Hits', fontsize=14)
 
-    axis.legend(prop={'size': 16}, loc='lower center')
     axis.set_title(title)
 
 
