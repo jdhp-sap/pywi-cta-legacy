@@ -122,6 +122,7 @@ if __name__ == '__main__':
 
     common.plot_hist1d(ax1,
                        [data_array],
+                       num_bins=50,
                        logx=logx,
                        logy=logy,
                        xlabel=key,
