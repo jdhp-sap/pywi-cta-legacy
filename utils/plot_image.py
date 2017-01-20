@@ -48,7 +48,7 @@ def main():
                         help="Don't show the plot, just save it")
 
     parser.add_argument("--output", "-o", default=None, metavar="FILE",
-                        help="The output file path (JSON)")
+                        help="The output file path (image file)")
 
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The files image to process (FITS)."
@@ -61,20 +61,19 @@ def main():
     output = args.output
     input_file_or_dir_path_list = args.fileargs
 
+    # FETCH IMAGES ############################################################
+
     for input_file_or_dir_path in input_file_or_dir_path_list:
 
         if os.path.isdir(input_file_or_dir_path):
-            input_file_path_list = []
-            for dir_item in os.listdir(input_file_or_dir_path):
-                dir_item_path = os.path.join(input_file_or_dir_path, dir_item)
-                if dir_item_path.lower().endswith('.fits') and os.path.isfile(dir_item_path):
-                    input_file_path_list.append(dir_item_path)
+            input_file_path_list = common.get_fits_files_list(input_directory_path)
         else:
             input_file_path_list = [input_file_or_dir_path]
 
+        # Parse FITS files
         for input_file_path in input_file_path_list:
 
-            # READ THE INPUT FILE ##################################################
+            # READ THE INPUT FILE #############################################
 
             fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path)
 
@@ -87,7 +86,7 @@ def main():
             if reference_img.ndim != 2:
                 raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-            # ASSESS OR PRINT THE CLEANED IMAGE ###################################
+            # ASSESS OR PRINT THE CLEANED IMAGE ###############################
 
             base_file_path = os.path.basename(input_file_path)
             base_file_path = os.path.splitext(base_file_path)[0]
