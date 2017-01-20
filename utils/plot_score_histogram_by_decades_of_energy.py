@@ -122,25 +122,45 @@ if __name__ == '__main__':
                        data_list=data_list1,
                        label_list=label_list,
                        logx=logx,
-                       logy=logy)
+                       logy=logy,
+                       num_bins=30,
+                       show_info_box=False,
+                       info_box_num_samples=False,
+                       info_box_rms=False,
+                       info_box_std=True)
 
     common.plot_hist1d(axis=ax2,
                        data_list=data_list2,
                        label_list=label_list,
                        logx=logx,
-                       logy=logy)
+                       logy=logy,
+                       num_bins=30,
+                       show_info_box=False,
+                       info_box_num_samples=False,
+                       info_box_rms=False,
+                       info_box_std=True)
 
     common.plot_hist1d(axis=ax3,
                        data_list=data_list3,
                        label_list=label_list,
                        logx=logx,
-                       logy=logy)
+                       logy=logy,
+                       num_bins=30,
+                       show_info_box=False,
+                       info_box_num_samples=False,
+                       info_box_rms=False,
+                       info_box_std=True)
 
     common.plot_hist1d(axis=ax4,
                        data_list=data_list4,
                        label_list=label_list,
                        logx=logx,
-                       logy=logy)
+                       logy=logy,
+                       num_bins=30,
+                       show_info_box=False,
+                       info_box_num_samples=False,
+                       info_box_rms=False,
+                       info_box_std=True)
 
     ax1.set_title("100 GeV to 1 TeV", fontsize=20)
     ax2.set_title("1 TeV to 10 TeV", fontsize=20)
