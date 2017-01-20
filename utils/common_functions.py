@@ -17,8 +17,26 @@ import matplotlib.colors
 import math
 
 
-# JSON PARSER #################################################################
+# DIRECTORY PARSER ############################################################
 
+def get_fits_files_list(directory_path):
+    """
+    Return the list of all FITS file's path in `directory_path`.
+    """
+
+    # Parse the input directory
+    print("Parsing", directory_path)
+
+    fits_file_name_list = [os.path.join(directory_path, file_name)
+                           for file_name
+                           in os.listdir(directory_path)
+                           if os.path.isfile(os.path.join(directory_path, file_name))
+                           and file_name.endswith((".fits", ".fit"))]
+
+    return fits_file_name_list
+
+
+# JSON PARSER #################################################################
 
 def parse_json_file(json_file_path):
     with open(json_file_path, "r") as fd:
@@ -27,7 +45,6 @@ def parse_json_file(json_file_path):
 
 
 # FILTERS (RETURN A SUBSET OF JSON_DICT) ######################################
-
 
 def image_filter_equals(json_dict, key, value):
     """Return a version of `json_dict` where only `io` list items (images) with
@@ -204,7 +221,10 @@ def plot_hist1d(axis,
                 hist_type='bar',
                 alpha=0.5,
                 xlabel=None,
+                title_fontsize=20,
                 xylabel_fontsize=20,
+                xy_ticklabel_fontsize=14,
+                legend_fontsize=16,
                 title=None,
                 linear_xlabel_style=None,   # 'sci'
                 linear_ylabel_style='sci',
@@ -292,7 +312,7 @@ def plot_hist1d(axis,
         print(res_tuple)
 
     # Legend
-    axis.legend(prop={'size': 20})
+    axis.legend(prop={'size': legend_fontsize})
 
     # Labels
     axis.set_ylabel("Count", fontsize=xylabel_fontsize)
@@ -301,11 +321,11 @@ def plot_hist1d(axis,
 
     # Title
     if title is not None:
-        axis.set_title(title, fontsize=20)
+        axis.set_title(title, fontsize=title_fontsize)
 
     # Tick labels size
-    plt.setp(axis.get_xticklabels(), fontsize=14)
-    plt.setp(axis.get_yticklabels(), fontsize=14)
+    plt.setp(axis.get_xticklabels(), fontsize=xy_ticklabel_fontsize)
+    plt.setp(axis.get_yticklabels(), fontsize=xy_ticklabel_fontsize)
 
     # xmin and xmax
     if tight:
