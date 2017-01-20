@@ -118,49 +118,65 @@ if __name__ == '__main__':
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(16, 9))
 
+    num_bins = 30
+    legend_fontsize = 14
+    show_info_box = True
+    info_box_num_samples = True
+    info_box_mean = False
+    info_box_rms = False
+    info_box_std = False
+
     common.plot_hist1d(axis=ax1,
                        data_list=data_list1,
                        label_list=label_list,
                        logx=logx,
                        logy=logy,
-                       num_bins=30,
-                       show_info_box=False,
-                       info_box_num_samples=False,
-                       info_box_rms=False,
-                       info_box_std=True)
+                       num_bins=num_bins,
+                       legend_fontsize=legend_fontsize,
+                       show_info_box=show_info_box,
+                       info_box_num_samples=info_box_num_samples,
+                       info_box_mean=info_box_mean,
+                       info_box_rms=info_box_rms,
+                       info_box_std=info_box_std)
 
     common.plot_hist1d(axis=ax2,
                        data_list=data_list2,
                        label_list=label_list,
                        logx=logx,
                        logy=logy,
-                       num_bins=30,
-                       show_info_box=False,
-                       info_box_num_samples=False,
-                       info_box_rms=False,
-                       info_box_std=True)
+                       num_bins=num_bins,
+                       legend_fontsize=legend_fontsize,
+                       show_info_box=show_info_box,
+                       info_box_num_samples=info_box_num_samples,
+                       info_box_mean=info_box_mean,
+                       info_box_rms=info_box_rms,
+                       info_box_std=info_box_std)
 
     common.plot_hist1d(axis=ax3,
                        data_list=data_list3,
                        label_list=label_list,
                        logx=logx,
                        logy=logy,
-                       num_bins=30,
-                       show_info_box=False,
-                       info_box_num_samples=False,
-                       info_box_rms=False,
-                       info_box_std=True)
+                       num_bins=num_bins,
+                       legend_fontsize=legend_fontsize,
+                       show_info_box=show_info_box,
+                       info_box_num_samples=info_box_num_samples,
+                       info_box_mean=info_box_mean,
+                       info_box_rms=info_box_rms,
+                       info_box_std=info_box_std)
 
     common.plot_hist1d(axis=ax4,
                        data_list=data_list4,
                        label_list=label_list,
                        logx=logx,
                        logy=logy,
-                       num_bins=30,
-                       show_info_box=False,
-                       info_box_num_samples=False,
-                       info_box_rms=False,
-                       info_box_std=True)
+                       num_bins=num_bins,
+                       legend_fontsize=legend_fontsize,
+                       show_info_box=show_info_box,
+                       info_box_num_samples=info_box_num_samples,
+                       info_box_mean=info_box_mean,
+                       info_box_rms=info_box_rms,
+                       info_box_std=info_box_std)
 
     ax1.set_title("100 GeV to 1 TeV", fontsize=20)
     ax2.set_title("1 TeV to 10 TeV", fontsize=20)
