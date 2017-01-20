@@ -17,23 +17,6 @@ import numpy as np
 from datapipe.io import images
 
 
-def get_fits_files_list(directory_path):
-    """
-    Return the list of all FITS file's path in `directory_path`.
-    """
-
-    # Parse the input directory
-    print("Parsing", directory_path)
-
-    fits_file_name_list = [os.path.join(directory_path, file_name)
-                           for file_name
-                           in os.listdir(directory_path)
-                           if os.path.isfile(os.path.join(directory_path, file_name))
-                           and file_name.endswith((".fits", ".fit"))]
-
-    return fits_file_name_list
-
-
 def parse_fits_files(fits_file_name_list):
     fits_noise_list = []
 
@@ -100,7 +83,7 @@ if __name__ == '__main__':
     # FETCH NOISE #############################################################
 
     # Parse the input directory
-    fits_file_name_list = get_fits_files_list(input_directory_path)
+    fits_file_name_list = common.get_fits_files_list(input_directory_path)
 
     # Parse FITS files
     data_list = parse_fits_files(fits_file_name_list)
