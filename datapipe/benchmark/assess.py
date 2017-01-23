@@ -30,9 +30,11 @@ __all__ = ['get_hillas_parameters',
            'metric4',
            'metric_ssim',
            'metric_psnr',
-           'metric_hillas_theta',
-           'metric_hillas_theta2',
+           'metric_hillas_delta',
+           'metric_hillas_delta2',
            'assess_image_cleaning']
+
+import collections
 
 import numpy as np
 
@@ -617,11 +619,26 @@ def metric_psnr(input_img, output_image, reference_image, params=None):
     return psnr_val
 
 
-# Hillas theta ################################################################
+# Hillas delta ################################################################
 
-def metric_hillas_theta(input_img, output_image, reference_image, params=None):
+def metric_hillas_delta(input_img, output_image, reference_image, params=None, kill=False):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
-    with the *Hillas parameter theta*.
+    with the following relative *Hillas parameters*:
+
+    .. math::
+
+        \delta_{\text{size}}   = \delta_{\text{size_ref}}   - \delta_{\text{size_out}}
+        \delta_{\text{cen_x}}  = \delta_{\text{cen_x_ref}}  - \delta_{\text{cen_x_out}}
+        \delta_{\text{cen_y}}  = \delta_{\text{cen_y_ref}}  - \delta_{\text{cen_y_out}}
+        \delta_{\text{length}} = \delta_{\text{length_ref}} - \delta_{\text{length_out}}
+        \delta_{\text{width}}  = \delta_{\text{width_ref}}  - \delta_{\text{width_out}}
+        \delta_{\text{r}}      = \delta_{\text{r_ref}}      - \delta_{\text{r_out}}
+        \delta_{\text{phi}}    = \delta_{\text{phi_ref}}    - \delta_{\text{phi_out}}
+        \delta_{\text{psi}}    = \delta_{\text{psi_ref}}    - \delta_{\text{psi_out}}
+        \delta_{\text{miss}}   = \delta_{\text{miss_ref}}   - \delta_{\text{miss_out}}
+
+    See http://adsabs.harvard.edu/abs/1989ApJ...342..379W for more details
+    about Hillas parameters.
 
     Parameters
     ----------
@@ -634,10 +651,12 @@ def metric_hillas_theta(input_img, output_image, reference_image, params=None):
         image cleaning algorithm).
     params: dict
         Additional options.
+    kill: boolean
+        Remove isolated pixels on the reference image before assessment.
 
     Returns
     -------
-    float
+    namedtuple
         The score of the image cleaning algorithm for the given image.
     """
 
@@ -646,24 +665,92 @@ def metric_hillas_theta(input_img, output_image, reference_image, params=None):
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
 
+    if kill:
+        reference_image = kill_isolated_pixels(reference_image, threshold=0.2)
+
     output_image_parameters = get_hillas_parameters(output_image)
     reference_image_parameters = get_hillas_parameters(reference_image)
 
-    output_image_parameter_theta = output_image_parameters.psi.value
-    reference_image_parameter_theta = reference_image_parameters.psi.value
+    #print(reference_image_parameters)
 
-    delta = reference_image_parameter_theta - output_image_parameter_theta     # TODO (MSE, ...) ?
+    # Size
+    output_image_parameter_size = output_image_parameters.size
+    reference_image_parameter_size = reference_image_parameters.size
+    delta_size = reference_image_parameter_size - output_image_parameter_size
 
-    return delta
+    # Centroid x
+    output_image_parameter_cen_x = output_image_parameters.cen_x.value
+    reference_image_parameter_cen_x = reference_image_parameters.cen_x.value
+    delta_cen_x = reference_image_parameter_cen_x - output_image_parameter_cen_x
+
+    # Centroid y
+    output_image_parameter_cen_y = output_image_parameters.cen_y.value
+    reference_image_parameter_cen_y = reference_image_parameters.cen_y.value
+    delta_cen_y = reference_image_parameter_cen_y - output_image_parameter_cen_y
+
+    # Length
+    output_image_parameter_length = output_image_parameters.length.value
+    reference_image_parameter_length = reference_image_parameters.length.value
+    delta_length = reference_image_parameter_length - output_image_parameter_length
+
+    # Width
+    output_image_parameter_width = output_image_parameters.width.value
+    reference_image_parameter_width = reference_image_parameters.width.value
+    delta_width = reference_image_parameter_width - output_image_parameter_width
+
+    # R
+    output_image_parameter_r = output_image_parameters.r
+    reference_image_parameter_r = reference_image_parameters.r
+    delta_r = reference_image_parameter_r - output_image_parameter_r
+
+    # Phi
+    output_image_parameter_phi = output_image_parameters.phi
+    reference_image_parameter_phi = reference_image_parameters.phi
+    delta_phi = reference_image_parameter_phi - output_image_parameter_phi
+
+    # Psi (shower direction angle)
+    output_image_parameter_psi = output_image_parameters.psi.value
+    reference_image_parameter_psi = reference_image_parameters.psi.value
+    delta_psi = reference_image_parameter_psi - output_image_parameter_psi
+
+    # Normalized psi
+    normalized_delta_psi = np.abs(np.sin(np.radians(delta_psi)))
+
+    # Miss
+    output_image_parameter_miss = output_image_parameters.miss.value
+    reference_image_parameter_miss = reference_image_parameters.miss.value
+    delta_miss = reference_image_parameter_miss - output_image_parameter_miss
+
+    if kill:
+        suffix_str = '_kill'
+    else:
+        suffix_str = ''
+
+    score_dict = collections.OrderedDict((
+                    ('hillas_delta_size'     + suffix_str, delta_size),
+                    ('hillas_delta_cen_x'    + suffix_str, delta_cen_x),
+                    ('hillas_delta_cen_y'    + suffix_str, delta_cen_y),
+                    ('hillas_delta_length'   + suffix_str, delta_length),
+                    ('hillas_delta_width'    + suffix_str, delta_width),
+                    ('hillas_delta_r'        + suffix_str, delta_r),
+                    ('hillas_delta_phi'      + suffix_str, delta_phi),
+                    ('hillas_delta_psi'      + suffix_str, delta_psi),
+                    ('hillas_delta_psi_norm' + suffix_str, normalized_delta_psi),
+                    ('hillas_delta_miss'     + suffix_str, delta_miss)
+                 ))
+
+    Score = collections.namedtuple('Score', score_dict.keys())
+
+    return Score(**score_dict)
 
 
-# Hillas theta 2 ##############################################################
+# Hillas delta 2 ##############################################################
 
-def metric_hillas_theta2(input_img, output_image, reference_image, params=None):
+def metric_hillas_delta2(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
-    with the *Hillas parameter theta*.
+    with the *Hillas parameters*.
 
-    It works exactly like :func:`metric_hillas_theta` except that isolated
+    It works exactly like :func:`metric_hillas_delta` except that isolated
     pixels are removed from the ``reference_image`` before the evaluation
     (using :func:`datapipe.denoising.kill_isolated_pixels`).
 
@@ -681,19 +768,13 @@ def metric_hillas_theta2(input_img, output_image, reference_image, params=None):
 
     Returns
     -------
-    float
+    namedtuple
         The score of the image cleaning algorithm for the given image.
     """
 
-    # Copy and cast images to prevent tricky bugs
-    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
-    reference_image = reference_image.astype('float64', copy=True)
-    reference_image = kill_isolated_pixels(reference_image, threshold=0.2)
+    scores = metric_hillas_delta(input_img, output_image, reference_image, params, kill=True)
 
-    # Apply metric_hillas_theta()
-    delta = metric_hillas_theta(input_img, output_image, reference_image, params)
-
-    return delta
+    return scores
 
 
 ###############################################################################
@@ -710,9 +791,9 @@ BENCHMARK_DICT = {
     "sspd":          (metric4,),
     "ssim":          (metric_ssim,),
     "psnr":          (metric_psnr,),
-    "hillas_theta":  (metric_hillas_theta,),
-    "hillas_theta2": (metric_hillas_theta2,),
-    "all":           (metric_mse, metric_nrmse, metric2, metric3, metric4, metric_ssim, metric_psnr, metric_hillas_theta, metric_hillas_theta2)
+    "hillas_delta":  (metric_hillas_delta,),
+    "hillas_delta2": (metric_hillas_delta2,),
+    "all":           (metric_mse, metric_nrmse, metric2, metric3, metric4, metric_ssim, metric_psnr, metric_hillas_delta, metric_hillas_delta2)
 }
 
 METRIC_NAME_DICT = {
@@ -724,8 +805,8 @@ METRIC_NAME_DICT = {
     metric4:              "sspd",
     metric_ssim:          "ssim",
     metric_psnr:          "psnr",
-    metric_hillas_theta:  "hillas_theta",
-    metric_hillas_theta2: "hillas_theta2"
+    metric_hillas_delta:  "hillas_delta",
+    metric_hillas_delta2: "hillas_delta2"
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
@@ -741,9 +822,9 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
     - "sspd":          :func:`metric4`
     - "ssim":          :func:`metric_ssim`
     - "psnr":          :func:`metric_psnr`
-    - "hillas_theta":  :func:`metric_hillas_theta`
-    - "hillas_theta2": :func:`metric_hillas_theta2`
-    - "all":           :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`, :func:`metric_hillas_theta`, :func:`metric_hillas_theta2`
+    - "hillas_delta":  :func:`metric_hillas_delta`
+    - "hillas_delta2": :func:`metric_hillas_delta2`
+    - "all":           :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`, :func:`metric_hillas_delta`, :func:`metric_hillas_delta2`
 
     Parameters
     ----------
@@ -764,8 +845,21 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
     """
 
     try:
-        score_list = [metric_function(input_img, output_img, reference_img, params) for metric_function in BENCHMARK_DICT[benchmark_method]]
-        metric_name_list = [METRIC_NAME_DICT[metric_function] for metric_function in BENCHMARK_DICT[benchmark_method]]
+        score_list = []
+        metric_name_list = []
+
+        for metric_function in BENCHMARK_DICT[benchmark_method]:
+            score = metric_function(input_img, output_img, reference_img, params) 
+
+            if isinstance(score, collections.Sequence):
+                score_list.extend(score)
+                metric_name_list.extend(score._fields)
+            else:
+                score_list.append(score)
+                metric_name_list.append(METRIC_NAME_DICT[metric_function])
+
+        assert len(score_list) == len(metric_name_list)
+
     except KeyError:
         raise UnknownMethod()
 
