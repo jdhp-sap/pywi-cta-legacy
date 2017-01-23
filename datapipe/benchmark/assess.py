@@ -649,15 +649,15 @@ def metric_hillas_theta(input_img, output_image, reference_image, params=None):
     output_image_parameters = get_hillas_parameters(output_image)
     reference_image_parameters = get_hillas_parameters(reference_image)
 
-    output_image_parameter_theta = output_image_parameters[7].value
-    reference_image_parameter_theta = reference_image_parameters[7].value
+    output_image_parameter_theta = output_image_parameters.psi.value
+    reference_image_parameter_theta = reference_image_parameters.psi.value
 
     delta = reference_image_parameter_theta - output_image_parameter_theta     # TODO (MSE, ...) ?
 
     return delta
 
 
-# Hillas theta ################################################################
+# Hillas theta 2 ##############################################################
 
 def metric_hillas_theta2(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
