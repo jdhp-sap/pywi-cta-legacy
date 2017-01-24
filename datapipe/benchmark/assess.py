@@ -20,8 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['get_hillas_parameters',
-           'normalize_array',
+__all__ = ['normalize_array',
            'metric_mse',
            'metric_nrmse',
            'metric1',
@@ -38,12 +37,7 @@ import collections
 
 import numpy as np
 
-from astropy.units import Quantity
-import astropy.units as u
-
-from ctapipe.image.hillas import hillas_parameters_1
-from ctapipe.image.hillas import hillas_parameters_2
-
+from datapipe.image.hillas_parameters import get_hillas_parameters
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
 
 from skimage.measure import compare_ssim as ssim
@@ -115,47 +109,6 @@ def normalize_array(input_array):
 
     output_array = (input_array - input_array.min()) / (input_array.max() - input_array.min())
     return output_array
-
-
-def get_hillas_parameters(image, implementation=2):
-    r"""Return Hillas parameters [hillas]_ of the given ``image``.
-
-    See https://github.com/cta-observatory/ctapipe/blob/master/ctapipe/image/hillas.py#L83
-    for more information.
-
-    Parameters
-    ----------
-    image : Numpy array
-        The image to parametrize
-
-    implementation : integer
-        Tell which ctapipe's implementation to use (1 or 2).
-
-    Returns
-    -------
-    namedtuple
-        Hillas parameters for the given ``image``
-
-    References
-    ----------
-    .. [hillas] Appendix of the Whipple Crab paper Weekes et al. (1998)
-       http://adsabs.harvard.edu/abs/1989ApJ...342..379W
-    """
-
-    # Copy and cast images to prevent tricky bugs
-    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
-    image = image.astype('float64', copy=True)
-
-    x = np.arange(0, np.shape(image)[0], 1)
-    y = np.arange(0, np.shape(image)[1], 1)
-    xx, yy = np.meshgrid(x, y)
-
-    if implementation == 1:
-        params = hillas_parameters_1(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())
-    else:
-        params = hillas_parameters_2(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())
-
-    return params
 
 
 ###############################################################################
