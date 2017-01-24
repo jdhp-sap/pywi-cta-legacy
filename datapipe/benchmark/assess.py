@@ -41,7 +41,8 @@ import numpy as np
 from astropy.units import Quantity
 import astropy.units as u
 
-from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters
+from ctapipe.image.hillas import hillas_parameters_1
+from ctapipe.image.hillas import hillas_parameters_2
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
 
@@ -116,7 +117,7 @@ def normalize_array(input_array):
     return output_array
 
 
-def get_hillas_parameters(image):
+def get_hillas_parameters(image, implementation=2):
     r"""Return Hillas parameters [hillas]_ of the given ``image``.
 
     See https://github.com/cta-observatory/ctapipe/blob/master/ctapipe/image/hillas.py#L83
@@ -126,6 +127,9 @@ def get_hillas_parameters(image):
     ----------
     image : Numpy array
         The image to parametrize
+
+    implementation : integer
+        Tell which ctapipe's implementation to use (1 or 2).
 
     Returns
     -------
@@ -146,7 +150,10 @@ def get_hillas_parameters(image):
     y = np.arange(0, np.shape(image)[1], 1)
     xx, yy = np.meshgrid(x, y)
 
-    params = hillas_parameters(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())
+    if implementation == 1:
+        params = hillas_parameters_1(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())
+    else:
+        params = hillas_parameters_2(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())
 
     return params
 
@@ -667,8 +674,14 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
         # Remove isolated pixels on the reference image before assessment.
         reference_image = kill_isolated_pixels(reference_image, threshold=params["kill_threshold"])
 
-    output_image_parameters = get_hillas_parameters(output_image)
-    reference_image_parameters = get_hillas_parameters(reference_image)
+    if params is not None and "hillas_implementation" in params and params["hillas_implementation"] in (1, 2):
+        # Remove isolated pixels on the reference image before assessment.
+        hillas_implementation = params["hillas_implementation"]
+    else:
+        hillas_implementation = 2
+
+    output_image_parameters = get_hillas_parameters(output_image, hillas_implementation)
+    reference_image_parameters = get_hillas_parameters(reference_image, hillas_implementation)
 
     #print(reference_image_parameters)
 
@@ -726,16 +739,16 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
         suffix_str = ''
 
     score_dict = collections.OrderedDict((
-                    ('hillas_delta_size'     + suffix_str, delta_size),
-                    ('hillas_delta_cen_x'    + suffix_str, delta_cen_x),
-                    ('hillas_delta_cen_y'    + suffix_str, delta_cen_y),
-                    ('hillas_delta_length'   + suffix_str, delta_length),
-                    ('hillas_delta_width'    + suffix_str, delta_width),
-                    ('hillas_delta_r'        + suffix_str, delta_r),
-                    ('hillas_delta_phi'      + suffix_str, delta_phi),
-                    ('hillas_delta_psi'      + suffix_str, delta_psi),
-                    ('hillas_delta_psi_norm' + suffix_str, normalized_delta_psi),
-                    ('hillas_delta_miss'     + suffix_str, delta_miss)
+                    ('hillas' + str(hillas_implementation) + '_delta_size'     + suffix_str, delta_size),
+                    ('hillas' + str(hillas_implementation) + '_delta_cen_x'    + suffix_str, delta_cen_x),
+                    ('hillas' + str(hillas_implementation) + '_delta_cen_y'    + suffix_str, delta_cen_y),
+                    ('hillas' + str(hillas_implementation) + '_delta_length'   + suffix_str, delta_length),
+                    ('hillas' + str(hillas_implementation) + '_delta_width'    + suffix_str, delta_width),
+                    ('hillas' + str(hillas_implementation) + '_delta_r'        + suffix_str, delta_r),
+                    ('hillas' + str(hillas_implementation) + '_delta_phi'      + suffix_str, delta_phi),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi'      + suffix_str, delta_psi),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm' + suffix_str, normalized_delta_psi),
+                    ('hillas' + str(hillas_implementation) + '_delta_miss'     + suffix_str, delta_miss)
                  ))
 
     Score = collections.namedtuple('Score', score_dict.keys())
