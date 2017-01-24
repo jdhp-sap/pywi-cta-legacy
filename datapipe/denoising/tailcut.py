@@ -44,6 +44,8 @@ from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgor
 from datapipe.benchmark import assess
 from datapipe.io import images
 
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
+
 import ctapipe.io
 from ctapipe.image.cleaning import tailcuts_clean, dilate
 
@@ -53,7 +55,12 @@ class Tailcut(AbstractCleaningAlgorithm):
         super(Tailcut, self).__init__()
         self.label = "Tailcut"  # Name to show in plots
 
-    def clean_image(self, img, high_threshold=10., low_threshold=8., base_file_path="tailcut"):
+    def clean_image(self,
+                    input_img,
+                    high_threshold=10.,
+                    low_threshold=8.,
+                    kill_isolated_pixels=False,
+                    verbose=False):
         """
         vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
         """
@@ -71,7 +78,7 @@ class Tailcut(AbstractCleaningAlgorithm):
                                                                   range_x,
                                                                   range_y)
 
-        signal = np.ravel(img)
+        signal = np.ravel(input_img)
 
         mask = tailcuts_clean(geom,
                               signal,                   # TODO
@@ -80,7 +87,7 @@ class Tailcut(AbstractCleaningAlgorithm):
                               boundary_thresh=low_threshold)
 
         ##if True not in mask: continue       # TODO ?????
-        #dilate(geom, mask)                  # TODO ?
+        #dilate(geom, mask)                   # TODO ?
 
         signal[mask == False] = 0
 
@@ -89,6 +96,13 @@ class Tailcut(AbstractCleaningAlgorithm):
         #                    image[cleanmask == 0] = 0  # zero noise pixels
 
         cleaned_img = signal.reshape(num_pixels_x, num_pixels_y)
+
+        # KILL ISOLATED PIXELS #################################
+
+        if kill_isolated_pixels:
+            if verbose:
+                print("Kill isolated pixels")
+            cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
 
         return cleaned_img
 
@@ -104,6 +118,14 @@ def main():
 
     parser.add_argument("--low_threshold", "-t", type=float, default=0, metavar="FLOAT", 
                         help="The 'low' threshold value (between 0 and 1)")
+
+    parser.add_argument("--kill-isolated-pixels", action="store_true",
+                        help="Suppress isolated pixels in the support (scipy implementation)")
+
+    parser.add_argument("--verbose", "-v", action="store_true",
+                        help="Verbose mode")
+
+    # COMMON OPTIONS
 
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
                         help="The benchmark method to use to assess the algorithm for the"
@@ -128,9 +150,13 @@ def main():
 
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
+    kill_isolated_pixels = args.kill_isolated_pixels
+    verbose = args.verbose
+
     benchmark_method = args.benchmark
     plot = args.plot
     saveplot = args.saveplot
+
     input_file_or_dir_path_list = args.fileargs
 
     if args.output is None:
@@ -138,7 +164,12 @@ def main():
     else:
         output_file_path = args.output
 
-    cleaning_function_params = {"high_threshold": high_threshold, "low_threshold": low_threshold}
+    cleaning_function_params = {
+                "high_threshold": high_threshold,
+                "low_threshold": low_threshold,
+                "kill_isolated_pixels": kill_isolated_pixels,
+                "verbose": verbose
+            }
 
     cleaning_algorithm = Tailcut()
     cleaning_algorithm.run(cleaning_function_params,
