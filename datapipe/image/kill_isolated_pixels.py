@@ -69,5 +69,5 @@ def kill_isolated_pixels_stats(array, threshold=0.2):
     filtered_img[filtered_img != 0] = 1
     delta_num_pixels = np.sum(img - filtered_img)
 
-    return delta_pe, delta_abs_pe, delta_num_pixels 
+    return float(delta_pe), float(delta_abs_pe), float(delta_num_pixels)
 
