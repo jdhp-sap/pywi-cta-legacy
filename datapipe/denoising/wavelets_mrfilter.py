@@ -46,7 +46,7 @@ import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.io import images
 
-from datapipe.denoising.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 
 
 # EXCEPTIONS #################################################################

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)
+# Copyright (c) 2017 Jérémie DECOCK (http://www.jdhp.org)
 
 # This script is provided under the terms and conditions of the MIT license:
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,39 +20,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = [' kill_isolated_pixels']
+__all__ = ['signal_to_border',
+           'signal_to_border_distance']
 
+import math
 import numpy as np
-import scipy.ndimage as ndimage
 
-# See: https://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.ndimage.measurements.label.html
+"""
+Warning: so far, this module only works with "rectangular 2D images".
+"""
 
-def kill_isolated_pixels(array, threshold=0.2, plot=False):
+def signal_to_border(img):
     """
-    Return array with isolated islands removed.
-    Only keeping the biggest islands (largest surface).
-
-    :param array: Array with completely isolated cells
-    :param struct: Structure array for generating unique regions
-    :return: Filtered array with just the largest island 
+    TODO
     """
 
-    filtered_array = np.copy(array)
+    try:
+        x, y = img.shape
+        m = min(x, y)
+        res = [int(img.sum())] + [int(img[i:-i, i:-i].sum()) for i in range(1, math.ceil(m/2))]
+    except:
+        res = []
 
-    # Put to 0 pixels that are below 'threshold'
-    filtered_array[filtered_array < threshold] = 0
-    mask = filtered_array > 0
+    return res
 
-    # Detect islands ("label")
-    label_array, num_labels = ndimage.label(mask)#, structure=np.ones((5, 5)))
+def signal_to_border_distance(img):
+    """
+    TODO
+    """
 
-    # Count the number of pixels for each island
-    num_pixels_per_island = ndimage.sum(filtered_array, label_array, range(num_labels + 1))
+    res = signal_to_border(img)
 
-    # Only keep the biggest island
-    mask_biggest_island = num_pixels_per_island < np.max(num_pixels_per_island)
-    remove_pixel = mask_biggest_island[label_array]
+    for i, s in enumerate(res):
+        if s == 0:
+            break
 
-    filtered_array[remove_pixel] = 0
+    dist = len(res) - (i + 1)
 
-    return filtered_array
+    return dist

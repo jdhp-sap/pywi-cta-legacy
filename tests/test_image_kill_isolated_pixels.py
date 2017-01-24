@@ -24,7 +24,7 @@
 This module contains unit tests for the "denoising.kill_isolated_pixels" module.
 """
 
-from datapipe.denoising.kill_isolated_pixels import kill_isolated_pixels
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
 
 import numpy as np
 

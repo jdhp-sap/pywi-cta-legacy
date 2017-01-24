@@ -30,33 +30,15 @@ import sys
 import time
 import traceback
 
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
+from datapipe.image import signal_to_border_distance
 from datapipe.benchmark import assess
 from datapipe.io import images
 
 # TODO:
 # - maj les modules de Tino
 
-def near_borders_signal_coef(img):
-    """
-        TODO: move this function in a dedicated module ?
-
-        Example usage:
-
-            for i, s in enumerate(res):
-                if s == 0:
-                    break
-            dist = i
-    """
-
-    try:
-        x, y = img.shape
-        m = min(x, y)
-        res = [int(img.sum())] + [int(img[i:-i, i:-i].sum()) for i in range(1, math.ceil(m/2))]
-    except:
-        res = []
-
-    return res
-
+###############################################################################
 
 class AbstractCleaningAlgorithm(object):
 
@@ -133,10 +115,12 @@ class AbstractCleaningAlgorithm(object):
                                                                                      reference_img,
                                                                                      benchmark_method)
 
+                        # IMAGE METADATA
                         image_dict["score"] = score_tuple
                         image_dict["score_name"] = score_name_tuple
                         image_dict["execution_time"] = execution_time
-                        image_dict["near_borders_signal_coef"] = near_borders_signal_coef(reference_img)
+                        image_dict["signal_to_border"] = signal_to_border_distance.signal_to_border(reference_img)
+                        image_dict["signal_to_border_distance"] = signal_to_border_distance.signal_to_border_distance(reference_img)
 
                     # PLOT IMAGES #########################################################
 
@@ -174,6 +158,7 @@ class AbstractCleaningAlgorithm(object):
             error_list = [image_dict["error"] for image_dict in io_list if "error" in image_dict]
             print("{} images aborted".format(len(error_list)))
 
+            # GENERAL EXPERIMENT METADATA
             output_dict = {}
             output_dict["date_time"] = str(datetime.datetime.now())
             output_dict["class_name"] = self.__class__.__name__

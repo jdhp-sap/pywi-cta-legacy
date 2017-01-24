@@ -43,7 +43,7 @@ import astropy.units as u
 
 from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters
 
-from datapipe.denoising.kill_isolated_pixels import kill_isolated_pixels
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
 
 from skimage.measure import compare_ssim as ssim
 from skimage.measure import compare_psnr as psnr
@@ -621,7 +621,7 @@ def metric_psnr(input_img, output_image, reference_image, params=None):
 
 # Hillas delta ################################################################
 
-def metric_hillas_delta(input_img, output_image, reference_image, params=None, kill=False):
+def metric_hillas_delta(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the following relative *Hillas parameters*:
 
@@ -651,8 +651,6 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None, k
         image cleaning algorithm).
     params: dict
         Additional options.
-    kill: boolean
-        Remove isolated pixels on the reference image before assessment.
 
     Returns
     -------
@@ -665,8 +663,9 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None, k
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
 
-    if kill:
-        reference_image = kill_isolated_pixels(reference_image, threshold=0.2)
+    if params is not None and "kill" in params and params["kill"]:
+        # Remove isolated pixels on the reference image before assessment.
+        reference_image = kill_isolated_pixels(reference_image, threshold=params["kill_threshold"])
 
     output_image_parameters = get_hillas_parameters(output_image)
     reference_image_parameters = get_hillas_parameters(reference_image)
@@ -721,7 +720,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None, k
     reference_image_parameter_miss = reference_image_parameters.miss.value
     delta_miss = reference_image_parameter_miss - output_image_parameter_miss
 
-    if kill:
+    if params is not None and "kill" in params and params["kill"]:
         suffix_str = '_kill'
     else:
         suffix_str = ''
@@ -752,7 +751,7 @@ def metric_hillas_delta2(input_img, output_image, reference_image, params=None):
 
     It works exactly like :func:`metric_hillas_delta` except that isolated
     pixels are removed from the ``reference_image`` before the evaluation
-    (using :func:`datapipe.denoising.kill_isolated_pixels`).
+    (using :func:`datapipe.image.kill_isolated_pixels`).
 
     Parameters
     ----------
@@ -772,7 +771,13 @@ def metric_hillas_delta2(input_img, output_image, reference_image, params=None):
         The score of the image cleaning algorithm for the given image.
     """
 
-    scores = metric_hillas_delta(input_img, output_image, reference_image, params, kill=True)
+    if params is None:
+        params = {}
+
+    params["kill"] = True
+    params["kill_threshold"] = 0.2   # TODO: don't give an hardcoded value
+
+    scores = metric_hillas_delta(input_img, output_image, reference_image, params)
 
     return scores
 
