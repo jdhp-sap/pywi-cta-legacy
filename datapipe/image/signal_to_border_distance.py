@@ -51,10 +51,14 @@ def signal_to_border_distance(img):
 
     res = signal_to_border(img)
 
-    for i, s in enumerate(res):
-        if s == 0:
-            break
+    sum_pe_img = res[0]
 
-    dist = len(res) - (i + 1)
+    dist = 0
+
+    for pe in res[1:]:
+        if pe == sum_pe_img:
+            dist += 1
+        else:
+            break
 
     return dist
