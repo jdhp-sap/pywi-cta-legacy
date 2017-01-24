@@ -31,6 +31,7 @@ __all__ = ['normalize_array',
            'metric_psnr',
            'metric_hillas_delta',
            'metric_hillas_delta2',
+           'metric_kill_isolated_pixels',
            'assess_image_cleaning']
 
 import collections
@@ -38,7 +39,9 @@ import collections
 import numpy as np
 
 from datapipe.image.hillas_parameters import get_hillas_parameters
+
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 
 from skimage.measure import compare_ssim as ssim
 from skimage.measure import compare_psnr as psnr
@@ -748,54 +751,72 @@ def metric_hillas_delta2(input_img, output_image, reference_image, params=None):
     return scores
 
 
+# Kill isolated pixels ########################################################
+
+def metric_kill_isolated_pixels(input_img, output_image, reference_image, params=None):
+    delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(output_image)
+
+    score_dict = collections.OrderedDict((
+                    ('kill_isolated_pixels_delta_pe',         delta_pe),
+                    ('kill_isolated_pixels_delta_abs_pe',     delta_abs_pe),
+                    ('kill_isolated_pixels_delta_num_pixels', delta_num_pixels)
+                 ))
+
+    Score = collections.namedtuple('Score', score_dict.keys())
+
+    return Score(**score_dict)
+
 ###############################################################################
 # ASSESS FUNCTIONS DRIVER                                                     #
 ###############################################################################
 
 BENCHMARK_DICT = {
-    "mse":           (metric_mse,),
-    "nrmse":         (metric_nrmse,),
-    "unrmse":        (metric1,),
-    "e_shape":       (metric2,),
-    "e_energy":      (metric3,),
-    "mpdspd":        (metric2, metric3),
-    "sspd":          (metric4,),
-    "ssim":          (metric_ssim,),
-    "psnr":          (metric_psnr,),
-    "hillas_delta":  (metric_hillas_delta,),
-    "hillas_delta2": (metric_hillas_delta2,),
-    "all":           (metric_mse, metric_nrmse, metric2, metric3, metric4, metric_ssim, metric_psnr, metric_hillas_delta, metric_hillas_delta2)
+    "mse":                  (metric_mse,),
+    "nrmse":                (metric_nrmse,),
+    "unrmse":               (metric1,),
+    "e_shape":              (metric2,),
+    "e_energy":             (metric3,),
+    "mpdspd":               (metric2, metric3),
+    "sspd":                 (metric4,),
+    "ssim":                 (metric_ssim,),
+    "psnr":                 (metric_psnr,),
+    "hillas_delta":         (metric_hillas_delta,),
+    "hillas_delta2":        (metric_hillas_delta2,),
+    "kill_isolated_pixels": (metric_kill_isolated_pixels,),
+    "all":                  (metric_mse, metric_nrmse, metric2, metric3, metric4, metric_ssim, metric_psnr, metric_hillas_delta, metric_hillas_delta2, metric_kill_isolated_pixels)
 }
 
 METRIC_NAME_DICT = {
-    metric_mse:           "mse",
-    metric_nrmse:         "nrmse",
-    metric1:              "unrmse",
-    metric2:              "e_shape",
-    metric3:              "e_energy",
-    metric4:              "sspd",
-    metric_ssim:          "ssim",
-    metric_psnr:          "psnr",
-    metric_hillas_delta:  "hillas_delta",
-    metric_hillas_delta2: "hillas_delta2"
+    metric_mse:                  "mse",
+    metric_nrmse:                "nrmse",
+    metric1:                     "unrmse",
+    metric2:                     "e_shape",
+    metric3:                     "e_energy",
+    metric4:                     "sspd",
+    metric_ssim:                 "ssim",
+    metric_psnr:                 "psnr",
+    metric_hillas_delta:         "hillas_delta",
+    metric_hillas_delta2:        "hillas_delta2",
+    metric_kill_isolated_pixels: "kill_isolated_pixels"
 }
 
 def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
-    - "mse":           :func:`metric_mse`
-    - "nrmse":         :func:`metric_nrmse`
-    - "unrmse":        :func:`metric1`
-    - "e_shape":       :func:`metric2`
-    - "e_energy":      :func:`metric3`
-    - "mpdspd":        :func:`metric2`, :func:`metric3`
-    - "sspd":          :func:`metric4`
-    - "ssim":          :func:`metric_ssim`
-    - "psnr":          :func:`metric_psnr`
-    - "hillas_delta":  :func:`metric_hillas_delta`
-    - "hillas_delta2": :func:`metric_hillas_delta2`
-    - "all":           :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`, :func:`metric_hillas_delta`, :func:`metric_hillas_delta2`
+    - "mse":                  :func:`metric_mse`
+    - "nrmse":                :func:`metric_nrmse`
+    - "unrmse":               :func:`metric1`
+    - "e_shape":              :func:`metric2`
+    - "e_energy":             :func:`metric3`
+    - "mpdspd":               :func:`metric2`, :func:`metric3`
+    - "sspd":                 :func:`metric4`
+    - "ssim":                 :func:`metric_ssim`
+    - "psnr":                 :func:`metric_psnr`
+    - "hillas_delta":         :func:`metric_hillas_delta`
+    - "hillas_delta2":        :func:`metric_hillas_delta2`
+    - "kill_isolated_pixels": :func:`metric_kill_isolated_pixels`
+    - "all":                  :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`, :func:`metric_hillas_delta`, :func:`metric_hillas_delta2`, :func:`metric_kill_isolated_pixels`
 
     Parameters
     ----------
