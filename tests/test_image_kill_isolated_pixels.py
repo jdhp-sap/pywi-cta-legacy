@@ -118,7 +118,7 @@ class TestKillIsolatedPixels(unittest.TestCase):
 
         # Output image ################
 
-        output_img = kill_isolated_pixels(input_img)
+        output_img = kill_isolated_pixels(input_img, threshold=None)
 
         # Expected output image #######
 
@@ -126,6 +126,32 @@ class TestKillIsolatedPixels(unittest.TestCase):
                                         [0, 0, 0, 1, 0, 0],
                                         [0, 0, 0, 0, 0, 0],
                                         [0, 0, 0, 0, 0, 0]])
+
+        np.testing.assert_array_equal(output_img, expected_output_img)
+
+
+    def test_kill_isolated_pixels_example4(self):
+        """Check the output of the kill_isolated_pixels function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 1, 1, 1, 0, 0],
+                              [0, 0, 1,-1, 1, 0, 0],
+                              [0, 0, 1, 1, 1, 0, 0],
+                              [1, 0, 0, 0, 0, 0, 0]])
+
+        # Output image ################
+
+        output_img = kill_isolated_pixels(input_img, threshold=None)
+
+        # Expected output image #######
+
+        expected_output_img = np.array([[0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 1, 1, 1, 0, 0],
+                                        [0, 0, 1,-1, 1, 0, 0],
+                                        [0, 0, 1, 1, 1, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0]])
 
         np.testing.assert_array_equal(output_img, expected_output_img)
 
@@ -194,7 +220,7 @@ class TestKillIsolatedPixels(unittest.TestCase):
 
         # Output image ################
 
-        delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(input_img)
+        delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(input_img, threshold=None)
 
         # Expected output image #######
 
