@@ -40,7 +40,8 @@ def kill_isolated_pixels(array, threshold=0.2, plot=False):
     filtered_array = np.copy(array)
 
     # Put to 0 pixels that are below 'threshold'
-    filtered_array[filtered_array < threshold] = 0
+    if threshold is not None:
+        filtered_array[filtered_array < threshold] = 0
     mask = filtered_array > 0
 
     # Detect islands ("label")
