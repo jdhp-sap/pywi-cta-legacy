@@ -31,7 +31,11 @@ import time
 import traceback
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
-from datapipe.image import signal_to_border_distance
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
+
+from datapipe.image.signal_to_border_distance import signal_to_border
+from datapipe.image.signal_to_border_distance import signal_to_border_distance
+
 from datapipe.benchmark import assess
 from datapipe.io import images
 
@@ -119,8 +123,14 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["score"] = score_tuple
                         image_dict["score_name"] = score_name_tuple
                         image_dict["execution_time"] = execution_time
-                        image_dict["signal_to_border"] = signal_to_border_distance.signal_to_border(reference_img)
-                        image_dict["signal_to_border_distance"] = signal_to_border_distance.signal_to_border_distance(reference_img)
+                        image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)
+                        image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img)
+
+                        delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(reference_img)
+
+                        image_dict["img_ref_delta_pe"] = delta_pe
+                        image_dict["img_ref_delta_abs_pe"] = delta_abs_pe
+                        image_dict["img_ref_delta_num_pixels"] = delta_num_pixels
 
                     # PLOT IMAGES #########################################################
 
