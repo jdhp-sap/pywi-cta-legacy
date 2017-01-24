@@ -56,3 +56,17 @@ def kill_isolated_pixels(array, threshold=0.2, plot=False):
     filtered_array[remove_pixel] = 0
 
     return filtered_array
+
+def kill_isolated_pixels_stats(array, threshold=0.2):
+    img = np.copy(array)
+    filtered_img = kill_isolated_pixels(img, threshold=threshold)
+
+    delta_pe = np.sum(img - filtered_img)
+    delta_abs_pe = np.sum(np.abs(img - filtered_img))
+
+    img[img != 0] = 1
+    filtered_img[filtered_img != 0] = 1
+    delta_num_pixels = np.sum(img - filtered_img)
+
+    return delta_pe, delta_abs_pe, delta_num_pixels 
+
