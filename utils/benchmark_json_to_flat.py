@@ -91,7 +91,22 @@ def extract_columns(image_dict):
             image_dict["tel_pos_y"],
             image_dict["tel_pos_y_unit"],
             image_dict["tel_pos_z"],
-            image_dict["tel_pos_z_unit"]
+            image_dict["tel_pos_z_unit"],
+            image_dict["img_ref_delta_abs_pe"],
+            image_dict["img_ref_delta_num_pixels"],
+            image_dict["img_ref_delta_pe"],
+            image_dict["img_ref_hillas_2_cen_x"],
+            image_dict["img_ref_hillas_2_cen_y"],
+            image_dict["img_ref_hillas_2_length"],
+            image_dict["img_ref_hillas_2_miss"],
+            image_dict["img_ref_hillas_2_phi"],
+            image_dict["img_ref_hillas_2_psi"],
+            image_dict["img_ref_hillas_2_r"],
+            image_dict["img_ref_hillas_2_size"],
+            image_dict["img_ref_hillas_2_width"],
+            image_dict["img_ref_signal_to_border_distance"],
+            image_dict["min_npe"],
+            image_dict["max_npe"]
            ]
 
     for index, (score, score_name) in enumerate(zip(image_dict["score"], image_dict["score_name"])):
@@ -141,6 +156,21 @@ OUTPUT_HEADER_LIST = [
                       "Tel pos y unit",
                       "Tel pos z",
                       "Tel pos z unit"
+                      "Img ref delta abs pe",
+                      "Img ref delta num pixels",
+                      "Img ref delta pe",
+                      "Img ref hillas 2 cen x",
+                      "Img ref hillas 2 cen y",
+                      "Img ref hillas 2 length",
+                      "Img ref hillas 2 miss",
+                      "Img ref hillas 2 phi",
+                      "Img ref hillas 2 psi",
+                      "Img ref hillas 2 r",
+                      "Img ref hillas 2 size",
+                      "Img ref hillas 2 width",
+                      "Img ref signal to border distance",
+                      "Min npe",
+                      "Max npe"
                      ]
 
 OUTPUT_DTYPE_LIST = [
@@ -175,6 +205,21 @@ OUTPUT_DTYPE_LIST = [
                      "S16",  # Tel pos y unit
                      "f8",   # Tel pos z
                      "S16",  # Tel pos z unit
+                     "f8",   # Img ref delta abs pe
+                     "f8",   # Img ref delta num pixels
+                     "f8",   # Img ref delta pe
+                     "f8",   # Img ref hillas 2 cen x
+                     "f8",   # Img ref hillas 2 cen y
+                     "f8",   # Img ref hillas 2 length
+                     "f8",   # Img ref hillas 2 miss
+                     "f8",   # Img ref hillas 2 phi
+                     "f8",   # Img ref hillas 2 psi
+                     "f8",   # Img ref hillas 2 r
+                     "f8",   # Img ref hillas 2 size
+                     "f8",   # Img ref hillas 2 width
+                     "f8",   # Img ref signal to border distance
+                     "f8",   # Min npe
+                     "f8",   # Max npe
                     ]
 
 score_name_list = []
