@@ -588,17 +588,15 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the following relative *Hillas parameters*:
 
-    .. math::
-
-        \delta_{\text{size}}   = \delta_{\text{size_ref}}   - \delta_{\text{size_out}}
-        \delta_{\text{cen_x}}  = \delta_{\text{cen_x_ref}}  - \delta_{\text{cen_x_out}}
-        \delta_{\text{cen_y}}  = \delta_{\text{cen_y_ref}}  - \delta_{\text{cen_y_out}}
-        \delta_{\text{length}} = \delta_{\text{length_ref}} - \delta_{\text{length_out}}
-        \delta_{\text{width}}  = \delta_{\text{width_ref}}  - \delta_{\text{width_out}}
-        \delta_{\text{r}}      = \delta_{\text{r_ref}}      - \delta_{\text{r_out}}
-        \delta_{\text{phi}}    = \delta_{\text{phi_ref}}    - \delta_{\text{phi_out}}
-        \delta_{\text{psi}}    = \delta_{\text{psi_ref}}    - \delta_{\text{psi_out}}
-        \delta_{\text{miss}}   = \delta_{\text{miss_ref}}   - \delta_{\text{miss_out}}
+    * :math:`\Delta_{\text{size}}   = \text{reference_image}_{\text{size}}   - \text{output_image}_{\text{size_out}}`
+    * :math:`\Delta_{\text{cen_x}}  = \text{reference_image}_{\text{cen_x}}  - \text{output_image}_{\text{cen_x_out}}`
+    * :math:`\Delta_{\text{cen_y}}  = \text{reference_image}_{\text{cen_y}}  - \text{output_image}_{\text{cen_y_out}}`
+    * :math:`\Delta_{\text{length}} = \text{reference_image}_{\text{length}} - \text{output_image}_{\text{length_out}}`
+    * :math:`\Delta_{\text{width}}  = \text{reference_image}_{\text{width}}  - \text{output_image}_{\text{width_out}}`
+    * :math:`\Delta_{\text{r}}      = \text{reference_image}_{\text{r}}      - \text{output_image}_{\text{r_out}}`
+    * :math:`\Delta_{\text{phi}}    = \text{reference_image}_{\text{phi}}    - \text{output_image}_{\text{phi_out}}`
+    * :math:`\Delta_{\text{psi}}    = \text{reference_image}_{\text{psi}}    - \text{output_image}_{\text{psi_out}}`
+    * :math:`\Delta_{\text{miss}}   = \text{reference_image}_{\text{miss}}   - \text{output_image}_{\text{miss_out}}`
 
     See http://adsabs.harvard.edu/abs/1989ApJ...342..379W for more details
     about Hillas parameters.
