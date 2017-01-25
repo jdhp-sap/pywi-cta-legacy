@@ -22,6 +22,57 @@
 
 """
 Convert benchmark's JSON files to flat files.
+
+Each line is one image.
+
+- "JSON input file".................. : the JSON output file the data come from (indicate the configuration used, e.g. wavelets, tailcut, ...)
+- "Event ID"
+- "Tel ID"
+- "NPE".............................. : the total number of photoelectrons in the image
+- "FITS input file".................. : the name of the input file (which contain the noisy and the pure signal version of the image)
+- "Execution time"
+- "EV count"......................... : same as simtel
+- "MC energy"........................ : montecarlo energy in TeV
+- "mC energy unit"
+- "MC altitude"
+- "MC altitude unit"
+- "MC azimuth"....................... : same as simtel
+- "MC azimuth unit"
+- "MC core x"........................ : same as simtel
+- "MC core x unit"
+- "MC core y"........................ : same as simtel
+- "MC core y unit"
+- "MC height first interaction"...... : same as simtel
+- "MC height first interaction unit"
+- "Num tel with data"................ : same as simtel
+- "Num tel with trigger"............. : same as simtel
+- "Optical foclen"................... : same as simtel
+- "Optical foclen unit"
+- "Run id"........................... : same as simtel
+- "Simtel path"...................... : the simtel file used to make the "FITS input file"
+- "Tel pos x"........................ : same as simtel
+- "Tel pos x unit"
+- "Tel pos y"........................ : same as simtel
+- "Tel pos y unit"
+- "Tel pos z"........................ : same as simtel
+- "Tel pos z unit"
+- "Img ref delta abs pe"............. : number of PE removed by the island cleaning on the reference image (sum(abs(original_img - filtered_img)))
+- "Img ref delta num pixels"......... : number of pixels (not their value) removed by the island cleaning on the reference image
+- "Img ref delta pe"................. : number of PE removed by the island cleaning on the reference image (sum(original_img - filtered_img))
+- "Img ref hillas 2 cen x"........... : hillas parameter "cen x"
+- "Img ref hillas 2 cen y"........... : hillas parameter "cen y"
+- "Img ref hillas 2 length".......... : hillas parameter "length"
+- "Img ref hillas 2 miss"............ : hillas parameter "miss"
+- "Img ref hillas 2 phi"............. : hillas parameter "phi"
+- "Img ref hillas 2 psi"............. : hillas parameter "psi"
+- "Img ref hillas 2 r"............... : hillas parameter "r"
+- "Img ref hillas 2 size"............ : hillas parameter "size"
+- "Img ref hillas 2 width"........... : hillas parameter "width"
+- "Img ref signal to border distance" : the smallest Manhattan distance of the pure signal to any border of the image
+- "Min npe".......................... : the lowest pixel value in the image
+- "Max npe".......................... : the highest pixel value in the image
+
+For "metrics" headers, see http://www.jdhp.org/software/sap-cta-data-pipeline/api_benchmark_assess.html
 """
 
 import common_functions as common
