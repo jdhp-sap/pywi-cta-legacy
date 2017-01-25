@@ -20,11 +20,6 @@ HIST_TYPE='bar'
 ALPHA=0.5
 
 
-def extract_score_list(json_dict, score_index):
-    io_list = json_dict["io"]
-    json_data = [image_dict["score"][score_index] for image_dict in io_list if "score" in image_dict]
-    return json_data
-
 if __name__ == '__main__':
 
     # PARSE OPTIONS ###########################################################
@@ -40,11 +35,12 @@ if __name__ == '__main__':
     parser.add_argument("--tight", action="store_true", default=False,
                         help="Optimize the X axis usage")
 
-    parser.add_argument("--max", "-m", type=float, default=None, metavar="FLOAT", 
+    parser.add_argument("--max", type=float, default=None, metavar="FLOAT", 
                         help="The maximum abscissa value to plot")
 
-    parser.add_argument("--index", "-i", type=int, default=0, metavar="INT", 
-                        help="The index of the score to plot in case of multivalued scores")
+    parser.add_argument("--metric", "-m", required=True,
+                        metavar="STRING",
+                        help="The metric name to plot")
 
     parser.add_argument("--overlaid", "-O", action="store_true", default=False,
                         help="Overlaid histograms")
@@ -69,14 +65,14 @@ if __name__ == '__main__':
     logy = args.logy
     tight = args.tight
     max_abscissa = args.max
-    score_index = args.index
     overlaid = args.overlaid
     title = args.title
+    metric = args.metric
     quiet = args.quiet
     json_file_path_list = args.fileargs
 
     if args.output is None:
-        suffix1 = "_i" + str(score_index)
+        suffix1 = "_" + metric
         suffix2 = "_o" if overlaid else ""
         suffix3 = "_" + str(max_abscissa) if max_abscissa is not None else ""
         output_file_path = "scores{}{}{}.pdf".format(suffix1, suffix2, suffix3)
@@ -89,14 +85,18 @@ if __name__ == '__main__':
     label_list = []
 
     for json_file_path in json_file_path_list:
+        print("Parsing {}...".format(json_file_path))
+
         json_dict = common.parse_json_file(json_file_path)
 
-        score_list = extract_score_list(json_dict, score_index)
+        print(len(json_dict["io"]), "images")
+
+        score_array = common.extract_score_array(json_dict, metric)
 
         if max_abscissa is not None:
-            score_list = [score for score in score_list if score <= max_abscissa]
+            score_array = np.array([score for score in score_array if score <= max_abscissa])
 
-        data_list.append(np.array(score_list))
+        data_list.append(score_array)
 
         label_list.append(json_dict["label"])
 
