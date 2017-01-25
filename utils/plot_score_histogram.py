@@ -75,7 +75,7 @@ if __name__ == '__main__':
         suffix1 = "_" + metric
         suffix2 = "_o" if overlaid else ""
         suffix3 = "_" + str(max_abscissa) if max_abscissa is not None else ""
-        output_file_path = "scores{}{}{}.pdf".format(suffix1, suffix2, suffix3)
+        output_file_path = "scores{}{}{}.png".format(suffix1, suffix2, suffix3)
     else:
         output_file_path = args.output
 
