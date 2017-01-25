@@ -10,6 +10,7 @@ import common_functions as common
 import argparse
 import matplotlib.pyplot as plt
 
+import copy
 
 if __name__ == '__main__':
 
@@ -19,6 +20,12 @@ if __name__ == '__main__':
 
     parser.add_argument("--key", "-k", required=True, metavar="STRING",
                         help='The key of the value to plot (e.g. "mc_energy" or "npe")')
+
+    parser.add_argument("--key-min", type=float, default=None, metavar="FLOAT",
+                        help='The key\'s minimum value to plot')
+
+    parser.add_argument("--key-max", type=float, default=None, metavar="FLOAT",
+                        help='The key\'s maximum value to plot')
 
     parser.add_argument("--logx", action="store_true", default=False,
                         help="Use a logaritmic scale on the X axis")
@@ -41,6 +48,10 @@ if __name__ == '__main__':
                         metavar="STRING",
                         help="The title of the plot")
 
+    parser.add_argument("--telid", type=int, default=None,
+                        metavar="INTEGER",
+                        help="Only plot results for this telescope")
+
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
@@ -50,11 +61,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     key = args.key
+    key_min = args.key_min
+    key_max = args.key_max
     logx = args.logx
     logy = args.logy
     logz = args.logz
     metric = args.metric
     title = args.title
+    tel_id = args.telid
     quiet = args.quiet
     json_file_path_list = args.fileargs
 
@@ -73,6 +87,12 @@ if __name__ == '__main__':
         print("Parsing {}...".format(json_file_path))
 
         json_dict = common.parse_json_file(json_file_path)
+
+        if tel_id is not None:
+            json_dict = common.image_filter_equals(json_dict, "tel_id", tel_id)
+
+        if key_min is not None and key_max is not None:
+            json_dict = common.image_filter_range(copy.deepcopy(json_dict), key, key_min, key_max)
 
         print(len(json_dict["io"]), "images")
 
@@ -101,7 +121,7 @@ if __name__ == '__main__':
                            score_array,
                            metadata_array,
                            "Score",          # "Score (the lower the better)",
-                           "Total counts in refernce image (PE)",
+                           "Total counts in refernce image (PE)" if key == "npe" else key,
                            logx,
                            logy,
                            logz,
@@ -120,7 +140,11 @@ if __name__ == '__main__':
     if title is not None:
         fig.suptitle(title, fontsize=20)
     else:
-        suffix = " (index {})".format(metric)
+        suffix = " ({})".format(metric)
+        if key_min is not None and key_max is not None:
+            suffix += " from {} to {} {}".format(key_min, key_max, key)
+        if tel_id is not None:
+            suffix += " Tel {}".format(tel_id)
         fig.suptitle("Score" + suffix, fontsize=20)
 
     plt.subplots_adjust(top=0.85)
