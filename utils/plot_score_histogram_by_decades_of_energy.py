@@ -88,8 +88,6 @@ if __name__ == '__main__':
 
         json_dict = common.parse_json_file(json_file_path)
 
-        label = json_dict["label"]
-
         if tel_id is not None:
             json_dict = common.image_filter_equals(json_dict, "tel_id", tel_id)
 
