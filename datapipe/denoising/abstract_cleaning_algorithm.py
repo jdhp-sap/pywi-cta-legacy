@@ -136,27 +136,29 @@ class AbstractCleaningAlgorithm(object):
 
                         #hillas_params_1 = get_hillas_parameters(reference_img, 1)
 
-                        #image_dict["img_ref_hillas_1_size"] =   hillas_params_1.size
-                        #image_dict["img_ref_hillas_1_cen_x"] =  hillas_params_1.cen_x.value
-                        #image_dict["img_ref_hillas_1_cen_y"] =  hillas_params_1.cen_y.value
-                        #image_dict["img_ref_hillas_1_length"] = hillas_params_1.length.value
-                        #image_dict["img_ref_hillas_1_width"] =  hillas_params_1.width.value
-                        #image_dict["img_ref_hillas_1_r"] =      hillas_params_1.r
-                        #image_dict["img_ref_hillas_1_phi"] =    hillas_params_1.phi
-                        #image_dict["img_ref_hillas_1_psi"] =    hillas_params_1.psi.value
-                        #image_dict["img_ref_hillas_1_miss"] =   hillas_params_1.miss.value
+                        #image_dict["img_ref_hillas_1_size"] =     hillas_params_1.size
+                        #image_dict["img_ref_hillas_1_cen_x"] =    hillas_params_1.cen_x.value
+                        #image_dict["img_ref_hillas_1_cen_y"] =    hillas_params_1.cen_y.value
+                        #image_dict["img_ref_hillas_1_length"] =   hillas_params_1.length.value
+                        #image_dict["img_ref_hillas_1_width"] =    hillas_params_1.width.value
+                        #image_dict["img_ref_hillas_1_r"] =        hillas_params_1.r
+                        #image_dict["img_ref_hillas_1_phi"] =      hillas_params_1.phi
+                        #image_dict["img_ref_hillas_1_psi"] =      hillas_params_1.psi.value
+                        #image_dict["img_ref_hillas_1_psi_norm"] = np.abs(np.sin(np.radians(hillas_params_1.psi.value)))
+                        #image_dict["img_ref_hillas_1_miss"] =     hillas_params_1.miss.value
 
                         hillas_params_2 = get_hillas_parameters(reference_img, 2)
 
-                        image_dict["img_ref_hillas_2_size"] =   hillas_params_2.size
-                        image_dict["img_ref_hillas_2_cen_x"] =  hillas_params_2.cen_x.value
-                        image_dict["img_ref_hillas_2_cen_y"] =  hillas_params_2.cen_y.value
-                        image_dict["img_ref_hillas_2_length"] = hillas_params_2.length.value
-                        image_dict["img_ref_hillas_2_width"] =  hillas_params_2.width.value
-                        image_dict["img_ref_hillas_2_r"] =      hillas_params_2.r
-                        image_dict["img_ref_hillas_2_phi"] =    hillas_params_2.phi
-                        image_dict["img_ref_hillas_2_psi"] =    hillas_params_2.psi.value
-                        image_dict["img_ref_hillas_2_miss"] =   hillas_params_2.miss.value
+                        image_dict["img_ref_hillas_2_size"] =     hillas_params_2.size
+                        image_dict["img_ref_hillas_2_cen_x"] =    hillas_params_2.cen_x.value
+                        image_dict["img_ref_hillas_2_cen_y"] =    hillas_params_2.cen_y.value
+                        image_dict["img_ref_hillas_2_length"] =   hillas_params_2.length.value
+                        image_dict["img_ref_hillas_2_width"] =    hillas_params_2.width.value
+                        image_dict["img_ref_hillas_2_r"] =        hillas_params_2.r
+                        image_dict["img_ref_hillas_2_phi"] =      hillas_params_2.phi
+                        image_dict["img_ref_hillas_2_psi"] =      hillas_params_2.psi.value
+                        image_dict["img_ref_hillas_2_psi_norm"] = np.abs(np.sin(np.radians(hillas_params_2.psi.value)))
+                        image_dict["img_ref_hillas_2_miss"] =     hillas_params_2.miss.value
 
                     # PLOT IMAGES #########################################################
 
