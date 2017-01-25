@@ -127,7 +127,9 @@ if __name__ == '__main__':
                        logy=logy,
                        xlabel=key,
                        title=title,
-                       tight=tight)
+                       tight=tight,
+                       info_box_rms=False,
+                       info_box_std=True)
 
     # SAVE FILE AND PLOT ######################################################
 
