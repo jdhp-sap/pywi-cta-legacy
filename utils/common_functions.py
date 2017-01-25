@@ -386,7 +386,20 @@ def plot_hist1d(axis,
     return res_tuple
 
 
-def plot_hist2d(axis, x_array, y_array, x_label, y_label, logx=False, logy=False, logz=False, xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None):
+def plot_hist2d(axis,
+                x_array,
+                y_array,
+                x_label,
+                y_label,
+                logx=False,
+                logy=False,
+                logz=False,
+                xmin=None,
+                xmax=None,
+                ymin=None,
+                ymax=None,
+                zmin=None,
+                zmax=None):
 
     if xmin is None:
         xmin = x_array.min()
