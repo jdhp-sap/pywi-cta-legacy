@@ -155,7 +155,7 @@ OUTPUT_HEADER_LIST = [
                       "Tel pos y",
                       "Tel pos y unit",
                       "Tel pos z",
-                      "Tel pos z unit"
+                      "Tel pos z unit",
                       "Img ref delta abs pe",
                       "Img ref delta num pixels",
                       "Img ref delta pe",
