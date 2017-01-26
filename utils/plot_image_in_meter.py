@@ -83,9 +83,9 @@ def plot_ellipse_shower_on_image_meter(axis, image_array, pixels_position):
                                  yy.flatten(), # * u.meter,
                                  image_array.flatten())
 
-    centroid = (hillas.cen_x.value, hillas.cen_y.value)
-    length = hillas.length.value
-    width = hillas.width.value
+    centroid = (hillas.cen_x, hillas.cen_y)
+    length = hillas.length
+    width = hillas.width
     angle = hillas.psi.to(u.rad).value # - np.pi/2.   # TODO
 
     print("centroid:", centroid)
@@ -96,7 +96,7 @@ def plot_ellipse_shower_on_image_meter(axis, image_array, pixels_position):
     #print("DEBUG:", hillas[7].value, angle, np.degrees(angle))
 
     #ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)   # TODO
-    ellipse = Ellipse(xy=centroid, width=width, height=length, angle=np.degrees(angle), fill=False, color='red', lw=2)
+    ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
     axis.axes.add_patch(ellipse)
 
     title = axis.axes.get_title()
