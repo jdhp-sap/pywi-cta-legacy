@@ -59,15 +59,16 @@ Each line is one image.
 - "Img ref delta abs pe"............. : number of PE removed by the island cleaning on the reference image (sum(abs(original_img - filtered_img)))
 - "Img ref delta num pixels"......... : number of pixels (not their value) removed by the island cleaning on the reference image
 - "Img ref delta pe"................. : number of PE removed by the island cleaning on the reference image (sum(original_img - filtered_img))
-- "Img ref hillas 2 cen x"........... : hillas parameter "cen x"
-- "Img ref hillas 2 cen y"........... : hillas parameter "cen y"
-- "Img ref hillas 2 length".......... : hillas parameter "length"
-- "Img ref hillas 2 miss"............ : hillas parameter "miss"
-- "Img ref hillas 2 phi"............. : hillas parameter "phi"
-- "Img ref hillas 2 psi"............. : hillas parameter "psi"
-- "Img ref hillas 2 r"............... : hillas parameter "r"
-- "Img ref hillas 2 size"............ : hillas parameter "size"
-- "Img ref hillas 2 width"........... : hillas parameter "width"
+- "Img ref hillas 2 cen x"........... : hillas parameter "cen x" on the reference (pure signal) image
+- "Img ref hillas 2 cen y"........... : hillas parameter "cen y" on the reference (pure signal) image
+- "Img ref hillas 2 length".......... : hillas parameter "length" on the reference (pure signal) image
+- "Img ref hillas 2 miss"............ : hillas parameter "miss" on the reference (pure signal) image
+- "Img ref hillas 2 phi"............. : hillas parameter "phi" on the reference (pure signal) image
+- "Img ref hillas 2 psi"............. : hillas parameter "psi" on the reference (pure signal) image
+- "Img ref hillas 2 psi norm"........ : normalized hillas parameter "psi" on the reference (pure signal) image (abs(sin(radian(psi))))
+- "Img ref hillas 2 r"............... : hillas parameter "r" on the reference (pure signal) image
+- "Img ref hillas 2 size"............ : hillas parameter "size" on the reference (pure signal) image
+- "Img ref hillas 2 width"........... : hillas parameter "width" on the reference (pure signal) image
 - "Img ref signal to border distance" : the smallest Manhattan distance of the pure signal to any border of the image
 - "Min npe".......................... : the lowest pixel value in the image
 - "Max npe".......................... : the highest pixel value in the image
@@ -152,6 +153,7 @@ def extract_columns(image_dict):
             image_dict["img_ref_hillas_2_miss"],
             image_dict["img_ref_hillas_2_phi"],
             image_dict["img_ref_hillas_2_psi"],
+            image_dict["img_ref_hillas_2_psi_norm"],
             image_dict["img_ref_hillas_2_r"],
             image_dict["img_ref_hillas_2_size"],
             image_dict["img_ref_hillas_2_width"],
@@ -216,6 +218,7 @@ OUTPUT_HEADER_LIST = [
                       "Img ref hillas 2 miss",
                       "Img ref hillas 2 phi",
                       "Img ref hillas 2 psi",
+                      "Img ref hillas 2 psi norm",
                       "Img ref hillas 2 r",
                       "Img ref hillas 2 size",
                       "Img ref hillas 2 width",
@@ -265,6 +268,7 @@ OUTPUT_DTYPE_LIST = [
                      "f8",   # Img ref hillas 2 miss
                      "f8",   # Img ref hillas 2 phi
                      "f8",   # Img ref hillas 2 psi
+                     "f8",   # Img ref hillas 2 psi norm
                      "f8",   # Img ref hillas 2 r
                      "f8",   # Img ref hillas 2 size
                      "f8",   # Img ref hillas 2 width
