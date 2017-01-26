@@ -150,7 +150,11 @@ def extract_min(data_list):
     float
         The minimum value of `data_list`
     """
-    min_value = np.ravel(data_list).min()
+    #min_value = np.ravel(data_list).min()
+
+    min_value_array = np.array([np.ravel(data).min() for data in data_list])
+    min_value = min_value_array.min()
+
     return min_value
 
 
@@ -172,7 +176,11 @@ def extract_max(data_list):
     float
         The maximum value of `data_list`
     """
-    max_value = np.ravel(data_list).max()
+    #max_value = np.ravel(data_list).max()
+
+    max_value_array = np.array([np.ravel(data).max() for data in data_list])
+    max_value = max_value_array.max()
+
     return max_value
 
 # PLOT FUNCTIONS ##############################################################
@@ -434,7 +442,6 @@ def plot_hist2d(axis,
         ybins = np.logspace(logymin, logymax, 50) # <- make a range from 10**ymin to 10**ymax
     else:
         ybins = np.linspace(ymin, ymax, 50) # <- make a range from ymin to ymax
-
 
     # Plot
     counts, _, _ = np.histogram2d(x_array, y_array, bins=(xbins, ybins))
