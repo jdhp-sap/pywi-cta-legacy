@@ -16,6 +16,10 @@ import matplotlib.colors
 
 import math
 
+import astropy.units as u
+from ctapipe.image.hillas import hillas_parameters_1 as hillas_parameters_1
+from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters_2
+
 
 # DIRECTORY PARSER ############################################################
 
@@ -504,7 +508,109 @@ def plot_hist2d(axis,
     plt.setp(axis.get_xticklabels(), fontsize=14)
     plt.setp(axis.get_yticklabels(), fontsize=14)
 
+
+# PERPENDICULAR HIT DISTRIBUTION ##############################################
+
+
+def angle_and_point_to_line_equation(angle_radian, point):
+    """
+    point: a point the line goes through
+    angle: the angle of the line (in radian)
+    """
+
+    a = math.tan(angle_radian)
+    b = -1
+    c = -math.tan(angle_radian) * point[0] + point[1]
+
+    return a, b, c
+
+
+def signed_distance_point_to_line(a, b, c, p):
+    """
+    Distance between a point p and a line defined by a, b and c.
+
+    a, b, c: the line $x + by + c = 0$
+    p: the point
+    """
+    d1 = (a*p[0] + b*p[1] + c)
+    d2 = math.sqrt(math.pow(a, 2.) + math.pow(b, 2.))
+    #d = abs(d1)/d2
+    d = d1/d2
+    return d
+
+
+def orthogonal_projection_point_to_line(a, b, c, p):
+    """
+    Return the projection of the point p on the line defined by a, b and c with $x + by + c = 0$.
+    """
+    p2 = ((b*(b*p[0] - a*p[1]) - a*c)/(math.pow(a,2.)+math.pow(b,2.)),
+          (a*(-b*p[0] + a*p[1]) - b*c)/(math.pow(a,2.)+math.pow(b,2.)))
+    return p2
+
+
+def perpendicular_hit_distribution(image_array, pixels_position):
+
+    image_array = copy.deepcopy(image_array)
+
+    ###
+
+    xx, yy = pixels_position[0], pixels_position[1]
+
+    hillas = hillas_parameters_1(xx.flatten() * u.meter,
+                                 yy.flatten() * u.meter,
+                                 image_array.flatten())
+
+    centroid = (hillas.cen_x.value, hillas.cen_y.value)
+    length = hillas.length.value
+    width = hillas.width.value
+    angle = hillas.psi.to(u.rad).value
+
+    #print("centroid:", centroid)
+    #print("length:",   length)
+    #print("width:",    width)
+    #print("angle:",    angle)
+
+    a, b, c = angle_and_point_to_line_equation(angle, centroid)
+
+    #print("a:", a)
+    #print("b:", b)
+    #print("c:", c)
+
+    ###
+
+    pixel_stat_list = []
+
+    for pixel_value, pixel_pos_x, pixel_pos_y in zip(image_array.flatten(),
+                                                     pixels_position[0].flatten(),
+                                                     pixels_position[1].flatten()):
+        if pixel_value > 0:
+            signed_distance = signed_distance_point_to_line(a, b, c, (pixel_pos_x, pixel_pos_y))
+            projected_point = orthogonal_projection_point_to_line(a, b, c, (pixel_pos_x, pixel_pos_y))
+
+            #print(pixel_pos_x, pixel_pos_y, pixel_value, signed_distance, *projected_point)
+
+            pixel_stat_list.append([pixel_pos_x, pixel_pos_y, pixel_value, signed_distance, *projected_point])
+
+    pixel_stat_array = np.array(pixel_stat_list)
+
+    return pixel_stat_array
+
+
+def plot_perpendicular_hit_distribution(axis, image_array, pixels_position):
+
+    pixel_stat_array = perpendicular_hit_distribution(image_array, pixels_position)
+
+    hist = axis.hist(pixel_stat_array[:,3],
+                     weights=pixel_stat_array[:,2],
+                     bins=30,         # TODO
+                     histtype='bar',
+                     alpha=0.5)
+
+    return pixel_stat_array, hist
+
+
 ###############################################################################
+
 
 def test_hist1d():
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
