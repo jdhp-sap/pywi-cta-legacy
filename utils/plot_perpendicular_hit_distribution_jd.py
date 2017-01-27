@@ -62,9 +62,6 @@ def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=F
 
     # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
 
-    print(pixels_position)
-    print(pixels_position.shape)
-
     # generate 2 2d grids for the x & y bounds
     x, y = pixels_position[0], pixels_position[1]
 
@@ -207,9 +204,8 @@ def main():
 
     #counts[counts < 100] = 0
 
-    #reference_img1 = counts
-
-    #reference_img1[0, 0] = 1
+    #reference_img = counts
+    #reference_img[0, 0] = 1
 
     ## MAKE MOCK DATA ##################
 
@@ -225,18 +221,36 @@ def main():
 
     #counts[counts < 100] = 0
 
-    #reference_img2 = counts
-    #reference_img2[0, 0] = 1
+    #reference_img = counts
+    #reference_img[0, 0] = 1
+
+    ## MAKE MOCK DATA ##################
+
+    #reference_img[reference_img > 0] = 0
+
+    #IY = 12
+
+    #reference_img[10, IY-2] = 1
+    #reference_img[10, IY-1] = 1
+    #reference_img[10, IY  ] = 1
+    #reference_img[10, IY+1] = 1
+    #reference_img[10, IY+2] = 1
+
+    #reference_img[11, IY-2] = 2
+    #reference_img[11, IY-1] = 2
+    #reference_img[11, IY  ] = 2
+    #reference_img[11, IY+1] = 2
+    #reference_img[11, IY+2] = 2
+
+    #reference_img[12, IY-2] = 1
+    #reference_img[12, IY-1] = 1
+    #reference_img[12, IY  ] = 1
+    #reference_img[12, IY+1] = 1
+    ##reference_img[12, IY+2] = 1  # Keep it commented, Tailcut fails on symetric images...
 
     ####################################
 
-    #bw_reference_img1 = np.copy(reference_img1)
-    #bw_reference_img1[reference_img1 > 0] = 1   # simplify the image (black and white image)
-
-
-    #bw_reference_img2 = np.copy(reference_img2)
-    #bw_reference_img2[reference_img2 > 0] = 1   # simplify the image (black and white image)
-
+    #reference_img[reference_img > 0] = 1   # simplify the image (black and white image)
 
     # ASSESS OR PRINT THE CLEANED IMAGE #######################################
 
