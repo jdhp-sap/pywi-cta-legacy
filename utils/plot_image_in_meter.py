@@ -53,6 +53,8 @@ COLOR_MAP = "gray_r" # "gnuplot2" # "gray"
 
 def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=False):
 
+    axis.axis('equal')
+
     # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
 
     print(pixels_position)
