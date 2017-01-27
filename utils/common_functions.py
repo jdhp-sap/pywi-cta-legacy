@@ -551,6 +551,7 @@ def orthogonal_projection_point_to_line(a, b, c, p):
 def perpendicular_hit_distribution(image_array, pixels_position):
 
     image_array = copy.deepcopy(image_array)
+    pixels_position = copy.deepcopy(pixels_position)
 
     ###
 
@@ -596,17 +597,24 @@ def perpendicular_hit_distribution(image_array, pixels_position):
     return pixel_stat_array
 
 
-def plot_perpendicular_hit_distribution(axis, image_array, pixels_position):
+def plot_perpendicular_hit_distribution(axis, image_array_list, pixels_position):
 
-    pixel_stat_array = perpendicular_hit_distribution(image_array, pixels_position)
+    pixel_stat_array_list = []
+    hist_list = []
 
-    hist = axis.hist(pixel_stat_array[:,3],
-                     weights=pixel_stat_array[:,2],
-                     bins=30,         # TODO
-                     histtype='bar',
-                     alpha=0.5)
+    for image_array in image_array_list:
+        pixel_stat_array = perpendicular_hit_distribution(image_array, pixels_position)
 
-    return pixel_stat_array, hist
+        hist = axis.hist(pixel_stat_array[:,3],
+                         weights=pixel_stat_array[:,2],
+                         bins=30,         # TODO
+                         histtype='bar',
+                         alpha=0.5)
+
+        pixel_stat_array_list.append(pixel_stat_array)
+        hist_list.append(hist)
+
+    return pixel_stat_array_list, hist_list
 
 
 ###############################################################################

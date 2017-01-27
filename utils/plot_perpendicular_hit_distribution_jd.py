@@ -245,7 +245,7 @@ def main():
     plot_image_meter(ax1, reference_img, pixels_position, "Reference image")
     plot_ellipse_shower_on_image_meter(ax1, reference_img, pixels_position)
 
-    common.plot_perpendicular_hit_distribution(ax2, reference_img, pixels_position)
+    common.plot_perpendicular_hit_distribution(ax2, [reference_img], pixels_position)
     ax2.set_title("Perpendicular hit distribution")
 
     # PLOT AND SAVE ###########################################################
