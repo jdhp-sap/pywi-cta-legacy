@@ -597,22 +597,42 @@ def perpendicular_hit_distribution(image_array, pixels_position):
     return pixel_stat_array
 
 
-def plot_perpendicular_hit_distribution(axis, image_array_list, pixels_position):
+def plot_perpendicular_hit_distribution(axis,
+                                        image_array_list,
+                                        pixels_position,
+                                        bins=None,
+                                        label_list=None,
+                                        hist_type='bar'):
 
     pixel_stat_array_list = []
     hist_list = []
 
-    for image_array in image_array_list:
+    if label_list is None:
+        label_list = [None] * len(image_array_list)
+
+    for image_array, label in zip(image_array_list, label_list):
         pixel_stat_array = perpendicular_hit_distribution(image_array, pixels_position)
 
-        hist = axis.hist(pixel_stat_array[:,3],
-                         weights=pixel_stat_array[:,2],
-                         bins=30,         # TODO
-                         histtype='bar',
-                         alpha=0.5)
+        if bins is None:
+            hist = axis.hist(pixel_stat_array[:,3],
+                             weights=pixel_stat_array[:,2],
+                             bins=30,         # TODO
+                             label=label,
+                             histtype=hist_type,
+                             alpha=0.5)
+        else:
+            hist = axis.hist(pixel_stat_array[:,3],
+                             weights=pixel_stat_array[:,2],
+                             bins=bins,         # TODO
+                             label=label,
+                             histtype=hist_type,
+                             alpha=0.5)
 
         pixel_stat_array_list.append(pixel_stat_array)
         hist_list.append(hist)
+
+    if label_list is not None:
+        axis.legend(prop={'size': 14}) #, loc='lower center')
 
     return pixel_stat_array_list, hist_list
 

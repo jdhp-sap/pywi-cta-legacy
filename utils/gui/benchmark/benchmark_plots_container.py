@@ -27,6 +27,8 @@ See: http://gtk3-matplotlib-cookbook.readthedocs.org/en/latest/
 
 from gi.repository import Gtk as gtk
 
+import common_functions as common
+
 import datetime
 import math
 import numpy as np
@@ -77,7 +79,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.plot_log_scale = False
         self.plot_ellipse_shower = False
         self.show_scores = True
-        self.show_perpendicular_hit_distribution = True
+        self.show_perpendicular_hit_distribution = True # False
 
         # Wavelets options ############
 
@@ -247,6 +249,7 @@ class BenchmarkPlotsContainer(gtk.Box):
 
             input_img = fits_images_dict["input_image"]
             reference_img = fits_images_dict["reference_image"]
+            pixels_position = fits_images_dict["pixels_position"]
 
             if input_img.ndim != 2:
                 raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
@@ -373,7 +376,17 @@ class BenchmarkPlotsContainer(gtk.Box):
                 self._draw_image(ax1, input_img, "Input")
                 self._draw_image(ax2, reference_img, "Reference")
                 if self.show_perpendicular_hit_distribution:
-                    self._draw_normalized_signal_histogram(ax3, reference_img, wavelets_cleaned_img, "Perpendicular hit distribution")
+                    #bins = np.linspace(-0.04, 0.04, 41)
+                    bins = np.linspace(-0.04, 0.04, 21)
+                    common.plot_perpendicular_hit_distribution(ax3,
+                                                               [reference_img, wavelets_cleaned_img],
+                                                               pixels_position,
+                                                               bins=bins,
+                                                               label_list=["Ref.", "Cleaned"],
+                                                               hist_type="step")
+                    ax3.set_title("Perpendicular hit distribution")
+                    ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
+                    ax3.set_ylabel("Photoelectrons", fontsize=16)
                 else:
                     self._draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
                 self._draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
@@ -386,6 +399,7 @@ class BenchmarkPlotsContainer(gtk.Box):
 
                     if not self.show_perpendicular_hit_distribution:
                         try:
+                            # Show ellipse only if "perpendicular hit distribution" is off
                             self.plot_ellipse_shower_on_image(ax3, tailcut_cleaned_img)
                         except:
                             pass
@@ -508,69 +522,6 @@ class BenchmarkPlotsContainer(gtk.Box):
         axis.set_ylim(ymin=0.1)            # TODO: it doesn't work, all bins equals to 1 are not visible because they are hidden in the axis
 
 
-    def _draw_normalized_signal_histogram(self, axis, ref_image_array, cleaned_image_array, title):
-        print("*** SUM OF WT: {} ***".format(cleaned_image_array.sum()))
-
-        size_m = 0.1  # Size of the "phase space" in meter
-
-         # TODO: clean these following hard coded values for Astri
-        num_pixels_x = 40
-        num_pixels_y = 40
-
-        x = np.linspace(-0.142555996776, 0.142555996776, num_pixels_x)
-        y = np.linspace(-0.142555996776, 0.142555996776, num_pixels_y)
-
-        #x = np.arange(0, np.shape(ref_image_array)[0], 1)          # TODO: wrong values -10 10 21
-        #y = np.arange(0, np.shape(ref_image_array)[1], 1)          # TODO: wrong values  (30, ...)
-
-        xx, yy = np.meshgrid(x, y)
-
-        # Based on Tino's evaluate_cleaning.py (l. 277)
-        hillas = {}
-        hillas['ref.'] = hillas_parameters_1(xx.flatten() * u.meter,
-                                             yy.flatten() * u.meter,
-                                             ref_image_array.flatten())[0]
-        hillas['cleaned'] = hillas_parameters_1(xx.flatten() * u.meter,
-                                                yy.flatten() * u.meter,
-                                                cleaned_image_array.flatten())[0]
-
-        for k, signal in {'ref.': ref_image_array, 'cleaned': cleaned_image_array}.items():
-
-            h = hillas[k]
-
-            # p1 = center of the ellipse
-            p1_x = h.cen_x
-            p1_y = h.cen_y
-
-            # p2 = intersection between the ellipse and the shower track
-            p2_x = p1_x + h.length * np.cos(h.psi + np.pi/2)
-            p2_y = p1_y + h.length * np.sin(h.psi + np.pi/2)
-
-            # slope of the shower track
-            T = linalg.normalise(np.array([p1_x-p2_x, p1_y-p2_y]))
-
-            x = xx.flatten()
-            y = yy.flatten()
-
-            # Manhattan distance of pixels to the center of the ellipse
-            D = [p1_x-x, p1_y-y]
-
-            # Pixels in the new base
-            dl = D[0]*T[0] + D[1]*T[1]
-            dp = D[0]*T[1] - D[1]*T[0]
-
-            # nparray.ravel(): Return a flattened array.
-            values, bins, patches = axis.hist(dp.ravel(),
-                                              histtype='step',
-                                              label=k,
-                                              bins=np.linspace(-size_m, size_m, 31))          # -10 10 21
-        
-        axis.set_xlim([-size_m, size_m])
-
-        axis.legend(prop={'size': 16}, loc='lower left')
-        axis.set_title(title)
-
-
     def plot_ellipse_shower_on_image(self, axis, image_array):
         """Based on Fabio's notebook."""
 
@@ -589,7 +540,7 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         #print("DEBUG:", hillas[7].value, angle, np.degrees(angle))
 
-        ellipse = Ellipse(xy=centroid, width=width, height=length, angle=np.degrees(angle), fill=False, color='red', lw=2)
+        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
         axis.axes.add_patch(ellipse)
 
         title = axis.axes.get_title()

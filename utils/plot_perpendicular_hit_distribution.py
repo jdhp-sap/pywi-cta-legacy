@@ -53,6 +53,10 @@ from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters_2
 COLOR_MAP = "gray_r" # "gnuplot2" # "gray"
 
 
+
+##############################################
+
+
 def rotation_matrix_2d(angle_rad):
     """construct a 2D rotation matrix as a numpy NDArray that rotates a
     vector clockwise. Angle should be any object that can be converted
