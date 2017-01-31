@@ -52,6 +52,8 @@ import astropy.units as u
 from ctapipe.image.hillas import hillas_parameters_1 as hillas_parameters_1
 from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters_2
 
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
+
 ###############################################################################
 
 DEFAULT_COLOR_MAP = plt.cm.gnuplot2  # plt.cm.OrRd # plt.cm.gray
@@ -133,6 +135,14 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         plot_perpendicular_hit_distribution_label = gtk.Label(label="Plot PHD")
 
+        # Kill isolated pixels on ref #
+
+        self.kill_isolated_pixels_on_ref_switch = gtk.Switch()
+        self.kill_isolated_pixels_on_ref_switch.connect("notify::active", self.kill_isolated_pixels_on_ref_switch_callback)
+        self.kill_isolated_pixels_on_ref_switch.set_active(False)
+
+        kill_isolated_pixels_on_ref_label = gtk.Label(label="Kill isolated pixels on ref.")
+
         # Save plots ##################
 
         self.save_plots_button = gtk.Button(label="Save")
@@ -176,6 +186,9 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         plot_options_horizontal_box.pack_start(plot_perpendicular_hit_distribution_label, expand=False, fill=False, padding=0)
         plot_options_horizontal_box.pack_start(self.plot_perpendicular_hit_distribution_switch, expand=False, fill=False, padding=0)
+
+        plot_options_horizontal_box.pack_start(kill_isolated_pixels_on_ref_label, expand=False, fill=False, padding=0)
+        plot_options_horizontal_box.pack_start(self.kill_isolated_pixels_on_ref_switch, expand=False, fill=False, padding=0)
 
         plot_options_horizontal_box.pack_start(self.save_plots_button, expand=False, fill=False, padding=0)
 
@@ -230,6 +243,14 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.update_plots()
 
 
+    def kill_isolated_pixels_on_ref_switch_callback(self, data=None, param=None):
+        if self.kill_isolated_pixels_on_ref_switch.get_active():
+            self.kill_isolated_pixels_on_ref = True
+        else:
+            self.kill_isolated_pixels_on_ref = False
+        self.update_plots()
+
+
     def save_plots_button_callback(self, data=None, param=None):
         self.update_plots(save=True)
 
@@ -277,6 +298,9 @@ class BenchmarkPlotsContainer(gtk.Box):
             if reference_img.ndim != 2:
                 raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
+            if self.kill_isolated_pixels_on_ref:
+                reference_img = scipy_kill_isolated_pixels(reference_img)
+
             # Tailcut #####################
 
             #input_img_copy = copy.deepcopy(input_img)
@@ -285,7 +309,10 @@ class BenchmarkPlotsContainer(gtk.Box):
             tailcut = tailcut_mod.Tailcut()
             
             initial_time = time.perf_counter()
-            tailcut_cleaned_img = tailcut.clean_image(input_img_copy, high_threshold=10, low_threshold=5)
+            tailcut_cleaned_img = tailcut.clean_image(input_img_copy,
+                                                      high_threshold=10,
+                                                      low_threshold=5,
+                                                      kill_isolated_pixels=self.kill_isolated_pixels)
             tailcut_execution_time = time.perf_counter() - initial_time
 
             # Wavelets ####################
