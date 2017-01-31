@@ -13,12 +13,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors
 #import matplotlib.ticker
+from matplotlib.patches import Ellipse
+from matplotlib.colors import LogNorm
 
 import math
 
 import astropy.units as u
 from ctapipe.image.hillas import hillas_parameters_1 as hillas_parameters_1
 from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters_2
+
+COLOR_MAP = "gray_r" # "gnuplot2" # "gray"
 
 
 # DIRECTORY PARSER ############################################################
@@ -187,7 +191,93 @@ def extract_max(data_list):
 
     return max_value
 
+
 # PLOT FUNCTIONS ##############################################################
+
+def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=False):
+
+    axis.axis('equal')
+
+    # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
+
+    # generate 2 2d grids for the x & y bounds
+    x, y = pixels_position[0], pixels_position[1]
+
+    z_min, z_max = image_array.min(), image_array.max()
+
+    if plot_log_scale:
+        # See http://matplotlib.org/examples/pylab_examples/pcolor_log.html
+        #     http://stackoverflow.com/questions/2546475/how-can-i-draw-a-log-normalized-imshow-plot-with-a-colorbar-representing-the-raw
+        im = axis.pcolor(x, y, image_array, norm=LogNorm(vmin=0.01, vmax=image_array.max()), cmap=COLOR_MAP)  # TODO: "vmin=0.01" is an arbitrary choice...
+    else:
+        im = axis.pcolor(x, y, image_array, cmap=COLOR_MAP, vmin=z_min, vmax=z_max)
+
+    plt.colorbar(im, ax=axis) # draw the colorbar
+
+    axis.set_title(title)
+
+
+def plot_ellipse_shower_on_image_meter(axis, image_array, pixels_position):
+
+    xx, yy = pixels_position[0], pixels_position[1]
+
+    hillas = hillas_parameters_2(xx.flatten(), # * u.meter,  # TODO
+                                 yy.flatten(), # * u.meter,  # TODO
+                                 image_array.flatten())
+
+    centroid = (hillas.cen_x, hillas.cen_y)
+    length = hillas.length
+    width = hillas.width
+    angle = hillas.psi.to(u.rad).value
+
+    #print("centroid:", centroid)
+    #print("length:",   length)
+    #print("width:",    width)
+    #print("angle:",    angle)
+
+    ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
+    axis.axes.add_patch(ellipse)
+
+    title = axis.axes.get_title()
+    axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
+
+    # Plot the center of the ellipse
+
+    axis.scatter(*centroid, c="r", marker="x", linewidth=2)
+
+    # Plot the shower axis
+
+    p0_x = centroid[0]
+    p0_y = centroid[1]
+
+    p1_x = p0_x + math.cos(angle)
+    p1_y = p0_y + math.sin(angle)
+
+    p2_x = p0_x + math.cos(angle + math.pi) 
+    p2_y = p0_y + math.sin(angle + math.pi) 
+
+    axis.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
+
+    p3_x = p0_x + math.cos(angle) * length / 2.
+    p3_y = p0_y + math.sin(angle) * length / 2.
+
+    axis.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
+
+    p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
+    p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
+
+    axis.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
+
+    # Set (back) axis limits
+
+    pos_x_min, pos_x_max = pixels_position[0].min(), pixels_position[0].max()
+    pos_y_min, pos_y_max = pixels_position[1].min(), pixels_position[1].max()
+
+    axis.set_xlim(xmin=pos_x_min)
+    axis.set_xlim(xmax=pos_x_max)
+    axis.set_ylim(ymin=pos_y_min)
+    axis.set_ylim(ymax=pos_y_max)
+
 
 def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=False):
     """
