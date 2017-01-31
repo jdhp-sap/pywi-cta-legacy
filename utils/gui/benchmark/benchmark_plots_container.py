@@ -79,7 +79,8 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.plot_log_scale = False
         self.plot_ellipse_shower = False
         self.show_scores = True
-        self.show_perpendicular_hit_distribution = True # False
+        self.plot_perpendicular_hit_distribution = False
+        self.kill_isolated_pixels_on_ref = False
 
         # Wavelets options ############
 
@@ -124,6 +125,14 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         plot_ellipse_shower_label = gtk.Label(label="Plot ellipse shower")
 
+        # Plot perpendicular hit distribution
+
+        self.plot_perpendicular_hit_distribution_switch = gtk.Switch()
+        self.plot_perpendicular_hit_distribution_switch.connect("notify::active", self.plot_perpendicular_hit_distribution_switch_callback)
+        self.plot_perpendicular_hit_distribution_switch.set_active(False)
+
+        plot_perpendicular_hit_distribution_label = gtk.Label(label="Plot PHD")
+
         # Save plots ##################
 
         self.save_plots_button = gtk.Button(label="Save")
@@ -164,6 +173,9 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         plot_options_horizontal_box.pack_start(plot_ellipse_shower_label, expand=False, fill=False, padding=0)
         plot_options_horizontal_box.pack_start(self.plot_ellipse_shower_switch, expand=False, fill=False, padding=0)
+
+        plot_options_horizontal_box.pack_start(plot_perpendicular_hit_distribution_label, expand=False, fill=False, padding=0)
+        plot_options_horizontal_box.pack_start(self.plot_perpendicular_hit_distribution_switch, expand=False, fill=False, padding=0)
 
         plot_options_horizontal_box.pack_start(self.save_plots_button, expand=False, fill=False, padding=0)
 
@@ -207,6 +219,14 @@ class BenchmarkPlotsContainer(gtk.Box):
             self.plot_ellipse_shower = True
         else:
             self.plot_ellipse_shower = False
+        self.update_plots()
+
+
+    def plot_perpendicular_hit_distribution_switch_callback(self, data=None, param=None):
+        if self.plot_perpendicular_hit_distribution_switch.get_active():
+            self.plot_perpendicular_hit_distribution = True
+        else:
+            self.plot_perpendicular_hit_distribution = False
         self.update_plots()
 
 
@@ -375,7 +395,7 @@ class BenchmarkPlotsContainer(gtk.Box):
             else:
                 self._draw_image(ax1, input_img, "Input", pixels_position=pixels_position)
                 self._draw_image(ax2, reference_img, "Reference", pixels_position=pixels_position)
-                if self.show_perpendicular_hit_distribution:
+                if self.plot_perpendicular_hit_distribution:
                     #bins = np.linspace(-0.04, 0.04, 41)
                     bins = np.linspace(-0.04, 0.04, 21)
                     common.plot_perpendicular_hit_distribution(ax3,
@@ -397,7 +417,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                     except Exception as e:
                         print(e)
 
-                    if not self.show_perpendicular_hit_distribution:
+                    if not self.plot_perpendicular_hit_distribution:
                         try:
                             # Show ellipse only if "perpendicular hit distribution" is off
                             common.plot_ellipse_shower_on_image_meter(ax3, tailcut_cleaned_img, pixels_position)
