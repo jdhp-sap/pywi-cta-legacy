@@ -29,6 +29,8 @@ from gi.repository import Gtk as gtk
 
 import common_functions as common
 
+import copy
+
 import datetime
 import math
 import numpy as np
@@ -83,6 +85,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.show_scores = True
         self.plot_perpendicular_hit_distribution = False
         self.kill_isolated_pixels_on_ref = False
+        self.use_ref_angle_for_perpendicular_hit_distribution = False
 
         # Wavelets options ############
 
@@ -143,6 +146,14 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         kill_isolated_pixels_on_ref_label = gtk.Label(label="Kill isolated pixels on ref.")
 
+        # Use reference angle for perpendicular hit distribution
+
+        self.use_ref_angle_for_perpendicular_hit_distribution_switch = gtk.Switch()
+        self.use_ref_angle_for_perpendicular_hit_distribution_switch.connect("notify::active", self.use_ref_angle_for_perpendicular_hit_distribution_switch_callback)
+        self.use_ref_angle_for_perpendicular_hit_distribution_switch.set_active(False)
+
+        use_ref_angle_for_perpendicular_hit_distribution_label = gtk.Label(label="Ref. angle for PHD")
+
         # Save plots ##################
 
         self.save_plots_button = gtk.Button(label="Save")
@@ -189,6 +200,9 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         plot_options_horizontal_box.pack_start(kill_isolated_pixels_on_ref_label, expand=False, fill=False, padding=0)
         plot_options_horizontal_box.pack_start(self.kill_isolated_pixels_on_ref_switch, expand=False, fill=False, padding=0)
+
+        plot_options_horizontal_box.pack_start(use_ref_angle_for_perpendicular_hit_distribution_label, expand=False, fill=False, padding=0)
+        plot_options_horizontal_box.pack_start(self.use_ref_angle_for_perpendicular_hit_distribution_switch, expand=False, fill=False, padding=0)
 
         plot_options_horizontal_box.pack_start(self.save_plots_button, expand=False, fill=False, padding=0)
 
@@ -248,6 +262,14 @@ class BenchmarkPlotsContainer(gtk.Box):
             self.kill_isolated_pixels_on_ref = True
         else:
             self.kill_isolated_pixels_on_ref = False
+        self.update_plots()
+
+
+    def use_ref_angle_for_perpendicular_hit_distribution_switch_callback(self, data=None, param=None):
+        if self.use_ref_angle_for_perpendicular_hit_distribution_switch.get_active():
+            self.use_ref_angle_for_perpendicular_hit_distribution = True
+        else:
+            self.use_ref_angle_for_perpendicular_hit_distribution = False
         self.update_plots()
 
 
@@ -423,14 +445,23 @@ class BenchmarkPlotsContainer(gtk.Box):
                 self._draw_image(ax1, input_img, "Input", pixels_position=pixels_position)
                 self._draw_image(ax2, reference_img, "Reference", pixels_position=pixels_position)
                 if self.plot_perpendicular_hit_distribution:
-                    #bins = np.linspace(-0.04, 0.04, 41)
+                    if self.use_ref_angle_for_perpendicular_hit_distribution:
+                        image_array = copy.deepcopy(reference_img)
+                        xx, yy = pixels_position[0], pixels_position[1]
+                        common_hillas_parameters = hillas_parameters_1(xx.flatten() * u.meter,
+                                                                       yy.flatten() * u.meter,
+                                                                       image_array.flatten())
+                    else:
+                        common_hillas_parameters = None
+
                     bins = np.linspace(-0.04, 0.04, 21)
                     common.plot_perpendicular_hit_distribution(ax3,
                                                                [reference_img, wavelets_cleaned_img],
                                                                pixels_position,
                                                                bins=bins,
                                                                label_list=["Ref.", "Cleaned"],
-                                                               hist_type="step")
+                                                               hist_type="step",
+                                                               common_hillas_parameters=common_hillas_parameters)
                     ax3.set_title("Perpendicular hit distribution")
                     ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
                     ax3.set_ylabel("Photoelectrons", fontsize=16)
@@ -451,10 +482,16 @@ class BenchmarkPlotsContainer(gtk.Box):
                         except Exception as e:
                             print(e)
 
-                    try:
-                        common.plot_ellipse_shower_on_image_meter(ax4, wavelets_cleaned_img, pixels_position)
-                    except Exception as e:
-                        print(e)
+                    if self.plot_perpendicular_hit_distribution and self.use_ref_angle_for_perpendicular_hit_distribution:
+                        try:
+                            common.plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
+                        except Exception as e:
+                            print(e)
+                    else:
+                        try:
+                            common.plot_ellipse_shower_on_image_meter(ax4, wavelets_cleaned_img, pixels_position)
+                        except Exception as e:
+                            print(e)
 
             plt.suptitle("{:.3f} TeV ({} photoelectrons in reference image) - Event {} - Telescope {}".format(fits_metadata_dict["mc_energy"], int(fits_metadata_dict["npe"]), fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]), fontsize=18)
 

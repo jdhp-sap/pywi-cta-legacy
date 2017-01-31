@@ -661,18 +661,23 @@ def orthogonal_projection_point_to_line(a, b, c, p):
     return p2
 
 
-def perpendicular_hit_distribution(image_array, pixels_position):
+def perpendicular_hit_distribution(image_array,
+                                   pixels_position,
+                                   force_hillas_parameters=None):
 
     image_array = copy.deepcopy(image_array)
     pixels_position = copy.deepcopy(pixels_position)
 
     ###
 
-    xx, yy = pixels_position[0], pixels_position[1]
+    if force_hillas_parameters is None:
+        xx, yy = pixels_position[0], pixels_position[1]
 
-    hillas = hillas_parameters_1(xx.flatten() * u.meter,
-                                 yy.flatten() * u.meter,
-                                 image_array.flatten())
+        hillas = hillas_parameters_1(xx.flatten() * u.meter,
+                                     yy.flatten() * u.meter,
+                                     image_array.flatten())
+    else:
+        hillas = force_hillas_parameters
 
     centroid = (hillas.cen_x.value, hillas.cen_y.value)
     length = hillas.length.value
@@ -715,7 +720,8 @@ def plot_perpendicular_hit_distribution(axis,
                                         pixels_position,
                                         bins=None,
                                         label_list=None,
-                                        hist_type='bar'):
+                                        hist_type='bar',
+                                        common_hillas_parameters=None):
 
     pixel_stat_array_list = []
     hist_list = []
@@ -724,7 +730,9 @@ def plot_perpendicular_hit_distribution(axis,
         label_list = [None] * len(image_array_list)
 
     for image_array, label in zip(image_array_list, label_list):
-        pixel_stat_array = perpendicular_hit_distribution(image_array, pixels_position)
+        pixel_stat_array = perpendicular_hit_distribution(image_array,
+                                                          pixels_position,
+                                                          force_hillas_parameters=common_hillas_parameters)
 
         if bins is None:
             hist = axis.hist(pixel_stat_array[:,3],
