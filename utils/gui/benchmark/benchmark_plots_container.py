@@ -373,8 +373,8 @@ class BenchmarkPlotsContainer(gtk.Box):
                 self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
                 self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
             else:
-                self._draw_image(ax1, input_img, "Input")
-                self._draw_image(ax2, reference_img, "Reference")
+                self._draw_image(ax1, input_img, "Input", pixels_position=pixels_position)
+                self._draw_image(ax2, reference_img, "Reference", pixels_position=pixels_position)
                 if self.show_perpendicular_hit_distribution:
                     #bins = np.linspace(-0.04, 0.04, 41)
                     bins = np.linspace(-0.04, 0.04, 21)
@@ -388,26 +388,26 @@ class BenchmarkPlotsContainer(gtk.Box):
                     ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
                     ax3.set_ylabel("Photoelectrons", fontsize=16)
                 else:
-                    self._draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
-                self._draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
+                    self._draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position)
+                self._draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, pixels_position=pixels_position)
 
                 if self.plot_ellipse_shower:
                     try:
-                        self.plot_ellipse_shower_on_image(ax2, reference_img)
-                    except:
-                        pass
+                        common.plot_ellipse_shower_on_image_meter(ax2, reference_img, pixels_position)
+                    except Exception as e:
+                        print(e)
 
                     if not self.show_perpendicular_hit_distribution:
                         try:
                             # Show ellipse only if "perpendicular hit distribution" is off
-                            self.plot_ellipse_shower_on_image(ax3, tailcut_cleaned_img)
-                        except:
-                            pass
+                            common.plot_ellipse_shower_on_image_meter(ax3, tailcut_cleaned_img, pixels_position)
+                        except Exception as e:
+                            print(e)
 
                     try:
-                        self.plot_ellipse_shower_on_image(ax4, wavelets_cleaned_img)
-                    except:
-                        pass
+                        common.plot_ellipse_shower_on_image_meter(ax4, wavelets_cleaned_img, pixels_position)
+                    except Exception as e:
+                        print(e)
 
             plt.suptitle("{:.3f} TeV ({} photoelectrons in reference image) - Event {} - Telescope {}".format(fits_metadata_dict["mc_energy"], int(fits_metadata_dict["npe"]), fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]), fontsize=18)
 
@@ -443,14 +443,24 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.fig.canvas.draw()
 
 
-    def _draw_image(self, axis, image_array, title):
+    def _draw_image(self, axis, image_array, title, pixels_position=None):
+
+        axis.axis('equal')
 
         # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
 
-        dx, dy = 1, 1
+        if pixels_position is None:
+            dx, dy = 1, 1
 
-        # generate 2 2d grids for the x & y bounds
-        y, x = np.mgrid[slice(0, image_array.shape[0], dy), slice(0, image_array.shape[1], dx)]  # TODO !!!
+            # generate 2 2d grids for the x & y bounds
+            y, x = np.mgrid[slice(0, image_array.shape[0], dy), slice(0, image_array.shape[1], dx)]  # TODO !!!
+
+            axis.set_xlabel("Pixel index", fontsize=12)
+            axis.set_ylabel("Pixel index", fontsize=12)
+        else:
+            x, y = pixels_position[0], pixels_position[1]
+            axis.set_xlabel("Pixel position (in meter)", fontsize=12)
+            axis.set_ylabel("Pixel position (in meter)", fontsize=12)
 
         z_min, z_max = image_array.min(), image_array.max()
 
@@ -520,29 +530,4 @@ class BenchmarkPlotsContainer(gtk.Box):
 
         axis.set_xlim([vmin, vmax + 1])    # TODO: ("+1") is to see the last bin. This line may cause problems when logx == True
         axis.set_ylim(ymin=0.1)            # TODO: it doesn't work, all bins equals to 1 are not visible because they are hidden in the axis
-
-
-    def plot_ellipse_shower_on_image(self, axis, image_array):
-        """Based on Fabio's notebook."""
-
-        x = np.arange(0, np.shape(image_array)[0], 1)
-        y = np.arange(0, np.shape(image_array)[1], 1)
-        xx, yy = np.meshgrid(x, y)
-
-        hillas = hillas_parameters_2(xx.flatten() * u.meter,
-                                     yy.flatten() * u.meter,
-                                     image_array.flatten())
-
-        centroid = (hillas.cen_x.value, hillas.cen_y.value)
-        length = hillas.length.value
-        width = hillas.width.value
-        angle = hillas.psi.to(u.rad).value    # TODO
-
-        #print("DEBUG:", hillas[7].value, angle, np.degrees(angle))
-
-        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
-        axis.axes.add_patch(ellipse)
-
-        title = axis.axes.get_title()
-        axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
 

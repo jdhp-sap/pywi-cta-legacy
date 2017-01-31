@@ -217,66 +217,89 @@ def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=F
     axis.set_title(title)
 
 
-def plot_ellipse_shower_on_image_meter(axis, image_array, pixels_position):
+def plot_ellipse_shower_on_image_meter(axis, image_array, pixels_position=None):
 
-    xx, yy = pixels_position[0], pixels_position[1]
+    if pixels_position is not None:
+        xx, yy = pixels_position[0], pixels_position[1]
 
-    hillas = hillas_parameters_2(xx.flatten(), # * u.meter,  # TODO
-                                 yy.flatten(), # * u.meter,  # TODO
-                                 image_array.flatten())
+        hillas = hillas_parameters_2(xx.flatten(), # * u.meter,  # TODO
+                                     yy.flatten(), # * u.meter,  # TODO
+                                     image_array.flatten())
 
-    centroid = (hillas.cen_x, hillas.cen_y)
-    length = hillas.length
-    width = hillas.width
-    angle = hillas.psi.to(u.rad).value
+        centroid = (hillas.cen_x, hillas.cen_y)
+        length = hillas.length
+        width = hillas.width
+        angle = hillas.psi.to(u.rad).value
 
-    #print("centroid:", centroid)
-    #print("length:",   length)
-    #print("width:",    width)
-    #print("angle:",    angle)
+        #print("centroid:", centroid)
+        #print("length:",   length)
+        #print("width:",    width)
+        #print("angle:",    angle)
 
-    ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
-    axis.axes.add_patch(ellipse)
+        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
+        axis.axes.add_patch(ellipse)
 
-    title = axis.axes.get_title()
-    axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
+        title = axis.axes.get_title()
+        axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
 
-    # Plot the center of the ellipse
+        # Plot the center of the ellipse
 
-    axis.scatter(*centroid, c="r", marker="x", linewidth=2)
+        axis.scatter(*centroid, c="r", marker="x", linewidth=2)
 
-    # Plot the shower axis
+        # Plot the shower axis
 
-    p0_x = centroid[0]
-    p0_y = centroid[1]
+        p0_x = centroid[0]
+        p0_y = centroid[1]
 
-    p1_x = p0_x + math.cos(angle)
-    p1_y = p0_y + math.sin(angle)
+        p1_x = p0_x + math.cos(angle)
+        p1_y = p0_y + math.sin(angle)
 
-    p2_x = p0_x + math.cos(angle + math.pi) 
-    p2_y = p0_y + math.sin(angle + math.pi) 
+        p2_x = p0_x + math.cos(angle + math.pi) 
+        p2_y = p0_y + math.sin(angle + math.pi) 
 
-    axis.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
+        axis.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
 
-    p3_x = p0_x + math.cos(angle) * length / 2.
-    p3_y = p0_y + math.sin(angle) * length / 2.
+        p3_x = p0_x + math.cos(angle) * length / 2.
+        p3_y = p0_y + math.sin(angle) * length / 2.
 
-    axis.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
+        axis.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
 
-    p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
-    p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
+        p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
+        p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
 
-    axis.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
+        axis.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
 
-    # Set (back) axis limits
+        # Set (back) axis limits
 
-    pos_x_min, pos_x_max = pixels_position[0].min(), pixels_position[0].max()
-    pos_y_min, pos_y_max = pixels_position[1].min(), pixels_position[1].max()
+        pos_x_min, pos_x_max = pixels_position[0].min(), pixels_position[0].max()
+        pos_y_min, pos_y_max = pixels_position[1].min(), pixels_position[1].max()
 
-    axis.set_xlim(xmin=pos_x_min)
-    axis.set_xlim(xmax=pos_x_max)
-    axis.set_ylim(ymin=pos_y_min)
-    axis.set_ylim(ymax=pos_y_max)
+        axis.set_xlim(xmin=pos_x_min)
+        axis.set_xlim(xmax=pos_x_max)
+        axis.set_ylim(ymin=pos_y_min)
+        axis.set_ylim(ymax=pos_y_max)
+    else:
+        x = np.arange(0, np.shape(image_array)[0], 1)
+        y = np.arange(0, np.shape(image_array)[1], 1)
+        xx, yy = np.meshgrid(x, y)
+
+        hillas = hillas_parameters_2(xx.flatten() * u.meter,
+                                     yy.flatten() * u.meter,
+                                     image_array.flatten())
+
+        centroid = (hillas.cen_x.value, hillas.cen_y.value)
+        length = hillas.length.value
+        width = hillas.width.value
+        angle = hillas.psi.to(u.rad).value    # TODO
+
+        #print("DEBUG:", hillas[7].value, angle, np.degrees(angle))
+
+        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
+        axis.axes.add_patch(ellipse)
+
+        title = axis.axes.get_title()
+        axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
+
 
 
 def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=False):
