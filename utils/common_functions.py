@@ -8,6 +8,8 @@ Make statistics on score files (stored in JSON files).
 import copy
 
 import json
+import os
+
 import numpy as np
 
 import matplotlib.pyplot as plt
