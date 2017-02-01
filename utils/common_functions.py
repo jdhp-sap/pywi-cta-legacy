@@ -339,7 +339,7 @@ def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=
 
 def plot_hist1d(axis,
                 data_list,
-                label_list=[],
+                label_list=None,
                 logx=False,
                 logy=False,
                 xmin=None,
@@ -371,19 +371,20 @@ def plot_hist1d(axis,
     data_list should be a list (or a tuple) of numpy arrays.
     """
 
-    label_list = copy.deepcopy(label_list)
-
     if not isinstance(data_list, (list, tuple)):
         raise ValueError("Wrong data type: {} (list or tuple expected)".format(str(type(data_list))))
 
-    if not isinstance(label_list, (list, tuple)):
-        raise ValueError("Wrong data type: {} (list or tuple expected)".format(str(type(label_list))))
+    if label_list is not None:
+        label_list = copy.deepcopy(label_list)
 
-    if len(label_list) > 0 and (len(label_list) != len(data_list)):
-        raise ValueError("Inconsistent data: len(label_list)={}, len(data_list)={}".format(str(len(label_list)), str(len(data_list))))
+        if not isinstance(label_list, (list, tuple)):
+            raise ValueError("Wrong data type: {} (list or tuple expected)".format(str(type(label_list))))
+
+        if len(label_list) > 0 and (len(label_list) != len(data_list)):
+            raise ValueError("Inconsistent data: len(label_list)={}, len(data_list)={}".format(str(len(label_list)), str(len(data_list))))
 
     # Simulate info box when len(data_list) > 0
-    if len(label_list) > 1 and show_info_box:
+    if label_list is not None and len(label_list) > 1 and show_info_box:
         for index, (data_array, label) in enumerate(zip(data_list, label_list)):
             if info_box_num_samples:
                 num_samples = data_array.shape[0]
@@ -419,13 +420,21 @@ def plot_hist1d(axis,
         bins = list(range(math.floor(extract_min(data_list)), math.floor(extract_max(data_list)) + 2))
 
     if overlaid:
-        for data_array, label in zip(data_list, label_list):
-            res_tuple = axis.hist(data_array,
-                                  #bins=bins,
-                                  log=logy,           # Set log scale on the Y axis
-                                  histtype=hist_type,
-                                  alpha=alpha,
-                                  label=label)
+        if label_list is not None:
+            for data_array, label in zip(data_list, label_list):
+                res_tuple = axis.hist(data_array,
+                                      #bins=bins,
+                                      log=logy,           # Set log scale on the Y axis
+                                      histtype=hist_type,
+                                      alpha=alpha,
+                                      label=label)
+        else:
+            for data_array in data_list:
+                res_tuple = axis.hist(data_array,
+                                      #bins=bins,
+                                      log=logy,           # Set log scale on the Y axis
+                                      histtype=hist_type,
+                                      alpha=alpha)
     else:
         res_tuple = axis.hist(data_list,
                               bins=bins,
@@ -439,7 +448,8 @@ def plot_hist1d(axis,
         print(res_tuple)
 
     # Legend
-    axis.legend(prop={'size': legend_fontsize})
+    if label_list is not None:
+        axis.legend(prop={'size': legend_fontsize})
 
     # Labels
     axis.set_ylabel("Count", fontsize=xylabel_fontsize)
