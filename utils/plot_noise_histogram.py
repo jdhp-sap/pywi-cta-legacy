@@ -17,7 +17,7 @@ import numpy as np
 from datapipe.io import images
 
 
-def parse_fits_files(fits_file_name_list):
+def parse_fits_files(fits_file_name_list, progress_bar=True):
     fits_noise_list = []
 
     for file_index, file_name in enumerate(fits_file_name_list):
@@ -33,14 +33,15 @@ def parse_fits_files(fits_file_name_list):
         fits_noise_list.append(pure_noise_image)
 
         # Progress bar ################
-        num_files = len(fits_file_name_list)
-        relative_steps = math.ceil(num_files / 100.)
+        if progress_bar:
+            num_files = len(fits_file_name_list)
+            relative_steps = math.ceil(num_files / 100.)
 
-        if (file_index % relative_steps) == 0:
-            progress_str = "{:.2f}% ({}/{})".format((file_index + 1)/num_files * 100,
-                                                     file_index + 1,
-                                                     num_files)
-            print(progress_str)
+            if (file_index % relative_steps) == 0:
+                progress_str = "{:.2f}% ({}/{})".format((file_index + 1)/num_files * 100,
+                                                         file_index + 1,
+                                                         num_files)
+                print(progress_str)
 
     return fits_noise_list 
 
@@ -65,6 +66,9 @@ if __name__ == '__main__':
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
+    parser.add_argument("--notebook", action="store_true",
+                        help="Notebook mode")
+
     parser.add_argument("fileargs", nargs=1, metavar="DIRECTORY",
                         help="The directory containing input images (FITS files) used to make statistics on the noise.")
 
@@ -73,6 +77,7 @@ if __name__ == '__main__':
     title = args.title
     logy = args.logy
     quiet = args.quiet
+    notebook = args.notebook
     input_directory_path = args.fileargs[0]
 
     if args.output is None:
@@ -86,11 +91,12 @@ if __name__ == '__main__':
     fits_file_name_list = common.get_fits_files_list(input_directory_path)
 
     # Parse FITS files
-    data_list = parse_fits_files(fits_file_name_list)
+    data_list = parse_fits_files(fits_file_name_list, progress_bar=not notebook)
 
     # PLOT STATISTICS #########################################################
 
-    print("Plotting...")
+    if not notebook:
+        print("Plotting...")
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(16, 9))
 
@@ -109,9 +115,10 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    plt.tight_layout()
+    if not notebook:
+        plt.tight_layout()
 
-    plt.savefig(output_file_path, bbox_inches='tight')
+        plt.savefig(output_file_path, bbox_inches='tight')
 
     if not quiet:
         plt.show()
