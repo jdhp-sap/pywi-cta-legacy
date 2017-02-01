@@ -83,7 +83,7 @@ class BenchmarkPlotsContainer(gtk.Box):
         self.plot_log_scale = False
         self.plot_ellipse_shower = False
         self.show_scores = True
-        self.plot_perpendicular_hit_distribution = False
+        self.plot_perpendicular_hit_distribution = None
         self.kill_isolated_pixels_on_ref = False
         self.use_ref_angle_for_perpendicular_hit_distribution = False
 
@@ -251,9 +251,9 @@ class BenchmarkPlotsContainer(gtk.Box):
 
     def plot_perpendicular_hit_distribution_switch_callback(self, data=None, param=None):
         if self.plot_perpendicular_hit_distribution_switch.get_active():
-            self.plot_perpendicular_hit_distribution = True
+            self.plot_perpendicular_hit_distribution = "Wavelet"
         else:
-            self.plot_perpendicular_hit_distribution = False
+            self.plot_perpendicular_hit_distribution = None
         self.update_plots()
 
 
@@ -442,9 +442,23 @@ class BenchmarkPlotsContainer(gtk.Box):
                 self._draw_histogram(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
                 self._draw_histogram(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
             else:
+                # AX1 #######
+
                 self._draw_image(ax1, input_img, "Input", pixels_position=pixels_position)
+
+                # AX2 #######
+
                 self._draw_image(ax2, reference_img, "Reference", pixels_position=pixels_position)
-                if self.plot_perpendicular_hit_distribution:
+
+                if self.plot_ellipse_shower:
+                    try:
+                        common.plot_ellipse_shower_on_image_meter(ax2, reference_img, pixels_position)
+                    except Exception as e:
+                        print(e)
+
+                # AX3 #######
+
+                if self.plot_perpendicular_hit_distribution is not None:
                     if self.use_ref_angle_for_perpendicular_hit_distribution:
                         image_array = copy.deepcopy(reference_img)
                         xx, yy = pixels_position[0], pixels_position[1]
@@ -455,43 +469,68 @@ class BenchmarkPlotsContainer(gtk.Box):
                         common_hillas_parameters = None
 
                     bins = np.linspace(-0.04, 0.04, 21)
-                    common.plot_perpendicular_hit_distribution(ax3,
-                                                               [reference_img, wavelets_cleaned_img],
-                                                               pixels_position,
-                                                               bins=bins,
-                                                               label_list=["Ref.", "Cleaned"],
-                                                               hist_type="step",
-                                                               common_hillas_parameters=common_hillas_parameters)
+
+                    if self.plot_perpendicular_hit_distribution == "Tailcut":
+                        common.plot_perpendicular_hit_distribution(ax3,
+                                                                   [reference_img, tailcut_cleaned_img],
+                                                                   pixels_position,
+                                                                   bins=bins,
+                                                                   label_list=["Ref.", "Cleaned TC"],
+                                                                   hist_type="step",
+                                                                   common_hillas_parameters=common_hillas_parameters)
+                    elif self.plot_perpendicular_hit_distribution == "Wavelet":
+                        common.plot_perpendicular_hit_distribution(ax3,
+                                                                   [reference_img, wavelets_cleaned_img],
+                                                                   pixels_position,
+                                                                   bins=bins,
+                                                                   label_list=["Ref.", "Cleaned WT"],
+                                                                   hist_type="step",
+                                                                   common_hillas_parameters=common_hillas_parameters)
+
                     ax3.set_title("Perpendicular hit distribution")
                     ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
                     ax3.set_ylabel("Photoelectrons", fontsize=16)
                 else:
                     self._draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position)
-                self._draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, pixels_position=pixels_position)
 
                 if self.plot_ellipse_shower:
-                    try:
-                        common.plot_ellipse_shower_on_image_meter(ax2, reference_img, pixels_position)
-                    except Exception as e:
-                        print(e)
-
-                    if not self.plot_perpendicular_hit_distribution:
+                    if self.plot_perpendicular_hit_distribution is None:
                         try:
                             # Show ellipse only if "perpendicular hit distribution" is off
                             common.plot_ellipse_shower_on_image_meter(ax3, tailcut_cleaned_img, pixels_position)
                         except Exception as e:
                             print(e)
 
-                    if self.plot_perpendicular_hit_distribution and self.use_ref_angle_for_perpendicular_hit_distribution:
-                        try:
-                            common.plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
-                        except Exception as e:
-                            print(e)
-                    else:
-                        try:
-                            common.plot_ellipse_shower_on_image_meter(ax4, wavelets_cleaned_img, pixels_position)
-                        except Exception as e:
-                            print(e)
+                # AX4 #######
+
+                if self.plot_perpendicular_hit_distribution == "Tailcut":
+                    self._draw_image(ax4, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position)
+
+                    if self.plot_ellipse_shower:
+                        if (self.plot_perpendicular_hit_distribution is not None) and self.use_ref_angle_for_perpendicular_hit_distribution:
+                            try:
+                                common.plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
+                            except Exception as e:
+                                print(e)
+                        else:
+                            try:
+                                common.plot_ellipse_shower_on_image_meter(ax4, tailcut_cleaned_img, pixels_position)
+                            except Exception as e:
+                                print(e)
+                else:
+                    self._draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, pixels_position=pixels_position)
+
+                    if self.plot_ellipse_shower:
+                        if (self.plot_perpendicular_hit_distribution is not None) and self.use_ref_angle_for_perpendicular_hit_distribution:
+                            try:
+                                common.plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
+                            except Exception as e:
+                                print(e)
+                        else:
+                            try:
+                                common.plot_ellipse_shower_on_image_meter(ax4, wavelets_cleaned_img, pixels_position)
+                            except Exception as e:
+                                print(e)
 
             plt.suptitle("{:.3f} TeV ({} photoelectrons in reference image) - Event {} - Telescope {}".format(fits_metadata_dict["mc_energy"], int(fits_metadata_dict["npe"]), fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]), fontsize=18)
 
