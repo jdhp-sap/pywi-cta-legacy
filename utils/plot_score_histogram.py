@@ -8,23 +8,22 @@ Make statistics on score files (stored in JSON files).
 import common_functions as common
 
 import argparse
-import json
-#import math
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 
-# histtype : [‘bar’ | ‘barstacked’ | ‘step’ | ‘stepfilled’]
-HIST_TYPE='bar'
-ALPHA=0.5
-
+import copy
 
 if __name__ == '__main__':
 
     # PARSE OPTIONS ###########################################################
 
     parser = argparse.ArgumentParser(description="Make statistics on score files (JSON files).")
+
+    parser.add_argument("--exclude-aborted", action="store_true", default=False,
+                        help="Ignore values from aborted images")
+
+    parser.add_argument("--aborted-only", action="store_true", default=False,
+                        help="Only consider aborted images")
 
     parser.add_argument("--logx", "-l", action="store_true", default=False,
                         help="Use a logaritmic scale on the X axis")
@@ -35,8 +34,17 @@ if __name__ == '__main__':
     parser.add_argument("--tight", action="store_true", default=False,
                         help="Optimize the X axis usage")
 
-    parser.add_argument("--max", type=float, default=None, metavar="FLOAT", 
+    parser.add_argument("--min-score", type=float, default=None, metavar="FLOAT", 
+                        help="The minimum abscissa value to plot")
+
+    parser.add_argument("--max-score", type=float, default=None, metavar="FLOAT", 
                         help="The maximum abscissa value to plot")
+
+    parser.add_argument("--min-npe", type=float, default=None, metavar="FLOAT", 
+                        help="Only considere images having more than the specified total number of photo electrons")
+
+    parser.add_argument("--max-npe", type=float, default=None, metavar="FLOAT", 
+                        help="Only considere images having less than the specified total number of photo electrons")
 
     parser.add_argument("--metric", "-m", required=True,
                         metavar="STRING",
@@ -53,29 +61,53 @@ if __name__ == '__main__':
                         metavar="STRING",
                         help="The title of the plot")
 
+    parser.add_argument("--telid", type=int, default=None,
+                        metavar="INTEGER",
+                        help="Only plot results for this telescope")
+
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
+
+    parser.add_argument("--notebook", action="store_true",
+                        help="Notebook mode")
 
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
     args = parser.parse_args()
 
+    exclude_aborted = args.exclude_aborted
+    aborted_only = args.aborted_only
     logx = args.logx
     logy = args.logy
     tight = args.tight
-    max_abscissa = args.max
+    min_abscissa = args.min_score
+    max_abscissa = args.max_score
+    min_npe = args.min_npe
+    max_npe = args.max_npe
+    metric = args.metric
     overlaid = args.overlaid
     title = args.title
-    metric = args.metric
+    tel_id = args.telid
     quiet = args.quiet
+    notebook = args.notebook
     json_file_path_list = args.fileargs
 
+    if exclude_aborted and aborted_only:
+        raise Exception("--exclude-aborted and --aborted-only are not compatible")
+
     if args.output is None:
-        suffix1 = "_" + metric
-        suffix2 = "_o" if overlaid else ""
-        suffix3 = "_" + str(max_abscissa) if max_abscissa is not None else ""
-        output_file_path = "scores{}{}{}.png".format(suffix1, suffix2, suffix3)
+        suffix  = "_" + metric
+        suffix += "_tel{}".format(tel_id) if tel_id is not None else ""
+        suffix += "_logx" if logx else ""
+        suffix += "_logy" if logy else ""
+        suffix += "_min{}".format(min_abscissa) if min_abscissa is not None else ""
+        suffix += "_max{}".format(max_abscissa) if max_abscissa is not None else ""
+        suffix += "_min-npe{}".format(min_npe) if min_npe is not None else ""
+        suffix += "_max-npe{}".format(max_npe) if max_npe is not None else ""
+        suffix += "_exclude-aborted" if exclude_aborted else ""
+        suffix += "_aborted-only" if aborted_only else ""
+        output_file_path = "score_histogram{}.png".format(suffix)
     else:
         output_file_path = args.output
 
@@ -85,13 +117,27 @@ if __name__ == '__main__':
     label_list = []
 
     for json_file_path in json_file_path_list:
-        print("Parsing {}...".format(json_file_path))
+        if not notebook:
+            print("Parsing {}...".format(json_file_path))
 
         json_dict = common.parse_json_file(json_file_path)
 
-        print(len(json_dict["io"]), "images")
+        if tel_id is not None:
+            json_dict = common.image_filter_equals(json_dict, "tel_id", tel_id)
+
+        if min_npe is not None:
+            json_dict = common.image_filter_range(copy.deepcopy(json_dict), "npe", min_npe)
+
+        if max_npe is not None:
+            json_dict = common.image_filter_range(copy.deepcopy(json_dict), "npe", max_npe)
+
+        if not notebook:
+            print(len(json_dict["io"]), "images")
 
         score_array = common.extract_score_array(json_dict, metric)
+
+        if min_abscissa is not None:
+            score_array = np.array([score for score in score_array if score >= min_abscissa])
 
         if max_abscissa is not None:
             score_array = np.array([score for score in score_array if score <= max_abscissa])
@@ -102,7 +148,7 @@ if __name__ == '__main__':
 
     # PLOT STATISTICS #########################################################
 
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(16, 9))
 
     common.plot_hist1d(ax1,
                        data_list,
@@ -118,7 +164,8 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    plt.savefig(output_file_path, bbox_inches='tight')
+    if not notebook:
+        plt.savefig(output_file_path, bbox_inches='tight')
 
     if not quiet:
         plt.show()
