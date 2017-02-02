@@ -9,7 +9,6 @@ import common_functions as common
 
 import argparse
 from matplotlib import pyplot as plt
-import os
 
 import copy
 
@@ -56,6 +55,9 @@ if __name__ == '__main__':
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
+    parser.add_argument("--notebook", action="store_true",
+                        help="Notebook mode")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
@@ -69,16 +71,26 @@ if __name__ == '__main__':
     metric = args.metric
     tel_id = args.telid
     quiet = args.quiet
+    notebook = args.notebook
     json_file_path_list = args.fileargs
-
-    if args.output is None:
-        output_file_path = "score_histogram_{}.pdf".format(metric)
-    else:
-        output_file_path = args.output
 
     if exclude_aborted and aborted_only:
         raise Exception("--exclude-aborted and --aborted-only are not compatible")
 
+    if args.output is None:
+        suffix  = "_" + metric
+        suffix += "_tel{}".format(tel_id) if tel_id is not None else ""
+        suffix += "_logx" if logx else ""
+        suffix += "_logy" if logy else ""
+        suffix += "_min{}".format(min_abscissa) if min_abscissa is not None else ""
+        suffix += "_max{}".format(max_abscissa) if max_abscissa is not None else ""
+        suffix += "_min-npe{}".format(min_npe) if min_npe is not None else ""
+        suffix += "_max-npe{}".format(max_npe) if max_npe is not None else ""
+        suffix += "_exclude-aborted" if exclude_aborted else ""
+        suffix += "_aborted-only" if aborted_only else ""
+        output_file_path = "score_histogram-x4{}.png".format(suffix)
+    else:
+        output_file_path = args.output
 
     # FETCH SCORE #############################################################
 
@@ -89,11 +101,10 @@ if __name__ == '__main__':
     label_list = []
 
     for json_file_path in json_file_path_list:
-        print("Parsing {}...".format(json_file_path))
+        if not notebook:
+            print("Parsing {}...".format(json_file_path))
 
         json_dict = common.parse_json_file(json_file_path)
-
-        label = json_dict["label"]
 
         if tel_id is not None:
             json_dict = common.image_filter_equals(json_dict, "tel_id", tel_id)
@@ -103,7 +114,8 @@ if __name__ == '__main__':
         json_dict3 = common.image_filter_range(copy.deepcopy(json_dict), "npe", *NPE_RANGE_3)
         json_dict4 = common.image_filter_range(copy.deepcopy(json_dict), "npe", *NPE_RANGE_4)
 
-        print(len(json_dict["io"]), "images")
+        if not notebook:
+            print(len(json_dict["io"]), "images")
 
         score_array1 = common.extract_score_array(json_dict1, metric)
         score_array2 = common.extract_score_array(json_dict2, metric)
@@ -119,7 +131,8 @@ if __name__ == '__main__':
 
     # PLOT STATISTICS #########################################################
 
-    print("Plotting...")
+    if not notebook:
+        print("Plotting...")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(16, 9))
 
@@ -207,7 +220,8 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    plt.savefig(output_file_path, bbox_inches='tight')
+    if not notebook:
+        plt.savefig(output_file_path, bbox_inches='tight')
 
     if not quiet:
         plt.show()
