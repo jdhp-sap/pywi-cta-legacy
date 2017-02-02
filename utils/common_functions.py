@@ -65,11 +65,15 @@ def image_filter_equals(json_dict, key, value):
     return json_dict
 
 
-def image_filter_range(json_dict, key, min_value, max_value):
+def image_filter_range(json_dict, key, min_value=None, max_value=None):
     """Return a version of `json_dict` where only `io` list items (images) with
     `key`'s value in range `[min_velue ; max_value]` are kept."""
 
-    json_dict["io"] = [image_dict for image_dict in json_dict["io"] if min_value <= image_dict[key] <= max_value]
+    if min_value is not None:
+        json_dict["io"] = [image_dict for image_dict in json_dict["io"] if min_value <= image_dict[key]]
+
+    if max_value is not None:
+        json_dict["io"] = [image_dict for image_dict in json_dict["io"] if image_dict[key] <= max_value]
 
     return json_dict
 
