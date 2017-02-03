@@ -30,6 +30,8 @@ import sys
 import time
 import traceback
 
+import astropy.units as u
+
 from datapipe.image.hillas_parameters import get_hillas_parameters
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
@@ -111,7 +113,7 @@ class AbstractCleaningAlgorithm(object):
 
                     initial_time = time.perf_counter()
                     cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
-                    execution_time = time.perf_counter() - initial_time
+                    execution_time_sec = time.perf_counter() - initial_time
 
                     # ASSESS OR PRINT THE CLEANED IMAGE ###################################
 
@@ -124,7 +126,7 @@ class AbstractCleaningAlgorithm(object):
                         # IMAGE METADATA
                         image_dict["score"] = score_tuple
                         image_dict["score_name"] = score_name_tuple
-                        image_dict["execution_time"] = execution_time
+                        image_dict["execution_time_sec"] = execution_time_sec
                         image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)
                         image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img)
 
@@ -133,6 +135,21 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_ref_delta_pe"] = delta_pe
                         image_dict["img_ref_delta_abs_pe"] = delta_abs_pe
                         image_dict["img_ref_delta_num_pixels"] = delta_num_pixels
+
+                        image_dict["img_ref_sum_pe"] = float(np.sum(reference_img))
+                        image_dict["img_ref_min_pe"] = float(np.min(reference_img))
+                        image_dict["img_ref_max_pe"] = float(np.max(reference_img))
+                        image_dict["img_ref_num_pix"] = int((reference_img > 0).sum())
+
+                        image_dict["img_in_sum_pe"] = float(np.sum(input_img))
+                        image_dict["img_in_min_pe"] = float(np.min(input_img))
+                        image_dict["img_in_max_pe"] = float(np.max(input_img))
+                        image_dict["img_in_num_pix"] = int((input_img > 0).sum())
+
+                        image_dict["img_cleaned_sum_pe"] = float(np.sum(cleaned_img))
+                        image_dict["img_cleaned_min_pe"] = float(np.min(cleaned_img))
+                        image_dict["img_cleaned_max_pe"] = float(np.max(cleaned_img))
+                        image_dict["img_cleaned_num_pix"] = int((cleaned_img > 0).sum())
 
                         #hillas_params_1 = get_hillas_parameters(reference_img, 1)
 
@@ -147,18 +164,31 @@ class AbstractCleaningAlgorithm(object):
                         #image_dict["img_ref_hillas_1_psi_norm"] = np.abs(np.sin(np.radians(hillas_params_1.psi.value)))
                         #image_dict["img_ref_hillas_1_miss"] =     hillas_params_1.miss.value
 
-                        hillas_params_2 = get_hillas_parameters(reference_img, 2)
+                        hillas_params_2_ref_img = get_hillas_parameters(reference_img, 2)
 
-                        image_dict["img_ref_hillas_2_size"] =     hillas_params_2.size
-                        image_dict["img_ref_hillas_2_cen_x"] =    hillas_params_2.cen_x.value
-                        image_dict["img_ref_hillas_2_cen_y"] =    hillas_params_2.cen_y.value
-                        image_dict["img_ref_hillas_2_length"] =   hillas_params_2.length.value
-                        image_dict["img_ref_hillas_2_width"] =    hillas_params_2.width.value
-                        image_dict["img_ref_hillas_2_r"] =        hillas_params_2.r
-                        image_dict["img_ref_hillas_2_phi"] =      hillas_params_2.phi
-                        image_dict["img_ref_hillas_2_psi"] =      hillas_params_2.psi.value
-                        image_dict["img_ref_hillas_2_psi_norm"] = np.abs(np.sin(np.radians(hillas_params_2.psi.value)))
-                        image_dict["img_ref_hillas_2_miss"] =     hillas_params_2.miss.value
+                        image_dict["img_ref_hillas_2_size"] =     float(hillas_params_2_ref_img.size)
+                        image_dict["img_ref_hillas_2_cen_x"] =    hillas_params_2_ref_img.cen_x.value
+                        image_dict["img_ref_hillas_2_cen_y"] =    hillas_params_2_ref_img.cen_y.value
+                        image_dict["img_ref_hillas_2_length"] =   hillas_params_2_ref_img.length.value
+                        image_dict["img_ref_hillas_2_width"] =    hillas_params_2_ref_img.width.value
+                        image_dict["img_ref_hillas_2_r"] =        hillas_params_2_ref_img.r.value
+                        image_dict["img_ref_hillas_2_phi"] =      hillas_params_2_ref_img.phi.to(u.rad).value
+                        image_dict["img_ref_hillas_2_psi"] =      hillas_params_2_ref_img.psi.to(u.rad).value
+                        image_dict["img_ref_hillas_2_psi_norm"] = float(np.abs(np.sin(np.radians(hillas_params_2_ref_img.psi.to(u.rad).value))))
+                        image_dict["img_ref_hillas_2_miss"] =     hillas_params_2_ref_img.miss.value
+
+                        hillas_params_2_cleaned_img = get_hillas_parameters(cleaned_img, 2)
+
+                        image_dict["img_cleaned_hillas_2_size"] =     float(hillas_params_2_cleaned_img.size)
+                        image_dict["img_cleaned_hillas_2_cen_x"] =    hillas_params_2_cleaned_img.cen_x.value
+                        image_dict["img_cleaned_hillas_2_cen_y"] =    hillas_params_2_cleaned_img.cen_y.value
+                        image_dict["img_cleaned_hillas_2_length"] =   hillas_params_2_cleaned_img.length.value
+                        image_dict["img_cleaned_hillas_2_width"] =    hillas_params_2_cleaned_img.width.value
+                        image_dict["img_cleaned_hillas_2_r"] =        hillas_params_2_cleaned_img.r.value
+                        image_dict["img_cleaned_hillas_2_phi"] =      hillas_params_2_cleaned_img.phi.to(u.rad).value
+                        image_dict["img_cleaned_hillas_2_psi"] =      hillas_params_2_cleaned_img.psi.to(u.rad).value
+                        image_dict["img_cleaned_hillas_2_psi_norm"] = float(np.abs(np.sin(np.radians(hillas_params_2_cleaned_img.psi.to(u.rad).value))))
+                        image_dict["img_cleaned_hillas_2_miss"] =     hillas_params_2_cleaned_img.miss.value
 
                     # PLOT IMAGES #########################################################
 
@@ -202,6 +232,7 @@ class AbstractCleaningAlgorithm(object):
             output_dict["class_name"] = self.__class__.__name__
             output_dict["algo_code_ref"] = str(self.__class__.clean_image.__code__)
             output_dict["label"] = self.label
+            output_dict["cmd"] = " ".join(sys.argv)
             output_dict["algo_params"] = cleaning_function_params
             output_dict["benchmark_method"] = benchmark_method
             output_dict["system"] = " ".join(os.uname())
