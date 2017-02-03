@@ -23,6 +23,7 @@
 __all__ = ['abstract_cleaning_algorithm',
            'fft',
            'null',
+           'null_ref',
            'tailcut',
            'tailcut_jd',
            'wavelets_mrfilter',
