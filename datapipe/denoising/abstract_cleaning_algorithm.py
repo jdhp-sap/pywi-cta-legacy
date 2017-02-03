@@ -68,7 +68,8 @@ class AbstractCleaningAlgorithm(object):
             benchmark_method,
             output_file_path,
             plot=False,
-            saveplot=None):
+            saveplot=None,
+            ref_img_as_input=False):      # This option is a hack to easily produce CSV files...
 
         image_counter = 0
 
@@ -89,44 +90,33 @@ class AbstractCleaningAlgorithm(object):
             for input_file_path in input_file_path_list:
 
                 image_counter += 1
-                print("* {}: PROCESS IMAGE NUMBER {}".format(self.label, image_counter))
+                print("* {}: PROCESS IMAGE NUMBER {}".format(self.label, image_counter), end="")
 
-                # CLEAN ONE IMAGE #########################################################
+                # CLEAN ONE IMAGE #############################################
 
                 image_dict = {"input_file_path": input_file_path}
 
                 try:
-                    # READ THE INPUT FILE #################################################
+                    # READ THE INPUT FILE #####################################
 
                     fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path)
 
-                    input_img = fits_images_dict["input_image"]
+                    print(" (TEL{}_EV{})".format(fits_metadata_dict["tel_id"], fits_metadata_dict["event_id"]))
+
                     reference_img = fits_images_dict["reference_image"]
+                    pixels_position = fits_images_dict["pixels_position"]
+
+                    if ref_img_as_input:
+                        input_img = copy.deepcopy(reference_img)    # This option is a hack to easily produce CSV files with the "null_ref" "cleaning" module...
+                    else:
+                        input_img = fits_images_dict["input_image"]
 
                     image_dict.update(fits_metadata_dict)
 
-                    # CLEAN THE INPUT IMAGE ###############################################
-
-                    # Copy the image (otherwise some cleaning functions like Tailcut may change it)
-                    #input_img_copy = copy.deepcopy(input_img)
-                    input_img_copy = input_img.astype('float64', copy=True)
-
-                    initial_time = time.perf_counter()
-                    cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
-                    execution_time_sec = time.perf_counter() - initial_time
-
-                    # ASSESS OR PRINT THE CLEANED IMAGE ###################################
-
                     if benchmark_method is not None:
-                        score_tuple, score_name_tuple = assess.assess_image_cleaning(input_img,
-                                                                                     cleaned_img,
-                                                                                     reference_img,
-                                                                                     benchmark_method)
 
-                        # IMAGE METADATA
-                        image_dict["score"] = score_tuple
-                        image_dict["score_name"] = score_name_tuple
-                        image_dict["execution_time_sec"] = execution_time_sec
+                        # FETCH ADDITIONAL IMAGE METADATA #####################
+
                         image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)
                         image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img)
 
@@ -146,25 +136,7 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_in_max_pe"] = float(np.max(input_img))
                         image_dict["img_in_num_pix"] = int((input_img > 0).sum())
 
-                        image_dict["img_cleaned_sum_pe"] = float(np.sum(cleaned_img))
-                        image_dict["img_cleaned_min_pe"] = float(np.min(cleaned_img))
-                        image_dict["img_cleaned_max_pe"] = float(np.max(cleaned_img))
-                        image_dict["img_cleaned_num_pix"] = int((cleaned_img > 0).sum())
-
-                        #hillas_params_1 = get_hillas_parameters(reference_img, 1)
-
-                        #image_dict["img_ref_hillas_1_size"] =     hillas_params_1.size
-                        #image_dict["img_ref_hillas_1_cen_x"] =    hillas_params_1.cen_x.value
-                        #image_dict["img_ref_hillas_1_cen_y"] =    hillas_params_1.cen_y.value
-                        #image_dict["img_ref_hillas_1_length"] =   hillas_params_1.length.value
-                        #image_dict["img_ref_hillas_1_width"] =    hillas_params_1.width.value
-                        #image_dict["img_ref_hillas_1_r"] =        hillas_params_1.r
-                        #image_dict["img_ref_hillas_1_phi"] =      hillas_params_1.phi
-                        #image_dict["img_ref_hillas_1_psi"] =      hillas_params_1.psi.value
-                        #image_dict["img_ref_hillas_1_psi_norm"] = np.abs(np.sin(np.radians(hillas_params_1.psi.value)))
-                        #image_dict["img_ref_hillas_1_miss"] =     hillas_params_1.miss.value
-
-                        hillas_params_2_ref_img = get_hillas_parameters(reference_img, 2)
+                        hillas_params_2_ref_img = get_hillas_parameters(reference_img, 2, pixels_position)
 
                         image_dict["img_ref_hillas_2_size"] =     float(hillas_params_2_ref_img.size)
                         image_dict["img_ref_hillas_2_cen_x"] =    hillas_params_2_ref_img.cen_x.value
@@ -175,9 +147,40 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_ref_hillas_2_phi"] =      hillas_params_2_ref_img.phi.to(u.rad).value
                         image_dict["img_ref_hillas_2_psi"] =      hillas_params_2_ref_img.psi.to(u.rad).value
                         image_dict["img_ref_hillas_2_psi_norm"] = float(np.abs(np.sin(np.radians(hillas_params_2_ref_img.psi.to(u.rad).value))))
-                        image_dict["img_ref_hillas_2_miss"] =     hillas_params_2_ref_img.miss.value
+                        #image_dict["img_ref_hillas_2_miss"] =     hillas_params_2_ref_img.miss.value
 
-                        hillas_params_2_cleaned_img = get_hillas_parameters(cleaned_img, 2)
+                    # CLEAN THE INPUT IMAGE ###################################
+
+                    # Copy the image (otherwise some cleaning functions like Tailcut may change it)
+                    #input_img_copy = copy.deepcopy(input_img)
+                    input_img_copy = input_img.astype('float64', copy=True)
+
+                    initial_time = time.perf_counter()
+                    cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
+                    execution_time_sec = time.perf_counter() - initial_time
+
+                    # ASSESS OR PRINT THE CLEANED IMAGE #######################
+
+                    if benchmark_method is not None:
+
+                        # ASSESS THE CLEANING #################################
+
+                        score_tuple, score_name_tuple = assess.assess_image_cleaning(input_img,
+                                                                                     cleaned_img,
+                                                                                     reference_img,
+                                                                                     pixels_position,
+                                                                                     benchmark_method)
+
+                        image_dict["score"] = score_tuple
+                        image_dict["score_name"] = score_name_tuple
+                        image_dict["execution_time_sec"] = execution_time_sec
+
+                        image_dict["img_cleaned_sum_pe"] = float(np.sum(cleaned_img))
+                        image_dict["img_cleaned_min_pe"] = float(np.min(cleaned_img))
+                        image_dict["img_cleaned_max_pe"] = float(np.max(cleaned_img))
+                        image_dict["img_cleaned_num_pix"] = int((cleaned_img > 0).sum())
+
+                        hillas_params_2_cleaned_img = get_hillas_parameters(cleaned_img, 2, pixels_position)
 
                         image_dict["img_cleaned_hillas_2_size"] =     float(hillas_params_2_cleaned_img.size)
                         image_dict["img_cleaned_hillas_2_cen_x"] =    hillas_params_2_cleaned_img.cen_x.value
@@ -188,7 +191,7 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_cleaned_hillas_2_phi"] =      hillas_params_2_cleaned_img.phi.to(u.rad).value
                         image_dict["img_cleaned_hillas_2_psi"] =      hillas_params_2_cleaned_img.psi.to(u.rad).value
                         image_dict["img_cleaned_hillas_2_psi_norm"] = float(np.abs(np.sin(np.radians(hillas_params_2_cleaned_img.psi.to(u.rad).value))))
-                        image_dict["img_cleaned_hillas_2_miss"] =     hillas_params_2_cleaned_img.miss.value
+                        #image_dict["img_cleaned_hillas_2_miss"] =     hillas_params_2_cleaned_img.miss.value
 
                     # PLOT IMAGES #########################################################
 

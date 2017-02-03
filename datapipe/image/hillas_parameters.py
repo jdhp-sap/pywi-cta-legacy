@@ -33,7 +33,7 @@ import numpy as np
 Warning: so far, this module only works with "rectangular 2D images".
 """
 
-def get_hillas_parameters(image, implementation=2):
+def get_hillas_parameters(image, implementation=2, pixels_position=None):
     r"""Return Hillas parameters [hillas]_ of the given ``image``.
 
     See https://github.com/cta-observatory/ctapipe/blob/master/ctapipe/image/hillas.py#L83
@@ -62,9 +62,12 @@ def get_hillas_parameters(image, implementation=2):
     # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
     image = image.astype('float64', copy=True)
 
-    x = np.arange(0, np.shape(image)[0], 1)
-    y = np.arange(0, np.shape(image)[1], 1)
-    xx, yy = np.meshgrid(x, y)
+    if pixels_position is not None:
+        xx, yy = pixels_position[0], pixels_position[1]
+    else:
+        x = np.arange(0, np.shape(image)[0], 1)
+        y = np.arange(0, np.shape(image)[1], 1)
+        xx, yy = np.meshgrid(x, y)
 
     if implementation == 1:
         params = hillas_parameters_1(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())

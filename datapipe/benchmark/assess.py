@@ -122,7 +122,7 @@ def normalize_array(input_array):
 
 # Mean-Squared Error (MSE) ####################################################
 
-def metric_mse(input_img, output_image, reference_image, params=None):
+def metric_mse(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Mean-Squared Error* (MSE) metric.
 
@@ -183,7 +183,7 @@ def metric_mse(input_img, output_image, reference_image, params=None):
 
 # Normalized Root Mean-Squared Error (NRMSE) ##################################
 
-def metric_nrmse(input_img, output_image, reference_image, params=None):
+def metric_nrmse(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Normalized Root Mean-Squared Error* (NRMSE) metric.
 
@@ -245,7 +245,7 @@ def metric_nrmse(input_img, output_image, reference_image, params=None):
 
 # Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################
 
-def metric1(input_img, output_image, reference_image, params=None):
+def metric1(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with a (unusually) normalized version of the *Root Mean-Squared Error*
     (RMSE) metric.
@@ -309,7 +309,7 @@ def metric1(input_img, output_image, reference_image, params=None):
 
 # Mean Pixel Difference 2 #####################################################
 
-def metric2(input_img, output_image, reference_image, params=None):
+def metric2(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{shape}}` metric.
 
@@ -366,7 +366,7 @@ def metric2(input_img, output_image, reference_image, params=None):
 
 # Relative Total Counts Difference (mpdspd) ###################################
 
-def metric3(input_img, output_image, reference_image, params=None):
+def metric3(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}^+_{\text{energy}}`
     (a.k.a. *relative total counts difference*) metric.
@@ -418,7 +418,7 @@ def metric3(input_img, output_image, reference_image, params=None):
 
 # Signed Relative Total Counts Difference (sspd) ##############################
 
-def metric4(input_img, output_image, reference_image, params=None):
+def metric4(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{energy}}`
     (a.k.a. *signed relative total counts difference*) metric.
@@ -470,7 +470,7 @@ def metric4(input_img, output_image, reference_image, params=None):
 
 # Structural Similarity Index Measure (SSIM) ##################################
 
-def metric_ssim(input_img, output_image, reference_image, params=None):
+def metric_ssim(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Structural Similarity Index Measure* (SSIM) metric.
 
@@ -545,7 +545,7 @@ def metric_ssim(input_img, output_image, reference_image, params=None):
 
 # Peak Signal-to-Noise Ratio (PSNR) ###########################################
 
-def metric_psnr(input_img, output_image, reference_image, params=None):
+def metric_psnr(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Peak Signal-to-Noise Ratio* (PSNR) metric.
 
@@ -586,7 +586,7 @@ def metric_psnr(input_img, output_image, reference_image, params=None):
 
 # Hillas delta ################################################################
 
-def metric_hillas_delta(input_img, output_image, reference_image, params=None):
+def metric_hillas_delta(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the following relative *Hillas parameters*:
 
@@ -636,8 +636,8 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
     else:
         hillas_implementation = 2
 
-    output_image_parameters = get_hillas_parameters(output_image, hillas_implementation)
-    reference_image_parameters = get_hillas_parameters(reference_image, hillas_implementation)
+    output_image_parameters = get_hillas_parameters(output_image, hillas_implementation, pixels_position)
+    reference_image_parameters = get_hillas_parameters(reference_image, hillas_implementation, pixels_position)
 
     #print(reference_image_parameters)
 
@@ -684,10 +684,10 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
     # Normalized psi
     normalized_delta_psi = float(np.abs(np.sin(np.radians(delta_psi))))
 
-    # Miss
-    output_image_parameter_miss = output_image_parameters.miss.value
-    reference_image_parameter_miss = reference_image_parameters.miss.value
-    delta_miss = reference_image_parameter_miss - output_image_parameter_miss
+    ## Miss
+    #output_image_parameter_miss = output_image_parameters.miss.value
+    #reference_image_parameter_miss = reference_image_parameters.miss.value
+    #delta_miss = reference_image_parameter_miss - output_image_parameter_miss
 
     if params is not None and "kill" in params and params["kill"]:
         suffix_str = '_kill'
@@ -704,7 +704,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
                     ('hillas' + str(hillas_implementation) + '_delta_phi'      + suffix_str, delta_phi),
                     ('hillas' + str(hillas_implementation) + '_delta_psi'      + suffix_str, delta_psi),
                     ('hillas' + str(hillas_implementation) + '_delta_psi_norm' + suffix_str, normalized_delta_psi),
-                    ('hillas' + str(hillas_implementation) + '_delta_miss'     + suffix_str, delta_miss)
+                    #('hillas' + str(hillas_implementation) + '_delta_miss'     + suffix_str, delta_miss)
                  ))
 
     Score = collections.namedtuple('Score', score_dict.keys())
@@ -714,7 +714,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
 
 # Hillas delta 2 ##############################################################
 
-def metric_hillas_delta2(input_img, output_image, reference_image, params=None):
+def metric_hillas_delta2(input_img, output_image, reference_image, pixels_position, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Hillas parameters*.
 
@@ -746,14 +746,14 @@ def metric_hillas_delta2(input_img, output_image, reference_image, params=None):
     params["kill"] = True
     params["kill_threshold"] = 0.2   # TODO: don't give an hardcoded value
 
-    scores = metric_hillas_delta(input_img, output_image, reference_image, params)
+    scores = metric_hillas_delta(input_img, output_image, reference_image, pixels_position, params)
 
     return scores
 
 
 # Kill isolated pixels ########################################################
 
-def metric_kill_isolated_pixels(input_img, output_image, reference_image, params=None):
+def metric_kill_isolated_pixels(input_img, output_image, reference_image, pixels_position, params=None):
     delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(output_image)
 
     score_dict = collections.OrderedDict((
@@ -800,7 +800,7 @@ METRIC_NAME_DICT = {
     metric_kill_isolated_pixels: "kill_isolated_pixels"
 }
 
-def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, params=None):
+def assess_image_cleaning(input_img, output_img, reference_img, pixels_position, benchmark_method, params=None):
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
@@ -841,7 +841,7 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
         metric_name_list = []
 
         for metric_function in BENCHMARK_DICT[benchmark_method]:
-            score = metric_function(input_img, output_img, reference_img, params) 
+            score = metric_function(input_img, output_img, reference_img, pixels_position, params) 
 
             if isinstance(score, collections.Sequence):
                 score_list.extend(score)
@@ -851,8 +851,7 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
                 metric_name_list.append(METRIC_NAME_DICT[metric_function])
 
         assert len(score_list) == len(metric_name_list)
-
-    except KeyError:
+    except KeyError as e:
         raise UnknownMethod()
 
     #for s, m in zip(score_list, metric_name_list):
