@@ -30,16 +30,12 @@ Example usages:
 """
 
 import argparse
-import datetime
+import copy
 import json
-import os
 import numpy as np
-import time
 
 import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
-from datapipe.benchmark import assess
-from datapipe.io import images
 
 
 class Null(AbstractCleaningAlgorithm):
@@ -49,18 +45,23 @@ class Null(AbstractCleaningAlgorithm):
         self.label = "Null"  # Name to show in plots
 
     def clean_image(self, img):
-        return img
+        return copy.deepcopy(img)
 
 
 def main():
 
     # PARSE OPTIONS ###########################################################
 
-    parser = argparse.ArgumentParser(description='Denoise FITS images with the "null" algorithm.')
+    parser = argparse.ArgumentParser(description='"Denoise" FITS images with the "null" algorithm (which does nothing but which is usefull for CSV conversion).')
+
 
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images")
+
+    parser.add_argument("--label", "-l", default=None,
+                        metavar="STRING",
+                        help="The label attached to the produced results")
 
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
@@ -71,19 +72,25 @@ def main():
                              "If fileargs is a directory,"
                              "all FITS files it contains are processed.")
 
+
     args = parser.parse_args()
 
     benchmark_method = args.benchmark
+    label = args.label
     input_file_or_dir_path_list = args.fileargs
 
     if args.output is None:
-        output_file_path = "score_null_benchmark_{}.json".format(benchmark_method)
+        output_file_path = "score_{}_benchmark_{}.json".format(label if label is not None else "null", benchmark_method)
     else:
         output_file_path = args.output
 
     cleaning_function_params = {}
 
     cleaning_algorithm = Null()
+
+    if label is not None:
+        cleaning_algorithm.label = label
+
     cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
