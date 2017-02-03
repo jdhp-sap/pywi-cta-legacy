@@ -456,6 +456,10 @@ def main():
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images")
 
+    parser.add_argument("--label", "-l", default=None,
+                        metavar="STRING",
+                        help="The label attached to the produced results")
+
     parser.add_argument("--plot", action="store_true",
                         help="Plot images")
 
@@ -496,6 +500,7 @@ def main():
     verbose = args.verbose
 
     benchmark_method = args.benchmark
+    label = args.label
     plot = args.plot
     saveplot = args.saveplot
 
@@ -532,6 +537,10 @@ def main():
             }
 
     cleaning_algorithm = WaveletTransform()
+
+    if label is not None:
+        cleaning_algorithm.label = label
+
     cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
