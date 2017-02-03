@@ -34,6 +34,8 @@ __all__ = ['normalize_array',
            'metric_kill_isolated_pixels',
            'assess_image_cleaning']
 
+import astropy.units as u
+
 import collections
 
 import numpy as np
@@ -176,7 +178,7 @@ def metric_mse(input_img, output_image, reference_image, params=None):
     
     score = np.mean(np.square(output_image - reference_image))
 
-    return score
+    return float(score)
 
 
 # Normalized Root Mean-Squared Error (NRMSE) ##################################
@@ -238,7 +240,7 @@ def metric_nrmse(input_img, output_image, reference_image, params=None):
     denom = np.sqrt(np.mean((reference_image * output_image), dtype=np.float64))
     score = np.sqrt(mse) / denom
 
-    return score
+    return float(score)
 
 
 # Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################
@@ -302,7 +304,7 @@ def metric1(input_img, output_image, reference_image, params=None):
 
     score = np.mean(np.square(output_image - reference_image))
 
-    return score
+    return float(score)
 
 
 # Mean Pixel Difference 2 #####################################################
@@ -359,7 +361,7 @@ def metric2(input_img, output_image, reference_image, params=None):
 
     mark = np.mean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
 
-    return mark
+    return float(mark)
 
 
 # Relative Total Counts Difference (mpdspd) ###################################
@@ -411,7 +413,7 @@ def metric3(input_img, output_image, reference_image, params=None):
 
     mark = np.abs(sum_output_image - sum_reference_image) / sum_reference_image
 
-    return mark
+    return float(mark)
 
 
 # Signed Relative Total Counts Difference (sspd) ##############################
@@ -463,7 +465,7 @@ def metric4(input_img, output_image, reference_image, params=None):
 
     mark = (sum_output_image - sum_reference_image) / sum_reference_image
 
-    return mark
+    return float(mark)
 
 
 # Structural Similarity Index Measure (SSIM) ##################################
@@ -538,7 +540,7 @@ def metric_ssim(input_img, output_image, reference_image, params=None):
 
     ssim_val, ssim_image = ssim(output_image, reference_image, full=True, gaussian_weights=True, sigma=0.5)
 
-    return ssim_val
+    return float(ssim_val)
 
 
 # Peak Signal-to-Noise Ratio (PSNR) ###########################################
@@ -579,7 +581,7 @@ def metric_psnr(input_img, output_image, reference_image, params=None):
 
     psnr_val = psnr(output_image, reference_image, dynamic_range=1e3)
 
-    return psnr_val
+    return float(psnr_val)
 
 
 # Hillas delta ################################################################
@@ -640,8 +642,8 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
     #print(reference_image_parameters)
 
     # Size
-    output_image_parameter_size = output_image_parameters.size
-    reference_image_parameter_size = reference_image_parameters.size
+    output_image_parameter_size = float(output_image_parameters.size)
+    reference_image_parameter_size = float(reference_image_parameters.size)
     delta_size = reference_image_parameter_size - output_image_parameter_size
 
     # Centroid x
@@ -665,22 +667,22 @@ def metric_hillas_delta(input_img, output_image, reference_image, params=None):
     delta_width = reference_image_parameter_width - output_image_parameter_width
 
     # R
-    output_image_parameter_r = output_image_parameters.r
-    reference_image_parameter_r = reference_image_parameters.r
+    output_image_parameter_r = output_image_parameters.r.value
+    reference_image_parameter_r = reference_image_parameters.r.value
     delta_r = reference_image_parameter_r - output_image_parameter_r
 
     # Phi
-    output_image_parameter_phi = output_image_parameters.phi
-    reference_image_parameter_phi = reference_image_parameters.phi
+    output_image_parameter_phi = output_image_parameters.phi.to(u.rad).value
+    reference_image_parameter_phi = reference_image_parameters.phi.to(u.rad).value
     delta_phi = reference_image_parameter_phi - output_image_parameter_phi
 
     # Psi (shower direction angle)
-    output_image_parameter_psi = output_image_parameters.psi.value
-    reference_image_parameter_psi = reference_image_parameters.psi.value
+    output_image_parameter_psi = output_image_parameters.psi.to(u.rad).value
+    reference_image_parameter_psi = reference_image_parameters.psi.to(u.rad).value
     delta_psi = reference_image_parameter_psi - output_image_parameter_psi
 
     # Normalized psi
-    normalized_delta_psi = np.abs(np.sin(np.radians(delta_psi)))
+    normalized_delta_psi = float(np.abs(np.sin(np.radians(delta_psi))))
 
     # Miss
     output_image_parameter_miss = output_image_parameters.miss.value
@@ -852,6 +854,9 @@ def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method
 
     except KeyError:
         raise UnknownMethod()
+
+    #for s, m in zip(score_list, metric_name_list):
+    #    print(m, ":", s, type(s))
 
     return tuple(score_list), tuple(metric_name_list)
 
