@@ -43,7 +43,7 @@ COLUMNS_DESC["Phi"]     = "Azimuth (in radian)"
 COLUMNS_DESC["X"]       = "X coordinate of shower projection on the ground (in meter)"
 COLUMNS_DESC["Y"]       = "Y coordinate of shower projection on the ground (in meter)"
 COLUMNS_DESC["Z"]       = "Shower start altitude (in meter)"
-COLUMNS_DESC["Ncam"]    = "Number of p.e. in the camera (include NSB and instrument noise)"
+COLUMNS_DESC["peSum"]   = "Number of p.e. in the camera (include NSB and instrument noise)"
 COLUMNS_DESC["Type"]    = 'a string with "Reference" or "TC5-10" (for tailcut), "mrfilter ..." (the full command line with option), this allows selecting data sets for the analysis'
 COLUMNS_DESC["Success"] = "0 or 1 (allows making statistics, ensure the same number of entries)"
 COLUMNS_DESC["hX"]      = "Hillas centroid X"
@@ -55,10 +55,10 @@ COLUMNS_DESC["hPsi"]    = "Hillas ellipse angle with respect to the x axis"
 COLUMNS_DESC["hSkew"]   = "Hillas skew"
 COLUMNS_DESC["hCurt"]   = "Hillas curtosis"
 COLUMNS_DESC["hDist"]   = "Distance of centroid to the center (in meters)"
-COLUMNS_DESC["hman"]    = "The smallest Manhattan distance of the shower to the border (in pixels)"
-COLUMNS_DESC["pe_max1"] = "The highest pe value in the Hillas data (max2, max3 to come later)"
-COLUMNS_DESC["pe_min"]  = "The lowest pe value"
-COLUMNS_DESC["npix"]    = "Number of (remaining) signal *pixels* in the image (no noise for what concerns the MC)"
+COLUMNS_DESC["border"]  = "The smallest Manhattan distance of the shower to the border (in pixels)"
+COLUMNS_DESC["peMax1"] = "The highest pe value in the Hillas data (max2, max3 to come later)"
+COLUMNS_DESC["peMin"]  = "The lowest pe value"
+COLUMNS_DESC["nPix"]    = "Number of (remaining) signal *pixels* in the image (no noise for what concerns the MC)"
 COLUMNS_DESC["Dshape"]  = "Epsilon shape"
 COLUMNS_DESC["Denergy"] = "Epsilon energy"
 
@@ -90,6 +90,8 @@ def save(output_file_path, data_array, header_list):
 
 def extract_columns(input_file_path, image_dict, benchmark_dict):
 
+    print("{}_{}".format(image_dict["event_id"], image_dict["tel_id"]))
+
     # Fetch score ###############################
 
     if "score" in image_dict:
@@ -109,7 +111,7 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     else:
         part = "unknown"
 
-    # Compute hDist and hman ####################
+    # Compute hDist ###############################
 
     cen_x = image_dict["img_cleaned_hillas_2_cen_x"]  if "img_cleaned_hillas_2_cen_x"  in image_dict else None
     cen_y = image_dict["img_cleaned_hillas_2_cen_y"]  if "img_cleaned_hillas_2_cen_y"  in image_dict else None
@@ -137,7 +139,7 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     line["Y"]       = image_dict["mc_core_y"]
     line["Z"]       = image_dict["mc_height_first_interaction"]
     #
-    line["Ncam"]    = image_dict["img_cleaned_sum_pe"]        # TODO !!!!!           # REF, IN
+    line["peSum"]   = image_dict["img_cleaned_sum_pe"] if "img_cleaned_sum_pe"  in image_dict else "NaN"        # TODO !!!!!           # REF, IN
     line["Type"]    = benchmark_dict["label"]
     #line["Type"]    = benchmark_dict["class_name"]
     line["Success"] = 1 if "score" in image_dict else 0
@@ -150,10 +152,10 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     line["hSkew"]   = "NaN"                       # TODO
     line["hCurt"]   = "NaN"                       # TODO
     line["hDist"]   = h_dist
-    line["hman"]    = image_dict["img_ref_signal_to_border_distance"] if "img_ref_signal_to_border_distance" in image_dict else "NaN"
-    line["pe_max1"] = image_dict["img_cleaned_max_pe"]        # TODO !!!!!           # REF, IN
-    line["pe_min"]  = image_dict["img_cleaned_min_pe"]        # TODO !!!!!           # REF, IN
-    line["npix"]    = image_dict["img_cleaned_num_pix"]       # TODO !!!!!           # REF, IN
+    line["border"]  = image_dict["img_ref_signal_to_border_distance"] if "img_ref_signal_to_border_distance" in image_dict else "NaN"
+    line["peMax1"] = image_dict["img_cleaned_max_pe"] if "img_cleaned_max_pe"   in image_dict else "NaN"     # TODO !!!!!           # REF, IN
+    line["peMin"]  = image_dict["img_cleaned_min_pe"] if "img_cleaned_min_pe"   in image_dict else "NaN"     # TODO !!!!!           # REF, IN
+    line["nPix"]    = image_dict["img_cleaned_num_pix"] if "img_cleaned_num_pix" in image_dict else "NaN"     # TODO !!!!!           # REF, IN
     line["Dshape"]  = score_e_shape if "score" in image_dict else "NaN"
     line["Denergy"] = score_e_energy if "score" in image_dict else "NaN"
 
