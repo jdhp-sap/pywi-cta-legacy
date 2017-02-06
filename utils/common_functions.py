@@ -56,18 +56,24 @@ def parse_json_file(json_file_path):
 
 # FILTERS (RETURN A SUBSET OF JSON_DICT) ######################################
 
-def image_filter_equals(json_dict, key, value):
+def image_filter_equals(json_dict, key, value, return_copy=True):
     """Return a version of `json_dict` where only `io` list items (images) with
     `key`==`velue` are kept."""
+
+    if return_copy:
+        json_dict = copy.deepcopy(json_dict)
 
     json_dict["io"] = [image_dict for image_dict in json_dict["io"] if image_dict[key]==value]
 
     return json_dict
 
 
-def image_filter_range(json_dict, key, min_value=None, max_value=None):
+def image_filter_range(json_dict, key, min_value=None, max_value=None, return_copy=True):
     """Return a version of `json_dict` where only `io` list items (images) with
     `key`'s value in range `[min_velue ; max_value]` are kept."""
+
+    if return_copy:
+        json_dict = copy.deepcopy(json_dict)
 
     if min_value is not None:
         json_dict["io"] = [image_dict for image_dict in json_dict["io"] if min_value <= image_dict[key]]
