@@ -68,6 +68,9 @@ if __name__ == '__main__':
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
+    parser.add_argument("--ratio", action="store_true", default=False,
+                        help="Plot the ratio of the first input file to the second one (require exactly 2 input files)")
+
     parser.add_argument("--notebook", action="store_true",
                         help="Notebook mode")
 
@@ -90,6 +93,7 @@ if __name__ == '__main__':
     title = args.title
     tel_id = args.telid
     quiet = args.quiet
+    plot_ratio = args.ratio
     notebook = args.notebook
     json_file_path_list = args.fileargs
 
@@ -160,7 +164,8 @@ if __name__ == '__main__':
                        xlabel="Score",
                        title=title,
                        num_bins=30,
-                       tight=tight)
+                       tight=tight,
+                       plot_ratio=plot_ratio)
 
     # Save file and plot ########
 
