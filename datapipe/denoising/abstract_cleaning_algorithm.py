@@ -146,7 +146,6 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_ref_hillas_2_r"] =        hillas_params_2_ref_img.r.value
                         image_dict["img_ref_hillas_2_phi"] =      hillas_params_2_ref_img.phi.to(u.rad).value
                         image_dict["img_ref_hillas_2_psi"] =      hillas_params_2_ref_img.psi.to(u.rad).value
-                        image_dict["img_ref_hillas_2_psi_norm"] = float(np.abs(np.sin(np.radians(hillas_params_2_ref_img.psi.to(u.rad).value))))
                         #image_dict["img_ref_hillas_2_miss"] =     hillas_params_2_ref_img.miss.value
 
                     # CLEAN THE INPUT IMAGE ###################################
@@ -190,7 +189,6 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_cleaned_hillas_2_r"] =        hillas_params_2_cleaned_img.r.value
                         image_dict["img_cleaned_hillas_2_phi"] =      hillas_params_2_cleaned_img.phi.to(u.rad).value
                         image_dict["img_cleaned_hillas_2_psi"] =      hillas_params_2_cleaned_img.psi.to(u.rad).value
-                        image_dict["img_cleaned_hillas_2_psi_norm"] = float(np.abs(np.sin(np.radians(hillas_params_2_cleaned_img.psi.to(u.rad).value))))
                         #image_dict["img_cleaned_hillas_2_miss"] =     hillas_params_2_cleaned_img.miss.value
 
                     # PLOT IMAGES #########################################################
