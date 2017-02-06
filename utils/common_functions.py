@@ -349,7 +349,7 @@ def plot_hist1d(axis,
                 xmin=None,
                 xmax=None,
                 overlaid=False,
-                hist_type='bar',
+                hist_type='bar',    # 'step', 'bar'
                 alpha=0.5,
                 xlabel=None,
                 title_fontsize=20,
@@ -368,7 +368,8 @@ def plot_hist1d(axis,
                 info_box_mean=True,
                 info_box_rms=True,
                 info_box_std=False,
-                verbose=False):
+                verbose=False,
+                plot_ratio=False):
     """
     Fill a matplotlib axis with a 1 dimension histogram.
 
@@ -377,6 +378,9 @@ def plot_hist1d(axis,
 
     if not isinstance(data_list, (list, tuple)):
         raise ValueError("Wrong data type: {} (list or tuple expected)".format(str(type(data_list))))
+
+    if plot_ratio and (len(data_list) != 2):
+        raise ValueError("Wrong number of data: when plot_ratio is set to True, 2 data arrays are expected in data_list")
 
     if label_list is not None:
         label_list = copy.deepcopy(label_list)
@@ -424,21 +428,24 @@ def plot_hist1d(axis,
         bins = list(range(math.floor(extract_min(data_list)), math.floor(extract_max(data_list)) + 2))
 
     if overlaid:
+        res_tuple = []
         if label_list is not None:
             for data_array, label in zip(data_list, label_list):
-                res_tuple = axis.hist(data_array,
-                                      #bins=bins,
-                                      log=logy,           # Set log scale on the Y axis
-                                      histtype=hist_type,
-                                      alpha=alpha,
-                                      label=label)
+                res = axis.hist(data_array,
+                                #bins=bins,
+                                log=logy,           # Set log scale on the Y axis
+                                histtype=hist_type,
+                                alpha=alpha,
+                                label=label)
+                res_tuple.append(res)
         else:
             for data_array in data_list:
-                res_tuple = axis.hist(data_array,
-                                      #bins=bins,
-                                      log=logy,           # Set log scale on the Y axis
-                                      histtype=hist_type,
-                                      alpha=alpha)
+                res = axis.hist(data_array,
+                                #bins=bins,
+                                log=logy,           # Set log scale on the Y axis
+                                histtype=hist_type,
+                                alpha=alpha)
+                res_tuple.append(res)
     else:
         res_tuple = axis.hist(data_list,
                               bins=bins,
@@ -446,6 +453,30 @@ def plot_hist1d(axis,
                               histtype=hist_type,
                               alpha=alpha,
                               label=label_list)
+
+    if plot_ratio:
+        edges_of_bins = res_tuple[1]
+        val_of_bins_data_1, patches_data_1 = res_tuple[0][0], res_tuple[2][0]
+        val_of_bins_data_2, patches_data_2 = res_tuple[0][1], res_tuple[2][1]
+
+        # Set ratio where val_of_bins_data_2 is not zero
+        ratio = np.divide(val_of_bins_data_1,
+                          val_of_bins_data_2,
+                          where=(val_of_bins_data_2 != 0))
+
+        # Compute error on ratio (null if cannot be computed)
+        error = np.divide(val_of_bins_data_1 * np.sqrt(val_of_bins_data_2) + val_of_bins_data_2 * np.sqrt(val_of_bins_data_1),
+                          np.power(val_of_bins_data_2, 2),
+                          where=(val_of_bins_data_2 != 0))
+
+        # Add the ratio on the existing plot
+        axis2 = axis.twinx()
+        axis2.set_ylabel('Ratio', fontsize=xylabel_fontsize)
+        axis2.axhline(y=1, linewidth=2, linestyle='--', color='gray', alpha=0.5)
+
+        bincenter = 0.5 * (edges_of_bins[1:] + edges_of_bins[:-1])
+        axis2.errorbar(bincenter, ratio, yerr=error, fmt='o', color='k', elinewidth=3, capsize=4, capthick=3, linewidth=6)
+
 
     if verbose:
         print(bins)
