@@ -64,6 +64,12 @@ if __name__ == '__main__':
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
+    parser.add_argument("--ratio", action="store_true", default=False,
+                        help="Plot the ratio of the first input file to the second one (require exactly 2 input files)")
+
+    parser.add_argument("--notebook", action="store_true",
+                        help="Notebook mode")
+
     parser.add_argument("fileargs", nargs=1, metavar="FILE",
                         help="The JSON file to process")
 
@@ -77,6 +83,8 @@ if __name__ == '__main__':
     tight = args.tight
     title = args.title
     quiet = args.quiet
+    plot_ratio = args.ratio
+    notebook = args.notebook
     json_file_path = args.fileargs[0]
 
     if args.output is None:
@@ -118,7 +126,7 @@ if __name__ == '__main__':
 
     # PLOT STATISTICS #########################################################
 
-    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(16, 9))
 
     common.plot_hist1d(ax1,
                        [data_array],
@@ -129,11 +137,13 @@ if __name__ == '__main__':
                        title=title,
                        tight=tight,
                        info_box_rms=False,
-                       info_box_std=True)
+                       info_box_std=True,
+                       plot_ratio=plot_ratio)
 
     # SAVE FILE AND PLOT ######################################################
 
-    plt.savefig(output_file_path, bbox_inches='tight')
+    if not notebook:
+        plt.savefig(output_file_path, bbox_inches='tight')
 
     if not quiet:
         plt.show()
