@@ -682,7 +682,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
     delta_psi = reference_image_parameter_psi - output_image_parameter_psi
 
     # Normalized psi
-    normalized_delta_psi = float(np.abs(np.sin(np.radians(delta_psi))))
+    normalized_delta_psi = float(np.abs(np.sin(delta_psi)))
 
     ## Miss
     #output_image_parameter_miss = output_image_parameters.miss.value
