@@ -768,7 +768,11 @@ def plot_perpendicular_hit_distribution(axis,
                                         bins=None,
                                         label_list=None,
                                         hist_type='bar',
-                                        common_hillas_parameters=None):
+                                        common_hillas_parameters=None,
+                                        plot_ratio=False):
+
+    if plot_ratio and (len(image_array_list) != 2):
+        raise ValueError("Wrong number of data: when plot_ratio is set to True, 2 data arrays are expected in data_list")
 
     pixel_stat_array_list = []
     hist_list = []
@@ -799,8 +803,33 @@ def plot_perpendicular_hit_distribution(axis,
         pixel_stat_array_list.append(pixel_stat_array)
         hist_list.append(hist)
 
+    # Plot the legend
     if label_list is not None:
         axis.legend(prop={'size': 14}) #, loc='lower center')
+
+    # If plot_ratio is set, plot the ratio of the two histograms
+    if plot_ratio:
+        edges_of_bins = hist_list[0][1]
+        val_of_bins_data_1, patches_data_1 = hist_list[0][0], hist_list[0][2]
+        val_of_bins_data_2, patches_data_2 = hist_list[1][0], hist_list[1][2]
+
+        # Set ratio where val_of_bins_data_2 is not zero
+        ratio = np.divide(val_of_bins_data_1,
+                          val_of_bins_data_2,
+                          where=(val_of_bins_data_2 != 0))
+
+        # Compute error on ratio (null if cannot be computed)
+        error = np.divide(val_of_bins_data_1 * np.sqrt(val_of_bins_data_2) + val_of_bins_data_2 * np.sqrt(val_of_bins_data_1),
+                          np.power(val_of_bins_data_2, 2),
+                          where=(val_of_bins_data_2 != 0))
+
+        # Add the ratio on the existing plot
+        axis2 = axis.twinx()
+        axis2.set_ylabel('Ratio', fontsize=14)
+        axis2.axhline(y=1, linewidth=2, linestyle='--', color='gray', alpha=0.5)
+
+        bincenter = 0.5 * (edges_of_bins[1:] + edges_of_bins[:-1])
+        axis2.errorbar(bincenter, ratio, yerr=error, fmt='o', color='k', elinewidth=3, capsize=4, capthick=3, linewidth=6)
 
     return pixel_stat_array_list, hist_list
 

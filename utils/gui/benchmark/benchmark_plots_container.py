@@ -368,6 +368,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                 tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
                                                                                                  tailcut_cleaned_img,
                                                                                                  reference_img,
+                                                                                                 pixels_position,
                                                                                                  benchmark_method="all")
 
                 if self.show_scores:
@@ -401,6 +402,7 @@ class BenchmarkPlotsContainer(gtk.Box):
                 wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
                                                                                                    wavelets_cleaned_img,
                                                                                                    reference_img,
+                                                                                                   pixels_position,
                                                                                                    benchmark_method="all")
 
                 if self.show_scores:
@@ -477,7 +479,8 @@ class BenchmarkPlotsContainer(gtk.Box):
                                                                    bins=bins,
                                                                    label_list=["Ref.", "Cleaned TC"],
                                                                    hist_type="step",
-                                                                   common_hillas_parameters=common_hillas_parameters)
+                                                                   common_hillas_parameters=common_hillas_parameters,
+                                                                   plot_ratio=True)
                     elif self.plot_perpendicular_hit_distribution == "Wavelet":
                         common.plot_perpendicular_hit_distribution(ax3,
                                                                    [reference_img, wavelets_cleaned_img],
@@ -485,7 +488,8 @@ class BenchmarkPlotsContainer(gtk.Box):
                                                                    bins=bins,
                                                                    label_list=["Ref.", "Cleaned WT"],
                                                                    hist_type="step",
-                                                                   common_hillas_parameters=common_hillas_parameters)
+                                                                   common_hillas_parameters=common_hillas_parameters,
+                                                                   plot_ratio=True)
 
                     ax3.set_title("Perpendicular hit distribution")
                     ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
