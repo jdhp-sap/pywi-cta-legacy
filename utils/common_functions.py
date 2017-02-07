@@ -76,10 +76,10 @@ def image_filter_range(json_dict, key, min_value=None, max_value=None, return_co
         json_dict = copy.deepcopy(json_dict)
 
     if min_value is not None:
-        json_dict["io"] = [image_dict for image_dict in json_dict["io"] if min_value <= image_dict[key]]
+        json_dict["io"] = [image_dict for image_dict in json_dict["io"] if key in image_dict and min_value <= image_dict[key]]
 
     if max_value is not None:
-        json_dict["io"] = [image_dict for image_dict in json_dict["io"] if image_dict[key] <= max_value]
+        json_dict["io"] = [image_dict for image_dict in json_dict["io"] if key in image_dict and image_dict[key] <= max_value]
 
     return json_dict
 
@@ -375,7 +375,8 @@ def plot_hist1d(axis,
                 info_box_rms=True,
                 info_box_std=False,
                 verbose=False,
-                plot_ratio=False):
+                plot_ratio=False,
+                degx=False):
     """
     Fill a matplotlib axis with a 1 dimension histogram.
 
@@ -418,20 +419,26 @@ def plot_hist1d(axis,
 
             label_list[index] = label
 
-    if logx:
-        # Setup the logarithmic scale on the X axis
-        vmin = np.log10(extract_min(data_list))
-        vmax = np.log10(extract_max(data_list))
-        bins = np.logspace(vmin, vmax, num_bins if num_bins is not None else 50) # Make a range from 10**vmin to 10**vmax
-    elif num_bins is not None:
-        #bins = np.linspace(extract_min(data_list), extract_max(data_list) + 1, num_bins + 1)
-        bins = num_bins
+    if degx:
+        num_bins = 90
+        bins = np.sin(np.radians(np.linspace(0., 90., num_bins + 1)))
+        #print("** ", np.linspace(0., 90., num_bins + 1))
+        #print("** ", bins)
     else:
-        # bins=[0, 1, 2, 3] make the following bins: [0,1[, [1,2[ and [2,3]
-        # For more information, see:
-        # - https://docs.scipy.org/doc/numpy/reference/generated/numpy.histogram.html
-        # - http://stackoverflow.com/questions/15177203/how-is-the-pyplot-histogram-bins-interpreted
-        bins = list(range(math.floor(extract_min(data_list)), math.floor(extract_max(data_list)) + 2))
+        if logx:
+            # Setup the logarithmic scale on the X axis
+            vmin = np.log10(extract_min(data_list))
+            vmax = np.log10(extract_max(data_list))
+            bins = np.logspace(vmin, vmax, num_bins if num_bins is not None else 50) # Make a range from 10**vmin to 10**vmax
+        elif num_bins is not None:
+            #bins = np.linspace(extract_min(data_list), extract_max(data_list) + 1, num_bins + 1)
+            bins = num_bins
+        else:
+            # bins=[0, 1, 2, 3] make the following bins: [0,1[, [1,2[ and [2,3]
+            # For more information, see:
+            # - https://docs.scipy.org/doc/numpy/reference/generated/numpy.histogram.html
+            # - http://stackoverflow.com/questions/15177203/how-is-the-pyplot-histogram-bins-interpreted
+            bins = list(range(math.floor(extract_min(data_list)), math.floor(extract_max(data_list)) + 2))
 
     if overlaid:
         res_tuple = []

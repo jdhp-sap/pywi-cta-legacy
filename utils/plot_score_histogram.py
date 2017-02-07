@@ -11,8 +11,6 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 
-import copy
-
 if __name__ == '__main__':
 
     # PARSE OPTIONS ###########################################################
@@ -74,6 +72,9 @@ if __name__ == '__main__':
     parser.add_argument("--notebook", action="store_true",
                         help="Notebook mode")
 
+    parser.add_argument("--degx", action="store_true",
+                        help="Make bins in degrees")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
@@ -95,6 +96,7 @@ if __name__ == '__main__':
     quiet = args.quiet
     plot_ratio = args.ratio
     notebook = args.notebook
+    degx = args.degx
     json_file_path_list = args.fileargs
 
     if exclude_aborted and aborted_only:
@@ -130,10 +132,10 @@ if __name__ == '__main__':
             json_dict = common.image_filter_equals(json_dict, "tel_id", tel_id)
 
         if min_npe is not None:
-            json_dict = common.image_filter_range(copy.deepcopy(json_dict), "npe", min_npe)
+            json_dict = common.image_filter_range(json_dict, "npe", min_value=min_npe)
 
         if max_npe is not None:
-            json_dict = common.image_filter_range(copy.deepcopy(json_dict), "npe", max_npe)
+            json_dict = common.image_filter_range(json_dict, "npe", max_value=max_npe)
 
         if not notebook:
             print(len(json_dict["io"]), "images")
@@ -164,8 +166,10 @@ if __name__ == '__main__':
                        xlabel="Score",
                        title=title,
                        num_bins=30,
+                       #num_bins=[0., 0.0011, 0.0022, 0.0033],
                        tight=tight,
-                       plot_ratio=plot_ratio)
+                       plot_ratio=plot_ratio,
+                       degx=degx)
 
     # Save file and plot ########
 
