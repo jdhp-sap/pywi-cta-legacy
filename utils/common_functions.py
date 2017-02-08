@@ -355,7 +355,7 @@ def plot_hist1d(axis,
                 xmin=None,
                 xmax=None,
                 overlaid=False,
-                hist_type='bar',    # 'step', 'bar'
+                hist_type='step',    # 'step', 'bar'
                 alpha=0.5,
                 xlabel=None,
                 title_fontsize=20,
@@ -420,7 +420,7 @@ def plot_hist1d(axis,
             label_list[index] = label
 
     if degx:
-        num_bins = 90
+        num_bins = 90 # 45  # 90
         bins = np.sin(np.radians(np.linspace(0., 90., num_bins + 1)))
         #print("** ", np.linspace(0., 90., num_bins + 1))
         #print("** ", bins)
@@ -465,6 +465,8 @@ def plot_hist1d(axis,
                               log=logy,               # Set log scale on the Y axis
                               histtype=hist_type,
                               alpha=alpha,
+                              color=['blue', 'red'] if len(data_list) == 2 else None,
+                              linewidth=2,
                               label=label_list)
 
     if plot_ratio:
@@ -497,7 +499,7 @@ def plot_hist1d(axis,
 
     # Legend
     if label_list is not None:
-        axis.legend(prop={'size': legend_fontsize})
+        axis.legend(prop={'size': legend_fontsize}, loc='best', fancybox=True, framealpha=0.5)
 
     # Labels
     axis.set_ylabel("Count", fontsize=xylabel_fontsize)
@@ -804,6 +806,8 @@ def plot_perpendicular_hit_distribution(axis,
                              bins=30,         # TODO
                              label=label,
                              histtype=hist_type,
+                             #color=['blue', 'red'] if len(image_array_list) == 2 else None,
+                             linewidth=2,
                              alpha=0.5)
         else:
             hist = axis.hist(pixel_stat_array[:,3],
@@ -811,6 +815,8 @@ def plot_perpendicular_hit_distribution(axis,
                              bins=bins,         # TODO
                              label=label,
                              histtype=hist_type,
+                             #color=['blue', 'red'] if len(image_array_list) == 2 else None,
+                             linewidth=2,
                              alpha=0.5)
 
         pixel_stat_array_list.append(pixel_stat_array)
