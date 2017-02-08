@@ -55,6 +55,9 @@ if __name__ == '__main__':
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Don't show the plot, just save it")
 
+    parser.add_argument("--notebook", action="store_true",
+                        help="Notebook mode")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The JSON file to process")
 
@@ -70,6 +73,7 @@ if __name__ == '__main__':
     title = args.title
     tel_id = args.telid
     quiet = args.quiet
+    notebook = args.notebook
     json_file_path_list = args.fileargs
 
     if args.output is None:
@@ -84,7 +88,8 @@ if __name__ == '__main__':
     label_list = []
 
     for json_file_path in json_file_path_list:
-        print("Parsing {}...".format(json_file_path))
+        if not notebook:
+            print("Parsing {}...".format(json_file_path))
 
         json_dict = common.parse_json_file(json_file_path)
 
@@ -94,7 +99,8 @@ if __name__ == '__main__':
         if key_min is not None and key_max is not None:
             json_dict = common.image_filter_range(copy.deepcopy(json_dict), key, key_min, key_max)
 
-        print(len(json_dict["io"]), "images")
+        if not notebook:
+            print(len(json_dict["io"]), "images")
 
         score_array = common.extract_score_array(json_dict, metric)
         score_array_list.append(score_array)
@@ -151,7 +157,8 @@ if __name__ == '__main__':
 
     # Save file and plot ########
 
-    plt.savefig(output_file_path, bbox_inches='tight')
+    if not notebook:
+        plt.savefig(output_file_path, bbox_inches='tight')
 
     if not quiet:
         plt.show()
