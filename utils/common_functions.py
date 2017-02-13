@@ -30,6 +30,7 @@ from datapipe.denoising import wavelets_mrfilter as wavelets_mod
 from datapipe.benchmark import assess as assess_mod
 
 COLOR_MAP = "gnuplot2" # "gray_r" # "gray"
+HISTOGRAM_TYPE = "bar"
 
 
 # DIRECTORY PARSER ############################################################
@@ -855,7 +856,8 @@ def plot_perpendicular_hit_distribution(axis,
         axis2.axhline(y=1, linewidth=2, linestyle='--', color='gray', alpha=0.5)
 
         bincenter = 0.5 * (edges_of_bins[1:] + edges_of_bins[:-1])
-        axis2.errorbar(bincenter, ratio, yerr=error, fmt='o', color='k', elinewidth=3, capsize=4, capthick=3, linewidth=6)
+        axis2.plot(bincenter, ratio, 'ok', linewidth=6)
+        #axis2.errorbar(bincenter, ratio, yerr=error, fmt='o', color='k', elinewidth=3, capsize=4, capthick=3, linewidth=6)
 
     return pixel_stat_array_list, hist_list
 
@@ -1011,18 +1013,18 @@ def plot_gui(fig,
     ax4 = fig.add_subplot(224)
 
     if plot_histogram:
-        _draw_histogram(ax1, input_img, "Input")
-        _draw_histogram(ax2, reference_img, "Reference")
-        _draw_histogram(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
-        _draw_histogram(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
+        _draw_histogram(ax1, input_img, "Input", plot_log_scale=plot_log_scale)
+        _draw_histogram(ax2, reference_img, "Reference", plot_log_scale=plot_log_scale)
+        _draw_histogram(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, plot_log_scale=plot_log_scale)
+        _draw_histogram(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, plot_log_scale=plot_log_scale)
     else:
         # AX1 #######
 
-        _draw_image(ax1, input_img, "Input", pixels_position=pixels_position)
+        _draw_image(ax1, input_img, "Input", pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
         # AX2 #######
 
-        _draw_image(ax2, reference_img, "Reference", pixels_position=pixels_position)
+        _draw_image(ax2, reference_img, "Reference", pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
         if plot_ellipse_shower:
             try:
@@ -1046,28 +1048,28 @@ def plot_gui(fig,
 
             if _plot_perpendicular_hit_distribution == "Tailcut":
                 plot_perpendicular_hit_distribution(ax3,
-                                                           [reference_img, tailcut_cleaned_img],
-                                                           pixels_position,
-                                                           bins=bins,
-                                                           label_list=["Ref.", "Cleaned TC"],
-                                                           hist_type="step",
-                                                           common_hillas_parameters=common_hillas_parameters,
-                                                           plot_ratio=True)
+                                                    [reference_img, tailcut_cleaned_img],
+                                                    pixels_position,
+                                                    bins=bins,
+                                                    label_list=["Ref.", "Cleaned TC"],
+                                                    hist_type="step",
+                                                    common_hillas_parameters=common_hillas_parameters,
+                                                    plot_ratio=True)
             elif _plot_perpendicular_hit_distribution == "Wavelet":
                 plot_perpendicular_hit_distribution(ax3,
-                                                           [reference_img, wavelets_cleaned_img],
-                                                           pixels_position,
-                                                           bins=bins,
-                                                           label_list=["Ref.", "Cleaned WT"],
-                                                           hist_type="step",
-                                                           common_hillas_parameters=common_hillas_parameters,
-                                                           plot_ratio=True)
+                                                    [reference_img, wavelets_cleaned_img],
+                                                    pixels_position,
+                                                    bins=bins,
+                                                    label_list=["Ref.", "Cleaned WT"],
+                                                    hist_type="step",
+                                                    common_hillas_parameters=common_hillas_parameters,
+                                                    plot_ratio=True)
 
             ax3.set_title("Perpendicular hit distribution")
             ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
             ax3.set_ylabel("Photoelectrons", fontsize=16)
         else:
-            _draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position)
+            _draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
         if plot_ellipse_shower:
             if _plot_perpendicular_hit_distribution is None:
@@ -1080,7 +1082,7 @@ def plot_gui(fig,
         # AX4 #######
 
         if _plot_perpendicular_hit_distribution == "Tailcut":
-            _draw_image(ax4, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position)
+            _draw_image(ax4, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
             if plot_ellipse_shower:
                 if (_plot_perpendicular_hit_distribution is not None) and use_ref_angle_for_perpendicular_hit_distribution:
@@ -1094,7 +1096,7 @@ def plot_gui(fig,
                     except Exception as e:
                         print(e)
         else:
-            _draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, pixels_position=pixels_position)
+            _draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
             if plot_ellipse_shower:
                 if (_plot_perpendicular_hit_distribution is not None) and use_ref_angle_for_perpendicular_hit_distribution:
