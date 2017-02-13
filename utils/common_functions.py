@@ -9,6 +9,7 @@ import copy
 
 import json
 import os
+import time
 
 import numpy as np
 
@@ -24,7 +25,11 @@ import astropy.units as u
 from ctapipe.image.hillas import hillas_parameters_1 as hillas_parameters_1
 from ctapipe.image.hillas import hillas_parameters_2 as hillas_parameters_2
 
-COLOR_MAP = "gray_r" # "gnuplot2" # "gray"
+from datapipe.denoising import tailcut as tailcut_mod
+from datapipe.denoising import wavelets_mrfilter as wavelets_mod
+from datapipe.benchmark import assess as assess_mod
+
+COLOR_MAP = "gnuplot2" # "gray_r" # "gray"
 
 
 # DIRECTORY PARSER ############################################################
@@ -479,10 +484,11 @@ def plot_hist1d(axis,
                           val_of_bins_data_2,
                           where=(val_of_bins_data_2 != 0))
 
-        # Compute error on ratio (null if cannot be computed)
-        error = np.divide(val_of_bins_data_1 * np.sqrt(val_of_bins_data_2) + val_of_bins_data_2 * np.sqrt(val_of_bins_data_1),
-                          np.power(val_of_bins_data_2, 2),
-                          where=(val_of_bins_data_2 != 0))
+        ## Compute error on ratio (null if cannot be computed)
+        ## This is wrong as it's made for Gaussian distributions and here we have Poisson distribution
+        #error = np.divide(val_of_bins_data_1 * np.sqrt(val_of_bins_data_2) + val_of_bins_data_2 * np.sqrt(val_of_bins_data_1),
+        #                  np.power(val_of_bins_data_2, 2),
+        #                  where=(val_of_bins_data_2 != 0))
 
         # Add the ratio on the existing plot
         axis2 = axis.twinx()
@@ -490,7 +496,8 @@ def plot_hist1d(axis,
         axis2.axhline(y=1, linewidth=2, linestyle='--', color='gray', alpha=0.5)
 
         bincenter = 0.5 * (edges_of_bins[1:] + edges_of_bins[:-1])
-        axis2.errorbar(bincenter, ratio, yerr=error, fmt='o', color='k', elinewidth=3, capsize=4, capthick=3, linewidth=6)
+        #axis2.errorbar(bincenter, ratio, yerr=error, fmt='o', color='k', elinewidth=3, capsize=4, capthick=3, linewidth=6)
+        axis2.plot(bincenter, ratio, fmt='o', color='k', linewidth=6)
 
 
     if verbose:
@@ -855,6 +862,371 @@ def plot_perpendicular_hit_distribution(axis,
 
 ###############################################################################
 
+#fits_images_dict,  = images.load_benchmark_images(self.input_file_path)
+#input_img = fits_images_dict["input_image"]
+#reference_img = fits_images_dict["reference_image"]
+#pixels_position = fits_images_dict["pixels_position"]
+
+def plot_gui(fig,
+             input_img,
+             reference_img,
+             pixels_position,
+             fits_metadata_dict,
+             wavelets_cmd="",
+             kill_isolated_pixels=False,
+             kill_isolated_pixels_on_ref=False,
+             input_image_scale=None,
+             offset_after_calibration=None,
+             show_scores=True,
+             plot_histogram=False,
+             plot_log_scale=False,
+             plot_ellipse_shower=False,
+             _plot_perpendicular_hit_distribution=None,
+             use_ref_angle_for_perpendicular_hit_distribution=False,
+             save=False,
+             notebook=False):
+
+    # Read the selected file #########
+
+    if input_img.ndim != 2:
+        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+
+    if reference_img.ndim != 2:
+        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+
+    if kill_isolated_pixels_on_ref:
+        reference_img = scipy_kill_isolated_pixels(reference_img)
+
+    # Tailcut #####################
+
+    #input_img_copy = copy.deepcopy(input_img)
+    input_img_copy = input_img.astype('float64', copy=True)
+
+    tailcut = tailcut_mod.Tailcut()
+    
+    initial_time = time.perf_counter()
+    tailcut_cleaned_img = tailcut.clean_image(input_img_copy,
+                                              high_threshold=10,
+                                              low_threshold=5,
+                                              kill_isolated_pixels=kill_isolated_pixels)
+    tailcut_execution_time = time.perf_counter() - initial_time
+
+    # Wavelets ####################
+
+    #input_img_copy = copy.deepcopy(input_img)
+    input_img_copy = input_img.astype('float64', copy=True)
+
+    wavelets = wavelets_mod.WaveletTransform()
+
+    initial_time = time.perf_counter()
+    wavelets_cleaned_img = wavelets.clean_image(input_img_copy,
+                                                kill_isolated_pixels=kill_isolated_pixels,
+                                                input_image_scale=input_image_scale,
+                                                offset_after_calibration=offset_after_calibration,
+                                                verbose=True,
+                                                raw_option_string=wavelets_cmd)
+    wavelets_execution_time = time.perf_counter() - initial_time
+
+    # Execution time ##############
+
+    if not notebook:
+        print("Tailcut execution time: ", tailcut_execution_time) # TODO
+        print("Wavelets execution time: ", wavelets_execution_time) # TODO
+
+    # Tailcut scores ##############
+
+    tailcut_title_suffix = ""
+    try:
+        tailcut_score_tuple, tailcut_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                         tailcut_cleaned_img,
+                                                                                         reference_img,
+                                                                                         pixels_position,
+                                                                                         benchmark_method="all")
+
+        if show_scores:
+            tailcut_title_suffix += " ("
+            for name, score in zip(tailcut_score_name_tuple, tailcut_score_tuple):
+                if name == "e_shape":
+                    tailcut_title_suffix += " Es="
+                    tailcut_title_suffix += "{:.2e}".format(score)
+                elif name == "e_energy":
+                    tailcut_title_suffix += " Ee="
+                    tailcut_title_suffix += "{:.2e}".format(score)
+                elif name == "hillas_theta":
+                    tailcut_title_suffix += " Th="
+                    tailcut_title_suffix += "{:.2f}".format(score)
+            tailcut_title_suffix += " )"
+
+        if not notebook:
+            print("Tailcut:")
+            for name in tailcut_score_name_tuple:
+                print("{:>20}".format(name), end=" ")
+            print()
+            for score in tailcut_score_tuple:
+                print("{:20.12f}".format(score), end=" ")
+            print()
+    except assess_mod.AssessError:
+        print("Tailcut: ", str(assess_mod.AssessError))
+
+    # Wavelets scores #############
+
+    wavelets_title_suffix = ""
+    try:
+        wavelets_score_tuple, wavelets_score_name_tuple = assess_mod.assess_image_cleaning(input_img,
+                                                                                           wavelets_cleaned_img,
+                                                                                           reference_img,
+                                                                                           pixels_position,
+                                                                                           benchmark_method="all")
+
+        if show_scores:
+            wavelets_title_suffix += " ("
+            for name, score in zip(wavelets_score_name_tuple, wavelets_score_tuple):
+                if name == "e_shape":
+                    wavelets_title_suffix += " Es="
+                    wavelets_title_suffix += "{:.2e}".format(score)
+                elif name == "e_energy":
+                    wavelets_title_suffix += " Ee="
+                    wavelets_title_suffix += "{:.2e}".format(score)
+                elif name == "hillas_theta":
+                    wavelets_title_suffix += " Th="
+                    wavelets_title_suffix += "{:.2f}".format(score)
+            wavelets_title_suffix += " )"
+
+        if not notebook:
+            print("Wavelets:")
+            for name in wavelets_score_name_tuple:
+                print("{:>20}".format(name), end=" ")
+            print()
+            for score in wavelets_score_tuple:
+                print("{:20.12f}".format(score), end=" ")
+            print()
+    except assess_mod.AssessError:
+        print("Wavelets: ", str(assess_mod.AssessError))
+
+    # Update the widget ###########
+
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax3 = fig.add_subplot(223)
+    ax4 = fig.add_subplot(224)
+
+    if plot_histogram:
+        _draw_histogram(ax1, input_img, "Input")
+        _draw_histogram(ax2, reference_img, "Reference")
+        _draw_histogram(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix)
+        _draw_histogram(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix)
+    else:
+        # AX1 #######
+
+        _draw_image(ax1, input_img, "Input", pixels_position=pixels_position)
+
+        # AX2 #######
+
+        _draw_image(ax2, reference_img, "Reference", pixels_position=pixels_position)
+
+        if plot_ellipse_shower:
+            try:
+                plot_ellipse_shower_on_image_meter(ax2, reference_img, pixels_position)
+            except Exception as e:
+                print(e)
+
+        # AX3 #######
+
+        if _plot_perpendicular_hit_distribution is not None:
+            if use_ref_angle_for_perpendicular_hit_distribution:
+                image_array = copy.deepcopy(reference_img)
+                xx, yy = pixels_position[0], pixels_position[1]
+                common_hillas_parameters = hillas_parameters_1(xx.flatten() * u.meter,
+                                                               yy.flatten() * u.meter,
+                                                               image_array.flatten())
+            else:
+                common_hillas_parameters = None
+
+            bins = np.linspace(-0.04, 0.04, 21)
+
+            if _plot_perpendicular_hit_distribution == "Tailcut":
+                plot_perpendicular_hit_distribution(ax3,
+                                                           [reference_img, tailcut_cleaned_img],
+                                                           pixels_position,
+                                                           bins=bins,
+                                                           label_list=["Ref.", "Cleaned TC"],
+                                                           hist_type="step",
+                                                           common_hillas_parameters=common_hillas_parameters,
+                                                           plot_ratio=True)
+            elif _plot_perpendicular_hit_distribution == "Wavelet":
+                plot_perpendicular_hit_distribution(ax3,
+                                                           [reference_img, wavelets_cleaned_img],
+                                                           pixels_position,
+                                                           bins=bins,
+                                                           label_list=["Ref.", "Cleaned WT"],
+                                                           hist_type="step",
+                                                           common_hillas_parameters=common_hillas_parameters,
+                                                           plot_ratio=True)
+
+            ax3.set_title("Perpendicular hit distribution")
+            ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
+            ax3.set_ylabel("Photoelectrons", fontsize=16)
+        else:
+            _draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position)
+
+        if plot_ellipse_shower:
+            if _plot_perpendicular_hit_distribution is None:
+                try:
+                    # Show ellipse only if "perpendicular hit distribution" is off
+                    plot_ellipse_shower_on_image_meter(ax3, tailcut_cleaned_img, pixels_position)
+                except Exception as e:
+                    print(e)
+
+        # AX4 #######
+
+        if _plot_perpendicular_hit_distribution == "Tailcut":
+            _draw_image(ax4, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position)
+
+            if plot_ellipse_shower:
+                if (_plot_perpendicular_hit_distribution is not None) and use_ref_angle_for_perpendicular_hit_distribution:
+                    try:
+                        plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
+                    except Exception as e:
+                        print(e)
+                else:
+                    try:
+                        plot_ellipse_shower_on_image_meter(ax4, tailcut_cleaned_img, pixels_position)
+                    except Exception as e:
+                        print(e)
+        else:
+            _draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, pixels_position=pixels_position)
+
+            if plot_ellipse_shower:
+                if (_plot_perpendicular_hit_distribution is not None) and use_ref_angle_for_perpendicular_hit_distribution:
+                    try:
+                        plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
+                    except Exception as e:
+                        print(e)
+                else:
+                    try:
+                        plot_ellipse_shower_on_image_meter(ax4, wavelets_cleaned_img, pixels_position)
+                    except Exception as e:
+                        print(e)
+
+    plt.suptitle("{:.3f} TeV ({} photoelectrons in reference image) - Event {} - Telescope {}".format(fits_metadata_dict["mc_energy"], int(fits_metadata_dict["npe"]), fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]), fontsize=18)
+
+    if save:
+        output_file_path_base = "ev{}_tel{}".format(fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"]) # TODO: add WT options
+
+        if plot_histogram:
+            output_file_path_base += "_hist"
+
+        if plot_log_scale:
+            output_file_path_base += "_log"
+
+        ## Save in PDF
+        #output_file_path = output_file_path_base + ".pdf"
+        #print("Save", output_file_path)
+        #plt.savefig(output_file_path, bbox_inches='tight')
+
+        ## Save in SVG
+        #output_file_path = output_file_path_base + ".svg"
+        #print("Save", output_file_path)
+        #plt.savefig(output_file_path, bbox_inches='tight')
+
+        # Save in PNG
+        output_file_path = output_file_path_base + ".png"
+        print("Save", output_file_path)
+        plt.savefig(output_file_path, bbox_inches='tight')
+    else:
+        fig.canvas.draw()
+
+
+def _draw_image(axis, image_array, title, pixels_position=None, plot_log_scale=False, show_color_bar=True):
+
+    axis.axis('equal')
+
+    # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
+
+    if pixels_position is None:
+        dx, dy = 1, 1
+
+        # generate 2 2d grids for the x & y bounds
+        y, x = np.mgrid[slice(0, image_array.shape[0], dy), slice(0, image_array.shape[1], dx)]  # TODO !!!
+
+        axis.set_xlabel("Pixel index", fontsize=12)
+        axis.set_ylabel("Pixel index", fontsize=12)
+    else:
+        x, y = pixels_position[0], pixels_position[1]
+        axis.set_xlabel("Pixel position (in meter)", fontsize=12)
+        axis.set_ylabel("Pixel position (in meter)", fontsize=12)
+
+    z_min, z_max = image_array.min(), image_array.max()
+
+    if plot_log_scale:
+        # See http://matplotlib.org/examples/pylab_examples/pcolor_log.html
+        #     http://stackoverflow.com/questions/2546475/how-can-i-draw-a-log-normalized-imshow-plot-with-a-colorbar-representing-the-raw
+        im = axis.pcolor(x, y, image_array, norm=LogNorm(vmin=0.01, vmax=image_array.max()), cmap=COLOR_MAP)  # TODO: "vmin=0.01" is an arbitrary choice...
+    else:
+        im = axis.pcolor(x, y, image_array, cmap=COLOR_MAP, vmin=z_min, vmax=z_max)
+
+    if show_color_bar:
+        plt.colorbar(im, ax=axis)
+
+    axis.set_title(title)
+
+    # IMSHOW DOESN'T WORK WITH PYTHON GTK3 THROUGH CAIRO ("NOT IMPLEMENTED ERROR") !
+    #im = axis.imshow(image_array)
+    #im = axis.imshow(image_array,
+    #                 origin='lower',
+    #                 interpolation=IMAGE_INTERPOLATION,
+    #                 cmap=COLOR_MAP)
+    #axis.set_axis_off()
+    #if show_color_bar:
+    #    plt.colorbar(im) # draw the colorbar
+
+
+def _draw_histogram(axis, image_array, title, plot_log_scale=False):
+
+    image_array_copy = image_array.astype('float64', copy=True)
+    image_array_1d = image_array.ravel()
+
+    vmin = image_array_1d.min()
+    vmax = image_array_1d.max()
+
+    bins = int(abs(math.ceil(vmax) - math.floor(vmin)))
+
+    if (bins > 100) and plot_log_scale and (vmin > 0):  # TODO: workaround when vmin<0 !
+        logx = True
+        # Setup the logarithmic scale on the X axis
+        vmin = np.log10(vmin)
+        vmax = np.log10(vmax)
+        bins = np.logspace(vmin, vmax, 100) # Make a range from 10**vmin to 10**vmax
+
+        #positive_indices = (image_array_pos > 0)
+        #negative_indices = (image_array_pos < 0)
+    else:
+        logx = False
+
+    # nparray.ravel(): Return a flattened array.
+    values, bins, patches = axis.hist(image_array_1d.ravel(),
+                                      histtype=HISTOGRAM_TYPE,
+                                      bins=bins,
+                                      log=plot_log_scale,               # Set log scale on the Y axis
+                                      #range=(0., 255.),
+                                      alpha=0.5)
+
+    if logx:
+        axis.set_xscale("log")               # Activate log scale on X axis
+    else:
+        plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+
+    if not plot_log_scale:
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+    axis.set_title(title)
+
+    axis.set_xlim([vmin, vmax + 1])    # TODO: ("+1") is to see the last bin. This line may cause problems when logx == True
+    axis.set_ylim(ymin=0.1)            # TODO: it doesn't work, all bins equals to 1 are not visible because they are hidden in the axis
+
+
+
+###############################################################################
 
 def test_hist1d():
     fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
