@@ -170,6 +170,9 @@ class AbstractCleaningAlgorithm(object):
                                                                                      pixels_position,
                                                                                      benchmark_method)
 
+                        image_dict["img_cleaned_signal_to_border"] = signal_to_border(cleaned_img)
+                        image_dict["img_cleaned_signal_to_border_distance"] = signal_to_border_distance(cleaned_img)
+
                         image_dict["score"] = score_tuple
                         image_dict["score_name"] = score_name_tuple
                         image_dict["execution_time_sec"] = execution_time_sec
