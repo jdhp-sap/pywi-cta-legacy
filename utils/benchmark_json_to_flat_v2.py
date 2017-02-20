@@ -117,7 +117,10 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     cen_y = image_dict["img_cleaned_hillas_2_cen_y"]  if "img_cleaned_hillas_2_cen_y"  in image_dict else None
 
     if cen_x is not None and cen_y is not None:
-        h_dist = math.sqrt(math.pow(cen_x, 2) + math.pow(cen_y, 2))
+        #h_dist = math.sqrt(math.pow(cen_x, 2) + math.pow(cen_y, 2))   # distance to the center
+
+        camera_size = 0.14255599677562714      # TODO: this is a hardcoded value for cropped ASTRI cameras
+        h_dist = min(camera_size - abs(cen_x), camera_size - abs(cen_y))
     else:
         h_dist = "NaN"
 
@@ -152,7 +155,7 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     line["hSkew"]   = "NaN"                       # TODO
     line["hCurt"]   = "NaN"                       # TODO
     line["hDist"]   = h_dist
-    line["border"]  = image_dict["img_ref_signal_to_border_distance"] if "img_ref_signal_to_border_distance" in image_dict else "NaN"
+    line["border"]  = image_dict["img_cleaned_signal_to_border_distance"] if "img_cleaned_signal_to_border_distance" in image_dict else "NaN"
     line["peMax1"] = image_dict["img_cleaned_max_pe"] if "img_cleaned_max_pe"   in image_dict else "NaN"     # TODO !!!!!           # REF, IN
     line["peMin"]  = image_dict["img_cleaned_min_pe"] if "img_cleaned_min_pe"   in image_dict else "NaN"     # TODO !!!!!           # REF, IN
     line["nPix"]    = image_dict["img_cleaned_num_pix"] if "img_cleaned_num_pix" in image_dict else "NaN"     # TODO !!!!!           # REF, IN
