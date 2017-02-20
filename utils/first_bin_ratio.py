@@ -44,12 +44,12 @@ def hist_ratio(json_file_path_list,
             json_dict = common.image_filter_equals(json_dict, "tel_id", tel_id)
 
         if min_npe is not None:
-            json_dict = common.image_filter_range(json_dict, "npe", min_value=min_npe)
-            #json_dict = common.image_filter_range(json_dict, "img_cleaned_sum_pe", min_value=min_npe)
+            #json_dict = common.image_filter_range(json_dict, "npe", min_value=min_npe)
+            json_dict = common.image_filter_range(json_dict, "img_cleaned_sum_pe", min_value=min_npe)
 
         if max_npe is not None:
-            json_dict = common.image_filter_range(json_dict, "npe", max_value=max_npe)
-            #json_dict = common.image_filter_range(json_dict, "img_cleaned_sum_pe", max_value=max_npe)
+            #json_dict = common.image_filter_range(json_dict, "npe", max_value=max_npe)
+            json_dict = common.image_filter_range(json_dict, "img_cleaned_sum_pe", max_value=max_npe)
 
         if not notebook:
             print(len(json_dict["io"]), "images")
