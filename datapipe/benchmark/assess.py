@@ -684,6 +684,9 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
     # Normalized psi
     normalized_delta_psi = float(np.abs(np.sin(delta_psi)))
 
+    # Normalized psi2
+    normalized_delta_psi2 = float(  np.fmod(np.degrees(delta_psi), 90.) )
+
     ## Miss
     #output_image_parameter_miss = output_image_parameters.miss.value
     #reference_image_parameter_miss = reference_image_parameters.miss.value
@@ -695,15 +698,16 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
         suffix_str = ''
 
     score_dict = collections.OrderedDict((
-                    ('hillas' + str(hillas_implementation) + '_delta_size'     + suffix_str, delta_size),
-                    ('hillas' + str(hillas_implementation) + '_delta_cen_x'    + suffix_str, delta_cen_x),
-                    ('hillas' + str(hillas_implementation) + '_delta_cen_y'    + suffix_str, delta_cen_y),
-                    ('hillas' + str(hillas_implementation) + '_delta_length'   + suffix_str, delta_length),
-                    ('hillas' + str(hillas_implementation) + '_delta_width'    + suffix_str, delta_width),
-                    ('hillas' + str(hillas_implementation) + '_delta_r'        + suffix_str, delta_r),
-                    ('hillas' + str(hillas_implementation) + '_delta_phi'      + suffix_str, delta_phi),
-                    ('hillas' + str(hillas_implementation) + '_delta_psi'      + suffix_str, delta_psi),
-                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm' + suffix_str, normalized_delta_psi),
+                    ('hillas' + str(hillas_implementation) + '_delta_size'      + suffix_str, delta_size),
+                    ('hillas' + str(hillas_implementation) + '_delta_cen_x'     + suffix_str, delta_cen_x),
+                    ('hillas' + str(hillas_implementation) + '_delta_cen_y'     + suffix_str, delta_cen_y),
+                    ('hillas' + str(hillas_implementation) + '_delta_length'    + suffix_str, delta_length),
+                    ('hillas' + str(hillas_implementation) + '_delta_width'     + suffix_str, delta_width),
+                    ('hillas' + str(hillas_implementation) + '_delta_r'         + suffix_str, delta_r),
+                    ('hillas' + str(hillas_implementation) + '_delta_phi'       + suffix_str, delta_phi),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi'       + suffix_str, delta_psi),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm'  + suffix_str, normalized_delta_psi),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm2' + suffix_str, normalized_delta_psi2),
                     #('hillas' + str(hillas_implementation) + '_delta_miss'     + suffix_str, delta_miss)
                  ))
 
