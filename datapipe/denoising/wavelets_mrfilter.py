@@ -172,7 +172,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         else:
             cmd += ' ' + raw_option_string
 
-        self.label = "WT ({})".format(cmd)  # Name to show in plots
+        #self.label = "WT ({})".format(cmd)  # Name to show in plots
         cmd += ' "{}" {}'.format(input_file_path, mr_output_file_path)
 
         #cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
