@@ -363,7 +363,7 @@ def main():
     parser.add_argument("--number-of-scales", "-n", type=int, metavar="integer",
                         help="Number of scales used in the multiresolution transform. Default=4.")
 
-    parser.add_argument("--k-sigma-noise-threshold", "-s", type=float, metavar="FLOAT",
+    parser.add_argument("--k-sigma-noise-threshold", "-s", metavar="FLOAT",
                         help="Thresholding at nsigma * SigmaNoise. Default=3.")
 
     parser.add_argument("--number-of-iterations", "-i", type=int, metavar="integer",
