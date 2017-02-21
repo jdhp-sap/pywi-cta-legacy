@@ -64,7 +64,7 @@ WT_MR_FILTER_PARAMS="-K -k -C1 -m3 -s3 -n4"  # 2016-10-19 REFERENCE
 #echo "* GAMMA TAILCUT"  & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut" ${TAILCUT_PARAMS}           -o score_gamma_all_tailcut_ref.json              ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_tailcut_ref.json.log
 
 #TAILCUT_PARAMS="-T10 -t5 --kill-isolated-pixels"
-#echo "* GAMMA TAILCUT"  & ./datapipe/denoising/tailcut.py           -b all --label="TailcutKill" ${TAILCUT_PARAMS}       -o score_gamma_all_tailcut_kill.json             ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_tailcut_kill.json.log
+#echo "* GAMMA TAILCUT"  & ./datapipe/denoising/tailcut.py           -b all --label="TC" ${TAILCUT_PARAMS}       -o score_gamma_all_tailcut_kill.json             ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_tailcut_kill.json.log
 
 #WT_MR_FILTER_PARAMS="-K -k -C1 -m3 -s3 -n4"  # 2016-10-19 REFERENCE
 #echo "* GAMMA WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="Wavelet" ${WT_MR_FILTER_PARAMS}      -o score_gamma_all_wavelets_mrfilter_ref.json    ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_wavelets_mrfilter_ref.json.log
@@ -90,24 +90,8 @@ WT_MR_FILTER_PARAMS="-K -C1 -m3  -s3 -n4 -t24 -f3 --kill-isolated-pixels"       
 echo "* GAMMA WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t24-f3-s3" ${WT_MR_FILTER_PARAMS}  -o score_gamma_all_wavelets_mrfilter_jl13.json   ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_wavelets_mrfilter_jl13.json.log
 for FILE in .tmp*.fits ; do rm $FILE ; done
 
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s4 -n4 -t24 -f3 --kill-isolated-pixels"             # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* GAMMA WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t24-f3-s4" ${WT_MR_FILTER_PARAMS}  -o score_gamma_all_wavelets_mrfilter_jl14.json   ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_wavelets_mrfilter_jl14.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s5 -n4 -t24 -f3 --kill-isolated-pixels"             # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* GAMMA WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t24-f3-s5" ${WT_MR_FILTER_PARAMS}  -o score_gamma_all_wavelets_mrfilter_jl15.json   ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_wavelets_mrfilter_jl15.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
 WT_MR_FILTER_PARAMS="-K -C1 -m3  -s3 -n4 -t28 -f3 -i10 -e0 --kill-isolated-pixels"    # Suggested by Jean-Luc (TODO: try to adapt -s)
 echo "* GAMMA WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t28-f3-s3" ${WT_MR_FILTER_PARAMS}  -o score_gamma_all_wavelets_mrfilter_jl23.json   ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_wavelets_mrfilter_jl23.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s4 -n4 -t28 -f3 -i10 -e0 --kill-isolated-pixels"    # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* GAMMA WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t28-f3-s4" ${WT_MR_FILTER_PARAMS}  -o score_gamma_all_wavelets_mrfilter_jl24.json   ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_wavelets_mrfilter_jl24.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s5 -n4 -t28 -f3 -i10 -e0 --kill-isolated-pixels"    # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* GAMMA WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t28-f3-s5" ${WT_MR_FILTER_PARAMS}  -o score_gamma_all_wavelets_mrfilter_jl25.json   ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_wavelets_mrfilter_jl25.json.log
 for FILE in .tmp*.fits ; do rm $FILE ; done
 
 #####################
@@ -121,7 +105,7 @@ for FILE in .tmp*.fits ; do rm $FILE ; done
 #echo "* PROTON TAILCUT"  & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut" ${TAILCUT_PARAMS}          -o score_proton_all_tailcut_ref.json              ~/astri_data/fits/proton 2>&1 | tee score_proton_all_tailcut_ref.json.log
 
 #TAILCUT_PARAMS="-T10 -t5 --kill-isolated-pixels"
-#echo "* PROTON TAILCUT"  & ./datapipe/denoising/tailcut.py           -b all --label="TailcutKill" ${TAILCUT_PARAMS}      -o score_proton_all_tailcut_kill.json             ~/astri_data/fits/proton 2>&1 | tee score_proton_all_tailcut_kill.json.log
+#echo "* PROTON TAILCUT"  & ./datapipe/denoising/tailcut.py           -b all --label="TC" ${TAILCUT_PARAMS}      -o score_proton_all_tailcut_kill.json             ~/astri_data/fits/proton 2>&1 | tee score_proton_all_tailcut_kill.json.log
 
 #WT_MR_FILTER_PARAMS="-K -k -C1 -m3 -s3 -n4"  # 2016-10-19 REFERENCE
 #echo "* PROTON WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="Wavelet" ${WT_MR_FILTER_PARAMS}     -o score_proton_all_wavelets_mrfilter_ref.json    ~/astri_data/fits/proton 2>&1 | tee score_proton_all_wavelets_mrfilter_ref.json.log
@@ -151,22 +135,6 @@ WT_MR_FILTER_PARAMS="-K -C1 -m3  -s3 -n4 -t24 -f3 --kill-isolated-pixels"       
 echo "* PROTON WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t24-f3-s3" ${WT_MR_FILTER_PARAMS}  -o score_proton_all_wavelets_mrfilter_jl13.json   ~/astri_data/fits/proton 2>&1 | tee score_proton_all_wavelets_mrfilter_jl13.json.log
 for FILE in .tmp*.fits ; do rm $FILE ; done
 
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s4 -n4 -t24 -f3 --kill-isolated-pixels"             # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* PROTON WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t24-f3-s4" ${WT_MR_FILTER_PARAMS}  -o score_proton_all_wavelets_mrfilter_jl14.json   ~/astri_data/fits/proton 2>&1 | tee score_proton_all_wavelets_mrfilter_jl14.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s5 -n4 -t24 -f3 --kill-isolated-pixels"             # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* PROTON WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t24-f3-s5" ${WT_MR_FILTER_PARAMS}  -o score_proton_all_wavelets_mrfilter_jl15.json   ~/astri_data/fits/proton 2>&1 | tee score_proton_all_wavelets_mrfilter_jl15.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
 WT_MR_FILTER_PARAMS="-K -C1 -m3  -s3 -n4 -t28 -f3 -i10 -e0 --kill-isolated-pixels"    # Suggested by Jean-Luc (TODO: try to adapt -s)
 echo "* PROTON WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t28-f3-s3" ${WT_MR_FILTER_PARAMS}  -o score_proton_all_wavelets_mrfilter_jl23.json   ~/astri_data/fits/proton 2>&1 | tee score_proton_all_wavelets_mrfilter_jl23.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s4 -n4 -t28 -f3 -i10 -e0 --kill-isolated-pixels"    # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* PROTON WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t28-f3-s4" ${WT_MR_FILTER_PARAMS}  -o score_proton_all_wavelets_mrfilter_jl24.json   ~/astri_data/fits/proton 2>&1 | tee score_proton_all_wavelets_mrfilter_jl24.json.log
-for FILE in .tmp*.fits ; do rm $FILE ; done
-
-WT_MR_FILTER_PARAMS="-K -C1 -m3  -s5 -n4 -t28 -f3 -i10 -e0 --kill-isolated-pixels"    # Suggested by Jean-Luc (TODO: try to adapt -s)
-echo "* PROTON WAVELETS" & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="WT-t28-f3-s5" ${WT_MR_FILTER_PARAMS}  -o score_proton_all_wavelets_mrfilter_jl25.json   ~/astri_data/fits/proton 2>&1 | tee score_proton_all_wavelets_mrfilter_jl25.json.log
 for FILE in .tmp*.fits ; do rm $FILE ; done
