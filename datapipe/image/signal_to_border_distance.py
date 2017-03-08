@@ -21,7 +21,8 @@
 # THE SOFTWARE.
 
 __all__ = ['signal_to_border',
-           'signal_to_border_distance']
+           'signal_to_border_distance',
+           'pemax_on_border']
 
 import math
 import numpy as np
@@ -62,3 +63,19 @@ def signal_to_border_distance(img):
             break
 
     return dist
+
+def pemax_on_border(img):
+    """
+    This function has been written to test the following rejection criterion:
+    https://github.com/jdhp-sap/tino_cta#edge-rejection
+    """
+
+    try:
+        mask = np.ones(img.shape, dtype=np.bool_)
+        mask[1:-1, 1:-1] = 0
+        res = np.max(img[mask])
+    except:
+        res = None
+
+    return res
+

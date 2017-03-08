@@ -39,6 +39,7 @@ from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 
 from datapipe.image.signal_to_border_distance import signal_to_border
 from datapipe.image.signal_to_border_distance import signal_to_border_distance
+from datapipe.image.signal_to_border_distance import pemax_on_border
 
 from datapipe.benchmark import assess
 from datapipe.io import images
@@ -119,6 +120,7 @@ class AbstractCleaningAlgorithm(object):
 
                         image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)
                         image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img)
+                        image_dict["img_ref_pemax_on_border"] = pemax_on_border(reference_img)
 
                         delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(reference_img)
 
@@ -172,6 +174,7 @@ class AbstractCleaningAlgorithm(object):
 
                         image_dict["img_cleaned_signal_to_border"] = signal_to_border(cleaned_img)
                         image_dict["img_cleaned_signal_to_border_distance"] = signal_to_border_distance(cleaned_img)
+                        image_dict["img_cleaned_pemax_on_border"] = pemax_on_border(cleaned_img)
 
                         image_dict["score"] = score_tuple
                         image_dict["score_name"] = score_name_tuple
