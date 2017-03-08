@@ -26,6 +26,7 @@ This module contains unit tests for the "image.signal_to_border_distance" module
 
 from datapipe.image.signal_to_border_distance import signal_to_border
 from datapipe.image.signal_to_border_distance import signal_to_border_distance
+from datapipe.image.signal_to_border_distance import pemax_on_border
 
 import numpy as np
 
@@ -350,6 +351,159 @@ class TestSignalToBorderDistance(unittest.TestCase):
 
         self.assertEqual(output, expected_output)
     
+
+    # Test the "pemax_on_border" function ###########################
+
+    def test_pemax_on_border_example1(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0],
+                              [0, 1, 1, 0],
+                              [0, 1, 1, 0],
+                              [0, 0, 0, 0]])
+
+        # Output image ################
+
+        output = pemax_on_border(input_img)
+
+        # Expected output image #######
+
+        expected_output = 0
+
+        self.assertEqual(output, expected_output)
+
+    def test_pemax_on_border_example2(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0, 0],
+                              [0, 0, 1, 1, 0, 0],
+                              [0, 0, 1, 1, 0, 0],
+                              [0, 0, 0, 0, 0, 0]])
+
+        # Output image ################
+
+        output = pemax_on_border(input_img)
+
+        # Expected output image #######
+
+        expected_output = 0
+
+        self.assertEqual(output, expected_output)
+
+    def test_pemax_on_border_example3(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[1, 0, 0, 0, 0, 4],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 1, 1, 0, 0],
+                              [0, 0, 1, 1, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [2, 0, 0, 0, 0, 3]])
+
+        # Output image ################
+
+        output = pemax_on_border(input_img)
+
+        # Expected output image #######
+
+        expected_output = 4
+
+        self.assertEqual(output, expected_output)
+
+    def test_pemax_on_border_example4(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0]])
+
+        # Output image ################
+
+        output = pemax_on_border(input_img)
+
+        # Expected output image #######
+
+        expected_output = 0     # TODO should the function return a different result for this special case ???
+
+        self.assertEqual(output, expected_output)
+
+    def test_pemax_on_border_example5(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0, 0],
+                              [5, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 1, 0, 0, 0]])
+
+        # Output image ################
+
+        output = pemax_on_border(input_img)
+
+        # Expected output image #######
+
+        expected_output = 5
+
+        self.assertEqual(output, expected_output)
+
+    def test_pemax_on_border_example6(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 1, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 8]])
+
+        # Output image ################
+
+        output = pemax_on_border(input_img)
+
+        # Expected output image #######
+
+        expected_output = 8
+
+        self.assertEqual(output, expected_output)
+
+    def test_pemax_on_border_example7(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [0, 0, 1, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0],
+                              [7, 0, 0, 0, 0, 0]])
+
+        # Output image ################
+
+        output = pemax_on_border(input_img)
+
+        # Expected output image #######
+
+        expected_output = 7
+
+        self.assertEqual(output, expected_output)
+
 
 if __name__ == '__main__':
     unittest.main()
