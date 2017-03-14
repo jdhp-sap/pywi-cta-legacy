@@ -109,11 +109,12 @@ def load_benchmark_images(input_file_path):
 
     hdu_list = fits.open(input_file_path)   # open the FITS file
 
-    if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
+    #if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
+    if (len(hdu_list) != 6) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image):
         hdu_list.close()
         raise WrongFitsFileStructure(input_file_path)
 
-    hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6 = hdu_list
+    hdu0, hdu1, hdu2, hdu3, hdu4, hdu6 = hdu_list
 
     # IMAGES
 
@@ -124,7 +125,7 @@ def load_benchmark_images(input_file_path):
     images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
     images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
     images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
-    images_dict["calibration_image"] = hdu5.data  # "hdu.data" is a Numpy Array
+    #images_dict["calibration_image"] = hdu5.data  # "hdu.data" is a Numpy Array
     images_dict["pixels_position"] = hdu6.data     # "hdu.data" is a Numpy Array
 
     # METADATA
@@ -190,7 +191,15 @@ def load_benchmark_images(input_file_path):
 
 # SAVE BENCHMARK IMAGE #######################################################
 
-def save_benchmark_images(img, pe_img, adc_sums_img, pedestal_img, gains_img, calibration_img, pixel_pos, metadata, output_file_path):
+def save_benchmark_images(img,
+                          pe_img,
+                          adc_sums_img,
+                          pedestal_img,
+                          gains_img,
+                          #calibration_img,
+                          pixel_pos,
+                          metadata,
+                          output_file_path):
     """
     Write a FITS file containing pe_img, output_file_path and metadata.
 
@@ -221,8 +230,8 @@ def save_benchmark_images(img, pe_img, adc_sums_img, pedestal_img, gains_img, ca
     if gains_img.ndim != 3:
         raise Exception("The input image should be a 3D numpy array.")
 
-    if calibration_img.ndim != 3:
-        raise Exception("The input image should be a 3D numpy array.")
+    #if calibration_img.ndim != 3:
+    #    raise Exception("The input image should be a 3D numpy array.")
 
     if pixel_pos.ndim != 3:
         raise Exception("The input image should be a 3D numpy array.")
@@ -234,7 +243,7 @@ def save_benchmark_images(img, pe_img, adc_sums_img, pedestal_img, gains_img, ca
     hdu2 = fits.ImageHDU(adc_sums_img)
     hdu3 = fits.ImageHDU(pedestal_img)
     hdu4 = fits.ImageHDU(gains_img)
-    hdu5 = fits.ImageHDU(calibration_img)
+    #hdu5 = fits.ImageHDU(calibration_img)
     hdu6 = fits.ImageHDU(pixel_pos)
 
     hdu0.header["desc"] = "calibrated image"
@@ -242,7 +251,7 @@ def save_benchmark_images(img, pe_img, adc_sums_img, pedestal_img, gains_img, ca
     hdu2.header["desc"] = "adc sum images"
     hdu3.header["desc"] = "pedestal images"
     hdu4.header["desc"] = "gains images"
-    hdu5.header["desc"] = "calibration images"
+    #hdu5.header["desc"] = "calibration images"
     hdu6.header["desc"] = "pixels position"
 
     for key, val in metadata.items():
@@ -255,7 +264,7 @@ def save_benchmark_images(img, pe_img, adc_sums_img, pedestal_img, gains_img, ca
     if os.path.isfile(output_file_path):
         os.remove(output_file_path)
 
-    hdu_list = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu5, hdu6])
+    hdu_list = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu6])
 
     hdu_list.writeto(output_file_path)
 

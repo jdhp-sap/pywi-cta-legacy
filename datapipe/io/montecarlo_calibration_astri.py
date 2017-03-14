@@ -24,37 +24,36 @@
 
 """
 
-__all__ = ['get_mc_calibration_data',
-           'apply_mc_calibration']
+__all__ = ['apply_mc_calibration']
 
 import numpy as np
 import pyhessio
 
-def get_mc_calibration_data(tel_id):
-    """
-    Get the calibration coefficients from the MC data file to the data.
-    This is ahack (until we have a real data structure for the calibrated
-    data), it should move into `ctapipe.io.hessio_event_source`.
+#def get_mc_calibration_data(tel_id):
+#    """
+#    Get the calibration coefficients from the MC data file to the data.
+#    This is ahack (until we have a real data structure for the calibrated
+#    data), it should move into `ctapipe.io.hessio_event_source`.
+#
+#    Parameters
+#    ----------
+#    tel_id : int
+#        The ID of the telescope to process. 
+#
+#    Returns
+#    -------
+#    tuple of Numpy array
+#        A tuble containing 2 elements: ``pedestal`` a 2D arrays of the pedestal
+#        (one dimension for each channel) and ``gain`` a 2D arrays of the PE/DC
+#        ratios (one dimension for each channel).
+#    """
+#    pedestal = pyhessio.get_pedestal(tel_id)
+#    gains = pyhessio.get_calibration(tel_id)
+#
+#    return pedestal, gains
 
-    Parameters
-    ----------
-    tel_id : int
-        The ID of the telescope to process. 
 
-    Returns
-    -------
-    tuple of Numpy array
-        A tuble containing 2 elements: ``pedestal`` a 2D arrays of the pedestal
-        (one dimension for each channel) and ``gain`` a 2D arrays of the PE/DC
-        ratios (one dimension for each channel).
-    """
-    pedestal = pyhessio.get_pedestal(tel_id)
-    gains = pyhessio.get_calibration(tel_id)
-
-    return pedestal, gains
-
-
-def apply_mc_calibration(adcs, tel_id, adc_treshold=3500.):
+def apply_mc_calibration(adcs, peds, gains, adc_treshold=3500.):
     """
     Apply basic calibration.
 
@@ -62,8 +61,10 @@ def apply_mc_calibration(adcs, tel_id, adc_treshold=3500.):
     ----------
     adc : Numpy array
         The uncalibrated ADC signal (one dimension per channel). 
-    tel_id : int
-        The ID of the telescope to process. 
+    peds : Numpy array
+        The pedestal (one dimension per channel). 
+    gains : Numpy array
+        The gains (one dimension per channel). 
 
     Returns
     -------
@@ -72,8 +73,6 @@ def apply_mc_calibration(adcs, tel_id, adc_treshold=3500.):
         (one dimension for each channel) and ``gain`` a 2D arrays of the PE/DC
         ratios (one dimension for each channel).
     """
-
-    peds, gains = get_mc_calibration_data(tel_id)
 
     peds_ch0 = peds[0]
     peds_ch1 = peds[1]

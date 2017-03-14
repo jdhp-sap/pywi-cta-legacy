@@ -88,54 +88,56 @@ def extract_images(simtel_file_path,
 
                     print("checking geometry")
 
-                    x, y = event.meta.pixel_pos[tel_id]
-                    foclen = event.meta.optical_foclen[tel_id]
+                    x, y = event.inst.pixel_pos[tel_id]
+                    foclen = event.inst.optical_foclen[tel_id]
                     geom = ctapipe.io.CameraGeometry.guess(x, y, foclen)
 
                     if (geom.pix_type != "rectangular") or (geom.cam_id != "ASTRI"):
                         raise ValueError("Telescope {}: error (the input image is not a valide ASTRI telescope image)".format(tel_id))
 
-                    # GET AND CROP THE IMAGE ##################################
+                    # GET IMAGES ##############################################
+
+                    pe_image = event.mc.tel[tel_id].photo_electron_image   # 1D np array
 
                     # uncalibrated_image = [1D numpy array of channel1, 1D numpy array of channel2]
                     # calibrated_image = 1D numpy array
 
+                    uncalibrated_image = event.dl0.tel[tel_id].adc_sums
+                    pedestal = event.mc.tel[tel_id].pedestal
+                    gain = event.mc.tel[tel_id].dc_to_pe
+
                     print("calibrating")
 
-                    adc_sums = event.dl0.tel[tel_id].adc_sums
-                    adc_channel_0 = adc_sums[0]
-                    adc_channel_1 = adc_sums[1]
-                    uncalibrated_image = np.array([adc_channel_0, adc_channel_1])
+                    calibrated_image = mc_calibration.apply_mc_calibration(uncalibrated_image, pedestal, gain)
 
-                    calibrated_image = mc_calibration.apply_mc_calibration(uncalibrated_image, tel_id)
+                    # CROP IMAGE ##############################################
 
                     print("cropping ADC image")
 
-                    cropped_img = geometry_converter.astry_to_2d_array(calibrated_image)
-
-                    # GET AND CROP THE PHOTOELECTRON IMAGE ####################
-
-                    pe_image = event.mc.tel[tel_id].photo_electrons   # 1D np array
+                    cropped_adc_sums = geometry_converter.astry_to_3d_array(uncalibrated_image)
 
                     print("cropping PE image")
 
                     cropped_pe_img = geometry_converter.astry_to_2d_array(pe_image)
 
-                    # SAVE THE IMAGE ##########################################
+                    print("cropping calibrated image")
 
-                    output_file_path_template = "{}_TEL{:03d}_EV{:05d}.fits"
+                    cropped_img = geometry_converter.astry_to_2d_array(calibrated_image)
 
-                    if output_directory is not None:
-                        simtel_basename = os.path.basename(simtel_file_path)
-                        prefix = os.path.join(output_directory, simtel_basename)
-                    else:
-                        prefix = simtel_file_path
+                    print("cropping pedestal and gain")
 
-                    output_file_path = output_file_path_template.format(prefix,
-                                                                        tel_id,
-                                                                        event_id)
+                    cropped_pedestal = geometry_converter.astry_to_3d_array(pedestal)
+                    cropped_gains = geometry_converter.astry_to_3d_array(gain)
 
-                    print("saving", output_file_path)
+                    print("cropping pixel positions")
+
+                    cropped_pixel_pos = geometry_converter.astry_to_3d_array(event.inst.pixel_pos[tel_id])
+
+                    print("cropping calibration")
+
+                    #cropped_calibration = geometry_converter.astry_to_3d_array(event.dl0.tel[tel_id].calibration)
+
+                    # MAKE METADATA ###########################################
 
                     metadata = {}
 
@@ -157,10 +159,10 @@ def extract_images(simtel_file_path,
                     metadata['run_id'] = int(event.dl0.run_id)
                     metadata['tel_data'] = len(event.dl0.tels_with_data)
 
-                    metadata['foclen'] = quantity_to_tuple(event.meta.optical_foclen[tel_id], 'm')
-                    metadata['tel_posx'] = quantity_to_tuple(event.meta.tel_pos[tel_id][0], 'm')
-                    metadata['tel_posy'] = quantity_to_tuple(event.meta.tel_pos[tel_id][1], 'm')
-                    metadata['tel_posz'] = quantity_to_tuple(event.meta.tel_pos[tel_id][2], 'm')
+                    metadata['foclen'] = quantity_to_tuple(event.inst.optical_foclen[tel_id], 'm')
+                    metadata['tel_posx'] = quantity_to_tuple(event.inst.tel_pos[tel_id][0], 'm')
+                    metadata['tel_posy'] = quantity_to_tuple(event.inst.tel_pos[tel_id][1], 'm')
+                    metadata['tel_posz'] = quantity_to_tuple(event.inst.tel_pos[tel_id][2], 'm')
 
                     # TODO: Astropy fails to store the following data in FITS files
                     #metadata['uid'] = os.getuid()
@@ -170,23 +172,28 @@ def extract_images(simtel_file_path,
                     #metadata['python'] = " ".join(sys.version.splitlines()).encode('ascii', errors='ignore').decode('ascii')
                     #metadata['system'] = " ".join(os.uname())
 
-                    pedestal, gains = mc_calibration.get_mc_calibration_data(tel_id)
-                    cropped_pedestal = geometry_converter.astry_to_3d_array(pedestal)
-                    cropped_gains = geometry_converter.astry_to_3d_array(gains)
+                    # SAVE THE IMAGE ##########################################
 
-                    adc_sums_array = np.array([adc_img[1] for adc_img in sorted(adc_sums.items())])
-                    cropped_adc_sums = geometry_converter.astry_to_3d_array(adc_sums_array)
+                    output_file_path_template = "{}_TEL{:03d}_EV{:05d}.fits"
 
-                    cropped_calibration = geometry_converter.astry_to_3d_array(event.dl0.tel[tel_id].calibration)
+                    if output_directory is not None:
+                        simtel_basename = os.path.basename(simtel_file_path)
+                        prefix = os.path.join(output_directory, simtel_basename)
+                    else:
+                        prefix = simtel_file_path
 
-                    cropped_pixel_pos = geometry_converter.astry_to_3d_array(event.meta.pixel_pos[tel_id])
+                    output_file_path = output_file_path_template.format(prefix,
+                                                                        tel_id,
+                                                                        event_id)
+
+                    print("saving", output_file_path)
 
                     images.save_benchmark_images(img = cropped_img,
                                                  pe_img = cropped_pe_img,
                                                  adc_sums_img = cropped_adc_sums,
                                                  pedestal_img = cropped_pedestal,
                                                  gains_img = cropped_gains,
-                                                 calibration_img = cropped_calibration,
+                                                 #calibration_img = cropped_calibration,
                                                  pixel_pos = cropped_pixel_pos,
                                                  metadata = metadata,
                                                  output_file_path = output_file_path)
