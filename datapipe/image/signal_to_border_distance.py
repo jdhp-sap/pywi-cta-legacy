@@ -73,7 +73,7 @@ def pemax_on_border(img):
     try:
         mask = np.ones(img.shape, dtype=np.bool_)
         mask[1:-1, 1:-1] = 0
-        res = np.max(img[mask])
+        res = float(np.max(img[mask]))
     except:
         res = None
 
