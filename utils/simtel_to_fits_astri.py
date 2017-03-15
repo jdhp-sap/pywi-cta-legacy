@@ -102,7 +102,8 @@ def extract_images(simtel_file_path,
                     # uncalibrated_image = [1D numpy array of channel1, 1D numpy array of channel2]
                     # calibrated_image = 1D numpy array
 
-                    uncalibrated_image = event.dl0.tel[tel_id].adc_sums
+                    #uncalibrated_image = event.r0.tel[tel_id].adc_sums   # ctapipe 0.4.0
+                    uncalibrated_image = event.dl0.tel[tel_id].adc_sums  # ctapipe 0.3.0
                     pedestal = event.mc.tel[tel_id].pedestal
                     gain = event.mc.tel[tel_id].dc_to_pe
 
@@ -134,8 +135,6 @@ def extract_images(simtel_file_path,
                     cropped_pixel_pos = geometry_converter.astry_to_3d_array(event.inst.pixel_pos[tel_id])
 
                     print("cropping calibration")
-
-                    #cropped_calibration = geometry_converter.astry_to_3d_array(event.dl0.tel[tel_id].calibration)
 
                     # MAKE METADATA ###########################################
 
@@ -193,7 +192,6 @@ def extract_images(simtel_file_path,
                                                  adc_sums_img = cropped_adc_sums,
                                                  pedestal_img = cropped_pedestal,
                                                  gains_img = cropped_gains,
-                                                 #calibration_img = cropped_calibration,
                                                  pixel_pos = cropped_pixel_pos,
                                                  metadata = metadata,
                                                  output_file_path = output_file_path)
