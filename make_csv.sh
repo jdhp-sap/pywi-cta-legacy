@@ -1,5 +1,8 @@
 #!/bin/sh
 
+export PYTHONPATH=.:$PYTHONPATH
+source activate cta
+
 ./utils/benchmark_json_to_flat_v2.py -o xps/best.csv \
     xps/2017_03_15/score_*_ref.json \
     xps/2017_03_15/score_*_input.json \
