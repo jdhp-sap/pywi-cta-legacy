@@ -182,7 +182,8 @@ def show_image(simtel_file_path, tel_num=1, channel=0, event_index=0):
 
     # DISPLAY INTEGRATED EVENT ##############################################
 
-    disp.image = event.dl0.tel[tel_num].adc_sums[channel]
+    #disp.image = event.dl0.tel[tel_num].adc_sums[channel]  # ctapipe 0.3.0
+    disp.image = event.r0.tel[tel_num].adc_sums[channel]    # ctapipe 0.4.0
     #disp.set_limits_percent(70)        # TODO help(disp.set_limits_percent)
     disp.set_limits_minmax(0, 9000)
     plt.savefig('CT{:03d}_EV{:010d}.png'.format(tel_num, event.dl0.event_id))
@@ -274,7 +275,8 @@ def show_pe_image(simtel_file_path, tel_num=1, channel=0, event_index=0):
 
     # TODO: check that (taken from https://github.com/tino-michael/tino_cta/blob/e6cc6db3e64135c9ac92bce2dae6e6f81a36096a/sandbox/show_ADC_and_PE_per_event.py)
     for jj in range(len(event.mc.tel[tel_num].photo_electrons)):
-        event.dl0.tel[tel_num].adc_sums[channel][jj] = event.mc.tel[tel_num].photo_electrons[jj]
+        #event.dl0.tel[tel_num].adc_sums[channel][jj] = event.mc.tel[tel_num].photo_electrons[jj]
+        event.r0.tel[tel_num].adc_sums[channel][jj] = event.mc.tel[tel_num].photo_electrons[jj]
     signals2 = event.dl0.tel[tel_num].adc_sums[channel].astype(float)
     disp.image = signals2
 

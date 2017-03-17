@@ -102,8 +102,8 @@ def extract_images(simtel_file_path,
                     # uncalibrated_image = [1D numpy array of channel1, 1D numpy array of channel2]
                     # calibrated_image = 1D numpy array
 
-                    #uncalibrated_image = event.r0.tel[tel_id].adc_sums   # ctapipe 0.4.0
-                    uncalibrated_image = event.dl0.tel[tel_id].adc_sums  # ctapipe 0.3.0
+                    #uncalibrated_image = event.dl0.tel[tel_id].adc_sums  # ctapipe 0.3.0
+                    uncalibrated_image = event.r0.tel[tel_id].adc_sums    # ctapipe 0.4.0
                     pedestal = event.mc.tel[tel_id].pedestal
                     gain = event.mc.tel[tel_id].dc_to_pe
 
