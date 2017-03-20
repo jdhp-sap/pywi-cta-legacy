@@ -34,8 +34,9 @@ import astropy.units as u
 
 from datapipe.image.hillas_parameters import get_hillas_parameters
 
-from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
+from datapipe.image.kill_isolated_pixels import number_of_islands
 
 from datapipe.image.signal_to_border_distance import signal_to_border
 from datapipe.image.signal_to_border_distance import signal_to_border_distance
@@ -123,10 +124,12 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_ref_pemax_on_border"] = pemax_on_border(reference_img)
 
                         delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(reference_img)
+                        num_islands = number_of_islands(reference_img)
 
-                        image_dict["img_ref_delta_pe"] = delta_pe
-                        image_dict["img_ref_delta_abs_pe"] = delta_abs_pe
-                        image_dict["img_ref_delta_num_pixels"] = delta_num_pixels
+                        image_dict["img_ref_islands_delta_pe"] = delta_pe
+                        image_dict["img_ref_islands_delta_abs_pe"] = delta_abs_pe
+                        image_dict["img_ref_islands_delta_num_pixels"] = delta_num_pixels
+                        image_dict["img_ref_num_islands"] = num_islands
 
                         image_dict["img_ref_sum_pe"] = float(np.sum(reference_img))
                         image_dict["img_ref_min_pe"] = float(np.min(reference_img))
@@ -148,7 +151,12 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_ref_hillas_2_r"] =        hillas_params_2_ref_img.r.value
                         image_dict["img_ref_hillas_2_phi"] =      hillas_params_2_ref_img.phi.to(u.rad).value
                         image_dict["img_ref_hillas_2_psi"] =      hillas_params_2_ref_img.psi.to(u.rad).value
-                        #image_dict["img_ref_hillas_2_miss"] =     hillas_params_2_ref_img.miss.value
+                        try:
+                            image_dict["img_ref_hillas_2_miss"] = float(hillas_params_2_ref_img.miss.value)
+                        except:
+                            image_dict["img_ref_hillas_2_miss"] = None
+                        image_dict["img_ref_hillas_2_kurtosis"] = hillas_params_2_ref_img.kurtosis
+                        image_dict["img_ref_hillas_2_skewness"] = hillas_params_2_ref_img.skewness
 
                     # CLEAN THE INPUT IMAGE ###################################
 
@@ -156,9 +164,31 @@ class AbstractCleaningAlgorithm(object):
                     #input_img_copy = copy.deepcopy(input_img)
                     input_img_copy = input_img.astype('float64', copy=True)
 
+                    delayed_kill_isolated_pixels = False
+                    if "kill_isolated_pixels" in cleaning_function_params and cleaning_function_params["kill_isolated_pixels"]:
+                        # Temporary disable the "kill_isolated_pixels" feature to apply it outside the clean function
+                        delayed_kill_isolated_pixels = True
+                        cleaning_function_params["kill_isolated_pixels"] = False
+
                     initial_time = time.perf_counter()
                     cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
                     execution_time_sec = time.perf_counter() - initial_time
+
+                    if delayed_kill_isolated_pixels:
+                        cleaning_function_params["kill_isolated_pixels"] = True
+                        img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
+                        img_cleaned_num_islands = number_of_islands(cleaned_img)
+                        cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
+                    else:
+                        img_cleaned_islands_delta_pe = None
+                        img_cleaned_islands_delta_abs_pe = None
+                        img_cleaned_islands_delta_num_pixels = None
+                        img_cleaned_num_islands = None
+
+                    image_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
+                    image_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe 
+                    image_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels 
+                    image_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
 
                     # ASSESS OR PRINT THE CLEANED IMAGE #######################
 
@@ -195,7 +225,12 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_cleaned_hillas_2_r"] =        hillas_params_2_cleaned_img.r.value
                         image_dict["img_cleaned_hillas_2_phi"] =      hillas_params_2_cleaned_img.phi.to(u.rad).value
                         image_dict["img_cleaned_hillas_2_psi"] =      hillas_params_2_cleaned_img.psi.to(u.rad).value
-                        #image_dict["img_cleaned_hillas_2_miss"] =     hillas_params_2_cleaned_img.miss.value
+                        try:
+                            image_dict["img_cleaned_hillas_2_miss"] = float(hillas_params_2_cleaned_img.miss.value)
+                        except:
+                            image_dict["img_cleaned_hillas_2_miss"] = None
+                        image_dict["img_cleaned_hillas_2_kurtosis"] = hillas_params_2_cleaned_img.kurtosis
+                        image_dict["img_cleaned_hillas_2_skewness"] = hillas_params_2_cleaned_img.skewness
 
                     # PLOT IMAGES #########################################################
 

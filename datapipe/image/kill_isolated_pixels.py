@@ -20,12 +20,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['kill_isolated_pixels']
+__all__ = ['get_islands',
+           'kill_isolated_pixels',
+           'kill_isolated_pixels_stats',
+           'number_of_islands']
 
 import numpy as np
 import scipy.ndimage as ndimage
 
 # See: https://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.ndimage.measurements.label.html
+
+
+def get_islands(array, threshold=0.2):
+    filtered_array = np.copy(array)
+
+    # Put to 0 pixels that are below 'threshold'
+    if threshold is not None:
+        filtered_array[filtered_array < threshold] = 0
+    mask = filtered_array > 0
+
+    # Detect islands ("label")
+    label_array, num_labels = ndimage.label(mask)#, structure=np.ones((5, 5)))
+
+    return filtered_array, label_array, num_labels
+
 
 def kill_isolated_pixels(array, threshold=0.2, plot=False):
     """
@@ -37,15 +55,7 @@ def kill_isolated_pixels(array, threshold=0.2, plot=False):
     :return: Filtered array with just the largest island 
     """
 
-    filtered_array = np.copy(array)
-
-    # Put to 0 pixels that are below 'threshold'
-    if threshold is not None:
-        filtered_array[filtered_array < threshold] = 0
-    mask = filtered_array > 0
-
-    # Detect islands ("label")
-    label_array, num_labels = ndimage.label(mask)#, structure=np.ones((5, 5)))
+    filtered_array, label_array, num_labels = get_islands(array, threshold)
 
     # Count the number of pixels for each island
     num_pixels_per_island = ndimage.sum(filtered_array, label_array, range(num_labels + 1))
@@ -57,6 +67,7 @@ def kill_isolated_pixels(array, threshold=0.2, plot=False):
     filtered_array[remove_pixel] = 0
 
     return filtered_array
+
 
 def kill_isolated_pixels_stats(array, threshold=0.2):
     img = np.copy(array)
@@ -71,3 +82,7 @@ def kill_isolated_pixels_stats(array, threshold=0.2):
 
     return float(delta_pe), float(delta_abs_pe), float(delta_num_pixels)
 
+
+def number_of_islands(array, threshold=0.2):
+    filtered_array, label_array, num_labels = get_islands(array, threshold)
+    return num_labels
