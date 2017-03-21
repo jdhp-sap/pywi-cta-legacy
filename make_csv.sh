@@ -3,8 +3,10 @@
 export PYTHONPATH=.:$PYTHONPATH
 source activate cta
 
-INPUT_DIR=./xps/2017_MM_DD_sapcta
-OUTPUT_FILE=./xps/best.csv
+NAME=2017_MM_DD
+
+INPUT_DIR=./xps/${NAME}_sapcta
+OUTPUT_FILE=./xps/${NAME}.csv
 
 ./utils/benchmark_json_to_flat_v2.py -o "${OUTPUT_FILE}" \
     ${INPUT_DIR}/score_*_ref.json \
