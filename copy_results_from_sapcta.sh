@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OUTPUT_DIR=./xps/2017_03_08_sapcta/
+OUTPUT_DIR=./xps/2017_MM_DD_sapcta/
 
 mkdir "${OUTPUT_DIR}"
 
