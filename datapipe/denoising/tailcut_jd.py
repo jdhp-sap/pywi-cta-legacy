@@ -147,7 +147,8 @@ class Tailcut(AbstractCleaningAlgorithm):
         super(Tailcut, self).__init__()
         self.label = "Tailcut (JD)"  # Name to show in plots
 
-    def clean_image(self, img, high_threshold=10., low_threshold=5., base_file_path="tailcut_jd"):
+    def clean_image(self, img, high_threshold=10., low_threshold=5.,
+                    base_file_path="tailcut_jd", output_data_dict=None):
 
         # COMPUTE MASKS #######################################
 

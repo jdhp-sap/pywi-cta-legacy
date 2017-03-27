@@ -74,6 +74,7 @@ class AbstractCleaningAlgorithm(object):
             ref_img_as_input=False):      # This option is a hack to easily produce CSV files...
 
         image_counter = 0
+        launch_time = time.perf_counter()
 
         if benchmark_method is not None:
             io_list = []
@@ -92,7 +93,8 @@ class AbstractCleaningAlgorithm(object):
             for input_file_path in input_file_path_list:
 
                 image_counter += 1
-                print("* {}: PROCESS IMAGE NUMBER {}".format(self.label, image_counter), end="")
+                if self.verbose:
+                    print("* {}: PROCESS IMAGE NUMBER {}".format(self.label, image_counter), end="")
 
                 # CLEAN ONE IMAGE #############################################
 
@@ -101,9 +103,12 @@ class AbstractCleaningAlgorithm(object):
                 try:
                     # READ THE INPUT FILE #####################################
 
+                    initial_time = time.perf_counter()
                     fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path)
+                    load_input_image_time_sec = time.perf_counter() - initial_time
 
-                    print(" (TEL{}_EV{})".format(fits_metadata_dict["tel_id"], fits_metadata_dict["event_id"]))
+                    if self.verbose:
+                        print(" (TEL{}_EV{})".format(fits_metadata_dict["tel_id"], fits_metadata_dict["event_id"]))
 
                     reference_img = fits_images_dict["reference_image"]
                     pixels_position = fits_images_dict["pixels_position"]
@@ -164,31 +169,37 @@ class AbstractCleaningAlgorithm(object):
                     #input_img_copy = copy.deepcopy(input_img)
                     input_img_copy = input_img.astype('float64', copy=True)
 
-                    delayed_kill_isolated_pixels = False
-                    if "kill_isolated_pixels" in cleaning_function_params and cleaning_function_params["kill_isolated_pixels"]:
-                        # Temporary disable the "kill_isolated_pixels" feature to apply it outside the clean function
-                        delayed_kill_isolated_pixels = True
-                        cleaning_function_params["kill_isolated_pixels"] = False
+                    #delayed_kill_isolated_pixels = False
+                    #if "kill_isolated_pixels" in cleaning_function_params and cleaning_function_params["kill_isolated_pixels"]:
+                    #    # Temporary disable the "kill_isolated_pixels" feature to apply it outside the clean function
+                    #    delayed_kill_isolated_pixels = True
+                    #    cleaning_function_params["kill_isolated_pixels"] = False
+
+                    cleaning_function_params["output_data_dict"] = {}
 
                     initial_time = time.perf_counter()
                     cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
-                    execution_time_sec = time.perf_counter() - initial_time
+                    full_clean_execution_time_sec = time.perf_counter() - initial_time
 
-                    if delayed_kill_isolated_pixels:
-                        cleaning_function_params["kill_isolated_pixels"] = True
-                        img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
-                        img_cleaned_num_islands = number_of_islands(cleaned_img)
-                        cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
-                    else:
-                        img_cleaned_islands_delta_pe = None
-                        img_cleaned_islands_delta_abs_pe = None
-                        img_cleaned_islands_delta_num_pixels = None
-                        img_cleaned_num_islands = None
+                    if benchmark_method is not None:
+                        image_dict.update(cleaning_function_params["output_data_dict"])
+                        del cleaning_function_params["output_data_dict"]
 
-                    image_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
-                    image_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe 
-                    image_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels 
-                    image_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
+                    #if delayed_kill_isolated_pixels:
+                    #    cleaning_function_params["kill_isolated_pixels"] = True
+                    #    img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
+                    #    img_cleaned_num_islands = number_of_islands(cleaned_img)
+                    #    cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
+                    #else:
+                    #    img_cleaned_islands_delta_pe = None
+                    #    img_cleaned_islands_delta_abs_pe = None
+                    #    img_cleaned_islands_delta_num_pixels = None
+                    #    img_cleaned_num_islands = None
+
+                    #image_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
+                    #image_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
+                    #image_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
+                    #image_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
 
                     # ASSESS OR PRINT THE CLEANED IMAGE #######################
 
@@ -208,7 +219,8 @@ class AbstractCleaningAlgorithm(object):
 
                         image_dict["score"] = score_tuple
                         image_dict["score_name"] = score_name_tuple
-                        image_dict["execution_time_sec"] = execution_time_sec
+                        image_dict["full_clean_execution_time_sec"] = full_clean_execution_time_sec
+                        image_dict["load_input_image_time_sec"] = load_input_image_time_sec
 
                         image_dict["img_cleaned_sum_pe"] = float(np.sum(cleaned_img))
                         image_dict["img_cleaned_min_pe"] = float(np.min(cleaned_img))
@@ -270,6 +282,7 @@ class AbstractCleaningAlgorithm(object):
 
             # GENERAL EXPERIMENT METADATA
             output_dict = {}
+            output_dict["benchmark_execution_time_sec"] = str(time.perf_counter() - launch_time)
             output_dict["date_time"] = str(datetime.datetime.now())
             output_dict["class_name"] = self.__class__.__name__
             output_dict["algo_code_ref"] = str(self.__class__.clean_image.__code__)

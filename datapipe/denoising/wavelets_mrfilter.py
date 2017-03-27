@@ -98,7 +98,10 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     correction_offset=False,
                     input_image_scale='linear',
                     verbose=False,
-                    raw_option_string=None):
+                    raw_option_string=None,
+                    tmp_files_directory=".",       # "/Volumes/ramdisk"
+                    mrfilter_directory=None,       # "/Volumes/ramdisk"
+                    output_data_dict=None):
         """
         Do the wavelet transform.
 
@@ -111,8 +114,12 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         if input_img.ndim != 2:
             raise WrongDimensionError()
 
-        input_file_path = ".tmp_{}_{}_in.fits".format(os.getpid(), time.time())
-        mr_output_file_path = ".tmp_{}_{}_out.fits".format(os.getpid(), time.time())
+        input_file_path = os.path.join(tmp_files_directory, ".tmp_{}_{}_in.fits".format(os.getpid(), time.time()))
+        mr_output_file_path = os.path.join(tmp_files_directory, ".tmp_{}_{}_out.fits".format(os.getpid(), time.time()))
+
+        if output_data_dict is not None:
+            output_data_dict["mr_input_tmp_file_path"] = input_file_path
+            output_data_dict["mr_output_tmp_file_path"] = mr_output_file_path
 
         # APPLY AN OFFSET ######################################
         
@@ -139,7 +146,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         # WRITE THE INPUT FILE (FITS) ##########################
 
         try:
+            initial_time = time.perf_counter()
             images.save(input_img, input_file_path)
+            exec_time_sec = time.perf_counter() - initial_time
+            if output_data_dict is not None:
+                output_data_dict["save_tmp_file_time_sec"] = exec_time_sec
         except:
             print("Error on input FITS file:", input_file_path)
             raise
@@ -147,7 +158,10 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         # EXECUTE MR_FILTER ####################################
 
         # TODO: improve the following lines
-        cmd = 'mr_filter'
+        if mrfilter_directory is None:
+            cmd = 'mr_filter'
+        else:
+            cmd = os.path.join(mrfilter_directory, 'mr_filter')
 
         if raw_option_string is None:
             cmd += ' -t{}'.format(type_of_multiresolution_transform) if type_of_multiresolution_transform is not None else ''
@@ -181,9 +195,15 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         if verbose:
             print()
             print(cmd)
+        else:
+            cmd += ' > /dev/null'.format(input_file_path, mr_output_file_path)
 
         try:
+            initial_time = time.perf_counter()
             os.system(cmd)
+            exec_time_sec = time.perf_counter() - initial_time
+            if output_data_dict is not None:
+                output_data_dict["mrfilter_cmd_exec_time_sec"] = exec_time_sec
         except:
             print("Error on command:", cmd)
             raise
@@ -191,7 +211,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         # READ THE MR_FILTER OUTPUT FILE #######################
 
         try:
+            initial_time = time.perf_counter()
             cleaned_img = images.load(mr_output_file_path, 0)
+            exec_time_sec = time.perf_counter() - initial_time
+            if output_data_dict is not None:
+                output_data_dict["load_tmp_file_time_sec"] = exec_time_sec
         except:
             print("Error on output FITS file:", mr_output_file_path)
             raise
@@ -235,7 +259,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         if kill_isolated_pixels:
             if verbose:
                 print("Kill isolated pixels")
+            initial_time = time.perf_counter()
             cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
+            exec_time_sec = time.perf_counter() - initial_time
+            if output_data_dict is not None:
+                output_data_dict["scipy_kill_isolated_pixels_time_sec"] = exec_time_sec
 
         #print(cleaned_img)
         #images.plot_hist(cleaned_img)
@@ -534,6 +562,8 @@ def main():
                 "correction_offset": correction_offset,
                 "input_image_scale": input_image_scale,
                 "verbose": verbose
+                #"tmp_files_directory": "/Volumes/ramdisk",
+                #"mrfilter_directory": "/Volumes/ramdisk"
             }
 
     cleaning_algorithm = WaveletTransform()

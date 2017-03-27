@@ -81,7 +81,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         super(WaveletTransform, self).__init__()
         self.label = "WT (mr_transform)"  # Name to show in plots
 
-    def clean_image(self, input_img, number_of_scales=4, base_file_path="wavelet_mrtransform"):
+    def clean_image(self, input_img, number_of_scales=4,
+                    base_file_path="wavelet_mrtransform", output_data_dict=None):
         """
         Do the wavelet transform.
 

@@ -60,7 +60,8 @@ class Tailcut(AbstractCleaningAlgorithm):
                     high_threshold=10.,
                     low_threshold=8.,
                     kill_isolated_pixels=False,
-                    verbose=False):
+                    verbose=False,
+                    output_data_dict=None):
         """
         vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
         """
