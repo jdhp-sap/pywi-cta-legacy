@@ -29,38 +29,45 @@ import math
 
 
 COLUMNS_DESC = collections.OrderedDict()
-COLUMNS_DESC["Part"]    = "Particle, 0:gamma, -1:electron/positron, 1:proton (iron would be 26)"
-COLUMNS_DESC["Id"]      = "A string built like this : event#_telescope#, see below (e.g telescope 1 and event 84 gives 84_1)"
-COLUMNS_DESC["Evt"]     = "Event ID"
-COLUMNS_DESC["Tel"]     = "Telescope ID"
-COLUMNS_DESC["Exect"]   = "Execution time (in second)"
-COLUMNS_DESC["Xtel"]    = "x coordinates of telescope (in meter)"
-COLUMNS_DESC["Ytel"]    = "y coordinates of telescope (in meter)"
-COLUMNS_DESC["Ztel"]    = "z coordinates of telescope (in meter)"
-COLUMNS_DESC["E"]       = "Event energy (in TeV)"
-COLUMNS_DESC["Theta"]   = "Altitude (angle with respect to the horizontal) (in radian)"
-COLUMNS_DESC["Phi"]     = "Azimuth (in radian)"
-COLUMNS_DESC["X"]       = "X coordinate of shower projection on the ground (in meter)"
-COLUMNS_DESC["Y"]       = "Y coordinate of shower projection on the ground (in meter)"
-COLUMNS_DESC["Z"]       = "Shower start altitude (in meter)"
-COLUMNS_DESC["peSum"]   = "Number of p.e. in the camera (include NSB and instrument noise)"
-COLUMNS_DESC["Type"]    = 'a string with "Reference" or "TC5-10" (for tailcut), "mrfilter ..." (the full command line with option), this allows selecting data sets for the analysis'
-COLUMNS_DESC["Success"] = "0 or 1 (allows making statistics, ensure the same number of entries)"
-COLUMNS_DESC["hX"]      = "Hillas centroid X"
-COLUMNS_DESC["hY"]      = "Hillas centroid Y"
-COLUMNS_DESC["hLength"] = "Hillas length"
-COLUMNS_DESC["hWidth"]  = "Hillas width"
-COLUMNS_DESC["hSize"]   = "Hillas Size (p.e. in the ellipse)"
-COLUMNS_DESC["hPsi"]    = "Hillas ellipse angle with respect to the x axis"
-COLUMNS_DESC["hSkew"]   = "Hillas skew"
-COLUMNS_DESC["hCurt"]   = "Hillas curtosis"
-COLUMNS_DESC["hDist"]   = "Distance of centroid to the center (in meters)"
-COLUMNS_DESC["border"]  = "The smallest Manhattan distance of the shower to the border (in pixels)"
-COLUMNS_DESC["peMax1"] = "The highest pe value in the Hillas data (max2, max3 to come later)"
-COLUMNS_DESC["peMin"]  = "The lowest pe value"
-COLUMNS_DESC["nPix"]    = "Number of (remaining) signal *pixels* in the image (no noise for what concerns the MC)"
-COLUMNS_DESC["Dshape"]  = "Epsilon shape"
-COLUMNS_DESC["Denergy"] = "Epsilon energy"
+COLUMNS_DESC["Part"]     = "Particle, 0:gamma, -1:electron/positron, 1:proton (iron would be 26)"
+COLUMNS_DESC["Id"]       = "A string built like this : event#_telescope#, see below (e.g telescope 1 and event 84 gives 84_1)"
+COLUMNS_DESC["Evt"]      = "Event ID"
+COLUMNS_DESC["Tel"]      = "Telescope ID"
+COLUMNS_DESC["Exect"]    = "Execution time (in second)"
+COLUMNS_DESC["Xtel"]     = "x coordinates of telescope (in meter)"
+COLUMNS_DESC["Ytel"]     = "y coordinates of telescope (in meter)"
+COLUMNS_DESC["Ztel"]     = "z coordinates of telescope (in meter)"
+COLUMNS_DESC["E"]        = "Event energy (in TeV)"
+COLUMNS_DESC["Theta"]    = "Altitude (angle with respect to the horizontal) (in radian)"
+COLUMNS_DESC["Phi"]      = "Azimuth (in radian)"
+COLUMNS_DESC["X"]        = "X coordinate of shower projection on the ground (in meter)"
+COLUMNS_DESC["Y"]        = "Y coordinate of shower projection on the ground (in meter)"
+COLUMNS_DESC["Z"]        = "Shower start altitude (in meter)"
+COLUMNS_DESC["peSum"]    = "Number of p.e. in the camera (include NSB and instrument noise)"
+COLUMNS_DESC["Type"]     = 'a string with "Reference" or "TC5-10" (for tailcut), "mrfilter ..." (the full command line with option), this allows selecting data sets for the analysis'
+COLUMNS_DESC["Success"]  = "0 or 1 (allows making statistics, ensure the same number of entries)"
+COLUMNS_DESC["hX"]       = "Hillas centroid X"
+COLUMNS_DESC["hY"]       = "Hillas centroid Y"
+COLUMNS_DESC["hLength"]  = "Hillas length"
+COLUMNS_DESC["hWidth"]   = "Hillas width"
+COLUMNS_DESC["hSize"]    = "Hillas Size (p.e. in the ellipse)"
+COLUMNS_DESC["hPsi"]     = "Hillas ellipse angle with respect to the x axis"
+COLUMNS_DESC["hPhi"]     = "Hillas Phi"
+COLUMNS_DESC["hMiss"]    = "Hillas Miss (distance of the major axis to the center of view in meter)"
+COLUMNS_DESC["hR"]       = "Hillas R"
+COLUMNS_DESC["hSkew"]    = "Hillas skew"
+COLUMNS_DESC["hKurt"]    = "Hillas kurtosis"
+COLUMNS_DESC["hDist"]    = "Distance of centroid to the center (in meters)"
+COLUMNS_DESC["nIsl"]     = "Number or cleaned islands"
+COLUMNS_DESC["DNpeIsl"]  = "PE sum in cleaned islands"
+COLUMNS_DESC["DNpixIsl"] = "Number of pixels in cleaned islands"
+COLUMNS_DESC["peMaxB"]   = "PE max of pixels on the border of the image"
+COLUMNS_DESC["border"]   = "The smallest Manhattan distance of the shower to the border (in pixels)"
+COLUMNS_DESC["peMax1"]   = "The highest pe value in the Hillas data (max2, max3 to come later)"
+COLUMNS_DESC["peMin"]    = "The lowest pe value"
+COLUMNS_DESC["nPix"]     = "Number of (remaining) signal *pixels* in the image (no noise for what concerns the MC)"
+COLUMNS_DESC["Dshape"]   = "Epsilon shape"
+COLUMNS_DESC["Denergy"]  = "Epsilon energy"
 
 
 #def save_desc(output_file_path, desc_dict):
@@ -146,20 +153,30 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     line["Type"]    = benchmark_dict["label"]
     #line["Type"]    = benchmark_dict["class_name"]
     line["Success"] = 1 if "score" in image_dict else 0
-    line["hX"]      = image_dict["img_cleaned_hillas_2_cen_x"]  if "img_cleaned_hillas_2_cen_x"  in image_dict else "NaN"     # REF
-    line["hY"]      = image_dict["img_cleaned_hillas_2_cen_y"]  if "img_cleaned_hillas_2_cen_y"  in image_dict else "NaN"     # REF
-    line["hLength"] = image_dict["img_cleaned_hillas_2_length"] if "img_cleaned_hillas_2_length" in image_dict else "NaN"     # REF
-    line["hWidth"]  = image_dict["img_cleaned_hillas_2_width"]  if "img_cleaned_hillas_2_width"  in image_dict else "NaN"     # REF
-    line["hSize"]   = image_dict["img_cleaned_hillas_2_size"]   if "img_cleaned_hillas_2_size"   in image_dict else "NaN"     # REF
-    line["hPsi"]    = image_dict["img_cleaned_hillas_2_psi"]    if "img_cleaned_hillas_2_psi"    in image_dict else "NaN"     # REF
-    line["hSkew"]   = "NaN"                       # TODO
-    line["hCurt"]   = "NaN"                       # TODO
+    #
+    line["hX"]      = image_dict["img_cleaned_hillas_2_cen_x"]    if "img_cleaned_hillas_2_cen_x"    in image_dict else "NaN"
+    line["hY"]      = image_dict["img_cleaned_hillas_2_cen_y"]    if "img_cleaned_hillas_2_cen_y"    in image_dict else "NaN"
+    line["hLength"] = image_dict["img_cleaned_hillas_2_length"]   if "img_cleaned_hillas_2_length"   in image_dict else "NaN"
+    line["hWidth"]  = image_dict["img_cleaned_hillas_2_width"]    if "img_cleaned_hillas_2_width"    in image_dict else "NaN"
+    line["hSize"]   = image_dict["img_cleaned_hillas_2_size"]     if "img_cleaned_hillas_2_size"     in image_dict else "NaN"
+    line["hPsi"]    = image_dict["img_cleaned_hillas_2_psi"]      if "img_cleaned_hillas_2_psi"      in image_dict else "NaN"
+    line["hPhi"]    = image_dict["img_cleaned_hillas_2_phi"]      if "img_cleaned_hillas_2_phi"      in image_dict else "NaN"
+    line["hMiss"]   = image_dict["img_cleaned_hillas_2_miss"]     if "img_cleaned_hillas_2_miss"     in image_dict else "NaN"
+    line["hR"]      = image_dict["img_cleaned_hillas_2_r"]        if "img_cleaned_hillas_2_r"        in image_dict else "NaN"
+    line["hSkew"]   = image_dict["img_cleaned_hillas_2_skewness"] if "img_cleaned_hillas_2_skewness" in image_dict else "NaN"
+    line["hKurt"]   = image_dict["img_cleaned_hillas_2_kurtosis"] if "img_cleaned_hillas_2_kurtosis" in image_dict else "NaN"
     line["hDist"]   = h_dist
+    #
+    line["nIsl"]     = image_dict["img_cleaned_num_islands"]              if "img_cleaned_num_islands"              in image_dict else "NaN"
+    line["DNpeIsl"]  = image_dict["img_cleaned_islands_delta_abs_pe"]     if "img_cleaned_islands_delta_abs_pe"     in image_dict else "NaN"
+    line["DNpixIsl"] = image_dict["img_cleaned_islands_delta_num_pixels"] if "img_cleaned_islands_delta_num_pixels" in image_dict else "NaN"
+    #
+    line["peMaxB"]  = image_dict["img_cleaned_pemax_on_border"]           if "img_cleaned_pemax_on_border"           in image_dict else "NaN"
     line["border"]  = image_dict["img_cleaned_signal_to_border_distance"] if "img_cleaned_signal_to_border_distance" in image_dict else "NaN"
-    line["peMax1"] = image_dict["img_cleaned_max_pe"] if "img_cleaned_max_pe"   in image_dict else "NaN"     # TODO !!!!!           # REF, IN
-    line["peMin"]  = image_dict["img_cleaned_min_pe"] if "img_cleaned_min_pe"   in image_dict else "NaN"     # TODO !!!!!           # REF, IN
-    line["nPix"]    = image_dict["img_cleaned_num_pix"] if "img_cleaned_num_pix" in image_dict else "NaN"     # TODO !!!!!           # REF, IN
-    line["Dshape"]  = score_e_shape if "score" in image_dict else "NaN"
+    line["peMax1"]  = image_dict["img_cleaned_max_pe"]  if "img_cleaned_max_pe"  in image_dict else "NaN"     # TODO !!!!!
+    line["peMin"]   = image_dict["img_cleaned_min_pe"]  if "img_cleaned_min_pe"  in image_dict else "NaN"     # TODO !!!!!
+    line["nPix"]    = image_dict["img_cleaned_num_pix"] if "img_cleaned_num_pix" in image_dict else "NaN"     # TODO !!!!!
+    line["Dshape"]  = score_e_shape  if "score" in image_dict else "NaN"
     line["Denergy"] = score_e_energy if "score" in image_dict else "NaN"
 
     #(image_dict["input_file_path"]
