@@ -106,6 +106,7 @@ def extract_images(simtel_file_path,
                     uncalibrated_image = event.r0.tel[tel_id].adc_sums    # ctapipe 0.4.0
                     pedestal = event.mc.tel[tel_id].pedestal
                     gain = event.mc.tel[tel_id].dc_to_pe
+                    pixel_pos = event.inst.pixel_pos[tel_id]
 
                     print("calibrating")
 
@@ -132,9 +133,7 @@ def extract_images(simtel_file_path,
 
                     print("cropping pixel positions")
 
-                    cropped_pixel_pos = geometry_converter.astry_to_3d_array(event.inst.pixel_pos[tel_id])
-
-                    print("cropping calibration")
+                    cropped_pixel_pos = geometry_converter.astry_to_3d_array(pixel_pos)
 
                     # MAKE METADATA ###########################################
 
