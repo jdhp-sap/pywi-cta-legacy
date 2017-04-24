@@ -237,6 +237,9 @@ def main():
                         metavar="DIRECTORY",
                         help="The output directory")
 
+    parser.add_argument("--crop", "-c", action="store_true",
+                        help="Crop the image")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The simtel files to process")
 
@@ -257,6 +260,7 @@ def main():
 
     output_directory = args.output
     simtel_file_path_list = args.fileargs
+    crop = args.crop
 
     if output_directory is not None:
         if not (os.path.exists(output_directory) and os.path.isdir(output_directory)):
@@ -270,7 +274,7 @@ def main():
 
         # EXTRACT, CROP AND SAVE THE IMAGES ###################################
 
-        extract_images(simtel_file_path, tel_id_filter_list, event_id_filter_list, output_directory, crop=False)
+        extract_images(simtel_file_path, tel_id_filter_list, event_id_filter_list, output_directory, crop=crop)
 
 
 if __name__ == "__main__":
