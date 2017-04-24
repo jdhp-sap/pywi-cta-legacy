@@ -109,12 +109,11 @@ def load_benchmark_images(input_file_path):
 
     hdu_list = fits.open(input_file_path)   # open the FITS file
 
-    #if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
-    if (len(hdu_list) != 6) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image):
+    if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
         hdu_list.close()
         raise WrongFitsFileStructure(input_file_path)
 
-    hdu0, hdu1, hdu2, hdu3, hdu4, hdu6 = hdu_list
+    hdu0, hdu1, hdu2, hdu3, hdu4, hdu6, hdu7 = hdu_list
 
     # IMAGES
 
@@ -125,8 +124,9 @@ def load_benchmark_images(input_file_path):
     images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
     images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
     images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
-    #images_dict["calibration_image"] = hdu5.data  # "hdu.data" is a Numpy Array
-    images_dict["pixels_position"] = hdu6.data     # "hdu.data" is a Numpy Array
+    #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
+    images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
+    images_dict["pixels_mask"] = hdu7.data        # "hdu.data" is a Numpy Array
 
     # METADATA
 
@@ -198,6 +198,7 @@ def save_benchmark_images(img,
                           gains_img,
                           #calibration_img,
                           pixel_pos,
+                          pixel_mask,
                           metadata,
                           output_file_path):
     """
@@ -236,6 +237,9 @@ def save_benchmark_images(img,
     if pixel_pos.ndim != 3:
         raise Exception("The input image should be a 3D numpy array.")
 
+    if pixel_mask.ndim != 2:
+        raise Exception("The input image should be a 2D numpy array.")
+
     # http://docs.astropy.org/en/stable/io/fits/appendix/faq.html#how-do-i-create-a-multi-extension-fits-file-from-scratch
     # http://docs.astropy.org/en/stable/generated/examples/io/create-mef.html#sphx-glr-generated-examples-io-create-mef-py
     hdu0 = fits.PrimaryHDU(img)
@@ -245,6 +249,7 @@ def save_benchmark_images(img,
     hdu4 = fits.ImageHDU(gains_img)
     #hdu5 = fits.ImageHDU(calibration_img)
     hdu6 = fits.ImageHDU(pixel_pos)
+    hdu7 = fits.ImageHDU(pixel_mask)
 
     hdu0.header["desc"] = "calibrated image"
     hdu1.header["desc"] = "pe image"
@@ -253,6 +258,7 @@ def save_benchmark_images(img,
     hdu4.header["desc"] = "gains images"
     #hdu5.header["desc"] = "calibration images"
     hdu6.header["desc"] = "pixels position"
+    hdu7.header["desc"] = "pixels mask"
 
     for key, val in metadata.items():
         if type(val) is tuple :
@@ -264,7 +270,7 @@ def save_benchmark_images(img,
     if os.path.isfile(output_file_path):
         os.remove(output_file_path)
 
-    hdu_list = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu6])
+    hdu_list = fits.HDUList([hdu0, hdu1, hdu2, hdu3, hdu4, hdu6, hdu7])
 
     hdu_list.writeto(output_file_path)
 
@@ -371,11 +377,21 @@ def plot(img, title=""):
     ax = fig.add_subplot(111)
     ax.set_title(title)
 
-    im = ax.imshow(img,
+    #im = ax.imshow(img,
+    #               origin='lower',
+    #               interpolation='nearest',
+    #               vmin=min(img.min(), 0),
+    #               cmap=COLOR_MAP)
+
+    # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
+    masked = np.ma.masked_where(np.isnan(img), img)
+
+    cmap = cm.gnuplot2
+    cmap.set_bad('black')
+    im = ax.imshow(masked,
                    origin='lower',
                    interpolation='nearest',
-                   vmin=min(img.min(), 0),
-                   cmap=COLOR_MAP)
+                   cmap=cmap)
 
     plt.colorbar(im) # draw the colorbar
 

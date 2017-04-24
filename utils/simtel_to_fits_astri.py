@@ -136,6 +136,10 @@ def extract_images(simtel_file_path,
 
                     cropped_pixel_pos = geometry_converter.astry_to_3d_array(pixel_pos, crop=crop)
 
+                    # GET PIXEL MASK ##########################################
+
+                    pixel_mask = geometry_converter.astry_pixel_mask(crop)
+
                     # MAKE METADATA ###########################################
 
                     metadata = {}
@@ -193,6 +197,7 @@ def extract_images(simtel_file_path,
                                                  pedestal_img = cropped_pedestal,
                                                  gains_img = cropped_gains,
                                                  pixel_pos = cropped_pixel_pos,
+                                                 pixel_mask = pixel_mask,
                                                  metadata = metadata,
                                                  output_file_path = output_file_path)
 
