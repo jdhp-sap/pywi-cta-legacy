@@ -29,7 +29,7 @@ __all__ = ['astry_to_2d_array',
 
 import numpy as np
 
-def astry_to_2d_array(input_img, crop=True):
+def astry_to_2d_array(input_img, crop=False):
     if crop:
         return astry_to_2d_array_crop(input_img)
     else:
@@ -165,7 +165,7 @@ def astry_to_2d_array_crop(input_img):
     return cropped_img
 
 
-def astry_to_3d_array(input_img, crop=True):
+def astry_to_3d_array(input_img, crop=False):
     """
     Crop images comming form "ASTRI" telescopes in order to get regular 2D "rectangular"
     images directly usable with most image processing tools.
