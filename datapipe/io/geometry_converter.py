@@ -24,7 +24,8 @@
 ... TODO
 """
 
-__all__ = ['astry_to_2d_array']
+__all__ = ['astry_to_2d_array',
+           'astry_to_3d_array']
 
 import numpy as np
 
@@ -186,7 +187,7 @@ def astry_to_3d_array(input_img, crop=True):
     cropped_img_list = []
 
     for img_2d in input_img:
-        cropped_img_list.append(astry_to_2d_array(img_2d))
+        cropped_img_list.append(astry_to_2d_array(img_2d, crop))
 
     return np.array(cropped_img_list)
 
