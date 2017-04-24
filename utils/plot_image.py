@@ -95,13 +95,13 @@ def main():
             title_list = ["Input image", "Reference image"] 
 
             if output is None:
-                img_output = "{}.pdf".format(base_file_path)
+                output = "{}.pdf".format(base_file_path)
 
             if not quiet:
                 images.plot_list(image_list, title_list, fits_metadata_dict)
 
-            print("Writing", img_output)
-            images.mpl_save_list(image_list, img_output, title_list, fits_metadata_dict)
+            print("Writing", output)
+            images.mpl_save_list(image_list, output, title_list, fits_metadata_dict)
 
 
 if __name__ == "__main__":
