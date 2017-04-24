@@ -438,11 +438,21 @@ def _plot_list(img_list, title_list, main_title=None):
     for img, title, ax in zip(img_list, title_list, ax_tuple):
         ax.set_title(title)
 
-        im = ax.imshow(img,
+        #im = ax.imshow(img,
+        #               origin='lower',
+        #               interpolation='nearest',
+        #               vmin=min(img.min(), 0),
+        #               cmap=COLOR_MAP)
+
+        # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
+        masked = np.ma.masked_where(np.isnan(img), img)
+
+        cmap = cm.gnuplot2
+        cmap.set_bad('black')
+        im = ax.imshow(masked,
                        origin='lower',
                        interpolation='nearest',
-                       vmin=min(img.min(), 0),
-                       cmap=COLOR_MAP)
+                       cmap=cmap)
 
         plt.colorbar(im, ax=ax) # draw the colorbar
 
