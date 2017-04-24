@@ -49,7 +49,8 @@ DEFAULT_TEL_FILTER = list(range(1, 34))   # TODO
 def extract_images(simtel_file_path,
                    tel_id_filter_list=None,
                    event_id_filter_list=None,
-                   output_directory=None):
+                   output_directory=None,
+                   crop=True):
 
     # EXTRACT IMAGES ##########################################################
 
@@ -116,24 +117,24 @@ def extract_images(simtel_file_path,
 
                     print("cropping ADC image")
 
-                    cropped_adc_sums = geometry_converter.astry_to_3d_array(uncalibrated_image)
+                    cropped_adc_sums = geometry_converter.astry_to_3d_array(uncalibrated_image, crop=crop)
 
                     print("cropping PE image")
 
-                    cropped_pe_img = geometry_converter.astry_to_2d_array(pe_image)
+                    cropped_pe_img = geometry_converter.astry_to_2d_array(pe_image, crop=crop)
 
                     print("cropping calibrated image")
 
-                    cropped_img = geometry_converter.astry_to_2d_array(calibrated_image)
+                    cropped_img = geometry_converter.astry_to_2d_array(calibrated_image, crop=crop)
 
                     print("cropping pedestal and gain")
 
-                    cropped_pedestal = geometry_converter.astry_to_3d_array(pedestal)
-                    cropped_gains = geometry_converter.astry_to_3d_array(gain)
+                    cropped_pedestal = geometry_converter.astry_to_3d_array(pedestal, crop=crop)
+                    cropped_gains = geometry_converter.astry_to_3d_array(gain, crop=crop)
 
                     print("cropping pixel positions")
 
-                    cropped_pixel_pos = geometry_converter.astry_to_3d_array(pixel_pos)
+                    cropped_pixel_pos = geometry_converter.astry_to_3d_array(pixel_pos, crop=crop)
 
                     # MAKE METADATA ###########################################
 
@@ -269,7 +270,7 @@ def main():
 
         # EXTRACT, CROP AND SAVE THE IMAGES ###################################
 
-        extract_images(simtel_file_path, tel_id_filter_list, event_id_filter_list, output_directory)
+        extract_images(simtel_file_path, tel_id_filter_list, event_id_filter_list, output_directory, crop=False)
 
 
 if __name__ == "__main__":
