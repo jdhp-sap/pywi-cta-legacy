@@ -64,6 +64,8 @@ def load_benchmark_images_deprecated(input_file_path):
 
 # SAFETY CHECK FOR GAMMAS #####################################################
 
+cpt = 0
+
 path_not_cropped = "/Users/jdecock/data/astri_mini_array/fits/gamma/"
 path_cropped = "/Users/jdecock/data/astri_mini_array/fits_cropped/gamma/"
 
@@ -72,6 +74,12 @@ cropped_file_path_list = common.get_fits_files_list(path_cropped)
 for cropped_file_path in cropped_file_path_list:
     file_base = os.path.basename(cropped_file_path)
     #print(file_base)
+
+    if cpt >= 100:
+        print(".", end="")
+        cpt = 0
+    else:
+        cpt += 1
     
     not_cropped_file_path = os.path.join(path_not_cropped, file_base)
     
@@ -102,6 +110,8 @@ for cropped_file_path in cropped_file_path_list:
 
 # SAFETY CHECK FOR PROTONS ####################################################
 
+cpt = 0
+
 path_not_cropped = "/Users/jdecock/data/astri_mini_array/fits/proton/"
 path_cropped = "/Users/jdecock/data/astri_mini_array/fits_cropped/proton/"
 
@@ -110,6 +120,12 @@ cropped_file_path_list = common.get_fits_files_list(path_cropped)
 for cropped_file_path in cropped_file_path_list:
     file_base = os.path.basename(cropped_file_path)
     #print(file_base)
+
+    if cpt >= 100:
+        print(".", end="")
+        cpt = 0
+    else:
+        cpt += 1
     
     not_cropped_file_path = os.path.join(path_not_cropped, file_base)
     
