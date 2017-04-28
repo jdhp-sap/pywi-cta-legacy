@@ -26,11 +26,13 @@ from ctapipe.image.hillas import hillas_parameters_1
 from ctapipe.image.hillas import hillas_parameters_2
 
 import astropy.units as u
+import copy
 
 import numpy as np
 
 """
-Warning: so far, this module only works with "rectangular 2D images".
+Warning: so far, this module only works with "rectangular 2D images", but it
+handle "missing pixels" (i.e. NaN values).
 """
 
 def get_hillas_parameters(image, implementation=2, pixels_position=None):
@@ -58,22 +60,32 @@ def get_hillas_parameters(image, implementation=2, pixels_position=None):
        http://adsabs.harvard.edu/abs/1989ApJ...342..379W
     """
 
-    # Copy and cast images to prevent tricky bugs
-    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
-    image = image.astype('float64', copy=True)
+    # Copy image to prevent tricky bugs
+    image = image.copy()
+
+    # Flatten image and remove NaN values
+    flat_img = image[np.isfinite(image)]
 
     if pixels_position is not None:
-        xx, yy = pixels_position[0], pixels_position[1]
+        # Copy pixel_position to prevent tricky bugs
+        #pixels_position = (np.copy(pixels_position[0]), np.copy(pixels_position[1]))
+        pixels_position = copy.deepcopy(pixels_position)
+
+        # Flatten pixels_position and remove NaN values
+        xx = pixels_position[0][np.isfinite(pixels_position[0])]
+        yy = pixels_position[1][np.isfinite(pixels_position[1])]
     else:
-        x = np.arange(0, np.shape(image)[0], 1)
-        y = np.arange(0, np.shape(image)[1], 1)
+        x = np.arange(0, np.shape(image)[1])
+        y = np.arange(0, np.shape(image)[0])
         xx, yy = np.meshgrid(x, y)
 
+        # Flatten pixels_position and remove pixels that are NaN in `image`
+        xx = xx[np.isfinite(image)].flatten()
+        yy = yy[np.isfinite(image)].flatten()
+
     if implementation == 1:
-        params = hillas_parameters_1(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())
+        params = hillas_parameters_1(xx * u.meter, yy * u.meter, flat_img)
     else:
-        params = hillas_parameters_2(xx.flatten() * u.meter, yy.flatten() * u.meter, image.flatten())
+        params = hillas_parameters_2(xx * u.meter, yy * u.meter, flat_img)
 
     return params
-
-

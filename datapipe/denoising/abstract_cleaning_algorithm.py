@@ -124,27 +124,27 @@ class AbstractCleaningAlgorithm(object):
 
                         # FETCH ADDITIONAL IMAGE METADATA #####################
 
-                        image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)
-                        image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img)
-                        image_dict["img_ref_pemax_on_border"] = pemax_on_border(reference_img)
+                        image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)                   # TODO: NaN
+                        image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img) # TODO: NaN
+                        image_dict["img_ref_pemax_on_border"] = pemax_on_border(reference_img)                     # TODO: NaN
 
-                        delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(reference_img)
-                        num_islands = number_of_islands(reference_img)
+                        delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(reference_img)       # TODO: NaN
+                        num_islands = number_of_islands(reference_img)                                             # TODO: NaN
 
                         image_dict["img_ref_islands_delta_pe"] = delta_pe
                         image_dict["img_ref_islands_delta_abs_pe"] = delta_abs_pe
                         image_dict["img_ref_islands_delta_num_pixels"] = delta_num_pixels
                         image_dict["img_ref_num_islands"] = num_islands
 
-                        image_dict["img_ref_sum_pe"] = float(np.sum(reference_img))
-                        image_dict["img_ref_min_pe"] = float(np.min(reference_img))
-                        image_dict["img_ref_max_pe"] = float(np.max(reference_img))
-                        image_dict["img_ref_num_pix"] = int((reference_img > 0).sum())
+                        image_dict["img_ref_sum_pe"] = float(np.nansum(reference_img))
+                        image_dict["img_ref_min_pe"] = float(np.nanmin(reference_img))
+                        image_dict["img_ref_max_pe"] = float(np.nanmax(reference_img))
+                        image_dict["img_ref_num_pix"] = int( (reference_img[np.isfinite(reference_img)] > 0).sum() )
 
-                        image_dict["img_in_sum_pe"] = float(np.sum(input_img))
-                        image_dict["img_in_min_pe"] = float(np.min(input_img))
-                        image_dict["img_in_max_pe"] = float(np.max(input_img))
-                        image_dict["img_in_num_pix"] = int((input_img > 0).sum())
+                        image_dict["img_in_sum_pe"] = float(np.nansum(input_img))
+                        image_dict["img_in_min_pe"] = float(np.nanmin(input_img))
+                        image_dict["img_in_max_pe"] = float(np.nanmax(input_img))
+                        image_dict["img_in_num_pix"] = int( (input_img[np.isfinite(input_img)] > 0).sum() )
 
                         hillas_params_2_ref_img = get_hillas_parameters(reference_img, 2, pixels_position)
 
@@ -178,7 +178,7 @@ class AbstractCleaningAlgorithm(object):
                     cleaning_function_params["output_data_dict"] = {}
 
                     initial_time = time.perf_counter()
-                    cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)
+                    cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)   # TODO: NaN
                     full_clean_execution_time_sec = time.perf_counter() - initial_time
 
                     if benchmark_method is not None:
@@ -211,7 +211,7 @@ class AbstractCleaningAlgorithm(object):
                                                                                      cleaned_img,
                                                                                      reference_img,
                                                                                      pixels_position,
-                                                                                     benchmark_method)
+                                                                                     benchmark_method)    # TODO: NaN
 
                         image_dict["img_cleaned_signal_to_border"] = signal_to_border(cleaned_img)
                         image_dict["img_cleaned_signal_to_border_distance"] = signal_to_border_distance(cleaned_img)
@@ -222,10 +222,10 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["full_clean_execution_time_sec"] = full_clean_execution_time_sec
                         image_dict["load_input_image_time_sec"] = load_input_image_time_sec
 
-                        image_dict["img_cleaned_sum_pe"] = float(np.sum(cleaned_img))
-                        image_dict["img_cleaned_min_pe"] = float(np.min(cleaned_img))
-                        image_dict["img_cleaned_max_pe"] = float(np.max(cleaned_img))
-                        image_dict["img_cleaned_num_pix"] = int((cleaned_img > 0).sum())
+                        image_dict["img_cleaned_sum_pe"] = float(np.nansum(cleaned_img))
+                        image_dict["img_cleaned_min_pe"] = float(np.nanmin(cleaned_img))
+                        image_dict["img_cleaned_max_pe"] = float(np.nanmax(cleaned_img))
+                        image_dict["img_cleaned_num_pix"] = int( (cleaned_img[np.isfinite(cleaned_img)] > 0).sum() )
 
                         hillas_params_2_cleaned_img = get_hillas_parameters(cleaned_img, 2, pixels_position)
 
