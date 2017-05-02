@@ -347,7 +347,7 @@ def save(img, output_file_path):
 
 # MATPLOTLIB ##################################################################
 
-COLOR_MAP = "gnuplot2" # "gray"
+COLOR_MAP = cm.gnuplot2
 
 def mpl_save(img, output_file_path, title=""):
     """
@@ -357,11 +357,21 @@ def mpl_save(img, output_file_path, title=""):
     ax = fig.add_subplot(111)
     ax.set_title(title, fontsize=24)
 
-    im = ax.imshow(img,
+    #im = ax.imshow(img,
+    #               origin='lower',
+    #               interpolation='nearest',
+    #               vmin=min(img.min(), 0),
+    #               cmap=COLOR_MAP)
+
+    # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
+    masked = np.ma.masked_where(np.isnan(img), img)
+
+    cmap = COLOR_MAP
+    cmap.set_bad('black')
+    im = ax.imshow(masked,
                    origin='lower',
                    interpolation='nearest',
-                   vmin=min(img.min(), 0),
-                   cmap=COLOR_MAP)
+                   cmap=cmap)
 
     plt.colorbar(im) # draw the colorbar
 
@@ -386,7 +396,7 @@ def plot(img, title=""):
     # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
     masked = np.ma.masked_where(np.isnan(img), img)
 
-    cmap = cm.gnuplot2
+    cmap = COLOR_MAP
     cmap.set_bad('black')
     im = ax.imshow(masked,
                    origin='lower',
@@ -398,18 +408,21 @@ def plot(img, title=""):
     plt.show()
 
 
-def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=None):
+def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=None, title=""):
     """
     """
 
-    img = img.flatten()   # return a flatten *copy* of the image
+    # Flatten + remove NaN values
+    flat_img = img[np.isfinite(img)]
 
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 6))
+    fig = plt.figure(figsize=(8.0, 8.0))
+    ax = fig.add_subplot(111)
+    ax.set_title(title)
 
     if logx:
         # Setup the logarithmic scale on the X axis
-        vmin = np.log10(img.min())
-        vmax = np.log10(img.max())
+        vmin = np.log10(flat_img.min())
+        vmax = np.log10(flat_img.max())
         bins = np.logspace(vmin, vmax, num_bins) # Make a range from 10**vmin to 10**vmax
     else:
         bins = num_bins
@@ -417,7 +430,7 @@ def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=None):
     if x_max is not None:
         ax.set_xlim(xmax=x_max)
 
-    res_tuple = ax.hist(img,
+    res_tuple = ax.hist(flat_img,
                         bins=bins,
                         log=logy,               # Set log scale on the Y axis
                         histtype='bar',
