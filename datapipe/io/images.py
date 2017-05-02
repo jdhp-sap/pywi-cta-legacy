@@ -460,7 +460,7 @@ def _plot_list(img_list, title_list, main_title=None):
         # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
         masked = np.ma.masked_where(np.isnan(img), img)
 
-        cmap = cm.gnuplot2
+        cmap = COLOR_MAP
         cmap.set_bad('black')
         im = ax.imshow(masked,
                        origin='lower',
@@ -486,6 +486,8 @@ def plot_list(img_list, title_list, metadata_dict=None):
                                                             metadata_dict['event_id'],
                                                             metadata_dict['mc_energy'],
                                                             metadata_dict['mc_energy_unit'])
+    else:
+        main_title = ""
 
     _plot_list(img_list, title_list, main_title)
     plt.show()
@@ -495,6 +497,7 @@ def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
     """
     img should be a list of 2D numpy array.
     """
+
     # Main title
     if metadata_dict is not None:
         main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
@@ -502,6 +505,8 @@ def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
                                                             metadata_dict['event_id'],
                                                             metadata_dict['mc_energy'],
                                                             metadata_dict['mc_energy_unit'])
+    else:
+        main_title = ""
 
     _plot_list(img_list, title_list, main_title)
     plt.savefig(output_file_path, bbox_inches='tight')
