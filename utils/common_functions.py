@@ -178,7 +178,7 @@ def extract_min(data_list):
     """
     #min_value = np.ravel(data_list).min()
 
-    min_value_array = np.array([np.ravel(data).min() for data in data_list])
+    min_value_array = np.array([np.nanmin(np.ravel(data)) for data in data_list])
     min_value = min_value_array.min()
 
     return min_value
@@ -204,7 +204,7 @@ def extract_max(data_list):
     """
     #max_value = np.ravel(data_list).max()
 
-    max_value_array = np.array([np.ravel(data).max() for data in data_list])
+    max_value_array = np.array([np.nanmax(np.ravel(data)) for data in data_list])
     max_value = max_value_array.max()
 
     return max_value
@@ -498,7 +498,7 @@ def plot_hist1d(axis,
 
         bincenter = 0.5 * (edges_of_bins[1:] + edges_of_bins[:-1])
         #axis2.errorbar(bincenter, ratio, yerr=error, fmt='o', color='k', elinewidth=3, capsize=4, capthick=3, linewidth=6)
-        axis2.plot(bincenter, ratio, fmt='o', color='k', linewidth=6)
+        axis2.plot(bincenter, ratio, 'ok', linewidth=6)
 
 
     if verbose:
