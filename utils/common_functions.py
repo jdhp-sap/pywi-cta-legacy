@@ -18,6 +18,7 @@ import matplotlib.colors
 #import matplotlib.ticker
 from matplotlib.patches import Ellipse
 from matplotlib.colors import LogNorm
+from matplotlib import cm
 
 import math
 
@@ -29,7 +30,8 @@ from datapipe.denoising import tailcut as tailcut_mod
 from datapipe.denoising import wavelets_mrfilter as wavelets_mod
 from datapipe.benchmark import assess as assess_mod
 
-COLOR_MAP = "gnuplot2" # "gray_r" # "gray"
+
+COLOR_MAP = cm.gnuplot2
 HISTOGRAM_TYPE = "bar"
 
 
@@ -218,17 +220,22 @@ def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=F
 
     # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
 
+    z_min, z_max = np.nanmin(image_array), np.nanmax(image_array)
+
     # generate 2 2d grids for the x & y bounds
     x, y = pixels_position[0], pixels_position[1]
 
-    z_min, z_max = image_array.min(), image_array.max()
+    # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
+    x_ma   = np.ma.masked_where(np.isnan(x), x)
+    y_ma   = np.ma.masked_where(np.isnan(y), y)
+    img_ma = np.ma.masked_where(np.isnan(image_array), image_array)
 
     if plot_log_scale:
         # See http://matplotlib.org/examples/pylab_examples/pcolor_log.html
         #     http://stackoverflow.com/questions/2546475/how-can-i-draw-a-log-normalized-imshow-plot-with-a-colorbar-representing-the-raw
-        im = axis.pcolor(x, y, image_array, norm=LogNorm(vmin=0.01, vmax=image_array.max()), cmap=COLOR_MAP)  # TODO: "vmin=0.01" is an arbitrary choice...
+        im = axis.pcolor(x_ma, y_ma, img_ma, norm=LogNorm(vmin=0.01, vmax=z_max), cmap=COLOR_MAP)  # TODO: "vmin=0.01" is an arbitrary choice...
     else:
-        im = axis.pcolor(x, y, image_array, cmap=COLOR_MAP, vmin=z_min, vmax=z_max)
+        im = axis.pcolor(x_ma, y_ma, img_ma, cmap=COLOR_MAP, vmin=z_min, vmax=z_max)
 
     plt.colorbar(im, ax=axis) # draw the colorbar
 
