@@ -43,9 +43,9 @@ class TestKillIsolatedPixels(unittest.TestCase):
 
         # Input image #################
 
-        input_img = np.array([[0, 0, 0],
-                              [0, 1, 0],
-                              [0, 0, 0]])
+        input_img = np.array([[1, 0, 1],
+                              [1, 0, 0],
+                              [1, 0, 1]])
 
         input_img_copy = np.copy(input_img)
 
