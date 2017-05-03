@@ -32,30 +32,73 @@ import scipy.ndimage as ndimage
 
 
 def get_islands(array, threshold=0.2):
+    """
+    ...
+
+    Parameters
+    ----------
+    array : Numpy array
+        The input image to clean.
+    threshold : float
+        The "level of the sea" before island cleaning.
+
+    Returns
+    -------
+    Numpy array
+        ``filtered_array`` the input image with all pixels below ``threshold`` put to 0 (may contain NaN values).
+
+    Numpy array
+        ``label_array`` define the island id each pixel belongs to (doesn't contain NaN values).
+
+    Integer
+        ``num_labels`` the number of islands.
+    """
     filtered_array = np.copy(array)
+
+    # Put NaN pixels to 0
+    # This is OK as long as it is made temporary and internally to avoid issues
+    # with scipy
+    filtered_array[np.isnan(filtered_array)] = 0.
 
     # Put to 0 pixels that are below 'threshold'
     if threshold is not None:
-        filtered_array[filtered_array < threshold] = 0
+        filtered_array[filtered_array < threshold] = 0.
     mask = filtered_array > 0
 
     # Detect islands ("label")
     label_array, num_labels = ndimage.label(mask)#, structure=np.ones((5, 5)))
 
+    # Put back NaN in filtered_array (required to avoid bugs in others
+    # functions (e.g. uncoherent dimensions with pixels_positions).
+    filtered_array[np.isnan(array)] = np.nan
+
     return filtered_array, label_array, num_labels
 
 
-def kill_isolated_pixels(array, threshold=0.2, plot=False):
+def kill_isolated_pixels(array, threshold=0.2):
     """
-    Return array with isolated islands removed.
-    Only keeping the biggest islands (largest surface).
+    ...
 
-    :param array: Array with completely isolated cells
-    :param struct: Structure array for generating unique regions
-    :return: Filtered array with just the largest island 
+    Parameters
+    ----------
+    array : Numpy array
+        The input image to clean.
+    threshold : float
+        The "level of the sea" before island cleaning.
+
+    Returns
+    -------
+    Numpy array
+        The input image ``array`` with isolated islands removed.
+        Only keeping the biggest islands (the largest surface).
     """
 
     filtered_array, label_array, num_labels = get_islands(array, threshold)
+
+    # Put NaN pixels to 0
+    # This is OK as long as it is made temporary and internally to avoid issues
+    # with scipy
+    filtered_array[np.isnan(filtered_array)] = 0.
 
     # Count the number of pixels for each island
     num_pixels_per_island = ndimage.sum(filtered_array, label_array, range(num_labels + 1))
@@ -66,6 +109,10 @@ def kill_isolated_pixels(array, threshold=0.2, plot=False):
 
     filtered_array[remove_pixel] = 0
 
+    # Put back NaN in filtered_array (required to avoid bugs in others
+    # functions (e.g. uncoherent dimensions with pixels_positions).
+    filtered_array[np.isnan(array)] = np.nan
+
     return filtered_array
 
 
@@ -73,12 +120,14 @@ def kill_isolated_pixels_stats(array, threshold=0.2):
     img = np.copy(array)
     filtered_img = kill_isolated_pixels(img, threshold=threshold)
 
-    delta_pe = np.sum(img - filtered_img)
-    delta_abs_pe = np.sum(np.abs(img - filtered_img))
+    delta_pe = np.nansum(img - filtered_img)
+    delta_abs_pe = np.nansum(np.abs(img - filtered_img))
 
-    img[img != 0] = 1
-    filtered_img[filtered_img != 0] = 1
-    delta_num_pixels = np.sum(img - filtered_img)
+
+    img[np.isfinite(img) & (img != 0)] = 1
+    filtered_img[np.isfinite(filtered_img) & (filtered_img != 0)] = 1
+
+    delta_num_pixels = np.nansum(img - filtered_img)
 
     return float(delta_pe), float(delta_abs_pe), float(delta_num_pixels)
 
@@ -86,3 +135,4 @@ def kill_isolated_pixels_stats(array, threshold=0.2):
 def number_of_islands(array, threshold=0.2):
     filtered_array, label_array, num_labels = get_islands(array, threshold)
     return num_labels
+
