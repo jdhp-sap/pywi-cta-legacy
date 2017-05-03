@@ -53,6 +53,8 @@ def get_islands(array, threshold=0.2):
     Integer
         ``num_labels`` the number of islands.
     """
+
+    array = array.astype('float64', copy=True)
     filtered_array = np.copy(array)
 
     # Put NaN pixels to 0
@@ -93,6 +95,7 @@ def kill_isolated_pixels(array, threshold=0.2):
         Only keeping the biggest islands (the largest surface).
     """
 
+    array = array.astype('float64', copy=True)
     filtered_array, label_array, num_labels = get_islands(array, threshold)
 
     # Put NaN pixels to 0
@@ -117,17 +120,18 @@ def kill_isolated_pixels(array, threshold=0.2):
 
 
 def kill_isolated_pixels_stats(array, threshold=0.2):
-    img = np.copy(array)
-    filtered_img = kill_isolated_pixels(img, threshold=threshold)
 
-    delta_pe = np.nansum(img - filtered_img)
-    delta_abs_pe = np.nansum(np.abs(img - filtered_img))
+    array = array.astype('float64', copy=True)
+    filtered_array = kill_isolated_pixels(array, threshold=threshold)
+
+    delta_pe = np.nansum(array - filtered_array)
+    delta_abs_pe = np.nansum(np.abs(array - filtered_array))
 
 
-    img[np.isfinite(img) & (img != 0)] = 1
-    filtered_img[np.isfinite(filtered_img) & (filtered_img != 0)] = 1
+    array[np.isfinite(array) & (array != 0)] = 1
+    filtered_array[np.isfinite(filtered_array) & (filtered_array != 0)] = 1
 
-    delta_num_pixels = np.nansum(img - filtered_img)
+    delta_num_pixels = np.nansum(array - filtered_array)
 
     return float(delta_pe), float(delta_abs_pe), float(delta_num_pixels)
 
