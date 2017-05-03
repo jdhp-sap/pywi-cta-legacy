@@ -156,6 +156,30 @@ class TestKillIsolatedPixels(unittest.TestCase):
         np.testing.assert_array_equal(output_img, expected_output_img)
 
 
+    def test_kill_isolated_pixels_example_nan_1(self):
+        """Check the output of the kill_isolated_pixels function."""
+
+        # Input image #################
+
+        input_img = np.array([[np.nan, 0, 1, 1, 0, np.nan],
+                              [     0, 0, 0, 1, 0,      0],
+                              [     5, 1, 0, 0, 1,      0],
+                              [np.nan, 0, 0, 1, 0, np.nan]])
+
+        # Output image ################
+
+        output_img = kill_isolated_pixels(input_img)
+
+        # Expected output image #######
+
+        expected_output_img = np.array([[np.nan, 0, 0, 0, 0, np.nan],
+                                        [     0, 0, 0, 0, 0,      0],
+                                        [     5, 1, 0, 0, 0,      0],
+                                        [np.nan, 0, 0, 0, 0, np.nan]])
+
+        np.testing.assert_array_equal(output_img, expected_output_img)
+
+
     # Test the "kill_isolated_pixels_stats" function ##########################
 
     def test_kill_isolated_pixels_stats_example1(self):
@@ -227,6 +251,31 @@ class TestKillIsolatedPixels(unittest.TestCase):
         expected_delta_pe = 10
         expected_delta_abs_pe = 10
         expected_delta_num_pixels = 4
+
+        self.assertEqual(delta_pe, expected_delta_pe)
+        self.assertEqual(delta_abs_pe, expected_delta_abs_pe)
+        self.assertEqual(delta_num_pixels, expected_delta_num_pixels)
+
+
+    def test_kill_isolated_pixels_stats_example_nan_1(self):
+        """Check the output of the kill_isolated_pixels_stats function."""
+
+        # Input image #################
+
+        input_img = np.array([[np.nan, 0, 1, 3, 0, np.nan],
+                              [     0, 0, 0, 1, 0,      0],
+                              [     5, 1, 0, 0, 1,      0],
+                              [np.nan, 0, 0, 1, 0, np.nan]])
+
+        # Output image ################
+
+        delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(input_img, threshold=None)
+
+        # Expected output image #######
+
+        expected_delta_pe = 7
+        expected_delta_abs_pe = 7
+        expected_delta_num_pixels = 5
 
         self.assertEqual(delta_pe, expected_delta_pe)
         self.assertEqual(delta_abs_pe, expected_delta_abs_pe)
