@@ -134,13 +134,13 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             if verbose:
                 print("Apply log scale")
             #images.plot(input_img)
-            input_img = np.log10(input_img)
+            input_img = np.log10(input_img)  # TODO: it creates NaN values where pixels <= 0
             #images.plot(input_img)
         elif input_image_scale == 'sqrt':
             if verbose:
                 print("Apply sqrt scale")
             #images.plot(input_img)
-            input_img = np.sqrt(input_img)
+            input_img = np.sqrt(input_img)   # TODO: it creates NaN values where pixels < 0
             #images.plot(input_img)
 
         # WRITE THE INPUT FILE (FITS) ##########################
@@ -187,7 +187,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             cmd += ' ' + raw_option_string
 
         #self.label = "WT ({})".format(cmd)  # Name to show in plots
-        cmd += ' "{}" {}'.format(input_file_path, mr_output_file_path)
+        cmd += ' "{}" "{}"'.format(input_file_path, mr_output_file_path)
 
         #cmd = 'mr_filter -K -k -C1 -s3 -m3 -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
         #cmd = 'mr_filter -K -k -C1 -s3 -m2 -p -P -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
@@ -242,7 +242,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             cleaned_img = np.power(2., cleaned_img)
 
         # INVERT THE OFFSET ####################################
-        
+
         if (offset_after_calibration is not None) and (not suppress_last_scale):
             cleaned_img = cleaned_img - offset_after_calibration
 
@@ -251,11 +251,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         if correction_offset:
             if verbose:
                 print("Apply a correction offset after cleaning")
-            cleaned_img = cleaned_img - cleaned_img.min()
-            cleaned_img[cleaned_img < 1.0] = 0.
+            cleaned_img = cleaned_img - np.nanmin(cleaned_img)
+            cleaned_img[ np.isfinite(cleaned_img) & (cleaned_img < 1.0) ] = 0.   # May genereate warnings on NaN values
 
         # KILL ISOLATED PIXELS #################################
-        
+
         if kill_isolated_pixels:
             if verbose:
                 print("Kill isolated pixels")
