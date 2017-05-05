@@ -128,8 +128,8 @@ def kill_isolated_pixels_stats(array, threshold=0.2):
     delta_abs_pe = np.nansum(np.abs(array - filtered_array))
 
 
-    array[np.isfinite(array) & (array != 0)] = 1
-    filtered_array[np.isfinite(filtered_array) & (filtered_array != 0)] = 1
+    array[np.isfinite(array) & (array != 0)] = 1                              # May genereate warnings on NaN values
+    filtered_array[np.isfinite(filtered_array) & (filtered_array != 0)] = 1   # May genereate warnings on NaN values
 
     delta_num_pixels = np.nansum(array - filtered_array)
 
