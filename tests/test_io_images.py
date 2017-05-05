@@ -61,6 +61,32 @@ class TestImages(unittest.TestCase):
         # The temporary directory and all its contents are removed now
 
 
+    def test_load_and_save_with_nan(self):
+        """Check the `images.load` and `images.save` functions."""
+
+        img = np.random.uniform(size=(4, 6))
+        img[1,1] = np.nan
+
+        # Make a temporary directory to store fits files
+        with tempfile.TemporaryDirectory() as temp_dir_path:
+
+            img_path = os.path.join(temp_dir_path, "test.fits")
+
+            # Save the image
+            images.save(img, img_path)
+
+            # Load the saved image
+            loaded_img = images.load(img_path, 0)
+
+            # Check img vs loaded_img
+            np.testing.assert_array_equal(img, loaded_img)
+
+            # Check the NaN pixel value is kept
+            self.assertTrue(np.isnan(loaded_img[1,1]))
+
+        # The temporary directory and all its contents are removed now
+
+
     # Test the "save" function exceptions #####################################
 
     def test_save_wrong_dimension_error(self):
