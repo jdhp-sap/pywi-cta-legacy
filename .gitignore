@@ -6,6 +6,11 @@ sandbox/
 *.json
 *.fits
 
+FORMER_EXAMPLES/
+PERPENDICULAR_HIT_DISTRIBUTION_TESTS/
+a_ranger/
+img_ex/
+
 # PYTHON ######################################################################
 
 # Byte-compiled / optimized / DLL files
