@@ -71,7 +71,7 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        signal = geometry_converter.2d_array_to_astry(input_img, crop=False)  # TODO: properly setup the crop argument !!! 
+        signal = geometry_converter.2d_array_to_astri(input_img, crop=False)  # TODO: properly setup the crop argument !!! 
 
         # APPLY TAILCUT CLEANING ##############################
 
@@ -92,7 +92,7 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        cleaned_img = geometry_converter.astry_to_2d_array(cleaned_img, crop=False)  # TODO: properly setup the crop argument !!! 
+        cleaned_img = geometry_converter.astri_to_2d_array(cleaned_img, crop=False)  # TODO: properly setup the crop argument !!! 
 
         # KILL ISOLATED PIXELS #################################
 

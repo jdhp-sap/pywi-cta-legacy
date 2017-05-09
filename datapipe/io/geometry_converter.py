@@ -24,13 +24,13 @@
 ... TODO
 """
 
-__all__ = ['astry_to_2d_array',
-           'astry_to_3d_array',
+__all__ = ['astri_to_2d_array',
+           'astri_to_3d_array',
            'geom_to_json_dict',
            'geom_to_json_file',
            'json_dict_to_geom',
            'json_file_to_geom',
-           '2d_array_to_astry']
+           '2d_array_to_astri']
 
 from astropy import units as u
 import json
@@ -94,14 +94,14 @@ def json_file_to_geom(json_file_path):
 
 ###############################################################################
 
-def astry_to_2d_array(input_img, crop=False):
+def astri_to_2d_array(input_img, crop=False):
     if crop:
-        return astry_to_2d_array_crop(input_img)
+        return astri_to_2d_array_crop(input_img)
     else:
-        return astry_to_2d_array_no_crop(input_img)
+        return astri_to_2d_array_no_crop(input_img)
 
 
-def astry_to_2d_array_no_crop(input_img):
+def astri_to_2d_array_no_crop(input_img):
     """
     Convert images comming form "ASTRI" telescopes in order to get regular 2D "rectangular"
     images directly usable with most image processing tools.
@@ -184,7 +184,7 @@ def astry_to_2d_array_no_crop(input_img):
     return img_2d
 
 
-def astry_to_2d_array_crop(input_img):
+def astri_to_2d_array_crop(input_img):
     """
     Crop images comming form "ASTRI" telescopes in order to get regular 2D "rectangular"
     images directly usable with most image processing tools.
@@ -242,7 +242,7 @@ def astry_to_2d_array_crop(input_img):
     return cropped_img
 
 
-def astry_to_3d_array(input_img, crop=False):
+def astri_to_3d_array(input_img, crop=False):
     """
     Crop images comming form "ASTRI" telescopes in order to get regular 2D "rectangular"
     images directly usable with most image processing tools.
@@ -264,12 +264,12 @@ def astry_to_3d_array(input_img, crop=False):
     cropped_img_list = []
 
     for img_2d in input_img:
-        cropped_img_list.append(astry_to_2d_array(img_2d, crop))
+        cropped_img_list.append(astri_to_2d_array(img_2d, crop))
 
     return np.array(cropped_img_list)
 
 
-def astry_pixel_mask(crop=False):
+def astri_pixel_mask(crop=False):
     """
     """
 
@@ -325,14 +325,14 @@ def astry_pixel_mask(crop=False):
     return img_mask
 
 
-def 2d_array_to_astry(input_img, crop=False):
+def array_2d_to_astri(input_img, crop=False):
     if crop:
-        return 2d_array_to_astry_crop(input_img)
+        return array_2d_to_astri_crop(input_img)
     else:
-        return 2d_array_to_astry_no_crop(input_img)
+        return array_2d_to_astri_no_crop(input_img)
 
 
-def 2d_array_to_astry_no_crop(img_2d):
+def array_2d_to_astri_no_crop(img_2d):
 
     img_1d = np.concatenate([
         img_2d[6*8:7*8, 2*8:3*8][::-1,:].ravel(),
@@ -383,7 +383,7 @@ def 2d_array_to_astry_no_crop(img_2d):
     return img_1d
 
 
-def 2d_array_to_astry_crop(img_2d):
+def array_2d_to_astri_crop(img_2d):
 
     img_1d = np.array([
         np.zeros[8 * 8],
