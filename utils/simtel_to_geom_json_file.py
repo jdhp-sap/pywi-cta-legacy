@@ -24,7 +24,7 @@
 ... TODO
 """
 
-__all__ = ['extract_images']
+__all__ = ['simtel_to_geom_json_file']
 
 import argparse
 import numpy as np
