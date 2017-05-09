@@ -64,6 +64,8 @@ def simtel_to_geom_json_file(simtel_file_path, tel_id, output_json_file=None):
     if output_json_file is None:
         output_json_file = geom.cam_id.lower() + ".geom.json"
 
+    print("Writing", output_json_file)
+
     geometry_converter.geom_to_json_file(geom, output_json_file)
 
 
