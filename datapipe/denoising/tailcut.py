@@ -43,6 +43,7 @@ import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.benchmark import assess
 from datapipe.io import images
+from datapipe.io import geometry_converter
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 
@@ -66,23 +67,16 @@ class Tailcut(AbstractCleaningAlgorithm):
         vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
         """
 
-        # TODO: clean these following hard coded values for Astri
-        num_pixels_x = 40
-        num_pixels_y = 40
-        range_x = (-0.142555996776, 0.142555996776)
-        range_y = (-0.142555996776, 0.142555996776)
+        geom = geometry_converter.json_file_to_geom("astri.geom.json")        # TODO: the geom object should be given in arguments !!!
 
-        #geom = ctapipe.io.CameraGeometry.from_name("astri", 1)  # TODO
+        # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        geom = ctapipe.io.camera.make_rectangular_camera_geometry(num_pixels_x,
-                                                                  num_pixels_y,
-                                                                  range_x,
-                                                                  range_y)
+        signal = geometry_converter.2d_array_to_astry(input_img, crop=False)  # TODO: properly setup the crop argument !!! 
 
-        signal = np.ravel(input_img)
+        # APPLY TAILCUT CLEANING ##############################
 
         mask = tailcuts_clean(geom,
-                              signal,                   # TODO
+                              signal,
                               1,
                               picture_thresh=high_threshold,
                               boundary_thresh=low_threshold)
@@ -92,11 +86,13 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         signal[mask == False] = 0
 
-        #                for ii in range(3):
-        #                    reco.cleaning.dilate(geom, cleanmask)
-        #                    image[cleanmask == 0] = 0  # zero noise pixels
+        #for ii in range(3):
+        #    reco.cleaning.dilate(geom, cleanmask)
+        #    image[cleanmask == 0] = 0  # zero noise pixels
 
-        cleaned_img = signal.reshape(num_pixels_x, num_pixels_y)
+        # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
+
+        cleaned_img = geometry_converter.astry_to_2d_array(cleaned_img, crop=False)  # TODO: properly setup the crop argument !!! 
 
         # KILL ISOLATED PIXELS #################################
 
