@@ -39,7 +39,7 @@ def signal_to_border(img):
     try:
         x, y = img.shape
         m = min(x, y)
-        res = [int(img.sum())] + [int(img[i:-i, i:-i].sum()) for i in range(1, math.ceil(m/2))]
+        res = [int(np.nansum(img))] + [int(np.nansum(img[i:-i, i:-i])) for i in range(1, math.ceil(m/2))]
     except:
         res = []
 
@@ -73,7 +73,7 @@ def pemax_on_border(img):
     try:
         mask = np.ones(img.shape, dtype=np.bool_)
         mask[1:-1, 1:-1] = 0
-        res = float(np.max(img[mask]))
+        res = float(np.nanmax(img[mask]))
     except:
         res = None
 
