@@ -61,6 +61,31 @@ class TestAssess(unittest.TestCase):
         np.testing.assert_array_equal(output_img, expected_output_img)
 
 
+    def test_normalize_with_nan(self):
+        """Check the output of the "normalize" function when the input contains
+        NaN values."""
+
+        # Input image #################
+
+        input_img = np.array([[np.nan, 2, 2, np.nan],
+                              [1,      3, 3, 1],
+                              [1,      2, 2, np.nan]])
+
+        # Expected output image #######
+
+        expected_output_img = np.array([[np.nan, 0.5, 0.5, np.nan],
+                                        [0.,     1.0, 1.0, 0.],
+                                        [0.,     0.5, 0.5, np.nan]])
+
+        # Output image ################
+
+        output_img = assess.normalize_array(input_img)
+
+        # Test ########################
+
+        np.testing.assert_array_equal(output_img, expected_output_img)
+
+
     ###########################################################################
     ###########################################################################
     # Test the "metric2" function                                             #
