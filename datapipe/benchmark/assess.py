@@ -111,7 +111,11 @@ def normalize_array(input_array):
     # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
     input_array = input_array.astype('float64', copy=True)
 
-    output_array = (input_array - input_array.min()) / (input_array.max() - input_array.min())
+    min_value = np.nanmin(input_array)
+    max_value = np.nanmax(input_array)
+
+    output_array = (input_array - min_value) / float(max_value - min_value)
+
     return output_array
 
 
