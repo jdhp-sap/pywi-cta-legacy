@@ -109,8 +109,7 @@ def normalize_array(input_array):
 
     # Copy and cast images to prevent tricky bugs
     # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
-    output_image = output_image.astype('float64', copy=True)
-    reference_image = reference_image.astype('float64', copy=True)
+    input_array = input_array.astype('float64', copy=True)
 
     output_array = (input_array - input_array.min()) / (input_array.max() - input_array.min())
     return output_array
@@ -122,7 +121,7 @@ def normalize_array(input_array):
 
 # Mean-Squared Error (MSE) ####################################################
 
-def metric_mse(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_mse(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Mean-Squared Error* (MSE) metric.
 
@@ -183,7 +182,7 @@ def metric_mse(input_img, output_image, reference_image, pixels_position, params
 
 # Normalized Root Mean-Squared Error (NRMSE) ##################################
 
-def metric_nrmse(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_nrmse(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Normalized Root Mean-Squared Error* (NRMSE) metric.
 
@@ -245,7 +244,7 @@ def metric_nrmse(input_img, output_image, reference_image, pixels_position, para
 
 # Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################
 
-def metric1(input_img, output_image, reference_image, pixels_position, params=None):
+def metric1(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with a (unusually) normalized version of the *Root Mean-Squared Error*
     (RMSE) metric.
@@ -309,7 +308,7 @@ def metric1(input_img, output_image, reference_image, pixels_position, params=No
 
 # Mean Pixel Difference 2 #####################################################
 
-def metric2(input_img, output_image, reference_image, pixels_position, params=None):
+def metric2(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{shape}}` metric.
 
@@ -366,7 +365,7 @@ def metric2(input_img, output_image, reference_image, pixels_position, params=No
 
 # Relative Total Counts Difference (mpdspd) ###################################
 
-def metric3(input_img, output_image, reference_image, pixels_position, params=None):
+def metric3(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}^+_{\text{energy}}`
     (a.k.a. *relative total counts difference*) metric.
@@ -418,7 +417,7 @@ def metric3(input_img, output_image, reference_image, pixels_position, params=No
 
 # Signed Relative Total Counts Difference (sspd) ##############################
 
-def metric4(input_img, output_image, reference_image, pixels_position, params=None):
+def metric4(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{energy}}`
     (a.k.a. *signed relative total counts difference*) metric.
@@ -470,7 +469,7 @@ def metric4(input_img, output_image, reference_image, pixels_position, params=No
 
 # Structural Similarity Index Measure (SSIM) ##################################
 
-def metric_ssim(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_ssim(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Structural Similarity Index Measure* (SSIM) metric.
 
@@ -545,7 +544,7 @@ def metric_ssim(input_img, output_image, reference_image, pixels_position, param
 
 # Peak Signal-to-Noise Ratio (PSNR) ###########################################
 
-def metric_psnr(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_psnr(input_img, output_image, reference_image, pixels_position=None, params=None):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Peak Signal-to-Noise Ratio* (PSNR) metric.
 
@@ -757,7 +756,7 @@ def metric_hillas_delta2(input_img, output_image, reference_image, pixels_positi
 
 # Kill isolated pixels ########################################################
 
-def metric_kill_isolated_pixels(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_kill_isolated_pixels(input_img, output_image, reference_image, pixels_position=None, params=None):
     delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(output_image)
 
     score_dict = collections.OrderedDict((
