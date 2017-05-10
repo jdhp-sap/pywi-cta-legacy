@@ -71,12 +71,12 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        signal = geometry_converter.array_2d_to_astri(input_img, crop=False)  # TODO: properly setup the crop argument !!! 
+        img_1d = geometry_converter.array_2d_to_astri(input_img, crop=False)  # TODO: properly setup the crop argument !!! 
 
         # APPLY TAILCUT CLEANING ##############################
 
         mask = tailcuts_clean(geom,
-                              signal,
+                              img_1d,
                               1,
                               picture_thresh=high_threshold,
                               boundary_thresh=low_threshold)
@@ -84,7 +84,7 @@ class Tailcut(AbstractCleaningAlgorithm):
         ##if True not in mask: continue       # TODO ?????
         #dilate(geom, mask)                   # TODO ?
 
-        signal[mask == False] = 0
+        img_1d[mask == False] = 0
 
         #for ii in range(3):
         #    reco.cleaning.dilate(geom, cleanmask)
@@ -92,7 +92,7 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        cleaned_img = geometry_converter.astri_to_2d_array(cleaned_img, crop=False)  # TODO: properly setup the crop argument !!! 
+        cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)  # TODO: properly setup the crop argument !!! 
 
         # KILL ISOLATED PIXELS #################################
 
