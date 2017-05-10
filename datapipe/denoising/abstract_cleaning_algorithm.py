@@ -268,8 +268,34 @@ class AbstractCleaningAlgorithm(object):
                     #traceback.print_tb(e.__traceback__, file=sys.stdout)
 
                     if benchmark_method is not None:
-                        error_dict = {"type": str(type(e)),
-                                      "message": str(e)}
+
+                        # http://docs.python.org/2/library/sys.html#sys.exc_info
+                        exc_type, exc_value, exc_traceback = sys.exc_info() # most recent (if any) by default
+
+                        '''
+                        Reason this _can_ be bad: If an (unhandled) exception happens AFTER this,
+                        or if we do not delete the labels on (not much) older versions of Py, the
+                        reference we created can linger.
+
+                        traceback.format_exc/print_exc do this very thing, BUT note this creates a
+                        temp scope within the function.
+                        '''
+
+                        error_dict = {
+                                      'filename': exc_traceback.tb_frame.f_code.co_filename,
+                                      'lineno'  : exc_traceback.tb_lineno,
+                                      'name'    : exc_traceback.tb_frame.f_code.co_name,
+                                      'type'    : exc_type.__name__,
+                                      #'message' : exc_value.message
+                                      'message' : str(e)
+                                     }
+
+                        del(exc_type, exc_value, exc_traceback) # So we don't leave our local labels/objects dangling
+                        # This still isn't "completely safe", though!
+
+                        #error_dict = {"type": str(type(e)),
+                        #              "message": str(e)}
+
                         image_dict["error"] = error_dict
 
                 finally:
