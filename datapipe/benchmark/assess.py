@@ -179,7 +179,7 @@ def metric_mse(input_img, output_image, reference_image, pixels_position=None, p
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
     
-    score = np.mean(np.square(output_image - reference_image))
+    score = np.nanmean(np.square(output_image - reference_image))
 
     return float(score)
 
@@ -353,8 +353,8 @@ def metric2(input_img, output_image, reference_image, pixels_position=None, para
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
     
-    sum_output_image = float(np.sum(output_image))
-    sum_reference_image = float(np.sum(reference_image))
+    sum_output_image = float(np.nansum(output_image))
+    sum_reference_image = float(np.nansum(reference_image))
 
     if sum_output_image <= 0:                 # TODO
         raise EmptyOutputImageError()
