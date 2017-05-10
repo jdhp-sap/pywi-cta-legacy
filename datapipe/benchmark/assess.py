@@ -240,7 +240,7 @@ def metric_nrmse(input_img, output_image, reference_image, pixels_position=None,
     # TODO: see https://github.com/scikit-image/scikit-image/blob/master/skimage/measure/simple_metrics.py#L82
 
     mse = metric_mse(input_img, output_image, reference_image, params)
-    denom = np.sqrt(np.mean((reference_image * output_image), dtype=np.float64))
+    denom = np.sqrt(np.nanmean((reference_image * output_image), dtype=np.float64))
     score = np.sqrt(mse) / denom
 
     return float(score)
@@ -305,7 +305,7 @@ def metric1(input_img, output_image, reference_image, pixels_position=None, para
     output_image = normalize_array(output_image)
     reference_image = normalize_array(reference_image)
 
-    score = np.mean(np.square(output_image - reference_image))
+    score = np.nanmean(np.square(output_image - reference_image))
 
     return float(score)
 
@@ -362,7 +362,7 @@ def metric2(input_img, output_image, reference_image, pixels_position=None, para
     if sum_reference_image <= 0:              # TODO
         raise EmptyReferenceImageError()
 
-    mark = np.mean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
+    mark = np.nanmean(np.abs((output_image / sum_output_image) - (reference_image / sum_reference_image)))
 
     return float(mark)
 
@@ -408,8 +408,8 @@ def metric3(input_img, output_image, reference_image, pixels_position=None, para
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
     
-    sum_output_image = float(np.sum(output_image))
-    sum_reference_image = float(np.sum(reference_image))
+    sum_output_image = float(np.nansum(output_image))
+    sum_reference_image = float(np.nansum(reference_image))
 
     if sum_reference_image <= 0:              # TODO
         raise EmptyReferenceImageError()
@@ -460,8 +460,8 @@ def metric4(input_img, output_image, reference_image, pixels_position=None, para
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
     
-    sum_output_image = float(np.sum(output_image))
-    sum_reference_image = float(np.sum(reference_image))
+    sum_output_image = float(np.nansum(output_image))
+    sum_reference_image = float(np.nansum(reference_image))
 
     if sum_reference_image <= 0:              # TODO
         raise EmptyReferenceImageError()
