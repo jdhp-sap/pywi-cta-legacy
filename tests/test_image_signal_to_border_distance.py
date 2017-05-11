@@ -199,6 +199,52 @@ class TestSignalToBorderDistance(unittest.TestCase):
 
         np.testing.assert_array_equal(output_list, expected_output_list)
 
+    def test_signal_to_border_example9(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0, 0, 0, np.nan],
+                              [0, 0, 0, 0, 0, 0, 1, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0],
+                              [0, 0, 0, 0, 0, 0, 0, 0]])
+
+        # Output image ################
+
+        output_list = signal_to_border(input_img)
+
+        # Expected output image #######
+
+        expected_output_list = [1, 0, 0, 0]
+
+        np.testing.assert_array_equal(output_list, expected_output_list)
+
+    def test_signal_to_border_example10(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[np.nan, 0, 0, 0, 0, 0, 0, np.nan],
+                              [     0, 1, 0, 0, 0, 0, 1, 0],
+                              [     0, 0, 2, 0, 0, 2, 0, 0],
+                              [     0, 0, 0, 3, 3, 0, 0, 0],
+                              [     0, 0, 2, 0, 0, 2, 0, 0],
+                              [     0, 1, 0, 0, 0, 0, 1, 0],
+                              [np.nan, 0, 0, 0, 0, 0, 0, np.nan]])
+
+        # Output image ################
+
+        output_list = signal_to_border(input_img)
+
+        # Expected output image #######
+
+        expected_output_list = [18, 14, 6]
+
+        np.testing.assert_array_equal(output_list, expected_output_list)
+
     # Test the "signal_to_border_distance" function ###########################
 
     def test_signal_to_border_distance_example1(self):
@@ -348,6 +394,50 @@ class TestSignalToBorderDistance(unittest.TestCase):
         # Expected output image #######
 
         expected_output = 2
+
+        self.assertEqual(output, expected_output)
+
+    def test_signal_to_border_distance_example8(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0,      0],
+                              [0, 0, 0, 0, np.nan, 0],
+                              [0, 0, 0, 1, 0,      0],
+                              [0, 0, 0, 0, 0,      0],
+                              [0, 0, 0, 0, 0,      0],
+                              [0, 0, 0, 0, 0,      0]])
+
+        # Output image ################
+
+        output = signal_to_border_distance(input_img)
+
+        # Expected output image #######
+
+        expected_output = 0
+
+        self.assertEqual(output, expected_output)
+
+    def test_signal_to_border_distance_example9(self):
+        """Check the output of the signal_to_border function."""
+
+        # Input image #################
+
+        input_img = np.array([[0, 0, 0, 0, 0,      0],
+                              [0, 0, 0, 0, np.nan, 0],
+                              [0, 0, 0, 0, 0,      0],
+                              [0, 0, 1, 0, 0,      0],
+                              [0, 0, 0, 0, 0,      0],
+                              [0, 0, 0, 0, 0,      0]])
+
+        # Output image ################
+
+        output = signal_to_border_distance(input_img)
+
+        # Expected output image #######
+
+        expected_output = 1
 
         self.assertEqual(output, expected_output)
     
