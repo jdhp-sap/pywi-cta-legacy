@@ -36,41 +36,33 @@ def signal_to_border(img):
     TODO
     """
 
-    try:
-        x, y = img.shape
-        m = min(x, y)
-        res = [int(np.nansum(img))] + [int(np.nansum(img[i:-i, i:-i])) for i in range(1, math.ceil(m/2))]
-    except:
-        res = []
+    res = []
 
+    # make a bigger array
+    em = np.zeros(np.array(img.shape) + 2)
+    em = em.astype("bool")
+    em[1:-1,1:-1] = np.isfinite(img)
 
-    #res = []
+    while em.any():
 
-    ## make a bigger array
-    #em = np.zeros(np.array(img.shape) + 2)
-    #em = em.astype("bool")
-    #em[1:-1,1:-1] = np.isfinite(img)
+        # Get the pixel sum of the shrinked image
+        res.append(np.nansum(img[em[1:-1,1:-1]]))
 
-    #res.append(np.nansum(img[em[1:-1,1:-1]]))
+        emt = em.copy()
 
-    #while em.any():
-    #    emt = em.copy()
-    #
-    #    # "shrink" the "True" area in the mask by moving it in all directions, taking the logical 'AND'
-    #    em[1:  ,1:]   &= emt[0:-1,0:-1]
-    #    em[0:-1,0:-1] &= emt[1:,1:]
-    #    em[1:  ,0:-1] &= emt[0:-1,1:]
-    #    em[0:-1,1:]   &= emt[1:,0:-1]
-    #
-    #    em[0:-1,:]    &= emt[1:  ,:]
-    #    em[1:  ,:]    &= emt[0:-1,:]
-    #    em[:   ,0:-1] &= emt[:   ,1:]
-    #    em[:   ,1:]   &= emt[:   ,0:-1]
+        # "shrink" the "True" area in the mask by moving it in all directions, taking the logical 'AND'
+        em[1:  ,1:]   &= emt[0:-1,0:-1]
+        em[0:-1,0:-1] &= emt[1:,1:]
+        em[1:  ,0:-1] &= emt[0:-1,1:]
+        em[0:-1,1:]   &= emt[1:,0:-1]
 
-    #    # Get the pixel sum of the shrinked image
-    #    res.append(np.nansum(img[em[1:-1,1:-1]]))
+        em[0:-1,:]    &= emt[1:  ,:]
+        em[1:  ,:]    &= emt[0:-1,:]
+        em[:   ,0:-1] &= emt[:   ,1:]
+        em[:   ,1:]   &= emt[:   ,0:-1]
 
     return res
+
 
 def signal_to_border_distance(img):
     """
@@ -90,6 +82,7 @@ def signal_to_border_distance(img):
             break
 
     return dist
+
 
 def pemax_on_border(img):
     """
