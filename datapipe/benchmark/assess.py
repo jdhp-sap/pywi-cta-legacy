@@ -541,6 +541,10 @@ def metric_ssim(input_img, output_image, reference_image, pixels_position=None, 
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
 
+    # TODO: the following two lines may be wrong...
+    output_image[np.isnan(output_image)] = 0
+    reference_image[np.isnan(reference_image)] = 0
+
     ssim_val, ssim_image = ssim(output_image, reference_image, full=True, gaussian_weights=True, sigma=0.5)
 
     return float(ssim_val)
@@ -581,6 +585,10 @@ def metric_psnr(input_img, output_image, reference_image, pixels_position=None, 
     # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
+
+    # TODO: the following two lines may be wrong...
+    output_image[np.isnan(output_image)] = 0
+    reference_image[np.isnan(reference_image)] = 0
 
     psnr_val = psnr(output_image, reference_image, dynamic_range=1e3)
 
