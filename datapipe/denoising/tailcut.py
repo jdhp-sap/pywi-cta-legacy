@@ -62,16 +62,23 @@ class Tailcut(AbstractCleaningAlgorithm):
                     low_threshold=8.,
                     kill_isolated_pixels=False,
                     verbose=False,
+                    geom=None,
                     output_data_dict=None):
         """
         vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
         """
 
-        geom = geometry_converter.json_file_to_geom("astri.geom.json")        # TODO: the geom object should be given in arguments !!!
+        if geom is None:
+            raise Exception("Geom have to be defined")    # TODO
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        img_1d = geometry_converter.array_2d_to_astri(input_img, crop=False)  # TODO: properly setup the crop argument !!! 
+        if geom.cam_id == "ASTRI":
+            img_1d = geometry_converter.array_2d_to_astri(input_img, crop=False)
+        elif geom.cam_id == "ASTRI_CROPPED":
+            img_1d = geometry_converter.array_2d_to_astri(input_img, crop=True)
+        else:
+            raise Exception("Unknown cam_id")    # TODO
 
         # APPLY TAILCUT CLEANING ##############################
 
@@ -92,7 +99,12 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)  # TODO: properly setup the crop argument !!! 
+        if geom.cam_id == "ASTRI":
+            cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)
+        elif geom.cam_id == "ASTRI_CROPPED":
+            cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=True)
+        else:
+            raise Exception("Unknown cam_id")    # TODO
 
         # KILL ISOLATED PIXELS #################################
 
@@ -142,6 +154,10 @@ def main():
                         metavar="FILE",
                         help="The output file path (JSON)")
 
+    parser.add_argument("--geom", "-g", default="geom/astri.geom.json",
+                        metavar="FILE",
+                        help="The path of the file that defines the geometry of the telescope (GEOM.JSON)")
+
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The files image to process (FITS)."
                              "If fileargs is a directory,"
@@ -152,6 +168,7 @@ def main():
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
     kill_isolated_pixels = args.kill_isolated_pixels
+    geom_path = args.geom
     verbose = args.verbose
 
     benchmark_method = args.benchmark
@@ -166,11 +183,14 @@ def main():
     else:
         output_file_path = args.output
 
+    geom = geometry_converter.json_file_to_geom(geom_path)
+
     cleaning_function_params = {
                 "high_threshold": high_threshold,
                 "low_threshold": low_threshold,
                 "kill_isolated_pixels": kill_isolated_pixels,
-                "verbose": verbose
+                "verbose": verbose,
+                "geom": geom
             }
 
     cleaning_algorithm = Tailcut()
