@@ -88,7 +88,7 @@ class WrongFitsFileStructure(FitsError):
 
 # LOAD BENCHMARK IMAGE #######################################################
 
-def load_benchmark_images(input_file_path):
+def load_benchmark_images(input_file_path, version=2):
     """Return images contained in the given FITS file.
 
     Parameters
@@ -109,24 +109,43 @@ def load_benchmark_images(input_file_path):
 
     hdu_list = fits.open(input_file_path)   # open the FITS file
 
-    if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
-        hdu_list.close()
-        raise WrongFitsFileStructure(input_file_path)
+    if version == 2:
+        if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
+            hdu_list.close()
+            raise WrongFitsFileStructure(input_file_path)
 
-    hdu0, hdu1, hdu2, hdu3, hdu4, hdu6, hdu7 = hdu_list
+        hdu0, hdu1, hdu2, hdu3, hdu4, hdu6, hdu7 = hdu_list
 
-    # IMAGES
+        # IMAGES
 
-    images_dict = {}
+        images_dict = {}
 
-    images_dict["input_image"] = hdu0.data        # "hdu.data" is a Numpy Array
-    images_dict["reference_image"] = hdu1.data    # "hdu.data" is a Numpy Array
-    images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
-    images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
-    images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
-    #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
-    images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
-    images_dict["pixels_mask"] = hdu7.data        # "hdu.data" is a Numpy Array
+        images_dict["input_image"] = hdu0.data        # "hdu.data" is a Numpy Array
+        images_dict["reference_image"] = hdu1.data    # "hdu.data" is a Numpy Array
+        images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
+        images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
+        images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
+        #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
+        images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
+        images_dict["pixels_mask"] = hdu7.data        # "hdu.data" is a Numpy Array
+    elif version == 1:
+        if (len(hdu_list) != 6) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image):
+            hdu_list.close()
+            raise WrongFitsFileStructure(input_file_path)
+
+        hdu0, hdu1, hdu2, hdu3, hdu4, hdu6 = hdu_list
+
+        # IMAGES
+
+        images_dict = {}
+
+        images_dict["input_image"] = hdu0.data        # "hdu.data" is a Numpy Array
+        images_dict["reference_image"] = hdu1.data    # "hdu.data" is a Numpy Array
+        images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
+        images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
+        images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
+        #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
+        images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
 
     # METADATA
 
