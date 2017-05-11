@@ -43,6 +43,33 @@ def signal_to_border(img):
     except:
         res = []
 
+
+    #res = []
+
+    ## make a bigger array
+    #em = np.zeros(np.array(img.shape) + 2)
+    #em = em.astype("bool")
+    #em[1:-1,1:-1] = np.isfinite(img)
+
+    #res.append(np.nansum(img[em[1:-1,1:-1]]))
+
+    #while em.any():
+    #    emt = em.copy()
+    #
+    #    # "shrink" the "True" area in the mask by moving it in all directions, taking the logical 'AND'
+    #    em[1:  ,1:]   &= emt[0:-1,0:-1]
+    #    em[0:-1,0:-1] &= emt[1:,1:]
+    #    em[1:  ,0:-1] &= emt[0:-1,1:]
+    #    em[0:-1,1:]   &= emt[1:,0:-1]
+    #
+    #    em[0:-1,:]    &= emt[1:  ,:]
+    #    em[1:  ,:]    &= emt[0:-1,:]
+    #    em[:   ,0:-1] &= emt[:   ,1:]
+    #    em[:   ,1:]   &= emt[:   ,0:-1]
+
+    #    # Get the pixel sum of the shrinked image
+    #    res.append(np.nansum(img[em[1:-1,1:-1]]))
+
     return res
 
 def signal_to_border_distance(img):
