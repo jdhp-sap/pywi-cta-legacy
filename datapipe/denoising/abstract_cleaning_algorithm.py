@@ -320,5 +320,10 @@ class AbstractCleaningAlgorithm(object):
             output_dict["system"] = " ".join(os.uname())
             output_dict["io"] = io_list
 
+            try:
+                del output_dict["algo_params"]["geom"]   # The geom object use by Tailcut is not JSON serializable
+            except:
+                pass
+
             with open(output_file_path, "w") as fd:
                 json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
