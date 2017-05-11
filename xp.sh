@@ -3,7 +3,7 @@
 export PYTHONPATH=.:$PYTHONPATH
 source activate cta
 
-NUM_IMG=1000
+NUM_IMG=100
 
 TC_PARAMS="-T10 -t5 --kill-isolated-pixels"
 
@@ -16,51 +16,57 @@ WT_LABEL_2="WT-K-k-C1-m3-n4-s2-2-3-3"
 #MRFILTER_TMP_DIR="."
 MRFILTER_TMP_DIR="/Volumes/ramdisk"
 
+GAMMA_FITS_DIR="/Users/jdecock/astri_data/fits/gamma"
+PROTON_FITS_DIR="/Users/jdecock/astri_data/fits/proton"
+
+#GAMMA_FITS_DIR="/Users/jdecock/astri_data/fits_cropped/gamma"
+#PROTON_FITS_DIR="/Users/jdecock/astri_data/fits_cropped/proton"
+
 ####################
 ## GAMMAS ##########
 ####################
 #
-#echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_gamma_ref.json            $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-#echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_gamma_input.json          $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-#echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_gamma_tc.json             $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
-#echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_gamma_${WT_LABEL_1}.json  $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_gamma_ref.json            $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_gamma_input.json          $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_gamma_tc.json             $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_gamma_${WT_LABEL_1}.json  $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
 #for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
-#echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_gamma_${WT_LABEL_2}.json  $(find ~/astri_data/fits/gamma -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_gamma_${WT_LABEL_2}.json  $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
 #for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 #
 ####################
 ## PROTONS #########
 ####################
 #
-#echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_proton_ref.json            $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-#echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_proton_input.json          $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-#echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_proton_tc.json             $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
-#echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_proton_${WT_LABEL_1}.json  $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_proton_ref.json            $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_proton_input.json          $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_proton_tc.json             $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_proton_${WT_LABEL_1}.json  $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
 #for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
-#echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_proton_${WT_LABEL_2}.json  $(find ~/astri_data/fits/proton -type f -name "*.fits" | head -n ${NUM_IMG})
+#echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_proton_${WT_LABEL_2}.json  $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG})
 #for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 
 ###################
 # ALL GAMMAS ######
 ###################
 
-echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_gamma_ref.json            ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_null_ref.jso.logn
-echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_gamma_input.json          ~/astri_data/fits/gamma 2>&1 | tee score_gamma_all_null_input.json.log
-echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_gamma_tc.json             ~/astri_data/fits/gamma 2>&1 | tee score_gamma_tc.json.log
-echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_gamma_${WT_LABEL_1}.json  ~/astri_data/fits/gamma 2>&1 | tee score_gamma_${WT_LABEL_1}.json.log
+echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_gamma_ref.json            ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_ref.jso.logn
+echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_gamma_input.json          ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_input.json.log
+echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_gamma_tc.json             ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_tc.json.log
+echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_gamma_${WT_LABEL_1}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_LABEL_1}.json.log
 for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
-echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_gamma_${WT_LABEL_2}.json  ~/astri_data/fits/gamma 2>&1 | tee score_gamma_${WT_LABEL_2}.json.log
+echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_gamma_${WT_LABEL_2}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_LABEL_2}.json.log
 for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 
 #####################
 ## ALL PROTONS ######
 #####################
 
-echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_proton_ref.json            ~/astri_data/fits/proton 2>&1 | tee score_proton_all_null_ref.jso.logn
-echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_proton_input.json          ~/astri_data/fits/proton 2>&1 | tee score_proton_all_null_input.json.log
-echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_proton_tc.json             ~/astri_data/fits/proton 2>&1 | tee score_proton_tc.json.log
-echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_proton_${WT_LABEL_1}.json  ~/astri_data/fits/proton 2>&1 | tee score_proton_${WT_LABEL_1}.json.log
+echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_proton_ref.json            ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_ref.jso.logn
+echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_proton_input.json          ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_input.json.log
+echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_proton_tc.json             ${PROTON_FITS_DIR} 2>&1 | tee score_proton_tc.json.log
+echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_proton_${WT_LABEL_1}.json  ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_LABEL_1}.json.log
 for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
-echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_proton_${WT_LABEL_2}.json  ~/astri_data/fits/proton 2>&1 | tee score_proton_${WT_LABEL_2}.json.log
+echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_2}" ${WT_PARAMS_2} -o score_proton_${WT_LABEL_2}.json  ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_LABEL_2}.json.log
 for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 
