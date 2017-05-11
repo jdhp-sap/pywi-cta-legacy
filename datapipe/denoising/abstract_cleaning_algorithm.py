@@ -71,7 +71,8 @@ class AbstractCleaningAlgorithm(object):
             output_file_path,
             plot=False,
             saveplot=None,
-            ref_img_as_input=False):      # This option is a hack to easily produce CSV files...
+            ref_img_as_input=False,      # This option is a hack to easily produce CSV files...
+            fits_files_version=2):
 
         image_counter = 0
         launch_time = time.perf_counter()
@@ -104,7 +105,7 @@ class AbstractCleaningAlgorithm(object):
                     # READ THE INPUT FILE #####################################
 
                     initial_time = time.perf_counter()
-                    fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path)
+                    fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path, fits_files_version)
                     load_input_image_time_sec = time.perf_counter() - initial_time
 
                     if self.verbose:
