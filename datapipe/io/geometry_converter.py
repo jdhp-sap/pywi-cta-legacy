@@ -261,12 +261,12 @@ def astri_to_3d_array(input_img, crop=False):
     if input_img.shape[1] != (37*64):
         raise ValueError("The input image is not a valide ASTRI telescope image.")
 
-    cropped_img_list = []
+    img_list = []
 
     for img_2d in input_img:
-        cropped_img_list.append(astri_to_2d_array(img_2d, crop))
+        img_list.append(astri_to_2d_array(img_2d, crop))
 
-    return np.array(cropped_img_list)
+    return np.array(img_list)
 
 
 def astri_pixel_mask(crop=False):
