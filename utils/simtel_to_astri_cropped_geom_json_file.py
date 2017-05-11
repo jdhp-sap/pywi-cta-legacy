@@ -52,6 +52,8 @@ def simtel_to_geom_json_file(output_json_file=None):
                                                    range_x,
                                                    range_y)
 
+    geom.cam_id = "ASTRI_CROPPED"
+
     # Convert and write the geom object
 
     if output_json_file is None:
