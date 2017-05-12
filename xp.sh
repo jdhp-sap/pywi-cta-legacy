@@ -50,7 +50,7 @@ PROTON_FITS_DIR="/Users/jdecock/astri_data/fits/proton"
 # ALL GAMMAS ######
 ###################
 
-echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_gamma_ref.json            ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_ref.jso.logn
+echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_gamma_ref.json            ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_ref.json.log
 echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_gamma_input.json          ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_input.json.log
 echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_gamma_tc.json             ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_tc.json.log
 echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_gamma_${WT_LABEL_1}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_LABEL_1}.json.log
@@ -62,7 +62,7 @@ for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 ## ALL PROTONS ######
 #####################
 
-echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_proton_ref.json            ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_ref.jso.logn
+echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                          -o score_proton_ref.json            ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_ref.json.log
 echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                        -o score_proton_input.json          ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_input.json.log
 echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS}   -o score_proton_tc.json             ${PROTON_FITS_DIR} 2>&1 | tee score_proton_tc.json.log
 echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL_1}" ${WT_PARAMS_1} -o score_proton_${WT_LABEL_1}.json  ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_LABEL_1}.json.log
