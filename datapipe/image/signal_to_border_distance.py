@@ -46,7 +46,7 @@ def signal_to_border(img):
     while em.any():
 
         # Get the pixel sum of the shrinked image
-        res.append(np.nansum(img[em[1:-1,1:-1]]))
+        res.append(float(np.nansum(img[em[1:-1,1:-1]])))
 
         emt = em.copy()
 
