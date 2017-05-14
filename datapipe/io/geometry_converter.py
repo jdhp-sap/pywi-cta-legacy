@@ -385,7 +385,7 @@ def array_2d_to_astri_no_crop(img_2d):
 
 def array_2d_to_astri_crop(img_2d):
 
-    img_1d = np.array([
+    img_1d = np.concatenate([
         np.zeros(8 * 8),
         np.zeros(8 * 8),
         np.zeros(8 * 8),
