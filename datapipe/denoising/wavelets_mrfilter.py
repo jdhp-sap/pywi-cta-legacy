@@ -575,8 +575,8 @@ def main():
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           plot,
-                           saveplot)
+                           plot=plot,
+                           saveplot=saveplot)
 
 
 if __name__ == "__main__":
