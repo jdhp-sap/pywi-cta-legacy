@@ -121,6 +121,12 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     else:
         part = "unknown"
 
+
+    # Retro-compatibility workaround ##############
+
+    if "cam_id" not in image_dict:
+        image_dict["cam_id"] = "ASTRI_CROPPED"
+
     # Compute hDist ###############################
 
     cen_x = image_dict["img_cleaned_hillas_2_cen_x"]  if "img_cleaned_hillas_2_cen_x"  in image_dict else None
@@ -144,7 +150,7 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     line["Id"]      = "{}_{}".format(image_dict["event_id"], image_dict["tel_id"])
     line["Evt"]     = image_dict["event_id"]
     line["Tel"]     = image_dict["tel_id"]
-    line["Exect"]   = image_dict["execution_time_sec"] if "execution_time_sec" in image_dict else "NaN"
+    line["Exect"]   = image_dict["full_clean_execution_time_sec"] if "full_clean_execution_time_sec" in image_dict else "NaN"
     line["Xtel"]    = image_dict["tel_pos_x"]
     line["Ytel"]    = image_dict["tel_pos_y"]
     line["Ztel"]    = image_dict["tel_pos_z"]
