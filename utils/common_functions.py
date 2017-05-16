@@ -30,6 +30,9 @@ from datapipe.denoising import tailcut as tailcut_mod
 from datapipe.denoising import wavelets_mrfilter as wavelets_mod
 from datapipe.benchmark import assess as assess_mod
 
+from datapipe.io import geometry_converter
+import datapipe.io.geom as geom_mod
+
 
 COLOR_MAP = cm.gnuplot2
 HISTOGRAM_TYPE = "bar"
@@ -912,12 +915,23 @@ def plot_gui(fig,
     input_img_copy = input_img.astype('float64', copy=True)
 
     tailcut = tailcut_mod.Tailcut()
+
+    geom_dir_path = os.path.dirname(geom_mod.__file__)
+    if fits_metadata_dict['cam_id'] == "ASTRI":
+        geom_path = os.path.join(geom_dir_path, "astri.geom.json")
+    elif fits_metadata_dict['cam_id'] == "ASTRI_CROPPED":
+        geom_path = os.path.join(geom_dir_path, "astri_cropped.geom.json")
+    else:
+        raise Exception("Unknown cam_id")    # TODO
+
+    geom = geometry_converter.json_file_to_geom(geom_path)
     
     initial_time = time.perf_counter()
     tailcut_cleaned_img = tailcut.clean_image(input_img_copy,
                                               high_threshold=10,
                                               low_threshold=5,
-                                              kill_isolated_pixels=kill_isolated_pixels)
+                                              kill_isolated_pixels=kill_isolated_pixels,
+                                              geom=geom)
     tailcut_execution_time = time.perf_counter() - initial_time
 
     # Wavelets ####################
