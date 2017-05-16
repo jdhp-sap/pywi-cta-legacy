@@ -1206,11 +1206,11 @@ def _draw_image(axis, image_array, title, pixels_position=None, plot_log_scale=F
 
 def _draw_histogram(axis, image_array, title, plot_log_scale=False):
 
-    image_array_copy = image_array.astype('float64', copy=True)
-    image_array_1d = image_array.ravel()
+    # Flatten image and remove NaN values
+    image_array_1d = image_array[np.isfinite(image_array)]
 
-    vmin = image_array_1d.min()
-    vmax = image_array_1d.max()
+    vmin = np.nanmin(image_array_1d)
+    vmax = np.nanmax(image_array_1d)
 
     bins = int(abs(math.ceil(vmax) - math.floor(vmin)))
 
