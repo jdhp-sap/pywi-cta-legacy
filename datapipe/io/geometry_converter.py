@@ -325,14 +325,7 @@ def astri_pixel_mask(crop=False):
     return img_mask
 
 
-def array_2d_to_astri(input_img, crop=False):
-    if crop:
-        return array_2d_to_astri_crop(input_img)
-    else:
-        return array_2d_to_astri_no_crop(input_img)
-
-
-def array_2d_to_astri_no_crop(img_2d):
+def array_2d_to_astri(img_2d):
 
     img_1d = np.concatenate([
         img_2d[6*8:7*8, 2*8:3*8][::-1,:].ravel(),
@@ -378,57 +371,6 @@ def array_2d_to_astri_no_crop(img_2d):
         img_2d[0*8:1*8, 2*8:3*8][::-1,:].ravel(),
         img_2d[0*8:1*8, 3*8:4*8][::-1,:].ravel(),
         img_2d[0*8:1*8, 4*8:5*8][::-1,:].ravel()
-        ])
-
-    return img_1d
-
-
-def array_2d_to_astri_crop(img_2d):
-
-    img_1d = np.concatenate([
-        np.zeros(8 * 8),
-        np.zeros(8 * 8),
-        np.zeros(8 * 8),
-        #
-        img_2d[5*8:6*8, 1*8:2*8][::-1,:].ravel(),
-        img_2d[5*8:6*8, 2*8:3*8][::-1,:].ravel(),
-        img_2d[5*8:6*8, 3*8:4*8][::-1,:].ravel(),
-        img_2d[5*8:6*8, 4*8:5*8][::-1,:].ravel(),
-        img_2d[5*8:6*8, 5*8:6*8][::-1,:].ravel(),
-        #
-        np.zeros(8 * 8),
-        img_2d[4*8:5*8, 1*8:2*8][::-1,:].ravel(),
-        img_2d[4*8:5*8, 2*8:3*8][::-1,:].ravel(),
-        img_2d[4*8:5*8, 3*8:4*8][::-1,:].ravel(),
-        img_2d[4*8:5*8, 4*8:5*8][::-1,:].ravel(),
-        img_2d[4*8:5*8, 5*8:6*8][::-1,:].ravel(),
-        np.zeros(8 * 8),
-        #
-        np.zeros(8 * 8),
-        img_2d[3*8:4*8, 1*8:2*8][::-1,:].ravel(),
-        img_2d[3*8:4*8, 2*8:3*8][::-1,:].ravel(),
-        img_2d[3*8:4*8, 3*8:4*8][::-1,:].ravel(),
-        img_2d[3*8:4*8, 4*8:5*8][::-1,:].ravel(),
-        img_2d[3*8:4*8, 5*8:6*8][::-1,:].ravel(),
-        np.zeros(8 * 8),
-        #
-        np.zeros(8 * 8),
-        img_2d[2*8:3*8, 1*8:2*8][::-1,:].ravel(),
-        img_2d[2*8:3*8, 2*8:3*8][::-1,:].ravel(),
-        img_2d[2*8:3*8, 3*8:4*8][::-1,:].ravel(),
-        img_2d[2*8:3*8, 4*8:5*8][::-1,:].ravel(),
-        img_2d[2*8:3*8, 5*8:6*8][::-1,:].ravel(),
-        np.zeros(8 * 8),
-        #
-        img_2d[1*8:2*8, 1*8:2*8][::-1,:].ravel(),
-        img_2d[1*8:2*8, 2*8:3*8][::-1,:].ravel(),
-        img_2d[1*8:2*8, 3*8:4*8][::-1,:].ravel(),
-        img_2d[1*8:2*8, 4*8:5*8][::-1,:].ravel(),
-        img_2d[1*8:2*8, 5*8:6*8][::-1,:].ravel(),
-        #
-        np.zeros(8 * 8),
-        np.zeros(8 * 8),
-        np.zeros(8 * 8),
         ])
 
     return img_1d
