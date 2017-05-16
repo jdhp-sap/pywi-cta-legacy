@@ -26,6 +26,7 @@ import argparse
 import collections
 import numpy as np
 import math
+import os
 
 
 COLUMNS_DESC = collections.OrderedDict()
@@ -68,6 +69,8 @@ COLUMNS_DESC["peMin"]    = "The lowest pe value"
 COLUMNS_DESC["nPix"]     = "Number of (remaining) signal *pixels* in the image (no noise for what concerns the MC)"
 COLUMNS_DESC["Dshape"]   = "Epsilon shape"
 COLUMNS_DESC["Denergy"]  = "Epsilon energy"
+COLUMNS_DESC["fits"]     = "Name of the Fits file the data came from"
+COLUMNS_DESC["cam"]      = "Name of the camera (ASTRI, GCT, ...)"
 
 
 #def save_desc(output_file_path, desc_dict):
@@ -126,8 +129,11 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     if cen_x is not None and cen_y is not None:
         #h_dist = math.sqrt(math.pow(cen_x, 2) + math.pow(cen_y, 2))   # distance to the center
 
-        camera_size = 0.14255599677562714      # TODO: this is a hardcoded value for cropped ASTRI cameras
-        h_dist = min(camera_size - abs(cen_x), camera_size - abs(cen_y))
+        if image_dict["cam_id"] in ("ASTRI", "ASTRI_CROPPED"):
+            camera_size = 0.14255599677562714      # TODO: this is a hardcoded value for cropped ASTRI cameras
+            h_dist = min(camera_size - abs(cen_x), camera_size - abs(cen_y))
+        else:
+            h_dist = "NaN"
     else:
         h_dist = "NaN"
 
@@ -178,6 +184,8 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     line["nPix"]    = image_dict["img_cleaned_num_pix"] if "img_cleaned_num_pix" in image_dict else "NaN"     # TODO !!!!!
     line["Dshape"]  = score_e_shape  if "score" in image_dict else "NaN"
     line["Denergy"] = score_e_energy if "score" in image_dict else "NaN"
+    line["fits"]    = os.path.basename(image_dict["input_file_path"]) if "input_file_path" in image_dict else "NaN"
+    line["cam"]     = image_dict["cam_id"] if "cam_id" in image_dict else "NaN"
 
     #(image_dict["input_file_path"]
     #(image_dict["simtel_path"]
