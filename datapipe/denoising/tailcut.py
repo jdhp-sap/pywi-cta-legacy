@@ -74,9 +74,9 @@ class Tailcut(AbstractCleaningAlgorithm):
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
         if geom.cam_id == "ASTRI":
-            img_1d = geometry_converter.array_2d_to_astri(input_img, crop=False)
+            img_1d = geometry_converter.array_2d_to_astri(input_img)
         elif geom.cam_id == "ASTRI_CROPPED":
-            img_1d = geometry_converter.array_2d_to_astri(input_img, crop=True)
+            img_1d = np.ravel(input_img)
         else:
             raise Exception("Unknown cam_id")    # TODO
 
@@ -102,7 +102,7 @@ class Tailcut(AbstractCleaningAlgorithm):
         if geom.cam_id == "ASTRI":
             cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)
         elif geom.cam_id == "ASTRI_CROPPED":
-            cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=True)
+            cleaned_img = img_1d.reshape(40, 40)
         else:
             raise Exception("Unknown cam_id")    # TODO
 
@@ -202,8 +202,8 @@ def main():
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           plot,
-                           saveplot)
+                           plot=plot,
+                           saveplot=saveplot)
 
 
 if __name__ == "__main__":
