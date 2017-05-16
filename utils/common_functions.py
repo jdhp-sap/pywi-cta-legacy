@@ -33,6 +33,8 @@ from datapipe.benchmark import assess as assess_mod
 from datapipe.io import geometry_converter
 import datapipe.io.geom as geom_mod
 
+from datapipe.image.hillas_parameters import get_hillas_parameters
+
 
 COLOR_MAP = cm.gnuplot2
 HISTOGRAM_TYPE = "bar"
@@ -217,7 +219,7 @@ def extract_max(data_list):
 
 # PLOT FUNCTIONS ##############################################################
 
-def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=False):
+def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=False, show_color_bar=True):
 
     axis.axis('equal')
 
@@ -227,6 +229,8 @@ def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=F
 
     # generate 2 2d grids for the x & y bounds
     x, y = pixels_position[0], pixels_position[1]
+    axis.set_xlabel("Pixel position (in meter)", fontsize=12)
+    axis.set_ylabel("Pixel position (in meter)", fontsize=12)
 
     # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
     x_ma   = np.ma.masked_where(np.isnan(x), x)
@@ -240,94 +244,67 @@ def plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale=F
     else:
         im = axis.pcolor(x_ma, y_ma, img_ma, cmap=COLOR_MAP, vmin=z_min, vmax=z_max)
 
-    plt.colorbar(im, ax=axis) # draw the colorbar
+    if show_color_bar:
+        plt.colorbar(im, ax=axis) # draw the colorbar
 
     axis.set_title(title)
 
 
-def plot_ellipse_shower_on_image_meter(axis, image_array, pixels_position=None):
+def plot_ellipse_shower_on_image_meter(axis, image_array, pixels_position):
+    hillas = get_hillas_parameters(image_array, 2, pixels_position)
 
-    if pixels_position is not None:
-        xx, yy = pixels_position[0], pixels_position[1]
+    centroid = (hillas.cen_x.value, hillas.cen_y.value)
+    length = hillas.length.value
+    width = hillas.width.value
+    angle = hillas.psi.to(u.rad).value
 
-        hillas = hillas_parameters_2(xx.flatten(), # * u.meter,  # TODO
-                                     yy.flatten(), # * u.meter,  # TODO
-                                     image_array.flatten())
+    #print("centroid:", centroid)
+    #print("length:",   length)
+    #print("width:",    width)
+    #print("angle:",    angle)
 
-        centroid = (hillas.cen_x, hillas.cen_y)
-        length = hillas.length
-        width = hillas.width
-        angle = hillas.psi.to(u.rad).value
+    ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
+    axis.axes.add_patch(ellipse)
 
-        #print("centroid:", centroid)
-        #print("length:",   length)
-        #print("width:",    width)
-        #print("angle:",    angle)
+    title = axis.axes.get_title()
+    axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
 
-        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
-        axis.axes.add_patch(ellipse)
+    # Plot the center of the ellipse
 
-        title = axis.axes.get_title()
-        axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
+    axis.scatter(*centroid, c="r", marker="x", linewidth=2)
 
-        # Plot the center of the ellipse
+    # Plot the shower axis
 
-        axis.scatter(*centroid, c="r", marker="x", linewidth=2)
+    p0_x = centroid[0]
+    p0_y = centroid[1]
 
-        # Plot the shower axis
+    p1_x = p0_x + math.cos(angle)
+    p1_y = p0_y + math.sin(angle)
 
-        p0_x = centroid[0]
-        p0_y = centroid[1]
+    p2_x = p0_x + math.cos(angle + math.pi) 
+    p2_y = p0_y + math.sin(angle + math.pi) 
 
-        p1_x = p0_x + math.cos(angle)
-        p1_y = p0_y + math.sin(angle)
+    axis.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
 
-        p2_x = p0_x + math.cos(angle + math.pi) 
-        p2_y = p0_y + math.sin(angle + math.pi) 
+    p3_x = p0_x + math.cos(angle) * length / 2.
+    p3_y = p0_y + math.sin(angle) * length / 2.
 
-        axis.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
+    axis.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
 
-        p3_x = p0_x + math.cos(angle) * length / 2.
-        p3_y = p0_y + math.sin(angle) * length / 2.
+    p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
+    p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
 
-        axis.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
+    axis.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
 
-        p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
-        p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
+    # Set (back) axis limits
 
-        axis.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
+    pos_x_min, pos_x_max = np.nanmin(pixels_position[0]), np.nanmax(pixels_position[0])
+    pos_y_min, pos_y_max = np.nanmin(pixels_position[1]), np.nanmax(pixels_position[1])
 
-        # Set (back) axis limits
-
-        pos_x_min, pos_x_max = pixels_position[0].min(), pixels_position[0].max()
-        pos_y_min, pos_y_max = pixels_position[1].min(), pixels_position[1].max()
-
-        axis.set_xlim(xmin=pos_x_min)
-        axis.set_xlim(xmax=pos_x_max)
-        axis.set_ylim(ymin=pos_y_min)
-        axis.set_ylim(ymax=pos_y_max)
-    else:
-        x = np.arange(0, np.shape(image_array)[0], 1)
-        y = np.arange(0, np.shape(image_array)[1], 1)
-        xx, yy = np.meshgrid(x, y)
-
-        hillas = hillas_parameters_2(xx.flatten() * u.meter,
-                                     yy.flatten() * u.meter,
-                                     image_array.flatten())
-
-        centroid = (hillas.cen_x.value, hillas.cen_y.value)
-        length = hillas.length.value
-        width = hillas.width.value
-        angle = hillas.psi.to(u.rad).value    # TODO
-
-        #print("DEBUG:", hillas[7].value, angle, np.degrees(angle))
-
-        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
-        axis.axes.add_patch(ellipse)
-
-        title = axis.axes.get_title()
-        axis.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
-
+    axis.set_xlim(xmin=pos_x_min)
+    axis.set_xlim(xmax=pos_x_max)
+    axis.set_ylim(ymin=pos_y_min)
+    axis.set_ylim(ymax=pos_y_max)
 
 
 def plot_correlation(axis, x_array, y_array, x_label, y_label, logx=False, logy=False):
@@ -1055,36 +1032,32 @@ def plot_gui(fig,
 
         # AX3 #######
 
-        if _plot_perpendicular_hit_distribution is not None:
+        if _plot_perpendicular_hit_distribution != "None":
             if use_ref_angle_for_perpendicular_hit_distribution:
-                image_array = copy.deepcopy(reference_img)
-                xx, yy = pixels_position[0], pixels_position[1]
-                common_hillas_parameters = hillas_parameters_1(xx.flatten() * u.meter,
-                                                               yy.flatten() * u.meter,
-                                                               image_array.flatten())
+                common_hillas_parameters = get_hillas_parameters(image_array, 2, pixels_position)
             else:
                 common_hillas_parameters = None
 
             bins = np.linspace(-0.04, 0.04, 21)
 
-            if _plot_perpendicular_hit_distribution == "Tailcut":
-                plot_perpendicular_hit_distribution(ax3,
-                                                    [reference_img, tailcut_cleaned_img],
-                                                    pixels_position,
-                                                    bins=bins,
-                                                    label_list=["Ref.", "Cleaned TC"],
-                                                    hist_type="step",
-                                                    common_hillas_parameters=common_hillas_parameters,
-                                                    plot_ratio=True)
-            elif _plot_perpendicular_hit_distribution == "Wavelet":
-                plot_perpendicular_hit_distribution(ax3,
-                                                    [reference_img, wavelets_cleaned_img],
-                                                    pixels_position,
-                                                    bins=bins,
-                                                    label_list=["Ref.", "Cleaned WT"],
-                                                    hist_type="step",
-                                                    common_hillas_parameters=common_hillas_parameters,
-                                                    plot_ratio=True)
+#            if _plot_perpendicular_hit_distribution == "Tailcut":
+#                plot_perpendicular_hit_distribution(ax3,
+#                                                    [reference_img, tailcut_cleaned_img],
+#                                                    pixels_position,
+#                                                    bins=bins,
+#                                                    label_list=["Ref.", "Cleaned TC"],
+#                                                    hist_type="step",
+#                                                    common_hillas_parameters=common_hillas_parameters,
+#                                                    plot_ratio=True)
+#            elif _plot_perpendicular_hit_distribution == "Wavelet":
+#                plot_perpendicular_hit_distribution(ax3,
+#                                                    [reference_img, wavelets_cleaned_img],
+#                                                    pixels_position,
+#                                                    bins=bins,
+#                                                    label_list=["Ref.", "Cleaned WT"],
+#                                                    hist_type="step",
+#                                                    common_hillas_parameters=common_hillas_parameters,
+#                                                    plot_ratio=True)
 
             ax3.set_title("Perpendicular hit distribution")
             ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
@@ -1093,7 +1066,7 @@ def plot_gui(fig,
             _draw_image(ax3, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
         if plot_ellipse_shower:
-            if _plot_perpendicular_hit_distribution is None:
+            if _plot_perpendicular_hit_distribution == "None":
                 try:
                     # Show ellipse only if "perpendicular hit distribution" is off
                     plot_ellipse_shower_on_image_meter(ax3, tailcut_cleaned_img, pixels_position)
@@ -1106,7 +1079,7 @@ def plot_gui(fig,
             _draw_image(ax4, tailcut_cleaned_img, "Tailcut" + tailcut_title_suffix, pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
             if plot_ellipse_shower:
-                if (_plot_perpendicular_hit_distribution is not None) and use_ref_angle_for_perpendicular_hit_distribution:
+                if (_plot_perpendicular_hit_distribution != "None") and use_ref_angle_for_perpendicular_hit_distribution:
                     try:
                         plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
                     except Exception as e:
@@ -1120,7 +1093,7 @@ def plot_gui(fig,
             _draw_image(ax4, wavelets_cleaned_img, "Wavelets" + wavelets_title_suffix, pixels_position=pixels_position, plot_log_scale=plot_log_scale)
 
             if plot_ellipse_shower:
-                if (_plot_perpendicular_hit_distribution is not None) and use_ref_angle_for_perpendicular_hit_distribution:
+                if (_plot_perpendicular_hit_distribution != "None") and use_ref_angle_for_perpendicular_hit_distribution:
                     try:
                         plot_ellipse_shower_on_image_meter(ax4, reference_img, pixels_position)
                     except Exception as e:
@@ -1160,48 +1133,8 @@ def plot_gui(fig,
         fig.canvas.draw()
 
 
-def _draw_image(axis, image_array, title, pixels_position=None, plot_log_scale=False, show_color_bar=True):
-
-    axis.axis('equal')
-
-    # See http://matplotlib.org/examples/pylab_examples/pcolor_demo.html
-
-    if pixels_position is None:
-        dx, dy = 1, 1
-
-        # generate 2 2d grids for the x & y bounds
-        y, x = np.mgrid[slice(0, image_array.shape[0], dy), slice(0, image_array.shape[1], dx)]  # TODO !!!
-
-        axis.set_xlabel("Pixel index", fontsize=12)
-        axis.set_ylabel("Pixel index", fontsize=12)
-    else:
-        x, y = pixels_position[0], pixels_position[1]
-        axis.set_xlabel("Pixel position (in meter)", fontsize=12)
-        axis.set_ylabel("Pixel position (in meter)", fontsize=12)
-
-    z_min, z_max = image_array.min(), image_array.max()
-
-    if plot_log_scale:
-        # See http://matplotlib.org/examples/pylab_examples/pcolor_log.html
-        #     http://stackoverflow.com/questions/2546475/how-can-i-draw-a-log-normalized-imshow-plot-with-a-colorbar-representing-the-raw
-        im = axis.pcolor(x, y, image_array, norm=LogNorm(vmin=0.01, vmax=image_array.max()), cmap=COLOR_MAP)  # TODO: "vmin=0.01" is an arbitrary choice...
-    else:
-        im = axis.pcolor(x, y, image_array, cmap=COLOR_MAP, vmin=z_min, vmax=z_max)
-
-    if show_color_bar:
-        plt.colorbar(im, ax=axis)
-
-    axis.set_title(title)
-
-    # IMSHOW DOESN'T WORK WITH PYTHON GTK3 THROUGH CAIRO ("NOT IMPLEMENTED ERROR") !
-    #im = axis.imshow(image_array)
-    #im = axis.imshow(image_array,
-    #                 origin='lower',
-    #                 interpolation=IMAGE_INTERPOLATION,
-    #                 cmap=COLOR_MAP)
-    #axis.set_axis_off()
-    #if show_color_bar:
-    #    plt.colorbar(im) # draw the colorbar
+def _draw_image(axis, image_array, title, pixels_position, plot_log_scale=False, show_color_bar=True):
+    plot_image_meter(axis, image_array, pixels_position, title, plot_log_scale, show_color_bar)
 
 
 def _draw_histogram(axis, image_array, title, plot_log_scale=False):
