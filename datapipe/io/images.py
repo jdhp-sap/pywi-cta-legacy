@@ -88,7 +88,7 @@ class WrongFitsFileStructure(FitsError):
 
 # LOAD BENCHMARK IMAGE #######################################################
 
-def load_benchmark_images(input_file_path, version=2):
+def load_benchmark_images(input_file_path):
     """Return images contained in the given FITS file.
 
     Parameters
@@ -109,51 +109,14 @@ def load_benchmark_images(input_file_path, version=2):
 
     hdu_list = fits.open(input_file_path)   # open the FITS file
 
-    if version == 2:
-        if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
-            hdu_list.close()
-            raise WrongFitsFileStructure(input_file_path)
+    # METADATA ################################################################
 
-        hdu0, hdu1, hdu2, hdu3, hdu4, hdu6, hdu7 = hdu_list
-
-        # IMAGES
-
-        images_dict = {}
-
-        images_dict["input_image"] = hdu0.data        # "hdu.data" is a Numpy Array
-        images_dict["reference_image"] = hdu1.data    # "hdu.data" is a Numpy Array
-        images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
-        images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
-        images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
-        #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
-        images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
-        images_dict["pixels_mask"] = hdu7.data        # "hdu.data" is a Numpy Array
-    elif version == 1:
-        if (len(hdu_list) != 6) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image):
-            hdu_list.close()
-            raise WrongFitsFileStructure(input_file_path)
-
-        hdu0, hdu1, hdu2, hdu3, hdu4, hdu6 = hdu_list
-
-        # IMAGES
-
-        images_dict = {}
-
-        images_dict["input_image"] = hdu0.data        # "hdu.data" is a Numpy Array
-        images_dict["reference_image"] = hdu1.data    # "hdu.data" is a Numpy Array
-        images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
-        images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
-        images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
-        #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
-        images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
-
-    # METADATA
+    hdu0 = hdu_list[0]
 
     metadata_dict = {}
 
-    metadata_dict['npe'] = float(np.nansum(images_dict["reference_image"]))       # np.sum() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
-    metadata_dict['min_npe'] = float(np.nanmin(images_dict["reference_image"]))   # np.min() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
-    metadata_dict['max_npe'] = float(np.nanmax(images_dict["reference_image"]))   # np.max() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
+    metadata_dict['version'] = hdu0.header['version']
+    metadata_dict['cam_id'] = hdu0.header['cam_id']
 
     metadata_dict['tel_id'] = hdu0.header['tel_id']
     metadata_dict['event_id'] = hdu0.header['event_id']
@@ -198,10 +161,40 @@ def load_benchmark_images(input_file_path, version=2):
     # TODO: Astropy fails to store the following data in FITS files
     #metadata_dict['uid'] = hdu0.header.comments['uid']
     #metadata_dict['date_time'] = hdu0.header.comments['datetime']
-    #metadata_dict['version'] = hdu0.header.comments['version']
+    #metadata_dict['lib_version'] = hdu0.header.comments['lib_version']
     #metadata_dict['argv'] = hdu0.header.comments['argv']
     #metadata_dict['python_version'] = hdu0.header.comments['python']
     #metadata_dict['system'] = hdu0.header.comments['system']
+
+    # IMAGES ##################################################################
+
+    if metadata_dict['version'] == 1:
+        if (len(hdu_list) != 7) or (not hdu_list[0].is_image) or (not hdu_list[1].is_image) or (not hdu_list[2].is_image) or (not hdu_list[3].is_image) or (not hdu_list[4].is_image) or (not hdu_list[5].is_image) or (not hdu_list[6].is_image):
+            hdu_list.close()
+            raise WrongFitsFileStructure(input_file_path)
+
+        hdu0, hdu1, hdu2, hdu3, hdu4, hdu6, hdu7 = hdu_list
+
+        # IMAGES
+
+        images_dict = {}
+
+        images_dict["input_image"] = hdu0.data        # "hdu.data" is a Numpy Array
+        images_dict["reference_image"] = hdu1.data    # "hdu.data" is a Numpy Array
+        images_dict["adc_sum_image"] = hdu2.data      # "hdu.data" is a Numpy Array
+        images_dict["pedestal_image"] = hdu3.data     # "hdu.data" is a Numpy Array
+        images_dict["gains_image"] = hdu4.data        # "hdu.data" is a Numpy Array
+        #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
+        images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
+        images_dict["pixels_mask"] = hdu7.data        # "hdu.data" is a Numpy Array
+    else:
+        raise Exception("Unknown version number")
+
+    # METADATA ################################################################
+
+    metadata_dict['npe'] = float(np.nansum(images_dict["reference_image"]))       # np.sum() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
+    metadata_dict['min_npe'] = float(np.nanmin(images_dict["reference_image"]))   # np.min() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
+    metadata_dict['max_npe'] = float(np.nanmax(images_dict["reference_image"]))   # np.max() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...
 
     hdu_list.close()
 
