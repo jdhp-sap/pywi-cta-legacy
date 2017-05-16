@@ -71,7 +71,7 @@ def extract_images(simtel_file_path,
 
         if (event_id_filter_list is None) or (event_id in event_id_filter_list):
 
-            print("event", event_id)
+            #print("event", event_id)
 
             # ITERATE OVER IMAGES #############################################
 
@@ -81,13 +81,13 @@ def extract_images(simtel_file_path,
 
                 if tel_id in tel_id_filter_list:
 
-                    print("telescope", tel_id)
+                    #print("telescope", tel_id)
 
                     # CHECK THE IMAGE GEOMETRY (ASTRI ONLY) ###################
 
                     # TODO
 
-                    print("checking geometry")
+                    #print("checking geometry")
 
                     x, y = event.inst.pixel_pos[tel_id]
                     foclen = event.inst.optical_foclen[tel_id]
@@ -109,30 +109,30 @@ def extract_images(simtel_file_path,
                     gain = event.mc.tel[tel_id].dc_to_pe
                     pixel_pos = event.inst.pixel_pos[tel_id]
 
-                    print("calibrating")
+                    #print("calibrating")
 
                     calibrated_image = mc_calibration.apply_mc_calibration(uncalibrated_image, pedestal, gain)
 
                     # CROP IMAGE ##############################################
 
-                    print("cropping ADC image")
+                    #print("cropping ADC image")
 
                     cropped_adc_sums = geometry_converter.astri_to_3d_array(uncalibrated_image, crop=crop)
 
-                    print("cropping PE image")
+                    #print("cropping PE image")
 
                     cropped_pe_img = geometry_converter.astri_to_2d_array(pe_image, crop=crop)
 
-                    print("cropping calibrated image")
+                    #print("cropping calibrated image")
 
                     cropped_img = geometry_converter.astri_to_2d_array(calibrated_image, crop=crop)
 
-                    print("cropping pedestal and gain")
+                    #print("cropping pedestal and gain")
 
                     cropped_pedestal = geometry_converter.astri_to_3d_array(pedestal, crop=crop)
                     cropped_gains = geometry_converter.astri_to_3d_array(gain, crop=crop)
 
-                    print("cropping pixel positions")
+                    #print("cropping pixel positions")
 
                     cropped_pixel_pos = geometry_converter.astri_to_3d_array(pixel_pos, crop=crop)
 
@@ -143,6 +143,13 @@ def extract_images(simtel_file_path,
                     # MAKE METADATA ###########################################
 
                     metadata = {}
+
+                    metadata['version'] = 1    # Version of the datapipe fits format
+
+                    if crop:
+                        metadata['cam_id'] = "ASTRI_CROPPED"
+                    else:
+                        metadata['cam_id'] = "ASTRI"
 
                     metadata['tel_id'] = tel_id
                     metadata['event_id'] = event_id
