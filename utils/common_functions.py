@@ -584,16 +584,16 @@ def plot_hist2d(axis,
                 zmax=None):
 
     if xmin is None:
-        xmin = x_array.min()
+        xmin = np.nanmin(x_array)
 
     if xmax is None:
-        xmax = x_array.max()
+        xmax = np.nanmax(x_array)
 
     if ymin is None:
-        ymin = y_array.min()
+        ymin = np.nanmin(y_array)
 
     if ymax is None:
-        ymax = y_array.max()
+        ymax = np.nanmax(y_array)
 
     print("xmin:", xmin)
     print("xmax:", xmax)
@@ -725,14 +725,15 @@ def perpendicular_hit_distribution(image_array,
     image_array = copy.deepcopy(image_array)
     pixels_position = copy.deepcopy(pixels_position)
 
+    # Flatten image and remove NaN values
+    image_array_1d = image_array[np.isfinite(image_array)]
+    xx = pixels_position[0][np.isfinite(pixels_position[0])]
+    yy = pixels_position[1][np.isfinite(pixels_position[1])]
+
     ###
 
     if force_hillas_parameters is None:
-        xx, yy = pixels_position[0], pixels_position[1]
-
-        hillas = hillas_parameters_1(xx.flatten() * u.meter,
-                                     yy.flatten() * u.meter,
-                                     image_array.flatten())
+        hillas = get_hillas_parameters(image_array, 2, pixels_position)
     else:
         hillas = force_hillas_parameters
 
@@ -756,9 +757,7 @@ def perpendicular_hit_distribution(image_array,
 
     pixel_stat_list = []
 
-    for pixel_value, pixel_pos_x, pixel_pos_y in zip(image_array.flatten(),
-                                                     pixels_position[0].flatten(),
-                                                     pixels_position[1].flatten()):
+    for pixel_value, pixel_pos_x, pixel_pos_y in zip(image_array_1d, xx, yy):
         if pixel_value > 0:
             signed_distance = signed_distance_point_to_line(a, b, c, (pixel_pos_x, pixel_pos_y))
             projected_point = orthogonal_projection_point_to_line(a, b, c, (pixel_pos_x, pixel_pos_y))
@@ -1040,24 +1039,24 @@ def plot_gui(fig,
 
             bins = np.linspace(-0.04, 0.04, 21)
 
-#            if _plot_perpendicular_hit_distribution == "Tailcut":
-#                plot_perpendicular_hit_distribution(ax3,
-#                                                    [reference_img, tailcut_cleaned_img],
-#                                                    pixels_position,
-#                                                    bins=bins,
-#                                                    label_list=["Ref.", "Cleaned TC"],
-#                                                    hist_type="step",
-#                                                    common_hillas_parameters=common_hillas_parameters,
-#                                                    plot_ratio=True)
-#            elif _plot_perpendicular_hit_distribution == "Wavelet":
-#                plot_perpendicular_hit_distribution(ax3,
-#                                                    [reference_img, wavelets_cleaned_img],
-#                                                    pixels_position,
-#                                                    bins=bins,
-#                                                    label_list=["Ref.", "Cleaned WT"],
-#                                                    hist_type="step",
-#                                                    common_hillas_parameters=common_hillas_parameters,
-#                                                    plot_ratio=True)
+            if _plot_perpendicular_hit_distribution == "Tailcut":
+                plot_perpendicular_hit_distribution(ax3,
+                                                    [reference_img, tailcut_cleaned_img],
+                                                    pixels_position,
+                                                    bins=bins,
+                                                    label_list=["Ref.", "Cleaned TC"],
+                                                    hist_type="step",
+                                                    common_hillas_parameters=common_hillas_parameters,
+                                                    plot_ratio=True)
+            elif _plot_perpendicular_hit_distribution == "Wavelet":
+                plot_perpendicular_hit_distribution(ax3,
+                                                    [reference_img, wavelets_cleaned_img],
+                                                    pixels_position,
+                                                    bins=bins,
+                                                    label_list=["Ref.", "Cleaned WT"],
+                                                    hist_type="step",
+                                                    common_hillas_parameters=common_hillas_parameters,
+                                                    plot_ratio=True)
 
             ax3.set_title("Perpendicular hit distribution")
             ax3.set_xlabel("Distance to the shower axis (in meter)", fontsize=16)
