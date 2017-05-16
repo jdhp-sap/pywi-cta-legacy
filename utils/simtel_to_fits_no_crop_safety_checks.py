@@ -59,13 +59,16 @@ def load_benchmark_images_deprecated(input_file_path):
     metadata_dict = {}
     hdu_list.close()
 
+    metadata_dict["version"] = 1
+    metadata_dict["cam_id"] = "ASTRI"
+
     return images_dict, metadata_dict
 
 
 # SAFETY CHECK FOR GAMMAS #####################################################
 
 path_not_cropped = "/Users/jdecock/data/astri_mini_array/fits/gamma/"
-path_cropped = "/Users/jdecock/data/astri_mini_array/fits_cropped/gamma/"
+path_cropped = "/Users/jdecock/data/astri_mini_array/fits_cropped.old/gamma/"
 
 cropped_file_path_list = common.get_fits_files_list(path_cropped)
 
@@ -76,6 +79,7 @@ for cropped_file_path in cropped_file_path_list:
     not_cropped_file_path = os.path.join(path_not_cropped, file_base)
     
     for key, cropped_data in load_benchmark_images_deprecated(cropped_file_path)[0].items():
+    #for key, cropped_data in datapipe.io.images.load_benchmark_images(cropped_file_path)[0].items():
         
         not_cropped_data = datapipe.io.images.load_benchmark_images(not_cropped_file_path)[0][key]
       
@@ -103,7 +107,7 @@ for cropped_file_path in cropped_file_path_list:
 # SAFETY CHECK FOR PROTONS ####################################################
 
 path_not_cropped = "/Users/jdecock/data/astri_mini_array/fits/proton/"
-path_cropped = "/Users/jdecock/data/astri_mini_array/fits_cropped/proton/"
+path_cropped = "/Users/jdecock/data/astri_mini_array/fits_cropped.old/proton/"
 
 cropped_file_path_list = common.get_fits_files_list(path_cropped)
 
@@ -114,6 +118,7 @@ for cropped_file_path in cropped_file_path_list:
     not_cropped_file_path = os.path.join(path_not_cropped, file_base)
     
     for key, cropped_data in load_benchmark_images_deprecated(cropped_file_path)[0].items():
+    #for key, cropped_data in datapipe.io.images.load_benchmark_images(cropped_file_path)[0].items():
         
         not_cropped_data = datapipe.io.images.load_benchmark_images(not_cropped_file_path)[0][key]
       
