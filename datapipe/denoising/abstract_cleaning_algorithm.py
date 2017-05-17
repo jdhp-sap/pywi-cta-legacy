@@ -34,7 +34,6 @@ import astropy.units as u
 
 from datapipe.image.hillas_parameters import get_hillas_parameters
 
-from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 from datapipe.image.kill_isolated_pixels import number_of_islands
 
@@ -169,12 +168,6 @@ class AbstractCleaningAlgorithm(object):
                     #input_img_copy = copy.deepcopy(input_img)
                     input_img_copy = input_img.astype('float64', copy=True)
 
-                    #delayed_kill_isolated_pixels = False
-                    #if "kill_isolated_pixels" in cleaning_function_params and cleaning_function_params["kill_isolated_pixels"]:
-                    #    # Temporary disable the "kill_isolated_pixels" feature to apply it outside the clean function
-                    #    delayed_kill_isolated_pixels = True
-                    #    cleaning_function_params["kill_isolated_pixels"] = False
-
                     cleaning_function_params["output_data_dict"] = {}
 
                     initial_time = time.perf_counter()
@@ -184,22 +177,6 @@ class AbstractCleaningAlgorithm(object):
                     if benchmark_method is not None:
                         image_dict.update(cleaning_function_params["output_data_dict"])
                         del cleaning_function_params["output_data_dict"]
-
-                    #if delayed_kill_isolated_pixels:
-                    #    cleaning_function_params["kill_isolated_pixels"] = True
-                    #    img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
-                    #    img_cleaned_num_islands = number_of_islands(cleaned_img)
-                    #    cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
-                    #else:
-                    #    img_cleaned_islands_delta_pe = None
-                    #    img_cleaned_islands_delta_abs_pe = None
-                    #    img_cleaned_islands_delta_num_pixels = None
-                    #    img_cleaned_num_islands = None
-
-                    #image_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
-                    #image_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
-                    #image_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
-                    #image_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
 
                     # ASSESS OR PRINT THE CLEANED IMAGE #######################
 

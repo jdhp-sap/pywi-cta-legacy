@@ -47,6 +47,8 @@ from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgor
 from datapipe.io import images
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
+from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
+from datapipe.image.kill_isolated_pixels import number_of_islands
 
 
 # EXCEPTIONS #################################################################
@@ -260,6 +262,14 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             cleaned_img[ np.isfinite(cleaned_img) & (cleaned_img < 1.0) ] = 0.   # May genereate warnings on NaN values
 
         # KILL ISOLATED PIXELS #################################
+
+        img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
+        img_cleaned_num_islands = number_of_islands(cleaned_img)
+
+        output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
+        output_data_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
+        output_data_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
+        output_data_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
 
         if kill_isolated_pixels:
             if verbose:
