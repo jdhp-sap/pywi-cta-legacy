@@ -486,6 +486,9 @@ def main():
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
 
+    parser.add_argument("--tmp-dir", default=".", metavar="DIRECTORY",
+                        help="The directory where temporary files are written.")
+
     # COMMON OPTIONS
 
     parser.add_argument("--benchmark", "-b", metavar="STRING",
@@ -535,6 +538,7 @@ def main():
     correction_offset = args.correction_offset
     input_image_scale = args.input_image_scale
     verbose = args.verbose
+    tmp_dir = args.tmp_dir
 
     benchmark_method = args.benchmark
     label = args.label
@@ -571,8 +575,8 @@ def main():
                 "offset_after_calibration": offset_after_calibration,
                 "correction_offset": correction_offset,
                 "input_image_scale": input_image_scale,
-                "verbose": verbose
-                #"tmp_files_directory": "/Volumes/ramdisk",
+                "verbose": verbose,
+                "tmp_files_directory": tmp_dir,
                 #"mrfilter_directory": "/Volumes/ramdisk"
             }
 
