@@ -94,6 +94,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     epsilon=None,
                     support_file_name=None,
                     precision=None,
+                    mask_file_path=None,
                     offset_after_calibration=None,
                     correction_offset=False,
                     input_image_scale='linear',
@@ -121,15 +122,18 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             output_data_dict["mr_input_tmp_file_path"] = input_file_path
             output_data_dict["mr_output_tmp_file_path"] = mr_output_file_path
 
+        if mask_file_path is not None:
+            output_data_dict["mr_mask_file_path"] = mask_file_path
+
         # APPLY AN OFFSET ######################################
-        
+
         if offset_after_calibration is not None:
             if verbose:
                 print("Apply an offset after calibration:", offset_after_calibration)
             input_img = input_img + offset_after_calibration
 
         # CHANGE THE SCALE #####################################
-        
+
         if input_image_scale == 'log':
             if verbose:
                 print("Apply log scale")
@@ -181,6 +185,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             cmd += ' -e{}'.format(epsilon) if epsilon is not None else ''
             cmd += ' -w{}'.format(support_file_name) if support_file_name is not None else ''
             cmd += ' -E{}'.format(precision) if precision is not None else ''
+            cmd += ' -I {}'.format(mask_file_path) if mask_file_path is not None else ''
 
             cmd += ' -v' if verbose else ''
         else:
@@ -196,7 +201,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             print()
             print(cmd)
         else:
-            cmd += ' > /dev/null'.format(input_file_path, mr_output_file_path)
+            cmd += ' > /dev/null'
 
         try:
             initial_time = time.perf_counter()
@@ -231,7 +236,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             raise WrongDimensionError()
 
         # CHANGE THE SCALE #####################################
-        
+
         if input_image_scale == 'log':
             if verbose:
                 print("Invert log scale")
@@ -399,7 +404,7 @@ def main():
 
     parser.add_argument("--epsilon", "-e", type=float, metavar="FLOAT",
                         help="Convergence parameter. Default=0.001000 or 0.000010 in case of poisson noise with few events.")
- 
+
     parser.add_argument("--support-file-name", "-w", metavar="FILE",
                         help="Creates an image from the multiresolution support and save to disk.")
 
@@ -431,13 +436,13 @@ def main():
 
 #         [-R RMS_Map_File_Name]
 #              RMS Map (only used with -m 5 and -m 9 options).
- 
+
     parser.add_argument("--suppress-positivity-constraint", "-P", action="store_true",
                         help="Suppress positivity constraint")
 
     parser.add_argument("--maximum-level-constraint", action="store_true",
                         help="Add the maximum level constraint. Max value is 255.")
- 
+
 #         [-B BackgroundModelImage]
 #             Background Model Image: the background image is
 #             subtracted during the filtering.
@@ -466,6 +471,9 @@ def main():
 #                VMDIR = directory name
 #
 
+    parser.add_argument("--mask-file-path", metavar="MASK_FILE_NAME",
+                        help="Filename of the mask containing the bad data (Mask[i,j]=1 for good pixels and 0 otherwise. Default is none.")
+
     parser.add_argument("--offset-after-calibration", type=float, metavar="FLOAT",
                         help="Value added to all pixels of the input image after calibration. Default=0.")
 
@@ -480,7 +488,7 @@ def main():
 
     # COMMON OPTIONS
 
-    parser.add_argument("--benchmark", "-b", metavar="STRING", 
+    parser.add_argument("--benchmark", "-b", metavar="STRING",
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images")
 
@@ -522,6 +530,7 @@ def main():
     epsilon = args.epsilon
     support_file_name = args.support_file_name
     precision = args.precision
+    mask_file_path = args.mask_file_path
     offset_after_calibration = args.offset_after_calibration
     correction_offset = args.correction_offset
     input_image_scale = args.input_image_scale
@@ -558,6 +567,7 @@ def main():
                 "epsilon": epsilon,
                 "support_file_name": support_file_name,
                 "precision": precision,
+                "mask_file_path": mask_file_path,
                 "offset_after_calibration": offset_after_calibration,
                 "correction_offset": correction_offset,
                 "input_image_scale": input_image_scale,
