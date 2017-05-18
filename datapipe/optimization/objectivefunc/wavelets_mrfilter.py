@@ -20,5 +20,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['bruteforce',
-           'objectivefunc']
+__all__ = ['ObjectiveFunction']
+
+from datapipe.denoising import WaveletTransform
+
+# OPTIMIZER ##################################################################
+
+class ObjectiveFunction:
+
+    def __init__(self):
+        self.call_number = 0
+
+    def __call__(self, cleaning_function_params, input_file_or_dir_path_list):
+        self.call_number += 1
+
+        benchmark_method = "all"          # TODO
+        label = "WT" + self.call_number   # TODO
+
+        cleaning_algorithm.label = label
+
+        output_file_path = "score_wavelets_optim_{}.json".format(self.call_number)
+
+        cleaning_algorithm = WaveletTransform()
+
+        output_dict = cleaning_algorithm.run(cleaning_function_params,
+                                             input_file_or_dir_path_list,
+                                             benchmark_method,
+                                             output_file_path,
+                                             plot=False,
+                                             saveplot=False)
+
+        # Convert output_dict to error (e.g. compute the mean delta_psi per range of energy)
+        print(output_dict)
+        error = None      # TODO
+
+        return error
+
