@@ -24,13 +24,15 @@
 ... TODO
 """
 
-__all__ = ['astri_to_2d_array',
-           'astri_to_3d_array',
-           'geom_to_json_dict',
+__all__ = ['geom_to_json_dict',
            'geom_to_json_file',
            'json_dict_to_geom',
            'json_file_to_geom',
-           '2d_array_to_astri']
+           'astri_to_2d_array',
+           'astri_to_3d_array',
+           '2d_array_to_astri',
+           'gct_to_2d_array',
+           'gct_to_3d_array']
 
 from astropy import units as u
 import json
@@ -374,4 +376,74 @@ def array_2d_to_astri(img_2d):
         ])
 
     return img_1d
+
+
+def gct_to_2d_array(input_img):
+    """
+    Convert images comming form "GCT" telescopes in order to get regular 2D "rectangular"
+    images directly usable with most image processing tools.
+
+    Parameters
+    ----------
+    input_img : numpy.array
+        The image to convert
+
+    Returns
+    -------
+    A numpy.array containing the cropped image.
+    """
+
+    # Check the image
+    if len(input_img) != 2048:
+        raise ValueError("The input image is not a valide GCT telescope image.")
+
+    # Copy the input flat ctapipe image and add one element with the NaN value in the end
+
+    input_img_ext = np.zeros(input_img.shape[0] + 1)
+    input_img_ext[:-1] = input_img[:]
+    input_img_ext[-1] = np.nan
+
+    # Make the transformation map #############################################
+
+    img_map = np.zeros([8*6, 8*6], dtype=int)
+
+    # By default, pixels maps to the last element of input_img_ext (i.e. NaN)
+    img_map[:] = -1
+
+    # Map values
+    img_map[:8,8:-8] = np.arange(8*8*4).reshape([8,8*4])
+    img_map[8:40,:] = np.arange(32*48).reshape([32,48]) + 256
+    img_map[-8:,8:-8] = np.arange(8*8*4).reshape([8,8*4]) + 1792
+
+    # Make the output image
+    img_2d = input_img_ext[[img_map.ravel()]].reshape([8*6, 8*6])
+
+    return img_2d
+
+
+def gct_to_3d_array(input_img):
+    """
+    Crop images comming form "GCT" telescopes in order to get regular 2D "rectangular"
+    images directly usable with most image processing tools.
+
+    Parameters
+    ----------
+    input_img : numpy.array
+        The image to crop
+
+    Returns
+    -------
+    A numpy.array containing the cropped image.
+    """
+
+    # Check the image
+    if input_img.shape[1] != 2048:
+        raise ValueError("The input image is not a valide GCT telescope image.")
+
+    img_list = []
+
+    for img_2d in input_img:
+        img_list.append(gct_to_2d_array(img_2d))
+
+    return np.array(img_list)
 
