@@ -107,6 +107,8 @@ class Tailcut(AbstractCleaningAlgorithm):
             cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)
         elif geom.cam_id == "ASTRI_CROPPED":
             cleaned_img = img_1d.reshape(40, 40)
+        elif geom.cam_id in ("GCT", "GATE"):
+            cleaned_img = geometry_converter.gct_to_2d_array(img_1d)
         else:
             raise Exception("Unknown cam_id")    # TODO
 
