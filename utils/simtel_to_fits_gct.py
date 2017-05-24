@@ -92,7 +92,8 @@ def extract_images(simtel_file_path,
                     foclen = event.inst.optical_foclen[tel_id]
                     geom = ctapipe.io.CameraGeometry.guess(x, y, foclen)
 
-                    if (geom.pix_type != "rectangular") or (geom.cam_id != "GCT"):
+                    if (geom.pix_type != "rectangular") or (geom.cam_id != "GATE"):
+                        print(geom.pix_type, geom.cam_id)
                         raise ValueError("Telescope {}: error (the input image is not a valide GCT telescope image)".format(tel_id))
 
                     # GET IMAGES ##############################################
