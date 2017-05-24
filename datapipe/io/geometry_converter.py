@@ -461,3 +461,11 @@ def gct_pixel_mask():
 
     return img_mask
 
+
+def array_2d_to_gct(img_2d):
+
+    # Flatten image and remove NaN values
+    img_1d = img_2d[np.isfinite(img_2d)]
+
+    return img_1d
+
