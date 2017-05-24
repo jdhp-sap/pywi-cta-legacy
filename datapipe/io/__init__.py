@@ -23,5 +23,6 @@
 __all__ = ['geometry_converter',
            'geom',
            'images',
-           'montecarlo_calibration',
+           'montecarlo_calibration_astri',
+           'montecarlo_calibration_gct',
            'simtel']
