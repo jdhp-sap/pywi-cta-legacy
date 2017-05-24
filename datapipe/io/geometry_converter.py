@@ -32,7 +32,8 @@ __all__ = ['geom_to_json_dict',
            'astri_to_3d_array',
            '2d_array_to_astri',
            'gct_to_2d_array',
-           'gct_to_3d_array']
+           'gct_to_3d_array',
+           'gct_pixel_mask']
 
 from astropy import units as u
 import json
@@ -446,4 +447,17 @@ def gct_to_3d_array(input_img):
         img_list.append(gct_to_2d_array(img_2d))
 
     return np.array(img_list)
+
+
+def gct_pixel_mask():
+    """
+    """
+
+    img_mask = np.zeros([8*6, 8*6], dtype=int)
+
+    img_mask[:8,8:-8] = 1
+    img_mask[8:40,:] = 1
+    img_mask[-8:,8:-8] = 1
+
+    return img_mask
 
