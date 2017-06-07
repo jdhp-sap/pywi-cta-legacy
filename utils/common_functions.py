@@ -897,8 +897,10 @@ def plot_gui(fig,
         geom_path = os.path.join(geom_dir_path, "astri.geom.json")
     elif fits_metadata_dict['cam_id'] == "ASTRI_CROPPED":
         geom_path = os.path.join(geom_dir_path, "astri_cropped.geom.json")
+    elif fits_metadata_dict['cam_id'] == "GCT":
+        geom_path = os.path.join(geom_dir_path, "gct.geom.json")
     else:
-        raise Exception("Unknown cam_id")    # TODO
+        raise Exception("Unknown cam_id:", fits_metadata_dict['cam_id'])    # TODO
 
     geom = geometry_converter.json_file_to_geom(geom_path)
     
@@ -907,7 +909,8 @@ def plot_gui(fig,
                                               high_threshold=10,
                                               low_threshold=5,
                                               kill_isolated_pixels=kill_isolated_pixels,
-                                              geom=geom)
+                                              geom=geom,
+                                              output_data_dict=None)
     tailcut_execution_time = time.perf_counter() - initial_time
 
     # Wavelets ####################
