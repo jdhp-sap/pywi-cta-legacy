@@ -124,7 +124,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             output_data_dict["mr_input_tmp_file_path"] = input_file_path
             output_data_dict["mr_output_tmp_file_path"] = mr_output_file_path
 
-        if mask_file_path is not None:
+        if (output_data_dict is not None) and (mask_file_path is not None):
             output_data_dict["mr_mask_file_path"] = mask_file_path
 
         # APPLY AN OFFSET ######################################
@@ -266,10 +266,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
         img_cleaned_num_islands = number_of_islands(cleaned_img)
 
-        output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
-        output_data_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
-        output_data_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
-        output_data_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
+        if output_data_dict is not None:
+            output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
+            output_data_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
+            output_data_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
+            output_data_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
 
         if kill_isolated_pixels:
             if verbose:
@@ -595,12 +596,12 @@ def main():
     if label is not None:
         cleaning_algorithm.label = label
 
-    cleaning_algorithm.run(cleaning_function_params,
-                           input_file_or_dir_path_list,
-                           benchmark_method,
-                           output_file_path,
-                           plot=plot,
-                           saveplot=saveplot)
+    output_dict = cleaning_algorithm.run(cleaning_function_params,
+                                         input_file_or_dir_path_list,
+                                         benchmark_method,
+                                         output_file_path,
+                                         plot=plot,
+                                         saveplot=saveplot)
 
 
 if __name__ == "__main__":
