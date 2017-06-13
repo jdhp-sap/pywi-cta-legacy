@@ -22,14 +22,13 @@ MRFILTER_TMP_DIR="."
 #MRFILTER_TMP_DIR="/Volumes/ramdisk"
 
 
-GAMMA_FITS_DIR="/Users/jdecock/astri_data/fits/gamma"
-PROTON_FITS_DIR="/Users/jdecock/astri_data/fits/proton"
+#GAMMA_FITS_DIR=~/astri_data/fits_cropped/gamma
+#PROTON_FITS_DIR=~/astri_data/fits_cropped/proton
+GAMMA_FITS_DIR=~/astri_data/fits/gamma
+PROTON_FITS_DIR=~/astri_data/fits/proton
+#PROTON_FITS_DIR=~/gct_data/fits/proton
+#PROTON_FITS_DIR=~/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0*
 
-#PROTON_FITS_DIR="/Users/jdecock/gct_data/fits/proton"
-#PROTON_FITS_DIR="/home/jdecock/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0*"
-
-#GAMMA_FITS_DIR="/Users/jdecock/astri_data/fits_cropped/gamma"
-#PROTON_FITS_DIR="/Users/jdecock/astri_data/fits_cropped/proton"
 
 ####################
 ## GAMMAS ##########
