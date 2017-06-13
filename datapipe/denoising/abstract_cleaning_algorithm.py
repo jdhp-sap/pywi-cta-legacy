@@ -304,4 +304,4 @@ class AbstractCleaningAlgorithm(object):
             with open(output_file_path, "w") as fd:
                 json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
 
-        return output_dict
+            return output_dict
