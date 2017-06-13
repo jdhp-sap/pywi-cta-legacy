@@ -871,6 +871,7 @@ def plot_gui(fig,
              plot_ellipse_shower=False,
              _plot_perpendicular_hit_distribution=None,
              use_ref_angle_for_perpendicular_hit_distribution=False,
+             inject_noise=False,
              save=False,
              notebook=False):
 
@@ -925,6 +926,7 @@ def plot_gui(fig,
                                                 kill_isolated_pixels=kill_isolated_pixels,
                                                 input_image_scale=input_image_scale,
                                                 offset_after_calibration=offset_after_calibration,
+                                                inject_noise_in_nan=inject_noise,
                                                 verbose=True,
                                                 raw_option_string=wavelets_cmd)
     wavelets_execution_time = time.perf_counter() - initial_time
