@@ -50,6 +50,9 @@ from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_ki
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 from datapipe.image.kill_isolated_pixels import number_of_islands
 
+INJECT_NOISE_IN_NAN_LAMBDA = 5
+INJECT_NOISE_IN_NAN_MU = -2.1
+INJECT_NOISE_IN_NAN_SIGMA = 0.1
 
 # EXCEPTIONS #################################################################
 
@@ -100,6 +103,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     offset_after_calibration=None,
                     correction_offset=False,
                     input_image_scale='linear',
+                    inject_noise_in_nan=False,
                     verbose=False,
                     raw_option_string=None,
                     tmp_files_directory=".",       # "/Volumes/ramdisk"
@@ -114,6 +118,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             If `cleaned_img` is not a 2D array.
         """
 
+        input_img = input_img.copy()
+
         if input_img.ndim != 2:
             raise WrongDimensionError()
 
@@ -126,6 +132,22 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         if (output_data_dict is not None) and (mask_file_path is not None):
             output_data_dict["mr_mask_file_path"] = mask_file_path
+
+        # INJECT NOISE IN NAN ##################################
+
+        if inject_noise_in_nan:
+            if output_data_dict is not None:
+                output_data_dict["inject_noise_in_nan_lambda"] = INJECT_NOISE_IN_NAN_LAMBDA
+                output_data_dict["inject_noise_in_nan_mu"]     = INJECT_NOISE_IN_NAN_MU
+                output_data_dict["inject_noise_in_nan_sigma"]  = INJECT_NOISE_IN_NAN_SIGMA
+
+            # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
+            nan_mask = np.isnan(input_img)
+            input_img[nan_mask] = np.random.poisson(lam=INJECT_NOISE_IN_NAN_LAMBDA,
+                                                    size=np.count_nonzero(nan_mask))
+            input_img[nan_mask] += np.random.normal(loc=INJECT_NOISE_IN_NAN_MU,
+                                                    scale=INJECT_NOISE_IN_NAN_SIGMA,
+                                                    size=np.count_nonzero(nan_mask))
 
         # APPLY AN OFFSET ######################################
 
@@ -236,6 +258,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         if cleaned_img.ndim != 2:
             raise WrongDimensionError()
+
+        # INJECT NOISE IN NAN: PUT BACK NAN VALUES #############
+
+        if inject_noise_in_nan:
+            cleaned_img[nan_mask] = np.nan
 
         # CHANGE THE SCALE #####################################
 
@@ -494,6 +521,9 @@ def main():
     parser.add_argument("--input-image-scale", default="linear",
                         help="Use a different scale for the input image ('linear', 'log' or 'sqrt'). Default='linear'.")
 
+    parser.add_argument("--inject-noise", action="store_true",
+                        help="Inject an artificial noise in empty pixels.")
+
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
 
@@ -548,6 +578,7 @@ def main():
     offset_after_calibration = args.offset_after_calibration
     correction_offset = args.correction_offset
     input_image_scale = args.input_image_scale
+    inject_noise_in_nan = args.inject_noise
     verbose = args.verbose
     tmp_dir = args.tmp_dir
 
@@ -586,6 +617,7 @@ def main():
                 "offset_after_calibration": offset_after_calibration,
                 "correction_offset": correction_offset,
                 "input_image_scale": input_image_scale,
+                "inject_noise_in_nan": inject_noise_in_nan,
                 "verbose": verbose,
                 "tmp_files_directory": tmp_dir,
                 #"mrfilter_directory": "/Volumes/ramdisk"
