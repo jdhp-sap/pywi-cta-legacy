@@ -36,10 +36,10 @@ import pyhessio
 from datapipe.io import geometry_converter
 
 # Old version
-from ctapipe.io import camera
+#from ctapipe.io import camera
 
 # New version
-#from ctapipe.instrument import camera
+from ctapipe.instrument import camera
 
 from datapipe import __version__ as VERSION
 
