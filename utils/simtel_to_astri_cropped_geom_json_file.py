@@ -34,10 +34,10 @@ from datapipe.io import geometry_converter
 import ctapipe
 
 # Old version
-from ctapipe.io import camera
+#from ctapipe.io import camera
 
 # New version
-#from ctapipe.instrument import camera
+from ctapipe.instrument import camera
 
 
 def simtel_to_geom_json_file(output_json_file=None):
