@@ -42,10 +42,10 @@ import numpy as np
 import ctapipe
 
 # Old version
-from ctapipe.io import camera
+#from ctapipe.io import camera
 
 # New version
-#from ctapipe.instrument import camera
+from ctapipe.instrument import camera
 
 ###############################################################################
 

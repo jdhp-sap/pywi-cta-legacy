@@ -12,8 +12,8 @@ from scipy.optimize import minimize
 from astropy import units as u
 u.dimless = u.dimensionless_unscaled
 
-from ctapipe.io import CameraGeometry
-#from ctapipe.io.camera import _guess_camera_type
+from ctapipe.instrument import CameraGeometry
+#from ctapipe.instrument.camera import _guess_camera_type
 
 from ctapipe.reco.hillas import hillas_parameters
 from ctapipe.reco.cleaning import tailcuts_clean, dilate
