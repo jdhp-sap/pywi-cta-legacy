@@ -82,10 +82,6 @@ if __name__ == '__main__':
         suffix += "_tel{}".format(tel_id) if tel_id is not None else ""
         suffix += "_logx" if logx else ""
         suffix += "_logy" if logy else ""
-        suffix += "_min{}".format(min_abscissa) if min_abscissa is not None else ""
-        suffix += "_max{}".format(max_abscissa) if max_abscissa is not None else ""
-        suffix += "_min-npe{}".format(min_npe) if min_npe is not None else ""
-        suffix += "_max-npe{}".format(max_npe) if max_npe is not None else ""
         suffix += "_exclude-aborted" if exclude_aborted else ""
         suffix += "_aborted-only" if aborted_only else ""
         output_file_path = "score_histogram-x4{}.png".format(suffix)
