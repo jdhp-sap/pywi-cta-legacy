@@ -69,7 +69,7 @@ def rotate(pixels_position, angle_rad):
     """rotate the camera coordinates about the center of the camera by
     specified angle.
 
-    Taken from ctapipe.io.camera.rotate()
+    Taken from ctapipe.instrument.camera.rotate()
     """
     pix_x, pix_y = pixels_position[0], pixels_position[1]
 
