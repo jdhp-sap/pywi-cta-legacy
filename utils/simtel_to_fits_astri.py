@@ -43,6 +43,7 @@ import datapipe.io.montecarlo_calibration_astri as mc_calibration
 
 from datapipe import __version__ as VERSION
 
+
 DEFAULT_TEL_FILTER = list(range(1, 34))   # TODO
 
 
@@ -91,9 +92,10 @@ def extract_images(simtel_file_path,
 
                     x, y = event.inst.pixel_pos[tel_id]
                     foclen = event.inst.optical_foclen[tel_id]
-                    geom = ctapipe.io.CameraGeometry.guess(x, y, foclen)
+                    geom = ctapipe.instrument.CameraGeometry.guess(x, y, foclen)
 
-                    if (geom.pix_type != "rectangular") or (geom.cam_id != "ASTRI"):
+                    if (geom.pix_type != "rectangular") or (geom.cam_id not in ("ASTRICam", "ASTRI")):
+                        print(geom.pix_type, geom.cam_id)
                         raise ValueError("Telescope {}: error (the input image is not a valide ASTRI telescope image)".format(tel_id))
 
                     # GET IMAGES ##############################################
@@ -109,36 +111,28 @@ def extract_images(simtel_file_path,
                     gain = event.mc.tel[tel_id].dc_to_pe
                     pixel_pos = event.inst.pixel_pos[tel_id]
 
-                    #print("calibrating")
-
                     calibrated_image = mc_calibration.apply_mc_calibration(uncalibrated_image, pedestal, gain)
 
-                    # CROP IMAGE ##############################################
+                    # CONVERTING GEOMETRY (1D TO 2D) ##########################
 
-                    #print("cropping ADC image")
+                    converted_pe_img = geometry_converter.astri_to_2d_array(pe_image, crop=crop)
+                    converted_img = geometry_converter.astri_to_2d_array(calibrated_image, crop=crop)
+                    converted_adc_sums = geometry_converter.astri_to_3d_array(uncalibrated_image, crop=crop)
+                    converted_pedestal = geometry_converter.astri_to_3d_array(pedestal, crop=crop)
+                    converted_gains = geometry_converter.astri_to_3d_array(gain, crop=crop)
+                    converted_pixel_pos = geometry_converter.astri_to_3d_array(pixel_pos, crop=crop)
 
-                    cropped_adc_sums = geometry_converter.astri_to_3d_array(uncalibrated_image, crop=crop)
-
-                    #print("cropping PE image")
-
-                    cropped_pe_img = geometry_converter.astri_to_2d_array(pe_image, crop=crop)
-
-                    #print("cropping calibrated image")
-
-                    cropped_img = geometry_converter.astri_to_2d_array(calibrated_image, crop=crop)
-
-                    #print("cropping pedestal and gain")
-
-                    cropped_pedestal = geometry_converter.astri_to_3d_array(pedestal, crop=crop)
-                    cropped_gains = geometry_converter.astri_to_3d_array(gain, crop=crop)
-
-                    #print("cropping pixel positions")
-
-                    cropped_pixel_pos = geometry_converter.astri_to_3d_array(pixel_pos, crop=crop)
+                    #print(converted_pe_img.shape)
+                    #print(converted_img.shape)
+                    #print(converted_adc_sums.shape)
+                    #print(converted_pedestal.shape)
+                    #print(converted_gains.shape)
+                    #print(converted_pixel_pos.shape)
+                    #sys.exit(0)
 
                     # GET PIXEL MASK ##########################################
 
-                    pixel_mask = geometry_converter.astri_pixel_mask(crop)
+                    pixel_mask = geometry_converter.astri_pixel_mask(crop)  # 1 for pixels with actual data, 0 for virtual (blank) pixels
 
                     # MAKE METADATA ###########################################
 
@@ -198,12 +192,12 @@ def extract_images(simtel_file_path,
 
                     print("saving", output_file_path)
 
-                    images.save_benchmark_images(img = cropped_img,
-                                                 pe_img = cropped_pe_img,
-                                                 adc_sums_img = cropped_adc_sums,
-                                                 pedestal_img = cropped_pedestal,
-                                                 gains_img = cropped_gains,
-                                                 pixel_pos = cropped_pixel_pos,
+                    images.save_benchmark_images(img = converted_img,
+                                                 pe_img = converted_pe_img,
+                                                 adc_sums_img = converted_adc_sums,
+                                                 pedestal_img = converted_pedestal,
+                                                 gains_img = converted_gains,
+                                                 pixel_pos = converted_pixel_pos,
                                                  pixel_mask = pixel_mask,
                                                  metadata = metadata,
                                                  output_file_path = output_file_path)

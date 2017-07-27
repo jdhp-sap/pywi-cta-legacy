@@ -90,9 +90,9 @@ def extract_images(simtel_file_path,
 
                     x, y = event.inst.pixel_pos[tel_id]
                     foclen = event.inst.optical_foclen[tel_id]
-                    geom = ctapipe.io.CameraGeometry.guess(x, y, foclen)
+                    geom = ctapipe.instrument.CameraGeometry.guess(x, y, foclen)
 
-                    if (geom.pix_type != "rectangular") or (geom.cam_id != "GATE"):
+                    if (geom.pix_type != "rectangular") or (geom.cam_id not in ("GATE", "CHEC")):
                         print(geom.pix_type, geom.cam_id)
                         raise ValueError("Telescope {}: error (the input image is not a valide GCT telescope image)".format(tel_id))
 
@@ -100,45 +100,52 @@ def extract_images(simtel_file_path,
 
                     pe_image = event.mc.tel[tel_id].photo_electron_image   # 1D np array
 
-                    # uncalibrated_image = [1D numpy array of channel1, 1D numpy array of channel2]
-                    # calibrated_image = 1D numpy array
-
                     #uncalibrated_image = event.dl0.tel[tel_id].adc_sums  # ctapipe 0.3.0
                     uncalibrated_image = event.r0.tel[tel_id].adc_sums    # ctapipe 0.4.0
                     pedestal = event.mc.tel[tel_id].pedestal
                     gain = event.mc.tel[tel_id].dc_to_pe
                     pixel_pos = event.inst.pixel_pos[tel_id]
 
-                    #print("calibrating")
-
                     calibrated_image = mc_calibration.apply_mc_calibration(uncalibrated_image, pedestal, gain)
 
-                    # CROP IMAGE ##############################################
+                    #print(pe_image.shape)
+                    #print(calibrated_image.shape)
+                    #print(uncalibrated_image.shape)
+                    #print(pedestal.shape)
+                    #print(gain.shape)
+                    #print(pixel_pos.shape)
 
-                    #print("cropping ADC image")
+                    #print(pixel_pos[0])
+                    #print(pixel_pos[1])
 
-                    cropped_adc_sums = geometry_converter.gct_to_3d_array(uncalibrated_image)
+                    # CONVERTING GEOMETRY (1D TO 2D) ##########################
 
-                    #print("cropping PE image")
+                    converted_pe_img = geometry_converter.gct_to_2d_array(pe_image)
+                    converted_img = geometry_converter.gct_to_2d_array(calibrated_image)
 
-                    cropped_pe_img = geometry_converter.gct_to_2d_array(pe_image)
+                    converted_adc_sums = geometry_converter.gct_to_3d_array(uncalibrated_image)
+                    converted_pedestal = geometry_converter.gct_to_3d_array(pedestal)
+                    converted_gains = geometry_converter.gct_to_3d_array(gain)
+                    converted_pixel_pos = geometry_converter.gct_to_3d_array(pixel_pos)
 
-                    #print("cropping calibrated image")
+                    #print(converted_pe_img.shape)
+                    #print(converted_img.shape)
+                    #print(converted_adc_sums.shape)
+                    #print(converted_pedestal.shape)
+                    #print(converted_gains.shape)
+                    #print(converted_pixel_pos.shape)
 
-                    cropped_img = geometry_converter.gct_to_2d_array(calibrated_image)
+                    #print(converted_pixel_pos[1,0,:])
 
-                    #print("cropping pedestal and gain")
-
-                    cropped_pedestal = geometry_converter.gct_to_3d_array(pedestal)
-                    cropped_gains = geometry_converter.gct_to_3d_array(gain)
-
-                    #print("cropping pixel positions")
-
-                    cropped_pixel_pos = geometry_converter.gct_to_3d_array(pixel_pos)
+                    #import matplotlib.pyplot as plt
+                    #im = plt.imshow(converted_pixel_pos[1])
+                    #plt.colorbar(im)
+                    #plt.show()
+                    #sys.exit(0)
 
                     # GET PIXEL MASK ##########################################
 
-                    pixel_mask = geometry_converter.gct_pixel_mask()
+                    pixel_mask = geometry_converter.gct_pixel_mask()  # 1 for pixels with actual data, 0 for virtual (blank) pixels
 
                     # MAKE METADATA ###########################################
 
@@ -195,12 +202,12 @@ def extract_images(simtel_file_path,
 
                     print("saving", output_file_path)
 
-                    images.save_benchmark_images(img = cropped_img,
-                                                 pe_img = cropped_pe_img,
-                                                 adc_sums_img = cropped_adc_sums,
-                                                 pedestal_img = cropped_pedestal,
-                                                 gains_img = cropped_gains,
-                                                 pixel_pos = cropped_pixel_pos,
+                    images.save_benchmark_images(img = converted_img,
+                                                 pe_img = converted_pe_img,
+                                                 adc_sums_img = converted_adc_sums,
+                                                 pedestal_img = converted_pedestal,
+                                                 gains_img = converted_gains,
+                                                 pixel_pos = converted_pixel_pos,
                                                  pixel_mask = pixel_mask,
                                                  metadata = metadata,
                                                  output_file_path = output_file_path)
