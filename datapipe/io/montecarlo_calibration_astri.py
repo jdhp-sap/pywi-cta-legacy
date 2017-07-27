@@ -65,13 +65,6 @@ def apply_mc_calibration(adcs, peds, gains, adc_treshold=3500.):
         The pedestal (one dimension per channel). 
     gains : Numpy array
         The gains (one dimension per channel). 
-
-    Returns
-    -------
-    Numpy array
-        A tuble containing 2 elements: ``pedestal`` a 2D arrays of the pedestal
-        (one dimension for each channel) and ``gain`` a 2D arrays of the PE/DC
-        ratios (one dimension for each channel).
     """
 
     peds_ch0 = peds[0]
