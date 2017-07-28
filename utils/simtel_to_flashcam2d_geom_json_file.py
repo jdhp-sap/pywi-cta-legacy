@@ -37,7 +37,7 @@ import ctapipe
 #from ctapipe.io import camera
 
 # New version
-from ctapipe.instrument import camera
+from ctapipe.instrument.camera import CameraGeometry
 
 
 def simtel_to_geom_json_file(output_json_file=None):
@@ -47,10 +47,10 @@ def simtel_to_geom_json_file(output_json_file=None):
     range_x = (-1.1980019807815552, 1.183568000793457)
     range_y = (-1.024999976158142,  1.0499999523162842)
 
-    geom = camera.make_rectangular_camera_geometry(num_pixels_x,
-                                                   num_pixels_y,
-                                                   range_x,
-                                                   range_y)
+    geom = CameraGeometry.make_rectangular(num_pixels_x,
+                                           num_pixels_y,
+                                           range_x,
+                                           range_y)
 
     geom.cam_id = "flashcam2d"
 
