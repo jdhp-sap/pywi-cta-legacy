@@ -143,11 +143,22 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
             # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
             nan_mask = np.isnan(input_img)
-            input_img[nan_mask] = np.random.poisson(lam=INJECT_NOISE_IN_NAN_LAMBDA,
-                                                    size=np.count_nonzero(nan_mask))
-            input_img[nan_mask] += np.random.normal(loc=INJECT_NOISE_IN_NAN_MU,
-                                                    scale=INJECT_NOISE_IN_NAN_SIGMA,
-                                                    size=np.count_nonzero(nan_mask))
+
+            #print(input_img)
+            #images.plot(nan_mask, "Mask")
+
+            # ASTRI
+            #input_img[nan_mask] = np.random.poisson(lam=INJECT_NOISE_IN_NAN_LAMBDA,
+            #                                        size=np.count_nonzero(nan_mask))
+            #input_img[nan_mask] += np.random.normal(loc=INJECT_NOISE_IN_NAN_MU,
+            #                                        scale=INJECT_NOISE_IN_NAN_SIGMA,
+            #                                        size=np.count_nonzero(nan_mask))
+
+            # Flashcam
+            input_img[nan_mask] = np.random.normal(0.13, 5.77, size=np.count_nonzero(nan_mask))
+
+            #print(input_img)
+            #images.plot(input_img, "Noise injection")
 
         # APPLY AN OFFSET ######################################
 
