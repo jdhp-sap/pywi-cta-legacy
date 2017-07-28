@@ -82,7 +82,7 @@ def json_dict_to_geom(json_dict):
     neighbors = json_dict['neighbors']
     pix_type =  json_dict['pix_type']
 
-    geom = camera.CameraGeometry(cam_id, pix_id, pix_x, pix_y, pix_area, neighbors, pix_type)
+    geom = camera.CameraGeometry(cam_id, pix_id, pix_x, pix_y, pix_area, pix_type, neighbors=neighbors)
 
     return geom
 

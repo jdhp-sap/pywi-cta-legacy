@@ -75,11 +75,11 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        if geom.cam_id == "ASTRI":
+        if geom.cam_id.lower() in ("astri", "astricam"):
             img_1d = geometry_converter.array_2d_to_astri(input_img)
-        elif geom.cam_id == "ASTRI_CROPPED":
+        elif geom.cam_id.lower() in ("astri_cropped", "flashcam2d"):
             img_1d = np.ravel(input_img)
-        elif geom.cam_id in ("GCT", "GATE"):
+        elif geom.cam_id.lower() in ("gct", "gate", "chec"):
             img_1d = geometry_converter.array_2d_to_gct(input_img)
         else:
             raise Exception("Unknown cam_id")    # TODO
@@ -88,7 +88,6 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         mask = tailcuts_clean(geom,
                               img_1d,
-                              1,
                               picture_thresh=high_threshold,
                               boundary_thresh=low_threshold)
 
@@ -103,11 +102,13 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        if geom.cam_id == "ASTRI":
+        if geom.cam_id.lower() in ("astri", "astricam"):
             cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)
-        elif geom.cam_id == "ASTRI_CROPPED":
+        elif geom.cam_id.lower() in ("astri_cropped"):
             cleaned_img = img_1d.reshape(40, 40)
-        elif geom.cam_id in ("GCT", "GATE"):
+        elif geom.cam_id.lower() in ("flashcam2d"):
+            cleaned_img = img_1d.reshape(56, 56)
+        elif geom.cam_id.lower() in ("gct", "gate", "chec"):
             cleaned_img = geometry_converter.gct_to_2d_array(img_1d)
         else:
             raise Exception("Unknown cam_id")    # TODO
@@ -169,7 +170,7 @@ def main():
                         metavar="FILE",
                         help="The output file path (JSON)")
 
-    parser.add_argument("--geom", "-g", default="geom/astri.geom.json",
+    parser.add_argument("--geom", "-g", required=True,
                         metavar="FILE",
                         help="The path of the file that defines the geometry of the telescope (GEOM.JSON)")
 
