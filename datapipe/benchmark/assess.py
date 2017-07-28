@@ -590,7 +590,8 @@ def metric_psnr(input_img, output_image, reference_image, pixels_position=None, 
     output_image[np.isnan(output_image)] = 0
     reference_image[np.isnan(reference_image)] = 0
 
-    psnr_val = psnr(output_image, reference_image, dynamic_range=1e3)
+    #psnr_val = psnr(output_image, reference_image, dynamic_range=1e3)
+    psnr_val = psnr(output_image, reference_image, data_range=1e3)
 
     return float(psnr_val)
 
