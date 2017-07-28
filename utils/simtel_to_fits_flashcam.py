@@ -119,7 +119,7 @@ def extract_images(simtel_file_path,
                     gain = event.mc.tel[tel_id].dc_to_pe
                     pixel_pos = event.inst.pixel_pos[tel_id]
 
-                    calibrated_image = event.dl1.tel[tel_id].image  # TODO: event.dl1.tel[tel_id].image or event.dl1.tel[tel_id].image[0]
+                    calibrated_image = event.dl1.tel[tel_id].image
 
                     #print(pe_image.shape)
                     #print(calibrated_image.shape)
@@ -141,32 +141,48 @@ def extract_images(simtel_file_path,
                     geom2d, pedestal_2d =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pedestal[0],           buffer_id_str, add_rot=0)
                     geom2d, gains_2d =              ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, gain[0],               buffer_id_str, add_rot=0)
 
-                    # The ctapipe geometry converter operate on one channel only and then takes and return a 2D array but datapipe fits files keep all channels and thus takes 3D arrays...
+                    # Make a mock pixel position array...
+                    pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
+                                                        np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))
+
+                    # PUT NAN IN BLANK PIXELS #################################
+
+                    calibrated_image_2d[np.logical_not(geom2d.mask)] = np.nan
+                    pe_image_2d[np.logical_not(geom2d.mask)] = np.nan
+
+                    uncalibrated_image_2d[np.logical_not(geom2d.mask)] = np.nan
+                    pedestal_2d[np.logical_not(geom2d.mask)] = np.nan
+                    gains_2d[np.logical_not(geom2d.mask)] = np.nan
+
+                    pixel_pos_2d[0,np.logical_not(geom2d.mask)] = np.nan
+                    pixel_pos_2d[1,np.logical_not(geom2d.mask)] = np.nan
+
+                    ###########################################################
+
+                    # The ctapipe geometry converter operate on one channel
+                    # only and then takes and return a 2D array but datapipe
+                    # fits files keep all channels and thus takes 3D arrays...
+
                     uncalibrated_image_2d = np.array([uncalibrated_image_2d])
                     pedestal_2d =           np.array([pedestal_2d])
                     gains_2d =              np.array([gains_2d])
 
-                    pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
-                                                        np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))     # pixel_pos has no meaning here... (resampling of an hex camera...)  TODO: make a mock pixel position array
+                    ###########################################################
 
                     #print(pe_image_2d.shape)
                     #print(calibrated_image_2d.shape)
                     #print(uncalibrated_image_2d.shape)
                     #print(pedestal_2d.shape)
                     #print(gains_2d.shape)
-                    #sys.exit(0)
 
-                    #print(converted_pixel_pos[1,0,:])
+                    #img = pixel_pos_2d
+                    #print(img[1])
 
                     #import matplotlib.pyplot as plt
-                    #im = plt.imshow(pixel_pos_2d[1])
+                    #im = plt.imshow(img[1])
                     #plt.colorbar(im)
                     #plt.show()
                     #sys.exit(0)
-
-                    # PUT NAN IN BLANK PIXELS #################################
-
-                    # TODO !!!!!!!!
 
                     # GET PIXEL MASK ##########################################
 
