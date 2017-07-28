@@ -78,7 +78,8 @@ class Tailcut(AbstractCleaningAlgorithm):
         if geom.cam_id.lower() in ("astri", "astricam"):
             img_1d = geometry_converter.array_2d_to_astri(input_img)
         elif geom.cam_id.lower() in ("astri_cropped", "flashcam2d"):
-            img_1d = np.ravel(input_img)
+            img_1d = input_img.flatten()
+            img_1d[np.isnan(img_1d)] = 0
         elif geom.cam_id.lower() in ("gct", "gate", "chec"):
             img_1d = geometry_converter.array_2d_to_gct(input_img)
         else:
@@ -108,6 +109,7 @@ class Tailcut(AbstractCleaningAlgorithm):
             cleaned_img = img_1d.reshape(40, 40)
         elif geom.cam_id.lower() in ("flashcam2d"):
             cleaned_img = img_1d.reshape(56, 56)
+            cleaned_img[np.isnan(input_img)] = np.nan
         elif geom.cam_id.lower() in ("gct", "gate", "chec"):
             cleaned_img = geometry_converter.gct_to_2d_array(img_1d)
         else:
