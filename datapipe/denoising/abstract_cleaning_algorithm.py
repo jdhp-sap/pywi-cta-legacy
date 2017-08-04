@@ -242,6 +242,8 @@ class AbstractCleaningAlgorithm(object):
 
                 except Exception as e:
                     print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
+
+                    # DEBUG: uncomment the following line to have the full trackback
                     #traceback.print_tb(e.__traceback__, file=sys.stdout)
 
                     if benchmark_method is not None:
