@@ -50,10 +50,6 @@ from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_ki
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 from datapipe.image.kill_isolated_pixels import number_of_islands
 
-INJECT_NOISE_IN_NAN_LAMBDA = 5
-INJECT_NOISE_IN_NAN_MU = -2.1
-INJECT_NOISE_IN_NAN_SIGMA = 0.1
-
 # EXCEPTIONS #################################################################
 
 class MrFilterError(Exception):
@@ -103,7 +99,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     offset_after_calibration=None,
                     correction_offset=False,
                     input_image_scale='linear',
-                    inject_noise_in_nan=False,
+                    nan_noise_lambda=0,     # 1.9,    # 5.    # 0    (Tino)
+                    nan_noise_mu=0,         # 0.5,    # -2.1  # 0.13 (Tino)
+                    nan_noise_sigma=0,      # 0.8,    # 0.1   # 5.77 (Tino)
                     verbose=False,
                     raw_option_string=None,
                     tmp_files_directory=".",       # "/Volumes/ramdisk"
@@ -135,30 +133,34 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         # INJECT NOISE IN NAN ##################################
 
-        if inject_noise_in_nan:
-            if output_data_dict is not None:
-                output_data_dict["inject_noise_in_nan_lambda"] = INJECT_NOISE_IN_NAN_LAMBDA
-                output_data_dict["inject_noise_in_nan_mu"]     = INJECT_NOISE_IN_NAN_MU
-                output_data_dict["inject_noise_in_nan_sigma"]  = INJECT_NOISE_IN_NAN_SIGMA
+        # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
+        nan_mask = np.isnan(input_img)
 
-            # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
-            nan_mask = np.isnan(input_img)
+        #print(input_img)
+        #images.plot(input_img, "In")
+        #images.plot(nan_mask, "Mask")
 
-            #print(input_img)
-            #images.plot(nan_mask, "Mask")
+        # ASTRI
+        nan_noise_size = np.count_nonzero(nan_mask)
+        nan_noise = np.zeros(nan_noise_size)
 
-            # ASTRI
-            #input_img[nan_mask] = np.random.poisson(lam=INJECT_NOISE_IN_NAN_LAMBDA,
-            #                                        size=np.count_nonzero(nan_mask))
-            #input_img[nan_mask] += np.random.normal(loc=INJECT_NOISE_IN_NAN_MU,
-            #                                        scale=INJECT_NOISE_IN_NAN_SIGMA,
-            #                                        size=np.count_nonzero(nan_mask))
+        #print("nan_noise_lambda:", nan_noise_lambda)
+        #print("nan_noise_mu:", nan_noise_mu)
+        #print("nan_noise_sigma:", nan_noise_sigma)
 
-            # Flashcam
-            input_img[nan_mask] = np.random.normal(0.13, 5.77, size=np.count_nonzero(nan_mask))
+        if (nan_noise_lambda is not None) and (nan_noise_lambda > 0):
+            nan_noise += np.random.poisson(lam=nan_noise_lambda,
+                                           size=nan_noise_size)
+            #print("* Poisson ON")
+        if (nan_noise_mu is not None) and (nan_noise_sigma is not None) and (nan_noise_sigma > 0):
+            nan_noise += np.random.normal(loc=nan_noise_mu,
+                                          scale=nan_noise_sigma,
+                                          size=nan_noise_size)
+            #print("* Normal ON")
+        input_img[nan_mask] = nan_noise
 
-            #print(input_img)
-            #images.plot(input_img, "Noise injection")
+        #print(input_img)
+        #images.plot(input_img, "Noise injected")
 
         # APPLY AN OFFSET ######################################
 
@@ -532,8 +534,14 @@ def main():
     parser.add_argument("--input-image-scale", default="linear",
                         help="Use a different scale for the input image ('linear', 'log' or 'sqrt'). Default='linear'.")
 
-    parser.add_argument("--inject-noise", action="store_true",
-                        help="Inject an artificial noise in empty pixels.")
+    parser.add_argument("--nan-noise-lambda", type=float, metavar="FLOAT",
+                        help="Lambda parameter of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=0.")
+
+    parser.add_argument("--nan-noise-mu", type=float, metavar="FLOAT",
+                        help="Mu parameter of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=0.")
+
+    parser.add_argument("--nan-noise-sigma", type=float, metavar="FLOAT",
+                        help="Sigma parameter of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=0.")
 
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
@@ -589,7 +597,9 @@ def main():
     offset_after_calibration = args.offset_after_calibration
     correction_offset = args.correction_offset
     input_image_scale = args.input_image_scale
-    inject_noise_in_nan = args.inject_noise
+    nan_noise_lambda = args.nan_noise_lambda
+    nan_noise_mu = args.nan_noise_mu
+    nan_noise_sigma = args.nan_noise_sigma
     verbose = args.verbose
     tmp_dir = args.tmp_dir
 
@@ -628,7 +638,9 @@ def main():
                 "offset_after_calibration": offset_after_calibration,
                 "correction_offset": correction_offset,
                 "input_image_scale": input_image_scale,
-                "inject_noise_in_nan": inject_noise_in_nan,
+                "nan_noise_lambda": nan_noise_lambda,
+                "nan_noise_mu": nan_noise_mu,
+                "nan_noise_sigma": nan_noise_sigma,
                 "verbose": verbose,
                 "tmp_files_directory": tmp_dir,
                 #"mrfilter_directory": "/Volumes/ramdisk"
