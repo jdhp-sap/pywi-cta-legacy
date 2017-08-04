@@ -3,31 +3,45 @@
 export PYTHONPATH=.:$PYTHONPATH
 source activate cta
 
-NUM_IMG=10
+NUM_IMG=100
 
 #TC_PARAMS="-T10 -t5 --kill-isolated-pixels"
 #TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json"
 #TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri_cropped.geom.json"
 TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json"
+#TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json"
 
-WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --inject-noise"
-WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --inject-noise"
-#WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --inject-noise --tmp-dir=/Volumes/ramdisk"
-#WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --inject-noise --tmp-dir=/Volumes/ramdisk"
+#WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0"
+#WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0"
+WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0 --tmp-dir=/Volumes/ramdisk"
+WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0 --tmp-dir=/Volumes/ramdisk"
 
 WT_LABEL_1="WT-K-k-C1-m3-n4-s3"
 WT_LABEL_2="WT-K-k-C1-m3-n4-s2-2-3-3"
 
-MRFILTER_TMP_DIR="."
-#MRFILTER_TMP_DIR="/Volumes/ramdisk"
+#MRFILTER_TMP_DIR="."
+MRFILTER_TMP_DIR="/Volumes/ramdisk"
+
 
 
 #GAMMA_FITS_DIR=~/astri_data/fits_cropped/gamma
 #PROTON_FITS_DIR=~/astri_data/fits_cropped/proton
+
 GAMMA_FITS_DIR=~/astri_data/fits/gamma
 PROTON_FITS_DIR=~/astri_data/fits/proton
+
+#GAMMA_FITS_DIR=/Volumes/ramdisk/astri_data/fits/gamma
+#PROTON_FITS_DIR=/Volumes/ramdisk/astri_data/fits/proton
+
 #PROTON_FITS_DIR=~/gct_data/fits/proton
 #PROTON_FITS_DIR=~/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0*
+
+#GAMMA_FITS_DIR=~/astri_data/fits_flashcam/gamma
+#PROTON_FITS_DIR=~/astri_data/fits_flashcam/proton
+
+#GAMMA_FITS_DIR=/Volumes/ramdisk/astri_data/fits_flashcam/gamma
+#PROTON_FITS_DIR=/Volumes/ramdisk/astri_data/fits_flashcam/proton
+
 
 
 ####################
