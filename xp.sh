@@ -11,10 +11,14 @@ NUM_IMG=100
 TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json"
 #TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json"
 
-#WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0"
-#WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0"
-WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0 --tmp-dir=/Volumes/ramdisk"
-WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=0 --nan-noise-mu=0 --nan-noise-sigma=0 --tmp-dir=/Volumes/ramdisk"
+WT_NAN_NOISE_LAMBDA=0
+WT_NAN_NOISE_MU=0
+WT_NAN_NOISE_SIGMA=0
+
+#WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA}"
+#WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA}"
+WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=/Volumes/ramdisk"
+WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=/Volumes/ramdisk"
 
 WT_LABEL_1="WT-K-k-C1-m3-n4-s3"
 WT_LABEL_2="WT-K-k-C1-m3-n4-s2-2-3-3"
