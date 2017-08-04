@@ -274,8 +274,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         # INJECT NOISE IN NAN: PUT BACK NAN VALUES #############
 
-        if inject_noise_in_nan:
-            cleaned_img[nan_mask] = np.nan
+        cleaned_img[nan_mask] = np.nan
 
         # CHANGE THE SCALE #####################################
 
