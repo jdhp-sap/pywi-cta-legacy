@@ -1,6 +1,7 @@
 #!/bin/sh
 
 export PYTHONPATH=.:$PYTHONPATH
+#export PYTHONPATH=.:~/git/pub/ext/ctapipe-extra:$PYTHONPATH
 source activate cta
 
 NUM_IMG=100
@@ -14,6 +15,14 @@ TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.
 WT_NAN_NOISE_LAMBDA=0
 WT_NAN_NOISE_MU=0
 WT_NAN_NOISE_SIGMA=0
+
+#WT_NAN_NOISE_LAMBDA=5
+#WT_NAN_NOISE_MU=-2.1
+#WT_NAN_NOISE_SIGMA=0.1
+
+#WT_NAN_NOISE_LAMBDA=1.9
+#WT_NAN_NOISE_MU=0.5
+#WT_NAN_NOISE_SIGMA=0.8
 
 #WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA}"
 #WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA}"
