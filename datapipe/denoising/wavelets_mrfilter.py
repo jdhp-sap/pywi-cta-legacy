@@ -150,7 +150,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         if (nan_noise_lambda is not None) and (nan_noise_lambda > 0):
             nan_noise += np.random.poisson(lam=nan_noise_lambda,
-                                           size=nan_noise_size)
+                                           size=nan_noise_size).astype('float64')
             #print("* Poisson ON")
         if (nan_noise_mu is not None) and (nan_noise_sigma is not None) and (nan_noise_sigma > 0):
             nan_noise += np.random.normal(loc=nan_noise_mu,
