@@ -29,6 +29,7 @@ __all__ = ['normalize_array',
            'metric4',
            'metric_ssim',
            'metric_psnr',
+           'metric_delta_psi',
            'metric_hillas_delta',
            'metric_hillas_delta2',
            'metric_kill_isolated_pixels',
@@ -596,6 +597,58 @@ def metric_psnr(input_img, output_image, reference_image, pixels_position=None, 
     return float(psnr_val)
 
 
+# Delta psi ###################################################################
+
+def metric_delta_psi(input_img, output_image, reference_image, pixels_position, params=None):
+    r"""Compute the score of ``output_image`` regarding ``reference_image``
+    with the following relative *psi parameters* (relative difference of shower angle between the cleaned image and the reference image).
+
+    Parameters
+    ----------
+    input_img: 2D ndarray
+        The RAW original image.
+    output_image: 2D ndarray
+        The cleaned image returned by the image cleanning algorithm to assess.
+    reference_image: 2D ndarray
+        The actual clean image (the best result that can be expected for the
+        image cleaning algorithm).
+    params: dict
+        Additional options.
+
+    Returns
+    -------
+    float
+        The score of the image cleaning algorithm for the given image.
+    """
+
+    # Copy and cast images to prevent tricky bugs
+    # See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype
+    output_image = output_image.astype('float64', copy=True)
+    reference_image = reference_image.astype('float64', copy=True)
+
+    if params is not None and "kill" in params and params["kill"]:
+        # Remove isolated pixels on the reference image before assessment.
+        reference_image = kill_isolated_pixels(reference_image, threshold=params["kill_threshold"])
+
+    if params is not None and "hillas_implementation" in params and params["hillas_implementation"] in (1, 2):
+        # Remove isolated pixels on the reference image before assessment.
+        hillas_implementation = params["hillas_implementation"]
+    else:
+        hillas_implementation = 2
+
+    output_image_parameters = get_hillas_parameters(output_image, hillas_implementation, pixels_position)
+    reference_image_parameters = get_hillas_parameters(reference_image, hillas_implementation, pixels_position)
+
+    # Psi (shower direction angle)
+    output_image_parameter_psi_rad = output_image_parameters.psi.to(u.rad).value
+    reference_image_parameter_psi_rad = reference_image_parameters.psi.to(u.rad).value
+    delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
+
+    normalized_delta_psi_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
+
+    return normalized_delta_psi_deg
+
+
 # Hillas delta ################################################################
 
 def metric_hillas_delta(input_img, output_image, reference_image, pixels_position, params=None):
@@ -689,15 +742,15 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
     delta_phi = reference_image_parameter_phi - output_image_parameter_phi
 
     # Psi (shower direction angle)
-    output_image_parameter_psi = output_image_parameters.psi.to(u.rad).value
-    reference_image_parameter_psi = reference_image_parameters.psi.to(u.rad).value
-    delta_psi = reference_image_parameter_psi - output_image_parameter_psi
+    output_image_parameter_psi_rad = output_image_parameters.psi.to(u.rad).value
+    reference_image_parameter_psi_rad = reference_image_parameters.psi.to(u.rad).value
+    delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
 
     # Normalized psi
-    normalized_delta_psi = float(np.abs(np.sin(delta_psi)))
+    normalized_delta_psi = float(np.abs(np.sin(delta_psi_rad)))
 
     # Normalized psi2
-    normalized_delta_psi2 = float(  np.fmod(np.degrees(delta_psi), 90.) )
+    normalized_delta_psi2_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
 
     ## Miss
     #output_image_parameter_miss = output_image_parameters.miss.value
@@ -717,9 +770,9 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
                     ('hillas' + str(hillas_implementation) + '_delta_width'     + suffix_str, delta_width),
                     ('hillas' + str(hillas_implementation) + '_delta_r'         + suffix_str, delta_r),
                     ('hillas' + str(hillas_implementation) + '_delta_phi'       + suffix_str, delta_phi),
-                    ('hillas' + str(hillas_implementation) + '_delta_psi'       + suffix_str, delta_psi),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi'       + suffix_str, delta_psi_rad),
                     ('hillas' + str(hillas_implementation) + '_delta_psi_norm'  + suffix_str, normalized_delta_psi),
-                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm2' + suffix_str, normalized_delta_psi2),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm2' + suffix_str, normalized_delta_psi2_deg),
                     #('hillas' + str(hillas_implementation) + '_delta_miss'     + suffix_str, delta_miss)
                  ))
 
@@ -796,6 +849,7 @@ BENCHMARK_DICT = {
     "sspd":                 (metric4,),
     "ssim":                 (metric_ssim,),
     "psnr":                 (metric_psnr,),
+    "delta_psi":            (metric_delta_psi,),
     "hillas_delta":         (metric_hillas_delta,),
     "hillas_delta2":        (metric_hillas_delta2,),
     "kill_isolated_pixels": (metric_kill_isolated_pixels,),
@@ -811,6 +865,7 @@ METRIC_NAME_DICT = {
     metric4:                     "sspd",
     metric_ssim:                 "ssim",
     metric_psnr:                 "psnr",
+    metric_delta_psi:            "delta_psi",
     metric_hillas_delta:         "hillas_delta",
     metric_hillas_delta2:        "hillas_delta2",
     metric_kill_isolated_pixels: "kill_isolated_pixels"
@@ -829,6 +884,7 @@ def assess_image_cleaning(input_img, output_img, reference_img, pixels_position,
     - "sspd":                 :func:`metric4`
     - "ssim":                 :func:`metric_ssim`
     - "psnr":                 :func:`metric_psnr`
+    - "delta_psi":            :func:`metric_delta_psi`
     - "hillas_delta":         :func:`metric_hillas_delta`
     - "hillas_delta2":        :func:`metric_hillas_delta2`
     - "kill_isolated_pixels": :func:`metric_kill_isolated_pixels`
