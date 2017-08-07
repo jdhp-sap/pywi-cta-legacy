@@ -99,9 +99,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     offset_after_calibration=None,
                     correction_offset=False,
                     input_image_scale='linear',
-                    nan_noise_lambda=0,     # 1.9,    # 5.    # 0    (Tino)
-                    nan_noise_mu=0,         # 0.5,    # -2.1  # 0.13 (Tino)
-                    nan_noise_sigma=0,      # 0.8,    # 0.1   # 5.77 (Tino)
+                    nan_noise_lambda=0,
+                    nan_noise_mu=0,
+                    nan_noise_sigma=0,
                     verbose=False,
                     raw_option_string=None,
                     tmp_files_directory=".",       # "/Volumes/ramdisk"
