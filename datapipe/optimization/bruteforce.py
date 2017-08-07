@@ -32,10 +32,10 @@ def main():
 
     func = ObjectiveFunction(input_files=["/Volumes/ramdisk/flashcam/fits/gamma/"])
 
-    s1_slice = slice(1, 3, 1)
-    s2_slice = slice(1, 2, 1)
-    s3_slice = slice(1, 2, 1)
-    s4_slice = slice(1, 2, 1)
+    s1_slice = slice(1, 6, 1)
+    s2_slice = slice(1, 6, 1)
+    s3_slice = slice(1, 6, 1)
+    s4_slice = slice(1, 6, 1)
 
     search_ranges = (s1_slice,
                      s2_slice,
@@ -53,10 +53,10 @@ def main():
     # SAVE RESULTS ############################################################
 
     res_dict = {
-                "best_solution": res[0],
-                "best_score": res[1],
-                "solutions": res[2],
-                "scores": res[3]
+                "best_solution": res[0].tolist(),
+                "best_score": float(res[1]),
+                "solutions": res[2].tolist(),
+                "scores": res[3].tolist()
                }
 
     with open("optimize_sigma.json", "w") as fd:
