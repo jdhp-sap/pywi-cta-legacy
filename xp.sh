@@ -12,28 +12,39 @@ NUM_IMG=100
 TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json"
 #TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json"
 
+## Switch OFF noise injection
 WT_NAN_NOISE_LAMBDA=0
 WT_NAN_NOISE_MU=0
 WT_NAN_NOISE_SIGMA=0
 
+## ASTRI
 #WT_NAN_NOISE_LAMBDA=5
 #WT_NAN_NOISE_MU=-2.1
 #WT_NAN_NOISE_SIGMA=0.1
 
+## Nearly optimal parameters for ASTRI (using the datapipe calibration function)
 #WT_NAN_NOISE_LAMBDA=1.9
 #WT_NAN_NOISE_MU=0.5
 #WT_NAN_NOISE_SIGMA=0.8
 
+## Nearly optimal parameters for FLASHCAM
+#WT_NAN_NOISE_LAMBDA=5.9
+#WT_NAN_NOISE_MU=-5.9
+#WT_NAN_NOISE_SIGMA=2.4
+
+
+#MRFILTER_TMP_DIR="."
+#MRFILTER_TMP_DIR="/tmp"
+MRFILTER_TMP_DIR="/Volumes/ramdisk"
+
+
 #WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA}"
 #WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA}"
-WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=/Volumes/ramdisk"
-WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=/Volumes/ramdisk"
+WT_PARAMS_1="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}"
+WT_PARAMS_2="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}"
 
 WT_LABEL_1="WT-K-k-C1-m3-n4-s3"
 WT_LABEL_2="WT-K-k-C1-m3-n4-s2-2-3-3"
-
-#MRFILTER_TMP_DIR="."
-MRFILTER_TMP_DIR="/Volumes/ramdisk"
 
 
 
@@ -43,8 +54,8 @@ MRFILTER_TMP_DIR="/Volumes/ramdisk"
 GAMMA_FITS_DIR=~/astri_data/fits/gamma
 PROTON_FITS_DIR=~/astri_data/fits/proton
 
-#GAMMA_FITS_DIR=/Volumes/ramdisk/astri_data/fits/gamma
-#PROTON_FITS_DIR=/Volumes/ramdisk/astri_data/fits/proton
+#GAMMA_FITS_DIR=${MRFILTER_TMP_DIR}/astri_data/fits/gamma
+#PROTON_FITS_DIR=${MRFILTER_TMP_DIR}/astri_data/fits/proton
 
 #PROTON_FITS_DIR=~/gct_data/fits/proton
 #PROTON_FITS_DIR=~/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0*
@@ -52,8 +63,8 @@ PROTON_FITS_DIR=~/astri_data/fits/proton
 #GAMMA_FITS_DIR=~/astri_data/fits_flashcam/gamma
 #PROTON_FITS_DIR=~/astri_data/fits_flashcam/proton
 
-#GAMMA_FITS_DIR=/Volumes/ramdisk/astri_data/fits_flashcam/gamma
-#PROTON_FITS_DIR=/Volumes/ramdisk/astri_data/fits_flashcam/proton
+#GAMMA_FITS_DIR=${MRFILTER_TMP_DIR}/astri_data/fits_flashcam/gamma
+#PROTON_FITS_DIR=${MRFILTER_TMP_DIR}/astri_data/fits_flashcam/proton
 
 
 
