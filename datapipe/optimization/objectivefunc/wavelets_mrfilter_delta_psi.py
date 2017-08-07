@@ -48,12 +48,27 @@ class ObjectiveFunction:
     def __call__(self, algo_params_var):
         self.call_number += 1
 
-        benchmark_method = "all"          # TODO
+        benchmark_method = "delta_psi"          # TODO
 
         label = "WT_{}".format(self.call_number)
         self.cleaning_algorithm.label = label
 
         output_file_path = "score_wavelets_optim_{}.json".format(self.call_number)
+
+        ## Switch OFF noise injection
+        #WT_NAN_NOISE_LAMBDA=0
+        #WT_NAN_NOISE_MU=0
+        #WT_NAN_NOISE_SIGMA=0
+
+        ## Nearly optimal parameters for ASTRI (using the datapipe calibration function)
+        #WT_NAN_NOISE_LAMBDA=1.9
+        #WT_NAN_NOISE_MU=0.5
+        #WT_NAN_NOISE_SIGMA=0.8
+
+        # Nearly optimal parameters for FLASHCAM
+        WT_NAN_NOISE_LAMBDA=5.9
+        WT_NAN_NOISE_MU=-5.9
+        WT_NAN_NOISE_SIGMA=2.4
 
         algo_params = {
                     "coef_detection_method": 1,
@@ -66,9 +81,9 @@ class ObjectiveFunction:
                     "kill_isolated_pixels": True,
                     "mask_file_path": None,
                     #"mrfilter_directory": "/Volumes/ramdisk",
-                    "nan_noise_lambda": 0,
-                    "nan_noise_mu": 0,
-                    "nan_noise_sigma": 0,
+                    "nan_noise_lambda": WT_NAN_NOISE_LAMBDA,
+                    "nan_noise_mu": WT_NAN_NOISE_MU,
+                    "nan_noise_sigma": WT_NAN_NOISE_SIGMA,
                     "noise_model": 3,
                     "number_of_iterations": None,
                     "number_of_scales": 4,
@@ -96,8 +111,6 @@ class ObjectiveFunction:
                                                   benchmark_method=benchmark_method,
                                                   output_file_path=output_file_path)
 
-        #print(output_dict)
-
         score_list = []
 
         # Read and compute results from output_dict
@@ -113,47 +126,46 @@ class ObjectiveFunction:
 
             ###################################################################
 
-            # !!!>>>TODO<<<!!!: Asses the cleaned image
-#            wt_hillas_score  = assess.metric_hillas_delta2(input_img, output_image, reference_image, pixels_position, params=None)
-#            ref_hillas_score = assess.metric_hillas_delta2(ref_img,   output_image, reference_image, pixels_position, params=None)
-#
-#            wt_psi  = hillas_params_2_cleaned_img.psi.to(u.rad).value
-#            ref_psi = hillas_params_2_cleaned_img.psi.to(u.rad).value
-#
-#            # Compute and normalize the delta psi
-#            delta_psi = np.fmod(((ref_psi - wt_psi) * 180. / np.pi), 90.)
-#            delta_psi = abs(delta_psi)
+            # GET THE CLEANED IMAGE SCORE
 
-            #score_index = image_dict["score_name"].find("hillas2_delta_psi")
-            if "img_cleaned_hillas_2_psi" in image_dict:
-                delta_psi = image_dict["img_cleaned_hillas_2_psi"]  # image_dict["score"][score_index]   # TODO: WHY ARE THERE MULTIPLE RESULTS "DELTAPSI": image_dict["img_cleaned_hillas_2_psi"], image_dict["score"][...], ... ???
-                score_list.append(delta_psi)
+            if ("img_ref_hillas_2_psi" not in image_dict) or ("img_cleaned_hillas_2_psi" not in image_dict):
+                raise Exception("Cannot get the score")
+
+            output_image_parameter_psi_rad = image_dict["img_ref_hillas_2_psi"]
+            reference_image_parameter_psi_rad = image_dict["img_cleaned_hillas_2_psi"]
+            delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
+            normalized_delta_psi_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
+
+            if image_dict["score_name"][0] != "delta_psi":
+                raise Exception("Cannot get the score")
+
+            normalized_delta_psi_deg = image_dict["score"][0]
+
+            score_list.append(normalized_delta_psi_deg)
 
         # Compute the mean
-        score = np.array([score_list]).mean()
+        mean_score = np.array([score_list]).mean()
 
         # TODO: save results in a JSON file (?)
+        print(algo_params_var, mean_score)
 
-        return score
+        return mean_score
 
 
 if __name__ == "__main__":
     # Test...
 
     #func = ObjectiveFunction(input_files=["/Users/jdecock/astri_data/fits/gamma/"])
-    func = ObjectiveFunction(input_files=["./testset/gamma/astri/tel1/"])
+    #func = ObjectiveFunction(input_files=["./testset/gamma/astri/tel1/"])
+    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/flashcam/fits/gamma/"])
+
+    sigma_list = [2, 2, 3, 3]
+    k_sigma_noise_threshold = ",".join([str(sigma) for sigma in sigma_list])
+    #k_sigma_noise_threshold = "3"
 
     algo_params_var = {
-                "k_sigma_noise_threshold": "2"
+                "k_sigma_noise_threshold": k_sigma_noise_threshold
             }
 
     score = func(algo_params_var)
-
-    #algo_params_var = {
-    #            "k_sigma_noise_threshold": "3"
-    #        }
-
-    #score = func(algo_params_var)
-
-    print(score)
 
