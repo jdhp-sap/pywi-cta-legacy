@@ -20,105 +20,47 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['Minimize']
+__all__ = []
 
-from datapipe.optimization.objectivefunc.wavelets_mrfilter import ObjectiveFunction
-
-# EXCEPTIONS #################################################################
-
-class OptimizationError(Exception):
-    pass
-
-
-# OPTIMIZER ##################################################################
-
-class Minimize:
-
-    def __init__(self):
-        pass
-
-    def __call__(self, objective_function, input_file_or_dir_path_list ):
-    """Optimize with the brute-force method."""
-
-        # Set params (TODO)
-        type_of_multiresolution_transform = None
-        type_of_filters = None
-        type_of_non_orthog_filters = None
-        number_of_scales = 4
-        suppress_last_scale = False
-        suppress_isolated_pixels = False
-        kill_isolated_pixels = False
-        coef_detection_method = None
-        k_sigma_noise_threshold = None
-        noise_model = None
-        detect_only_positive_structure = False
-        suppress_positivity_constraint = False
-        type_of_filtering = None
-        first_detection_scale = None
-        number_of_iterations = None
-        epsilon = None
-        support_file_name = None
-        precision = None
-        mask_file_path = None
-        offset_after_calibration = None
-        correction_offset = None
-        input_image_scale = None
-        verbose = False
-        tmp_dir = "."
-    
-        cleaning_function_params = {
-                    "type_of_multiresolution_transform": type_of_multiresolution_transform,
-                    "type_of_filters": type_of_filters,
-                    "type_of_non_orthog_filters": type_of_non_orthog_filters,
-                    "number_of_scales": number_of_scales,
-                    "suppress_last_scale": suppress_last_scale,
-                    "suppress_isolated_pixels": suppress_isolated_pixels,
-                    "kill_isolated_pixels": kill_isolated_pixels,
-                    "coef_detection_method": coef_detection_method,
-                    "k_sigma_noise_threshold": k_sigma_noise_threshold,
-                    "noise_model": noise_model,
-                    "detect_only_positive_structure": detect_only_positive_structure,
-                    "suppress_positivity_constraint": suppress_positivity_constraint,
-                    "type_of_filtering": type_of_filtering,
-                    "first_detection_scale": first_detection_scale,
-                    "number_of_iterations": number_of_iterations,
-                    "epsilon": epsilon,
-                    "support_file_name": support_file_name,
-                    "precision": precision,
-                    "mask_file_path": mask_file_path,
-                    "offset_after_calibration": offset_after_calibration,
-                    "correction_offset": correction_offset,
-                    "input_image_scale": input_image_scale,
-                    "verbose": verbose,
-                    "tmp_files_directory": tmp_dir,
-                    #"mrfilter_directory": "/Volumes/ramdisk"
-                }
-
-        # Evaluate params
-        error = objective_function(cleaning_function_params, input_file_or_dir_path_list)
-
-        # Return best params (TODO)
+import json
+from scipy import optimize
+from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi_sigma_scipy import ObjectiveFunction
 
 def main():
 
     # PARSE OPTIONS ###########################################################
 
-    parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
+    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/flashcam/fits/gamma/"])
 
+    s1_slice = slice(1, 3, 1)
+    s2_slice = slice(1, 2, 1)
+    s3_slice = slice(1, 2, 1)
+    s4_slice = slice(1, 2, 1)
 
-    parser.add_argument("fileargs", nargs="+", metavar="FILE",
-                        help="The files image to process (FITS)."
-                             "If fileargs is a directory,"
-                             "all FITS files it contains are processed.")
+    search_ranges = (s1_slice,
+                     s2_slice,
+                     s3_slice,
+                     s4_slice)
 
-    args = parser.parse_args()
+    res = optimize.brute(func,
+                         search_ranges,
+                         full_output=True,
+                         finish=None)     #optimize.fmin)
 
-    input_file_or_dir_path_list = args.fileargs
+    print("x* =", res[0])
+    print("f(x*) =", res[1])
 
-    optimizer = Minimize()
-    objective_function = ObjectiveFunction()
+    # SAVE RESULTS ############################################################
 
-    optimizer.minimize(objective_function, input_file_or_dir_path_list)
+    res_dict = {
+                "best_solution": res[0],
+                "best_score": res[1],
+                "solutions": res[2],
+                "scores": res[3]
+               }
+
+    with open("optimize_sigma.json", "w") as fd:
+        json.dump(res_dict, fd, sort_keys=True, indent=4)  # pretty print format
 
 
 if __name__ == "__main__":
