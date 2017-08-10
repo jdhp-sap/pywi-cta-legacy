@@ -48,112 +48,117 @@ class ObjectiveFunction:
     def __call__(self, sigma_list):
         self.call_number += 1
 
-        k_sigma_noise_threshold = ",".join([str(sigma) for sigma in sigma_list])
+        mean_score = np.inf
 
-        algo_params_var = {
-                    "k_sigma_noise_threshold": k_sigma_noise_threshold
-                }
+        try:
+            k_sigma_noise_threshold = ",".join([str(sigma) for sigma in sigma_list])
 
-        benchmark_method = "delta_psi"          # TODO
+            algo_params_var = {
+                        "k_sigma_noise_threshold": k_sigma_noise_threshold
+                    }
 
-        label = "WT_{}".format(self.call_number)
-        self.cleaning_algorithm.label = label
+            benchmark_method = "delta_psi"          # TODO
 
-        output_file_path = "score_wavelets_optim_{}.json".format(self.call_number)
+            label = "WT_{}".format(self.call_number)
+            self.cleaning_algorithm.label = label
 
-        ## Switch OFF noise injection
-        #WT_NAN_NOISE_LAMBDA=0
-        #WT_NAN_NOISE_MU=0
-        #WT_NAN_NOISE_SIGMA=0
+            output_file_path = "score_wavelets_optim_{}.json".format(self.call_number)
 
-        ## Nearly optimal parameters for ASTRI (using the datapipe calibration function)
-        #WT_NAN_NOISE_LAMBDA=1.9
-        #WT_NAN_NOISE_MU=0.5
-        #WT_NAN_NOISE_SIGMA=0.8
+            ## Switch OFF noise injection
+            #WT_NAN_NOISE_LAMBDA=0
+            #WT_NAN_NOISE_MU=0
+            #WT_NAN_NOISE_SIGMA=0
 
-        # Nearly optimal parameters for FLASHCAM
-        WT_NAN_NOISE_LAMBDA=5.9
-        WT_NAN_NOISE_MU=-5.9
-        WT_NAN_NOISE_SIGMA=2.4
+            ## Nearly optimal parameters for ASTRI (using the datapipe calibration function)
+            #WT_NAN_NOISE_LAMBDA=1.9
+            #WT_NAN_NOISE_MU=0.5
+            #WT_NAN_NOISE_SIGMA=0.8
 
-        algo_params = {
-                    "coef_detection_method": 1,
-                    "correction_offset": False,
-                    "detect_only_positive_structure": False,
-                    "epsilon": None,
-                    "first_detection_scale": None,
-                    "input_image_scale": "linear",
-                    #"k_sigma_noise_threshold": "2,2,3,3",
-                    "kill_isolated_pixels": True,
-                    "mask_file_path": None,
-                    #"mrfilter_directory": "/Volumes/ramdisk",
-                    "nan_noise_lambda": WT_NAN_NOISE_LAMBDA,
-                    "nan_noise_mu": WT_NAN_NOISE_MU,
-                    "nan_noise_sigma": WT_NAN_NOISE_SIGMA,
-                    "noise_model": 3,
-                    "number_of_iterations": None,
-                    "number_of_scales": 4,
-                    "offset_after_calibration": None,
-                    "precision": None,
-                    "support_file_name": None,
-                    "suppress_isolated_pixels": True,
-                    "suppress_last_scale": True,
-                    "suppress_positivity_constraint": False,
-                    "tmp_files_directory": "/Volumes/ramdisk",
-                    "type_of_filtering": None,
-                    "type_of_filters": None,
-                    "type_of_multiresolution_transform": None,
-                    "type_of_non_orthog_filters": None,
-                    "verbose": False
-                }
+            # Nearly optimal parameters for FLASHCAM
+            WT_NAN_NOISE_LAMBDA=5.9
+            WT_NAN_NOISE_MU=-5.9
+            WT_NAN_NOISE_SIGMA=2.4
 
-        algo_params.update(algo_params_var)
+            algo_params = {
+                        "coef_detection_method": 1,
+                        "correction_offset": False,
+                        "detect_only_positive_structure": False,
+                        "epsilon": None,
+                        "first_detection_scale": None,
+                        "input_image_scale": "linear",
+                        #"k_sigma_noise_threshold": "2,2,3,3",
+                        "kill_isolated_pixels": True,
+                        "mask_file_path": None,
+                        #"mrfilter_directory": "/Volumes/ramdisk",
+                        "nan_noise_lambda": WT_NAN_NOISE_LAMBDA,
+                        "nan_noise_mu": WT_NAN_NOISE_MU,
+                        "nan_noise_sigma": WT_NAN_NOISE_SIGMA,
+                        "noise_model": 3,
+                        "number_of_iterations": None,
+                        "number_of_scales": 4,
+                        "offset_after_calibration": None,
+                        "precision": None,
+                        "support_file_name": None,
+                        "suppress_isolated_pixels": True,
+                        "suppress_last_scale": True,
+                        "suppress_positivity_constraint": False,
+                        "tmp_files_directory": "/Volumes/ramdisk",
+                        "type_of_filtering": None,
+                        "type_of_filters": None,
+                        "type_of_multiresolution_transform": None,
+                        "type_of_non_orthog_filters": None,
+                        "verbose": False
+                    }
 
-        # TODO: randomly make a subset fo self.input_files
-        input_files = self.input_files
+            algo_params.update(algo_params_var)
 
-        output_dict = self.cleaning_algorithm.run(algo_params,
-                                                  input_file_or_dir_path_list=input_files,
-                                                  benchmark_method=benchmark_method,
-                                                  output_file_path=output_file_path)
+            # TODO: randomly make a subset fo self.input_files
+            input_files = self.input_files
 
-        score_list = []
+            output_dict = self.cleaning_algorithm.run(algo_params,
+                                                      input_file_or_dir_path_list=input_files,
+                                                      benchmark_method=benchmark_method,
+                                                      output_file_path=output_file_path)
 
-        # Read and compute results from output_dict
-        for image_dict in output_dict["io"]:
+            score_list = []
 
-            # POST PROCESSING FILTERING #######################################
+            # Read and compute results from output_dict
+            for image_dict in output_dict["io"]:
 
-            # >>>TODO<<<: Filter images: decide wether the image should be used or not ? (contained vs not contained)
-            # TODO: filter these images *before* cleaning them to avoid waste of computation...
+                # POST PROCESSING FILTERING #######################################
 
-            # >>>TODO<<<: Filter images by energy range: decide wether the image should be used or not ?
-            # TODO: filter these images *before* cleaning them to avoid waste of computation...
+                # >>>TODO<<<: Filter images: decide wether the image should be used or not ? (contained vs not contained)
+                # TODO: filter these images *before* cleaning them to avoid waste of computation...
 
-            ###################################################################
+                # >>>TODO<<<: Filter images by energy range: decide wether the image should be used or not ?
+                # TODO: filter these images *before* cleaning them to avoid waste of computation...
 
-            # GET THE CLEANED IMAGE SCORE
+                ###################################################################
 
-            if ("img_ref_hillas_2_psi" not in image_dict) or ("img_cleaned_hillas_2_psi" not in image_dict):
-                raise Exception("Cannot get the score")
+                # GET THE CLEANED IMAGE SCORE
 
-            output_image_parameter_psi_rad = image_dict["img_ref_hillas_2_psi"]
-            reference_image_parameter_psi_rad = image_dict["img_cleaned_hillas_2_psi"]
-            delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
-            normalized_delta_psi_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
+                if ("img_ref_hillas_2_psi" not in image_dict) or ("img_cleaned_hillas_2_psi" not in image_dict):
+                    raise Exception("Cannot get the score")
 
-            if image_dict["score_name"][0] != "delta_psi":
-                raise Exception("Cannot get the score")
+                output_image_parameter_psi_rad = image_dict["img_ref_hillas_2_psi"]
+                reference_image_parameter_psi_rad = image_dict["img_cleaned_hillas_2_psi"]
+                delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
+                normalized_delta_psi_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
 
-            normalized_delta_psi_deg = image_dict["score"][0]
+                if image_dict["score_name"][0] != "delta_psi":
+                    raise Exception("Cannot get the score")
 
-            score_list.append(normalized_delta_psi_deg)
+                normalized_delta_psi_deg = image_dict["score"][0]
 
-        # Compute the mean
-        mean_score = np.array([score_list]).mean()
+                score_list.append(normalized_delta_psi_deg)
 
-        # TODO: save results in a JSON file (?)
-        print(algo_params_var, mean_score)
+            # Compute the mean
+            mean_score = np.array([score_list]).mean()
+
+            # TODO: save results in a JSON file (?)
+            print(algo_params_var, mean_score)
+        except Exception as e:
+            print(e)
 
         return mean_score
 
