@@ -4,18 +4,8 @@ source activate cta
 
 # SETUP #######################################################################
 
-#NUM_IMG=0
-NUM_IMG=10
-
-# USE RAMDISK #########################
-
-USE_RAMDISK="yes"
-#USE_RAMDISK="no"
-
-# SYSTEM ##############################
-
-#SYS_NAME="linux"
-SYS_NAME="macos"
+NUM_IMG=0
+NUM_IMG=100
 
 # INSTRUMENT ##########################
 
@@ -39,47 +29,46 @@ USE_NOISE_INJECTION="yes"
 ###############################################################################
 
 echo "NUM_IMG: ${NUM_IMG}"
-echo "USE_RAMDISK: ${USE_RAMDISK}"
-echo "SYS_NAME: ${SYS_NAME}"
 echo "INST: ${INST}"
 
-# PYTHON PATH #################################################################
+# SYSTEM ##############################
+
+if [ -d /Volumes ]
+then
+    SYS_NAME="macos"
+elif [ -d /proc ]
+then
+    SYS_NAME="linux"
+else
+    echo "Unknown system"
+    exit 1
+fi
+
+echo "SYS_NAME: ${SYS_NAME}"
 
 case ${SYS_NAME} in
-linux)
-    export PYTHONPATH=.:~/git/pub/ext/ctapipe-extra:$PYTHONPATH
-    ;;
 macos)
-    export PYTHONPATH=.:$PYTHONPATH
-    ;;
-*)
-    echo "Unknown option" ;
-    exit 1
-    ;;
-esac
-
-# TEMPORARY FILES #############################################################
-
-case ${USE_RAMDISK} in
-no)
-    MRFILTER_TMP_DIR="."
-    ;;
-yes)
-    case ${SYS_NAME} in
-    linux)
-        MRFILTER_TMP_DIR="/dev/shm/.jd"
-        ;;
-    macos)
+    export PYTHONPATH=.:$PYTHONPATH ;
+    if [ -d /Volumes/ramdisk ]
+    then
         MRFILTER_TMP_DIR="/Volumes/ramdisk"
-        ;;
-    *)
-        echo "Unknown option" ;
-        exit 1
-        ;;
-    esac
+    else
+        MRFILTER_TMP_DIR="."
+        echo "*** WARNING: CANNOT USE RAMDISK FOR TEMPORARY FILES ; USE ./ INSTEAD... ***"
+    fi
+    ;;
+linux)
+    export PYTHONPATH=.:~/git/pub/ext/ctapipe-extra:$PYTHONPATH ;
+    if [ -d /dev/shm/.jd ]
+    then
+        MRFILTER_TMP_DIR="/dev/shm/.jd"
+    else
+        MRFILTER_TMP_DIR="."
+        echo "*** WARNING: CANNOT USE RAMDISK FOR TEMPORARY FILES ; USE ./ INSTEAD... ***"
+    fi
     ;;
 *)
-    echo "Unknown option" ;
+    echo "Unknown system" ;
     exit 1
     ;;
 esac
@@ -208,6 +197,18 @@ echo "WT_LABEL:  ${WT_LABEL}"
 echo "GAMMA_FITS_DIR:  ${GAMMA_FITS_DIR}"
 echo "PROTON_FITS_DIR: ${PROTON_FITS_DIR}"
 
+if [ ! -d "${GAMMA_FITS_DIR}" ]
+then
+    echo "*** WARNING: CANNOT READ ${GAMMA_FITS_DIR} ***"
+    exit 1
+fi
+
+if [ ! -d "${PROTON_FITS_DIR}" ]
+then
+    echo "*** WARNING: CANNOT READ ${PROTON_FITS_DIR} ***"
+    exit 1
+fi
+
 # NOISE PARAMETERS ####################
 
 if [ USE_NOISE_INJECTION = "no" ]
@@ -257,6 +258,7 @@ case ${NUM_IMG} in
     echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                      -o score_gamma_input.json        $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
     echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS} -o score_gamma_tc.json           $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
     echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL}" ${WT_PARAMS}   -o score_gamma_${WT_LABEL}.json  $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
+    #echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py --plot ${WT_PARAMS} $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
     for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 
     ###################
@@ -267,6 +269,7 @@ case ${NUM_IMG} in
     echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                      -o score_proton_input.json        $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
     echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="Tailcut-5-10"  ${TC_PARAMS} -o score_proton_tc.json           $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
     echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL}" ${WT_PARAMS}   -o score_proton_${WT_LABEL}.json  $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
+    #echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py --plot ${WT_PARAMS} $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
     for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
     ;;
 esac
