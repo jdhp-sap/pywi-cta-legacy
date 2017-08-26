@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)
+# Copyright (c) 2016,2017 Jérémie DECOCK (http://www.jdhp.org)
 
 # This script is provided under the terms and conditions of the MIT license:
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,14 +38,21 @@ from ctapipe.io.hessio import hessio_event_source
 import pyhessio
 
 from datapipe.io import images
-from datapipe.io import geometry_converter
-import datapipe.io.montecarlo_calibration_astri as mc_calibration
 
 from datapipe import __version__ as VERSION
 
+print(ctapipe.__version__)
+print(pyhessio.__version__)
 
-DEFAULT_TEL_FILTER = list(range(1, 34))   # TODO
+from datapipe.io import geometry_converter
+from ctapipe.instrument import CameraGeometry
 
+# calibrator
+from ctapipe.calib import CameraCalibrator
+
+
+DEFAULT_TEL_FILTER = list(range(1, 34))  # WARNING: THESE TEL_IDs ARE ONLY VALID FOR INAF's ASTRI MINI ARRAY !!!
+ASTRI_CAM_CHANNEL_THRESHOLD = 14         # cf. "calib_find_channel_selection_threshold" notebook
 
 def extract_images(simtel_file_path,
                    tel_id_filter_list=None,
@@ -66,7 +73,11 @@ def extract_images(simtel_file_path,
 
     # ITERATE OVER EVENTS #####################################################
 
+    calib = CameraCalibrator(None, None)
+
     for event in source:
+
+        calib.calibrate(event)  # calibrate the event
 
         event_id = int(event.dl0.event_id)
 
@@ -92,18 +103,14 @@ def extract_images(simtel_file_path,
 
                     x, y = event.inst.pixel_pos[tel_id]
                     foclen = event.inst.optical_foclen[tel_id]
-                    geom = ctapipe.instrument.CameraGeometry.guess(x, y, foclen)
+                    geom = CameraGeometry.guess(x, y, foclen)
 
                     if (geom.pix_type != "rectangular") or (geom.cam_id not in ("ASTRICam", "ASTRI")):
-                        print(geom.pix_type, geom.cam_id)
-                        raise ValueError("Telescope {}: error (the input image is not a valide ASTRI telescope image)".format(tel_id))
+                        raise ValueError("Telescope {}: error (the input image is not a valide ASTRI telescope image) -> {} ({})".format(tel_id, geom.pix_type, geom.cam_id))
 
                     # GET IMAGES ##############################################
 
                     pe_image = event.mc.tel[tel_id].photo_electron_image   # 1D np array
-
-                    # uncalibrated_image = [1D numpy array of channel1, 1D numpy array of channel2]
-                    # calibrated_image = 1D numpy array
 
                     #uncalibrated_image = event.dl0.tel[tel_id].adc_sums  # ctapipe 0.3.0
                     uncalibrated_image = event.r0.tel[tel_id].adc_sums    # ctapipe 0.4.0
@@ -111,23 +118,36 @@ def extract_images(simtel_file_path,
                     gain = event.mc.tel[tel_id].dc_to_pe
                     pixel_pos = event.inst.pixel_pos[tel_id]
 
-                    calibrated_image = mc_calibration.apply_mc_calibration(uncalibrated_image, pedestal, gain)
+                    calibrated_image = event.dl1.tel[tel_id].image
+
+                    calibrated_image[1, calibrated_image[0,:] <= ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+                    calibrated_image[0, calibrated_image[0,:] >  ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+                    calibrated_image = calibrated_image.sum(axis=0)
+
+                    #print(pe_image.shape)
+                    #print(calibrated_image.shape)
+                    #print(uncalibrated_image.shape)
+                    #print(pedestal.shape)
+                    #print(gain.shape)
+                    #print(pixel_pos.shape)
+                    #print(pixel_pos[0])
+                    #print(pixel_pos[1])
 
                     # CONVERTING GEOMETRY (1D TO 2D) ##########################
 
-                    converted_pe_img = geometry_converter.astri_to_2d_array(pe_image, crop=crop)
-                    converted_img = geometry_converter.astri_to_2d_array(calibrated_image, crop=crop)
-                    converted_adc_sums = geometry_converter.astri_to_3d_array(uncalibrated_image, crop=crop)
-                    converted_pedestal = geometry_converter.astri_to_3d_array(pedestal, crop=crop)
-                    converted_gains = geometry_converter.astri_to_3d_array(gain, crop=crop)
-                    converted_pixel_pos = geometry_converter.astri_to_3d_array(pixel_pos, crop=crop)
+                    pe_image_2d = geometry_converter.astri_to_2d_array(pe_image, crop=crop)
+                    calibrated_image_2d = geometry_converter.astri_to_2d_array(calibrated_image, crop=crop)
+                    uncalibrated_image_2d = geometry_converter.astri_to_3d_array(uncalibrated_image, crop=crop)
+                    pedestal_2d = geometry_converter.astri_to_3d_array(pedestal, crop=crop)
+                    gains_2d = geometry_converter.astri_to_3d_array(gain, crop=crop)
+                    pixel_pos_2d = geometry_converter.astri_to_3d_array(pixel_pos, crop=crop)
 
-                    #print(converted_pe_img.shape)
-                    #print(converted_img.shape)
-                    #print(converted_adc_sums.shape)
-                    #print(converted_pedestal.shape)
-                    #print(converted_gains.shape)
-                    #print(converted_pixel_pos.shape)
+                    #print(pe_image_2d.shape)
+                    #print(calibrated_image_2d.shape)
+                    #print(uncalibrated_image_2d.shape)
+                    #print(pedestal_2d.shape)
+                    #print(gains_2d.shape)
+                    #print(pixel_pos_2d.shape)
                     #sys.exit(0)
 
                     # GET PIXEL MASK ##########################################
@@ -192,12 +212,12 @@ def extract_images(simtel_file_path,
 
                     print("saving", output_file_path)
 
-                    images.save_benchmark_images(img = converted_img,
-                                                 pe_img = converted_pe_img,
-                                                 adc_sums_img = converted_adc_sums,
-                                                 pedestal_img = converted_pedestal,
-                                                 gains_img = converted_gains,
-                                                 pixel_pos = converted_pixel_pos,
+                    images.save_benchmark_images(img = calibrated_image_2d,
+                                                 pe_img = pe_image_2d,
+                                                 adc_sums_img = uncalibrated_image_2d,
+                                                 pedestal_img = pedestal_2d,
+                                                 gains_img = gains_2d,
+                                                 pixel_pos = pixel_pos_2d,
                                                  pixel_mask = pixel_mask,
                                                  metadata = metadata,
                                                  output_file_path = output_file_path)
