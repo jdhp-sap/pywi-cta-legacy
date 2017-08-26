@@ -30,7 +30,7 @@ def main():
 
     # PARSE OPTIONS ###########################################################
 
-    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/flashcam/fits/gamma/"])
+    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/lst/"])
 
     bounds = ((1, 6), (1, 6), (1, 6), (1, 6))
 
@@ -40,7 +40,12 @@ def main():
     def callback(xk, convergence):
         x_list.append(xk.tolist())
         fx_list.append(float(func(xk)))
-        print(len(x_list), x_list[-1], fx_list[-1], convergence)
+
+        fx_best = min(fx_list)
+        fx_best_index = fx_list.find(fx_best)
+        x_best = x_list[fx_best_index]
+
+        print("{}: f({})={} ({}) ; best ({}): f({})={}".format(len(x_list), x_list[-1], fx_list[-1], convergence, fx_best_index, x_best, fx_best))
 
     res = optimize.differential_evolution(func,
                 bounds,              # The initial point

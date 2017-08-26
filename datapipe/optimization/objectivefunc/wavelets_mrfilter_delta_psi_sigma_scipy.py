@@ -74,10 +74,15 @@ class ObjectiveFunction:
             #WT_NAN_NOISE_MU=0.5
             #WT_NAN_NOISE_SIGMA=0.8
 
-            # Nearly optimal parameters for FLASHCAM
-            WT_NAN_NOISE_LAMBDA=5.9
-            WT_NAN_NOISE_MU=-5.9
-            WT_NAN_NOISE_SIGMA=2.4
+            ## Nearly optimal parameters for FLASHCAM
+            #WT_NAN_NOISE_LAMBDA=5.9
+            #WT_NAN_NOISE_MU=-5.9
+            #WT_NAN_NOISE_SIGMA=2.4
+
+            # Parameters for LSTCAM
+            WT_NAN_NOISE_LAMBDA=0
+            WT_NAN_NOISE_MU=0.13
+            WT_NAN_NOISE_SIGMA=5.77
 
             algo_params = {
                         "coef_detection_method": 1,
