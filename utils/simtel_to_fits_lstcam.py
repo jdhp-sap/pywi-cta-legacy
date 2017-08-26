@@ -52,7 +52,7 @@ from ctapipe.calib import CameraCalibrator
 
 
 DEFAULT_TEL_FILTER = list(range(1, 9))   # WARNING: THESE TEL_IDs ARE ONLY VALID FOR PROD3b LAPALMA (NORTH SITE) !!!
-
+LST_CAM_CHANNEL_THRESHOLD = 100          # cf. "calib_find_channel_selection_threshold" notebook
 
 def extract_images(simtel_file_path,
                    tel_id_filter_list=None,
@@ -119,9 +119,8 @@ def extract_images(simtel_file_path,
 
                     calibrated_image = event.dl1.tel[tel_id].image
 
-                    threshold = 100  # cf. "calib_find_channel_selection_threshold" notebook
-                    calibrated_image[1, calibrated_image[0,:] <= threshold] = 0
-                    calibrated_image[0, calibrated_image[0,:] >  threshold] = 0
+                    calibrated_image[1, calibrated_image[0,:] <= LST_CAM_CHANNEL_THRESHOLD] = 0
+                    calibrated_image[0, calibrated_image[0,:] >  LST_CAM_CHANNEL_THRESHOLD] = 0
                     calibrated_image = calibrated_image.sum(axis=0)
 
                     #print(pe_image.shape)
