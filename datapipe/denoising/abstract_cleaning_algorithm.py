@@ -93,7 +93,7 @@ class AbstractCleaningAlgorithm(object):
 
             if max_num_img is not None:
                 if max_num_img < len(input_file_path_list):
-                    input_file_path_list = ramdom.sample(input_file_path_list, max_num_img)
+                    input_file_path_list = random.sample(input_file_path_list, max_num_img)
                     max_num_img = 0                              # For next loops
                 else:
                     max_num_img -= len(input_file_path_list)     # For next loops
