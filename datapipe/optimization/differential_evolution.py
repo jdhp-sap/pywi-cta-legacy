@@ -42,17 +42,28 @@ def main():
         fx_list.append(float(func(xk)))
 
         fx_best = min(fx_list)
-        fx_best_index = fx_list.find(fx_best)
+        fx_best_index = fx_list.index(fx_best)
         x_best = x_list[fx_best_index]
 
         print("{}: f({})={} ({}) ; best ({}): f({})={}".format(len(x_list), x_list[-1], fx_list[-1], convergence, fx_best_index, x_best, fx_best))
 
+        res_dict = {
+                    "best_solution": x_best,
+                    "best_score": float(fx_best),
+                    "solutions": x_list,
+                    "scores": fx_list
+                   }
+
+        with open("optimize_sigma_diff_evo.json", "w") as fd:
+            json.dump(res_dict, fd, sort_keys=True, indent=4)  # pretty print format
+
     res = optimize.differential_evolution(func,
-                bounds,              # The initial point
-                maxiter=100,         # The number of basin hopping iterations
-                callback=callback,
-                #polish=False,
-                disp=False)          # Print status messages
+                                          bounds,
+                                          maxiter=50,         # The number of iterations
+                                          popsize=10,
+                                          callback=callback,
+                                          #polish=False,
+                                          disp=False)          # Print status messages
 
     print("x* =", res.x)
     print("f(x*) =", res.fun)
