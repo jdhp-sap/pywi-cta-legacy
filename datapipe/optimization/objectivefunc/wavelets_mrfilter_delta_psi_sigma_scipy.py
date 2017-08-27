@@ -31,7 +31,7 @@ from datapipe.benchmark import assess
 
 class ObjectiveFunction:
 
-    def __init__(self, input_files):
+    def __init__(self, input_files, max_num_img=None):
         self.call_number = 0
 
         # Init the wavelet class
@@ -39,6 +39,7 @@ class ObjectiveFunction:
 
         # Make the image list
         self.input_files = input_files
+        self.max_num_img = max_num_img
 
         # PRE PROCESSING FILTERING ############################################
 
@@ -123,7 +124,8 @@ class ObjectiveFunction:
             output_dict = self.cleaning_algorithm.run(algo_params,
                                                       input_file_or_dir_path_list=input_files,
                                                       benchmark_method=benchmark_method,
-                                                      output_file_path=output_file_path)
+                                                      output_file_path=output_file_path,
+                                                      max_num_img=self.max_num_img)
 
             score_list = []
 

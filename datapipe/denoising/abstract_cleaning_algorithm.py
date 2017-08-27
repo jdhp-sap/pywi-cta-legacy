@@ -26,6 +26,7 @@ import json
 import os
 import math
 import numpy as np
+import random
 import sys
 import time
 import traceback
@@ -70,7 +71,8 @@ class AbstractCleaningAlgorithm(object):
             output_file_path,
             plot=False,
             saveplot=None,
-            ref_img_as_input=False):      # This option is a hack to easily produce CSV files...
+            ref_img_as_input=False,      # This option is a hack to easily produce CSV files...
+            max_num_img=None):
 
         image_counter = 0
         launch_time = time.perf_counter()
@@ -88,6 +90,13 @@ class AbstractCleaningAlgorithm(object):
                         input_file_path_list.append(dir_item_path)
             else:
                 input_file_path_list = [input_file_or_dir_path]
+
+            if max_num_img is not None:
+                if max_num_img < len(input_file_path_list):
+                    input_file_path_list = ramdom.sample(input_file_path_list, max_num_img)
+                    max_num_img = 0                              # For next loops
+                else:
+                    max_num_img -= len(input_file_path_list)     # For next loops
 
             for input_file_path in input_file_path_list:
 

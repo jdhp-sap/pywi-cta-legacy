@@ -30,7 +30,8 @@ def main():
 
     # PARSE OPTIONS ###########################################################
 
-    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/lst/"])
+    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/lst/"],
+                             max_num_img=1000)
 
     bounds = ((1, 6), (1, 6), (1, 6), (1, 6))
 
