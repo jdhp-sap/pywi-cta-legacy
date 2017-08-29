@@ -36,10 +36,11 @@ from datapipe.io import geometry_converter
 
 def simtel_to_geom_json_file(output_json_file=None):
 
+    # See simtel_to_fits_flashcam.ipynb to extract the following values
     num_pixels_x = 56
     num_pixels_y = 56
-    range_x = (-1.1980019807815552, 1.183568000793457)
-    range_y = (-1.024999976158142,  1.0499999523162842)
+    range_x = (-1.3587767058156364, 1.3421098212625502)
+    range_y = (-1.358780012365973,  1.3421131935574502)
 
     geom = CameraGeometry.make_rectangular(num_pixels_x,
                                            num_pixels_y,
