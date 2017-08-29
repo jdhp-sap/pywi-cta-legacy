@@ -27,17 +27,11 @@
 __all__ = ['simtel_to_geom_json_file']
 
 import argparse
-import numpy as np
-
-from datapipe.io import geometry_converter
 
 import ctapipe
-
-# Old version
-#from ctapipe.io import camera
-
-# New version
 from ctapipe.instrument.camera import CameraGeometry
+
+from datapipe.io import geometry_converter
 
 
 def simtel_to_geom_json_file(output_json_file=None):

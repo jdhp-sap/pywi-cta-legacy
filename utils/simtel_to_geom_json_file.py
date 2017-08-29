@@ -27,21 +27,14 @@
 __all__ = ['simtel_to_geom_json_file']
 
 import argparse
-import numpy as np
 
 import ctapipe
-from ctapipe.io.hessio import hessio_event_source
+from ctapipe.instrument.camera import CameraGeometry
+
 import pyhessio
+from ctapipe.io.hessio import hessio_event_source
 
 from datapipe.io import geometry_converter
-
-# Old version
-#from ctapipe.io import camera
-
-# New version
-from ctapipe.instrument import camera
-
-from datapipe import __version__ as VERSION
 
 
 def simtel_to_geom_json_file(simtel_file_path, tel_id, output_json_file=None):
@@ -57,7 +50,7 @@ def simtel_to_geom_json_file(simtel_file_path, tel_id, output_json_file=None):
     pix_y = event.inst.pixel_pos[tel_id][1]
     optical_foclen = event.inst.optical_foclen[tel_id]
 
-    geom = camera.CameraGeometry.guess(pix_x, pix_y, optical_foclen)
+    geom = CameraGeometry.guess(pix_x, pix_y, optical_foclen)
 
     # Convert and write the geom object
 
