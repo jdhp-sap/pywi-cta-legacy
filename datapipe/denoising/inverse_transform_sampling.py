@@ -65,10 +65,8 @@ class EmpiricalDistribution:
         
         filtered_x_list = []
         filtered_y_list = []
-        for i, (xip, xi, yip, yi) in enumerate(zip(self.cdf_x[0:-1], self.cdf_x[1:], self.cdf_y[0:-1], self.cdf_y[1:])):
-            if yi <= yip:
-                print("Error at index {}: cdf({}) = cdf({}) = {}. Removing this point.".format(i, xip, xi, yi))
-            else:
+        for i, (yip, yi) in enumerate(zip(self.cdf_y[0:-1], self.cdf_y[1:])):
+            if yi > yip:
                 filtered_x_list.append(self.cdf_x[i])
                 filtered_y_list.append(self.cdf_y[i])
 
