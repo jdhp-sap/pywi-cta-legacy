@@ -44,7 +44,9 @@ import time
 
 import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
+from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 from datapipe.io import images
+
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
@@ -592,7 +594,7 @@ def main():
         output_file_path = args.output
 
     if noise_cdf_file is not None:
-        noise_distribution = datapipe.denoising.inverse_transform_sampling.EmpiricalDistribution(noise_cdf_file)
+        noise_distribution = EmpiricalDistribution(noise_cdf_file)
     else:
         noise_distribution = None
 
