@@ -27,5 +27,6 @@ __all__ = ['abstract_cleaning_algorithm',
            'tailcut',
            'tailcut_jd',
            'wavelets_mrfilter',
-           'wavelets_mrtransform']
+           'wavelets_mrtransform',
+           'inverse_transform_sampling']
 
