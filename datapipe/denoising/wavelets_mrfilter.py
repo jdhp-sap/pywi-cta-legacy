@@ -99,9 +99,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     offset_after_calibration=None,
                     correction_offset=False,
                     input_image_scale='linear',
-                    nan_noise_lambda=0,
-                    nan_noise_mu=0,
-                    nan_noise_sigma=0,
+                    noise_distribution=None,
                     verbose=False,
                     raw_option_string=None,
                     tmp_files_directory=".",       # "/Volumes/ramdisk"
@@ -140,24 +138,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         #images.plot(input_img, "In")
         #images.plot(nan_mask, "Mask")
 
-        # ASTRI
-        nan_noise_size = np.count_nonzero(nan_mask)
-        nan_noise = np.zeros(nan_noise_size)
+        if noise_distribution is not None:
+            nan_noise_size = np.count_nonzero(nan_mask)
+            input_img[nan_mask] = noise_distribution.rvs(size=nan_noise_size)
 
-        #print("nan_noise_lambda:", nan_noise_lambda)
-        #print("nan_noise_mu:", nan_noise_mu)
-        #print("nan_noise_sigma:", nan_noise_sigma)
-
-        if (nan_noise_lambda is not None) and (nan_noise_lambda > 0):
-            nan_noise += np.random.poisson(lam=nan_noise_lambda,
-                                           size=nan_noise_size).astype('float64')
-            #print("* Poisson ON")
-        if (nan_noise_mu is not None) and (nan_noise_sigma is not None) and (nan_noise_sigma > 0):
-            nan_noise += np.random.normal(loc=nan_noise_mu,
-                                          scale=nan_noise_sigma,
-                                          size=nan_noise_size)
-            #print("* Normal ON")
-        input_img[nan_mask] = nan_noise
+            #print("* Noise injection ON")
 
         #print(input_img)
         #images.plot(input_img, "Noise injected")
@@ -533,14 +518,8 @@ def main():
     parser.add_argument("--input-image-scale", default="linear",
                         help="Use a different scale for the input image ('linear', 'log' or 'sqrt'). Default='linear'.")
 
-    parser.add_argument("--nan-noise-lambda", type=float, metavar="FLOAT",
-                        help="Lambda parameter of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=0.")
-
-    parser.add_argument("--nan-noise-mu", type=float, metavar="FLOAT",
-                        help="Mu parameter of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=0.")
-
-    parser.add_argument("--nan-noise-sigma", type=float, metavar="FLOAT",
-                        help="Sigma parameter of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=0.")
+    parser.add_argument("--noise-cdf-file", metavar="FILE",
+                        help="The JSON file containing the Cumulated Distribution Function of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=None.")
 
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
@@ -596,9 +575,7 @@ def main():
     offset_after_calibration = args.offset_after_calibration
     correction_offset = args.correction_offset
     input_image_scale = args.input_image_scale
-    nan_noise_lambda = args.nan_noise_lambda
-    nan_noise_mu = args.nan_noise_mu
-    nan_noise_sigma = args.nan_noise_sigma
+    noise_cdf_file = args.noise_cdf_file
     verbose = args.verbose
     tmp_dir = args.tmp_dir
 
@@ -613,6 +590,11 @@ def main():
         output_file_path = "score_wavelets_benchmark_{}.json".format(benchmark_method)
     else:
         output_file_path = args.output
+
+    if noise_cdf_file is not None:
+        noise_distribution = datapipe.denoising.inverse_transform_sampling.EmpiricalDistribution(noise_cdf_file)
+    else:
+        noise_distribution = None
 
     cleaning_function_params = {
                 "type_of_multiresolution_transform": type_of_multiresolution_transform,
@@ -637,9 +619,7 @@ def main():
                 "offset_after_calibration": offset_after_calibration,
                 "correction_offset": correction_offset,
                 "input_image_scale": input_image_scale,
-                "nan_noise_lambda": nan_noise_lambda,
-                "nan_noise_mu": nan_noise_mu,
-                "nan_noise_sigma": nan_noise_sigma,
+                "noise_distribution": noise_distribution,
                 "verbose": verbose,
                 "tmp_files_directory": tmp_dir,
                 #"mrfilter_directory": "/Volumes/ramdisk"

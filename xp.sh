@@ -19,11 +19,6 @@ NUM_IMG=0
 INST="lstcam_grid_prod3b_north"
 #INST="nectarcam_grid_prod3b_north"
 
-# NOISE PARAMETERS ####################
-
-USE_NOISE_INJECTION="yes"
-#USE_NOISE_INJECTION="no"
-
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -90,59 +85,43 @@ astri_mini_cropped)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits_cropped/astri/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits_cropped/astri/proton ;
 
-    WT_NAN_NOISE_LAMBDA=5 ;
-    WT_NAN_NOISE_MU=-2.1 ;
-    WT_NAN_NOISE_SIGMA=0.1 ;
-
-    ## Nearly optimal parameters for ASTRI (using the datapipe calibration function)
-    #WT_NAN_NOISE_LAMBDA=1.9 ;
-    #WT_NAN_NOISE_MU=0.5 ;
-    #WT_NAN_NOISE_SIGMA=0.8 ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri_cropped.geom.json" ;
 
     # OLD VERSION
-    #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s3"
 
     # NEW VERSION
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
     ;;
 astri_mini)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/astri/proton ;
 
-    WT_NAN_NOISE_LAMBDA=5 ;
-    WT_NAN_NOISE_MU=-2.1 ;
-    WT_NAN_NOISE_SIGMA=0.1 ;
-
-    ## Nearly optimal parameters for ASTRI (using the datapipe calibration function)
-    #WT_NAN_NOISE_LAMBDA=1.9 ;
-    #WT_NAN_NOISE_MU=0.5 ;
-    #WT_NAN_NOISE_SIGMA=0.8 ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
 
     # OLD VERSION
-    #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s3"
 
     # NEW VERSION
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
     ;;
 flashcam_mini)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/flashcam/proton ;
 
-    WT_NAN_NOISE_LAMBDA=5.9 ;
-    WT_NAN_NOISE_MU=-5.9 ;
-    WT_NAN_NOISE_SIGMA=2.4 ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/flashcam_grid_prod3b_north_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s4,4,5,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s4-4-5-4"
     ;;
 gct_unk)
     # TODO
@@ -150,39 +129,31 @@ gct_unk)
     PROTON_FITS_DIR=~/gct_data/fits/proton ;
     #PROTON_FITS_DIR=~/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0* ;
 
-    WT_NAN_NOISE_LAMBDA= ;
-    WT_NAN_NOISE_MU= ;
-    WT_NAN_NOISE_SIGMA= ;
+    WT_NAN_NOISE_CDF_FILE= ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
     ;;
 lstcam_grid_prod3b_north)
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
     PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/lst/proton ;
 
-    WT_NAN_NOISE_LAMBDA=0 ;
-    WT_NAN_NOISE_MU=0.13 ;
-    WT_NAN_NOISE_SIGMA=5.77 ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/lstcam2d.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3"
     ;;
 nectarcam_grid_prod3b_north)
-    # TODO
-
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
     PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/proton ;
 
-    WT_NAN_NOISE_LAMBDA= ;
-    WT_NAN_NOISE_MU= ;
-    WT_NAN_NOISE_SIGMA= ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --nan-noise-lambda=${WT_NAN_NOISE_LAMBDA} --nan-noise-mu=${WT_NAN_NOISE_MU} --nan-noise-sigma=${WT_NAN_NOISE_SIGMA} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3"
     ;;
 *)
     echo "Unknown option" ;
@@ -197,6 +168,8 @@ echo "WT_LABEL:  ${WT_LABEL}"
 echo "GAMMA_FITS_DIR:  ${GAMMA_FITS_DIR}"
 echo "PROTON_FITS_DIR: ${PROTON_FITS_DIR}"
 
+echo "WT_NAN_NOISE_CDF_FILE: ${WT_NAN_NOISE_CDF_FILE}"
+
 if [ ! -d "${GAMMA_FITS_DIR}" ]
 then
     echo "*** WARNING: CANNOT READ ${GAMMA_FITS_DIR} ***"
@@ -208,20 +181,6 @@ then
     echo "*** WARNING: CANNOT READ ${PROTON_FITS_DIR} ***"
     exit 1
 fi
-
-# NOISE PARAMETERS ####################
-
-if [ USE_NOISE_INJECTION = "no" ]
-then
-    ## Switch OFF noise injection
-    WT_NAN_NOISE_LAMBDA=0
-    WT_NAN_NOISE_MU=0
-    WT_NAN_NOISE_SIGMA=0
-fi
-
-echo "WT_NAN_NOISE_LAMBDA: ${WT_NAN_NOISE_LAMBDA}"
-echo "WT_NAN_NOISE_MU:     ${WT_NAN_NOISE_MU}"
-echo "WT_NAN_NOISE_SIGMA:  ${WT_NAN_NOISE_SIGMA}"
 
 # RUN DENOISING ###############################################################
 
