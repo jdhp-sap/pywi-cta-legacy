@@ -30,10 +30,10 @@ def main():
 
     # PARSE OPTIONS ###########################################################
 
-    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/lst/"],
+    func = ObjectiveFunction(input_files=["/dev/shm/.jd/flashcam/gamma/"],
                              max_num_img=1000)
 
-    bounds = ((1, 6), (1, 6), (1, 6), (1, 6))
+    bounds = ((0.5, 6), (0.5, 6), (0.5, 6), (0.5, 6))
 
     x_list = []
     fx_list = []

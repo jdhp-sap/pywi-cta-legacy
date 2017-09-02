@@ -30,7 +30,7 @@ def main():
 
     # PARSE OPTIONS ###########################################################
 
-    func = ObjectiveFunction(input_files=["/Volumes/ramdisk/flashcam/fits/gamma/"])
+    func = ObjectiveFunction(input_files=["/dev/shm/.jd/flashcam/gamma/"])
 
     s1_slice = slice(1, 5, 1)
     s2_slice = slice(1, 5, 1)
