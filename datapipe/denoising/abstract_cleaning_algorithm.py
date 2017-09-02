@@ -303,6 +303,10 @@ class AbstractCleaningAlgorithm(object):
             output_dict["label"] = self.label
             output_dict["cmd"] = " ".join(sys.argv)
             output_dict["algo_params"] = cleaning_function_params
+
+            if "noise_distribution" in output_dict["algo_params"]:
+                del output_dict["algo_params"]["noise_distribution"]  # not JSON serializable...
+
             output_dict["benchmark_method"] = benchmark_method
             output_dict["system"] = " ".join(os.uname())
             output_dict["io"] = io_list
