@@ -97,7 +97,7 @@ def main():
 
     res = optimize.differential_evolution(func,
                                           bounds,
-                                          maxiter=50,         # The number of iterations
+                                          maxiter=1000,        # The number of iterations
                                           popsize=10,
                                           callback=callback,
                                           #polish=False,
