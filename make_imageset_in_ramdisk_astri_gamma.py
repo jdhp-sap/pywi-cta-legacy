@@ -29,8 +29,8 @@ from datapipe.io import images
 
 NUM_IMAGES = 1000
 
-INPUT_DIR_PATH = os.path.expanduser("~/data/astri_mini_array/fits/flashcam/gamma")
-OUTPUT_FILE_PATH = "/dev/shm/.jd/flashcam/gamma"
+INPUT_DIR_PATH = os.path.expanduser("~/data/astri_mini_array/fits/astri/gamma")
+OUTPUT_FILE_PATH = "/dev/shm/.jd/astri/gamma"
 
 NPE_MIN = 30
 NPE_MAX = 2000
