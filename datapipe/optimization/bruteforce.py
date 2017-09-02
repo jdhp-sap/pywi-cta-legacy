@@ -26,11 +26,49 @@ import json
 from scipy import optimize
 from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi_sigma_scipy import ObjectiveFunction
 
+import datapipe.denoising.cdf
+from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
+
 def main():
 
-    # PARSE OPTIONS ###########################################################
+    instrument = "astri"
+    #instrument = "astri_konrad"
+    #instrument = "flashcam"
+    #instrument = "lstcam"
+    #instrument = "nectarcam"
 
-    func = ObjectiveFunction(input_files=["/dev/shm/.jd/flashcam/gamma/"])
+    if instrument == "astri":
+
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
+        input_files = ["/dev/shm/.jd/astri/gamma/"]
+
+    elif instrument == "astri_konrad":
+
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
+        input_files = ["/dev/shm/.jd/astri_konrad/gamma/"]
+
+    elif instrument == "flashcam":
+
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
+        input_files = ["/dev/shm/.jd/flashcam/gamma/"]
+
+    elif instrument == "lstcam":
+
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
+        input_files = ["/dev/shm/.jd/lstcam/gamma/"]
+
+    elif instrument == "nectarcam":
+
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
+        input_files = ["/dev/shm/.jd/nectarcam/gamma/"]
+
+    else:
+
+        raise Exception("Unknown instrument", instrument)
+
+    func = ObjectiveFunction(input_files=input_files,
+                             noise_distribution=noise_distribution,
+                             max_num_img=None)
 
     s1_slice = slice(1, 5, 1)
     s2_slice = slice(1, 5, 1)

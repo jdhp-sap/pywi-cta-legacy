@@ -31,7 +31,7 @@ from datapipe.benchmark import assess
 
 class ObjectiveFunction:
 
-    def __init__(self, input_files, max_num_img=None):
+    def __init__(self, input_files, noise_distribution=None, max_num_img=None):
         self.call_number = 0
 
         # Init the wavelet class
@@ -40,6 +40,8 @@ class ObjectiveFunction:
         # Make the image list
         self.input_files = input_files
         self.max_num_img = max_num_img
+
+        self.noise_distribution = noise_distribution
 
         # PRE PROCESSING FILTERING ############################################
 
@@ -65,26 +67,6 @@ class ObjectiveFunction:
 
             output_file_path = "score_wavelets_optim_{}.json".format(self.call_number)
 
-            ## Switch OFF noise injection
-            #WT_NAN_NOISE_LAMBDA=0
-            #WT_NAN_NOISE_MU=0
-            #WT_NAN_NOISE_SIGMA=0
-
-            ## Nearly optimal parameters for ASTRI (using the datapipe calibration function)
-            #WT_NAN_NOISE_LAMBDA=1.9
-            #WT_NAN_NOISE_MU=0.5
-            #WT_NAN_NOISE_SIGMA=0.8
-
-            ## Nearly optimal parameters for FLASHCAM
-            #WT_NAN_NOISE_LAMBDA=5.9
-            #WT_NAN_NOISE_MU=-5.9
-            #WT_NAN_NOISE_SIGMA=2.4
-
-            # Parameters for LSTCAM
-            WT_NAN_NOISE_LAMBDA=0
-            WT_NAN_NOISE_MU=0.13
-            WT_NAN_NOISE_SIGMA=5.77
-
             algo_params = {
                         "coef_detection_method": 1,
                         "correction_offset": False,
@@ -96,9 +78,7 @@ class ObjectiveFunction:
                         "kill_isolated_pixels": True,
                         "mask_file_path": None,
                         #"mrfilter_directory": "/Volumes/ramdisk",
-                        "nan_noise_lambda": WT_NAN_NOISE_LAMBDA,
-                        "nan_noise_mu": WT_NAN_NOISE_MU,
-                        "nan_noise_sigma": WT_NAN_NOISE_SIGMA,
+                        "noise_distribution": self.noise_distribution,
                         "noise_model": 3,
                         "number_of_iterations": None,
                         "number_of_scales": 4,
