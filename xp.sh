@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source activate cta
+. ./init.sh
 
 # SETUP #######################################################################
 
@@ -11,12 +11,12 @@ NUM_IMG=0
 
 #INST="astri_mini_cropped"
 
-#INST="astri_mini"
+INST="astri_mini"
 #INST="flashcam_mini"
 
 #INST="gct_unk"
 
-INST="lstcam_grid_prod3b_north"
+#INST="lstcam_grid_prod3b_north"
 #INST="nectarcam_grid_prod3b_north"
 
 ###############################################################################
@@ -98,8 +98,10 @@ astri_mini_cropped)
     WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
     ;;
 astri_mini)
-    GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
-    PROTON_FITS_DIR=~/data/astri_mini_array/fits/astri/proton ;
+    #GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
+    #PROTON_FITS_DIR=~/data/astri_mini_array/fits/astri/proton ;
+    GAMMA_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/gamma ;
+    PROTON_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
 
