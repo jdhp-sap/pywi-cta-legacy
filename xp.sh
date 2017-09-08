@@ -11,8 +11,9 @@ NUM_IMG=0
 
 #INST="astri_mini_cropped"
 
-INST="astri_mini"
-#INST="flashcam_mini"
+#INST="astri_mini_inaf"
+INST="astri_mini_konrad"
+#INST="flashcam_mini_inaf"
 
 #INST="gct_unk"
 
@@ -91,39 +92,63 @@ astri_mini_cropped)
 
     # OLD VERSION
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    #WT_LABEL="WT-K-k-C1-m3-n4-s3"
+    #WT_LABEL="WT-K-k-C1-m3-n4-s3" ;
 
     # NEW VERSION
     WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
+    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
     ;;
-astri_mini)
-    #GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
-    #PROTON_FITS_DIR=~/data/astri_mini_array/fits/astri/proton ;
-    GAMMA_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/gamma ;
-    PROTON_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/proton ;
+astri_mini_inaf)
+    GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
+    PROTON_FITS_DIR=~/data/astri_mini_array/fits/astri/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
 
-    # OLD VERSION
+    ## 2016
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s3"
 
-    # NEW VERSION
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
+    ## 2017/02
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
+
+    # 2017/09/07
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s1,1,2,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s1-1-2-1" ;
     ;;
-flashcam_mini)
+astri_mini_konrad)
+    GAMMA_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/gamma ;
+    PROTON_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/proton ;
+
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_konrad_cdf.json ;
+
+    TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
+
+    ## 2017/02
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
+
+    # 2017/09/07
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,1,3.5,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s3-1-3.5-1" ;
+    ;;
+flashcam_mini_inaf)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/flashcam/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/flashcam_grid_prod3b_north_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s4,4,5,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s4-4-5-4"
+
+    ## 2017/07
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s4,4,5,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s4-4-5-4" ;
+
+    # 2017/09/07
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s4.5,4.5,4.5,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s4.5-4.5-4.5-1" ;
     ;;
 gct_unk)
     # TODO
@@ -135,7 +160,7 @@ gct_unk)
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
     WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3"
+    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
     ;;
 lstcam_grid_prod3b_north)
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
@@ -144,8 +169,14 @@ lstcam_grid_prod3b_north)
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/lstcam2d.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3"
+
+    ## 2017/08
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
+
+    # 2017/09/07
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s2-2.5-4-1" ;
     ;;
 nectarcam_grid_prod3b_north)
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
@@ -154,8 +185,14 @@ nectarcam_grid_prod3b_north)
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf.json ;
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3"
+
+    ## 2017/08
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
+
+    # 2017/09/07
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
     ;;
 *)
     echo "Unknown option" ;
