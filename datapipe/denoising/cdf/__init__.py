@@ -25,11 +25,15 @@ import os
 PACKAGE_PATH = os.path.split(__file__)[0]
 
 ASTRI_CDF_FILE = os.path.join(PACKAGE_PATH, 'astri_inaf_cdf.json')
+GCT_CDF_FILE = os.path.join(PACKAGE_PATH, 'gct_konrad_cdf.json')
+DIGICAM_CDF_FILE = os.path.join(PACKAGE_PATH, 'digicam_konrad_cdf.json')
 FLASHCAM_CDF_FILE = os.path.join(PACKAGE_PATH, 'flashcam_grid_prod3b_north_cdf.json')
-LSTCAM_CDF_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf.json')
 NECTARCAM_CDF_FILE = os.path.join(PACKAGE_PATH, 'nectarcam_grid_prod3b_north_cdf.json')
+LSTCAM_CDF_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf.json')
 
 __all__ = ['ASTRI_CDF_FILE',
+           'GCT_CDF_FILE',
+           'DIGICAM_CDF_FILE',
            'FLASHCAM_CDF_FILE',
-           'LSTCAM_CDF_FILE',
-           'NECTARCAM_CDF_FILE']
+           'NECTARCAM_CDF_FILE',
+           'LSTCAM_CDF_FILE']
