@@ -134,7 +134,7 @@ def extract_images(simtel_file_path,
 
                     buffer_id_str = geom.cam_id + "0"
 
-                    geom2d, pe_image_2d =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pe_image,           buffer_id_str, add_rot=0)
+                    geom2d, pe_image_2d =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pe_image,              buffer_id_str, add_rot=0)
                     geom2d, calibrated_image_2d =   ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, calibrated_image[0],   buffer_id_str, add_rot=0)
 
                     geom2d, uncalibrated_image_2d = ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, uncalibrated_image[0], buffer_id_str, add_rot=0)
