@@ -44,7 +44,6 @@ from datapipe import __version__ as VERSION
 print(ctapipe.__version__)
 print(pyhessio.__version__)
 
-from datapipe.io import geometry_converter
 import ctapipe.image.geometry_converter as ctapipe_geom_converter
 from ctapipe.instrument import CameraGeometry
 
@@ -53,7 +52,6 @@ from ctapipe.calib import CameraCalibrator
 
 
 DEFAULT_TEL_FILTER = [34, 35, 36, 37, 38]
-
 
 def extract_images(simtel_file_path,
                    tel_id_filter_list=None,
@@ -106,8 +104,7 @@ def extract_images(simtel_file_path,
                     geom = CameraGeometry.guess(x, y, foclen)
 
                     if (geom.pix_type != "hexagonal") or (geom.cam_id != "FlashCam"):
-                        print(geom.pix_type, geom.cam_id)
-                        raise ValueError("Telescope {}: error (the input image is not a valide Flashcam telescope image)".format(tel_id))
+                        raise ValueError("Telescope {}: error (the input image is not a valide Flashcam telescope image) -> {} ({})".format(tel_id, geom.pix_type, geom.cam_id))
 
                     # GET IMAGES ##############################################
 
