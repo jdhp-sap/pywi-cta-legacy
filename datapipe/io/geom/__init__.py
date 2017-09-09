@@ -26,14 +26,16 @@ PACKAGE_PATH = os.path.split(__file__)[0]
 
 ASTRI_GEOM_FILE = os.path.join(PACKAGE_PATH,         'astri.geom.json')
 ASTRI_CROPPED_GEOM_FILE = os.path.join(PACKAGE_PATH, 'astri_cropped.geom.json')
-FLASHCAM_GEOM_FILE = os.path.join(PACKAGE_PATH,      'flashcam2d.geom.json')
 GCT_GEOM_FILE = os.path.join(PACKAGE_PATH,           'gct.geom.json')
-LSTCAM_GEOM_FILE = os.path.join(PACKAGE_PATH,        'lstcam2d.geom.json')
+DIGICAM_GEOM_FILE = os.path.join(PACKAGE_PATH,       'digicam2d.geom.json')
+FLASHCAM_GEOM_FILE = os.path.join(PACKAGE_PATH,      'flashcam2d.geom.json')
 NECTARCAM_GEOM_FILE = os.path.join(PACKAGE_PATH,     'nectarcam2d.geom.json')
+LSTCAM_GEOM_FILE = os.path.join(PACKAGE_PATH,        'lstcam2d.geom.json')
 
 __all__ = ['ASTRI_GEOM_FILE',
            'ASTRI_CROPPED_GEOM_FILE',
-           'FLASHCAM_GEOM_FILE',
            'GCT_GEOM_FILE',
-           'LSTCAM_GEOM_FILE',
-           'NECTARCAM_GEOM_FILE']
+           'DIGICAM_GEOM_FILE',
+           'FLASHCAM_GEOM_FILE',
+           'NECTARCAM_GEOM_FILE',
+           'LSTCAM_GEOM_FILE']
