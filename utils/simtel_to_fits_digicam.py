@@ -93,9 +93,7 @@ def extract_images(simtel_file_path,
 
                     #print("telescope", tel_id)
 
-                    # CHECK THE IMAGE GEOMETRY (FLASHCAM ONLY) ##############
-
-                    # TODO
+                    # CHECK THE IMAGE GEOMETRY ################################
 
                     #print("checking geometry")
 

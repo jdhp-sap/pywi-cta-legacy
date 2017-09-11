@@ -51,7 +51,7 @@ from ctapipe.instrument import CameraGeometry
 from ctapipe.calib import CameraCalibrator
 
 
-DEFAULT_TEL_FILTER = [34, 35, 36, 37, 38]
+DEFAULT_TEL_FILTER = [34, 35, 36, 37, 38]             # WARNING: THESE TEL_IDs ARE ONLY VALID FOR INAF'S ASTRI MINI ARRAY !!!
 
 def extract_images(simtel_file_path,
                    tel_id_filter_list=None,
