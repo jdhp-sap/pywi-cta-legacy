@@ -77,7 +77,7 @@ class Tailcut(AbstractCleaningAlgorithm):
 
         if geom.cam_id.lower() in ("astri", "astricam"):
             img_1d = geometry_converter.array_2d_to_astri(input_img)
-        elif geom.cam_id.lower() in ("astri_cropped", "flashcam2d", "lstcam2d", "nectarcam2d"):
+        elif geom.cam_id.lower() in ("astri_cropped", "digicam2d", "flashcam2d", "nectarcam2d", "lstcam2d"):
             img_1d = input_img.flatten()
             img_1d[np.isnan(img_1d)] = 0
         elif geom.cam_id.lower() in ("gct", "gate", "chec"):
@@ -107,14 +107,17 @@ class Tailcut(AbstractCleaningAlgorithm):
             cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)
         elif geom.cam_id.lower() in ("astri_cropped"):
             cleaned_img = img_1d.reshape(40, 40)
+        elif geom.cam_id.lower() in ("gct", "gate", "chec"):
+            cleaned_img = geometry_converter.gct_to_2d_array(img_1d)
+        elif geom.cam_id.lower() in ("digicam2d"):
+            cleaned_img = img_1d.reshape(48, 48)
+            cleaned_img[np.isnan(input_img)] = np.nan
         elif geom.cam_id.lower() in ("flashcam2d"):
             cleaned_img = img_1d.reshape(56, 56)
             cleaned_img[np.isnan(input_img)] = np.nan
-        elif geom.cam_id.lower() in ("lstcam2d", "nectarcam2d"):
+        elif geom.cam_id.lower() in ("nectarcam2d", "lstcam2d"):
             cleaned_img = img_1d.reshape(55, 55)
             cleaned_img[np.isnan(input_img)] = np.nan
-        elif geom.cam_id.lower() in ("gct", "gate", "chec"):
-            cleaned_img = geometry_converter.gct_to_2d_array(img_1d)
         else:
             raise Exception("Unknown cam_id")    # TODO
 
