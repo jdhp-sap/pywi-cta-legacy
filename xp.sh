@@ -12,13 +12,14 @@ NUM_IMG=0
 #INST="astri_mini_cropped"
 
 #INST="astri_mini_inaf"
-INST="astri_mini_konrad"
-#INST="flashcam_mini_inaf"
-
+#INST="astri_mini_konrad"
 #INST="gct_unk"
+INST="digicam_mini_konrad"
+
+#INST="flashcam_mini_inaf"
+#INST="nectarcam_grid_prod3b_north"
 
 #INST="lstcam_grid_prod3b_north"
-#INST="nectarcam_grid_prod3b_north"
 
 ###############################################################################
 ###############################################################################
@@ -134,6 +135,30 @@ astri_mini_konrad)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s3,1,3.5,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s3-1-3.5-1" ;
     ;;
+gct_unk)
+    # TODO
+
+    PROTON_FITS_DIR=~/gct_data/fits/proton ;
+    #PROTON_FITS_DIR=~/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0* ;
+
+    WT_NAN_NOISE_CDF_FILE= ;
+
+    TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
+    ;;
+digicam_mini_konrad)
+    GAMMA_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/gamma ;
+    PROTON_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/proton ;
+
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/digicam_konrad_cdf.json ;
+
+    TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
+
+    # 2017/09/??
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
+    ;;
 flashcam_mini_inaf)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/flashcam/proton ;
@@ -150,17 +175,21 @@ flashcam_mini_inaf)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s4.5,4.5,4.5,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s4.5-4.5-4.5-1" ;
     ;;
-gct_unk)
-    # TODO
+nectarcam_grid_prod3b_north)
+    GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
+    PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/proton ;
 
-    PROTON_FITS_DIR=~/gct_data/fits/proton ;
-    #PROTON_FITS_DIR=~/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0* ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf.json ;
 
-    WT_NAN_NOISE_CDF_FILE= ;
+    TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
 
-    TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
+    ## 2017/08
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
+
+    # 2017/09/07
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
     ;;
 lstcam_grid_prod3b_north)
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
@@ -177,22 +206,6 @@ lstcam_grid_prod3b_north)
     # 2017/09/07
     WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s2-2.5-4-1" ;
-    ;;
-nectarcam_grid_prod3b_north)
-    GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
-    PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/proton ;
-
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf.json ;
-
-    TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
-
-    ## 2017/08
-    #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
-
-    # 2017/09/07
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
     ;;
 *)
     echo "Unknown option" ;
