@@ -33,9 +33,10 @@ def main():
 
     instrument = "astri"
     #instrument = "astri_konrad"
+    #instrument = "digicam"
     #instrument = "flashcam"
-    #instrument = "lstcam"
     #instrument = "nectarcam"
+    #instrument = "lstcam"
 
     if instrument == "astri":
 
@@ -47,20 +48,25 @@ def main():
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
         input_files = ["/dev/shm/.jd/astri_konrad/gamma/"]
 
+    elif instrument == "digicam":
+
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.DIGICAM_CDF_FILE)
+        input_files = ["/dev/shm/.jd/digicam/gamma/"]
+
     elif instrument == "flashcam":
 
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/flashcam/gamma/"]
 
-    elif instrument == "lstcam":
-
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
-        input_files = ["/dev/shm/.jd/lstcam/gamma/"]
-
     elif instrument == "nectarcam":
 
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/nectarcam/gamma/"]
+
+    elif instrument == "lstcam":
+
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
+        input_files = ["/dev/shm/.jd/lstcam/gamma/"]
 
     else:
 
