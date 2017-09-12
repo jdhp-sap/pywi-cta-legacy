@@ -32,8 +32,8 @@ NUM_IMAGES = 1000
 INPUT_DIR_PATH = os.path.expanduser("~/data/sst1m_mini_array_konrad/fits/sst1m/gamma")
 OUTPUT_FILE_PATH = "/dev/shm/.jd/digicam/gamma"
 
-NPE_MIN = 1       # TODO
-NPE_MAX = 2000    # TODO
+NPE_MIN = 30
+NPE_MAX = 2000
 
 
 # TODO: filter contained images -> pb: la meth doit etre adaptee pour les images hexagonales...
