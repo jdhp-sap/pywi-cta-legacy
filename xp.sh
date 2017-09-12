@@ -155,9 +155,9 @@ digicam_mini_konrad)
 
     TC_PARAMS="-T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
 
-    # 2017/09/??
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
+    # 2017/09/11
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,3,4,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s3-3-4-4" ;
     ;;
 flashcam_mini_inaf)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
