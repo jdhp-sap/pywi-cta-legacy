@@ -45,8 +45,8 @@ __all__ = ['wavelet_transform']
 import argparse
 import datetime
 import json
-import os
 import numpy as np
+import os
 import time
 
 import datapipe.denoising
@@ -74,15 +74,70 @@ class WrongDimensionError(MrTransformError):
 
 ##############################################################################
 
+def wavelet_transform(input_img,
+                      number_of_scales=4,
+                      tmp_files_directory=".",       # "/Volumes/ramdisk"
+                      noise_distribution=None):
+    """
+    Do the wavelet transform.
+    """
+
+    input_img = input_img.copy()
+
+    if input_img.ndim != 2:
+        raise WrongDimensionError()
+
+    input_file_path = os.path.join(tmp_files_directory, ".tmp_{}_{}_in.fits".format(os.getpid(), time.time()))
+    mr_output_file_path = os.path.join(tmp_files_directory, ".tmp_{}_{}_out.fits".format(os.getpid(), time.time()))
+
+    # INJECT NOISE IN NAN ##################################
+
+    # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
+    nan_mask = np.isnan(input_img)
+
+    #print(input_img)
+    #images.plot(input_img, "In")
+    #images.plot(nan_mask, "Mask")
+
+    if noise_distribution is not None:
+        nan_noise_size = np.count_nonzero(nan_mask)
+        input_img[nan_mask] = noise_distribution.rvs(size=nan_noise_size)
+
+    #print(input_img)
+    #images.plot(input_img, "Noise injected")
+
+    # WRITE THE INPUT FILE (FITS) ##########################
+
+    images.save(input_img, input_file_path)
+
+    # EXECUTE MR_TRANSFORM #################################
+
+    cmd = 'mr_transform -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+    os.system(cmd)
+
+    cmd = "mv {}.mr {}".format(mr_output_file_path, mr_output_file_path)
+    os.system(cmd)
+
+    # READ THE MR_TRANSFORM OUTPUT FILE ####################
+
+    plan_imgs = images.load(mr_output_file_path, 0)
+
+    if plan_imgs.ndim != 3:
+        raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
+    
+    return plan_imgs
+
 
 class WaveletTransform(AbstractCleaningAlgorithm):
 
     def __init__(self):
-        super(WaveletTransform, self).__init__()
+        super().__init__()
         self.label = "WT (mr_transform)"  # Name to show in plots
 
     def clean_image(self, input_img, number_of_scales=4,
-                    base_file_path="wavelet_mrtransform", output_data_dict=None):
+                    noise_distribution=None,
+                    tmp_files_directory=".",       # "/Volumes/ramdisk"
+                    output_data_dict=None):
         """
         Do the wavelet transform.
 
@@ -97,37 +152,15 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         eventuellement -w pour le debug
         """
 
-        input_file_path = base_file_path + "_in.fits"
-        mr_output_file_path = base_file_path + "_mr_planes.fits"
-
-        # WRITE THE INPUT FILE (FITS) ##########################
-
-        images.save(input_img, input_file_path)
-
-        # EXECUTE MR_TRANSFORM #################################
-
-        # TODO: improve the following lines
-        cmd = 'mr_transform -n{} "{}" {}_out'.format(number_of_scales, input_file_path, base_file_path)
-        os.system(cmd)
-
-        # TODO: improve the following lines
-        cmd = "mv {}_out.mr {}".format(base_file_path, mr_output_file_path)
-        os.system(cmd)
-
-        # READ THE MR_TRANSFORM OUTPUT FILE ####################
-
-        output_imgs = images.load(mr_output_file_path, 0)
-
-        if output_imgs.ndim != 3:
-            raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
+        plan_imgs = wavelet_transform(input_img, number_of_scales, noise_distribution)
 
         # DENOISE THE INPUT IMAGE WITH MR_TRANSFORM PLANES #####
 
         denoised_img = np.zeros(input_img.shape)
 
-        for img_index, img in enumerate(output_imgs):
+        for img_index, img in enumerate(plan_imgs):
 
-            if img_index < (len(output_imgs) - 1):  # All planes except the last one
+            if img_index < (len(plan_imgs) - 1):  # All planes except the last one
 
                 # Compute the standard deviation of the plane ##
 
@@ -160,7 +193,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
                 # Sum the plane ################################
 
-                denoised_img = denoised_img + cleaned_img
+                denoised_img += cleaned_img
 
             else:   # The last plane should be kept unmodified
 
@@ -172,7 +205,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
                 # Sum the last plane ###########################
 
-                denoised_img = denoised_img + img
+                denoised_img += cleaned_img
         
         return denoised_img
 
