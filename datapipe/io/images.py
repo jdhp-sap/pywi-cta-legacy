@@ -39,6 +39,7 @@ import os
 import ctapipe
 from ctapipe.io.hessio import hessio_event_source
 
+from datapipe.io import geometry_converter
 import ctapipe.image.geometry_converter as ctapipe_geom_converter
 from ctapipe.instrument import CameraGeometry
 
@@ -159,8 +160,6 @@ def image_generator(path_list, max_num_images=None, tel_filter_list=None, ev_fil
     `path_list` can contain FITS/Simtel files and directories.
     """
 
-    # TODO: tel_id filter and event_id filter
-
     images_counter = 0
 
     for file_path in image_files_in_paths(path_list):
@@ -212,8 +211,6 @@ def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None
     TODO
     """
 
-    raise NotImplementedError()           # TODO
-
     # EXTRACT IMAGES ##########################################################
 
     # hessio_event_source returns a Python generator that streams data from an
@@ -244,7 +241,7 @@ def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None
 
                 tel_id = int(tel_id)
 
-                if tel_id in tel_filter_list:
+                if (tel_filter_list is None) or (tel_id in tel_filter_list):
 
                     # CHECK THE IMAGE GEOMETRY ################################
 
@@ -264,9 +261,47 @@ def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None
 
                     calibrated_image = event.dl1.tel[tel_id].image
 
+                    # MIX CHANNELS FOR DOUBLE CHANNEL CAMERAS
+                    if geom.cam_id in ("ASTRICam", "ASTRI"):
+                        ASTRI_CAM_CHANNEL_THRESHOLD = 14         # cf. "calib_find_channel_selection_threshold" notebook
+                        calibrated_image[1, calibrated_image[0,:] <= ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+                        calibrated_image[0, calibrated_image[0,:] >  ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+                        calibrated_image = calibrated_image.sum(axis=0)
+                    elif geom.cam_id == "NectarCam":
+                        NECTAR_CAM_CHANNEL_THRESHOLD = 190       # cf. "calib_find_channel_selection_threshold" notebook
+                        calibrated_image[1, calibrated_image[0,:] <= NECTAR_CAM_CHANNEL_THRESHOLD] = 0
+                        calibrated_image[0, calibrated_image[0,:] >  NECTAR_CAM_CHANNEL_THRESHOLD] = 0
+                        calibrated_image = calibrated_image.sum(axis=0)
+                    elif geom.cam_id == "LSTCam":
+                        LST_CAM_CHANNEL_THRESHOLD = 100          # cf. "calib_find_channel_selection_threshold" notebook
+                        calibrated_image[1, calibrated_image[0,:] <= LST_CAM_CHANNEL_THRESHOLD] = 0
+                        calibrated_image[0, calibrated_image[0,:] >  LST_CAM_CHANNEL_THRESHOLD] = 0
+                        calibrated_image = calibrated_image.sum(axis=0)
+
                     # CONVERTING GEOMETRY (1D TO 2D) ##########################
 
-                    if geom.cam_id != "DigiCam":
+                    if geom.cam_id in ("ASTRICam", "ASTRI"):
+
+                        pe_image_2d = geometry_converter.astri_to_2d_array(pe_image, crop=crop)
+                        calibrated_image_2d = geometry_converter.astri_to_2d_array(calibrated_image, crop=crop)
+
+                        uncalibrated_image_2d = geometry_converter.astri_to_3d_array(uncalibrated_image, crop=crop)
+                        pedestal_2d = geometry_converter.astri_to_3d_array(pedestal, crop=crop)
+                        gains_2d = geometry_converter.astri_to_3d_array(gain, crop=crop)
+                        pixel_pos_2d = geometry_converter.astri_to_3d_array(pixel_pos, crop=crop)
+
+                    elif geom.cam_id in ("GATE", "CHEC"):
+
+                        pe_image_2d = geometry_converter.gct_to_2d_array(pe_image)
+                        calibrated_image_2d = geometry_converter.gct_to_2d_array(calibrated_image)
+
+                        uncalibrated_image_2d = geometry_converter.gct_to_3d_array(uncalibrated_image)
+                        pedestal_2d = geometry_converter.gct_to_3d_array(pedestal)
+                        gains_2d = geometry_converter.gct_to_3d_array(gain)
+                        pixel_pos_2d = geometry_converter.gct_to_3d_array(pixel_pos)
+
+                    elif geom.cam_id in ("DigiCam", "FlashCam"):
+
                         buffer_id_str = geom.cam_id + "0"
 
                         geom2d, pe_image_2d =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pe_image,              buffer_id_str, add_rot=0)
@@ -280,32 +315,80 @@ def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None
                         pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
                                                             np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))
 
-                        # The ctapipe geometry converter operate on one channel
-                        # only and then takes and return a 2D array but datapipe
-                        # fits files keep all channels and thus takes 3D arrays...
+                    elif geom.cam_id in ("NectarCam", "LSTCam"):
 
-                        uncalibrated_image_2d = np.array([uncalibrated_image_2d])  # TODO
-                        pedestal_2d =           np.array([pedestal_2d])  # TODO
-                        gains_2d =              np.array([gains_2d])  # TODO
+                        buffer_id_str = geom.cam_id + "0"
 
-                        # GET PIXEL MASK ##########################################
+                        geom2d, pe_image_2d =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pe_image,           buffer_id_str, add_rot=0)
+                        geom2d, calibrated_image_2d =   ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, calibrated_image,   buffer_id_str, add_rot=0)
 
-                        pixel_mask = geom2d.mask.astype(int)  # 1 for pixels with actual data, 0 for virtual (blank) pixels
+                        geom2d, uncalibrated_image_2d_ch0 = ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, uncalibrated_image[0], buffer_id_str, add_rot=0)
+                        geom2d, uncalibrated_image_2d_ch1 = ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, uncalibrated_image[1], buffer_id_str, add_rot=0)
+                        geom2d, pedestal_2d_ch0 =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pedestal[0],           buffer_id_str, add_rot=0)
+                        geom2d, pedestal_2d_ch1 =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pedestal[1],           buffer_id_str, add_rot=0)
+                        geom2d, gains_2d_ch0 =              ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, gain[0],               buffer_id_str, add_rot=0)
+                        geom2d, gains_2d_ch1 =              ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, gain[1],               buffer_id_str, add_rot=0)
+
+                        # Make a mock pixel position array...
+                        pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
+                                                            np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))
+
                     else:
-                        raise NotImplementedError()           # TODO
-                        # TODO
+                        continue    # Ignore this image...
+                        #raise NotImplementedError(geom.cam_id)
+
+                    # FIX THE ARRAY SHAPE #####################################
+
+                    # The ctapipe geometry converter operate on one channel
+                    # only and then takes and return a 2D array but datapipe
+                    # fits files keep all channels and thus takes 3D arrays...
+
+                    if geom.cam_id in ("GATE", "CHEC", "DigiCam", "FlashCam"):
+                        # Single channel instruments ##########################
+                        uncalibrated_image_2d = np.array([uncalibrated_image_2d])
+                        pedestal_2d =           np.array([pedestal_2d])
+                        gains_2d =              np.array([gains_2d])
+                    elif geom.cam_id in ("NectarCam", "LSTCam"):
+                        # Double channel instruments (EXCEPT ASTRI) ###########
+                        uncalibrated_image_2d = np.array([uncalibrated_image_2d_ch0, uncalibrated_image_2d_ch1])
+                        pedestal_2d =           np.array([pedestal_2d_ch0, pedestal_2d_ch1 ])
+                        gains_2d =              np.array([gains_2d_ch0, gains_2d_ch1])
+                    else:
+                        continue    # Ignore this image...
+                        #raise NotImplementedError(geom.cam_id)
+
+                    # GET PIXEL MASK ##########################################
+
+                    # 1 for pixels with actual data, 0 for virtual (blank) pixels
+
+                    if geom.cam_id in ("DigiCam", "NectarCam", "FlashCam", "LSTCam"):
+                        # Instruments with square pixel layout -> use Tino's converter
+                        pixel_mask = geom2d.mask.astype(int)
+                    elif geom.cam_id in ("ASTRICam", "ASTRI"):
+                        pixel_mask = geometry_converter.astri_pixel_mask(False)
+                    elif geom.cam_id in ("GATE", "CHEC"):
+                        pixel_mask = geometry_converter.gct_pixel_mask()
+                    else:
+                        continue    # Ignore this image...
+                        #raise NotImplementedError(geom.cam_id)
 
                     # PUT NAN IN BLANK PIXELS #################################
 
-                    calibrated_image_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
-                    pe_image_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
+                    calibrated_image_2d[np.logical_not(pixel_mask)] = np.nan
+                    pe_image_2d[np.logical_not(pixel_mask)] = np.nan
 
-                    uncalibrated_image_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
-                    pedestal_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
-                    gains_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
+                    uncalibrated_image_2d[0, np.logical_not(pixel_mask)] = np.nan
+                    pedestal_2d[0, np.logical_not(pixel_mask)] = np.nan
+                    gains_2d[0, np.logical_not(pixel_mask)] = np.nan
 
-                    pixel_pos_2d[0,np.logical_not(geom2d.mask)] = np.nan  # TODO
-                    pixel_pos_2d[1,np.logical_not(geom2d.mask)] = np.nan  # TODO
+                    if geom.cam_id in ("NectarCam", "LSTCam", "ASTRICam", "ASTRI"):
+                        # Double channel instruments
+                        uncalibrated_image_2d[1, np.logical_not(pixel_mask)] = np.nan
+                        pedestal_2d[1, np.logical_not(pixel_mask)] = np.nan
+                        gains_2d[1, np.logical_not(pixel_mask)] = np.nan
+
+                    pixel_pos_2d[0, np.logical_not(pixel_mask)] = np.nan
+                    pixel_pos_2d[1, np.logical_not(pixel_mask)] = np.nan
 
                     # MAKE METADATA ###########################################
 
@@ -350,7 +433,7 @@ def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None
                     images_dict["pixels_position"] = pixel_pos_2d
                     images_dict["pixels_mask"] = pixel_mask
 
-    return images_dict, metadata
+                    yield images_dict, metadata
 
 
 # LOAD FITS BENCHMARK IMAGE ##################################################
