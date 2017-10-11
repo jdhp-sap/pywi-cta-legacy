@@ -154,7 +154,11 @@ def image_files_in_paths(path_list, max_num_files=None):
 
 # LOAD IMAGES ################################################################
 
-def image_generator(path_list, max_num_images=None, tel_filter_list=None, ev_filter_list=None):
+def image_generator(path_list,
+                    max_num_images=None,
+                    tel_filter_list=None,
+                    ev_filter_list=None,
+                    cam_filter_list=None):
     """Return an iterable sequence all calibrated images in `path_list`.
 
     `path_list` can contain FITS/Simtel files and directories.
@@ -168,8 +172,11 @@ def image_generator(path_list, max_num_images=None, tel_filter_list=None, ev_fil
                 if (max_num_images is not None) and (images_counter >= max_num_images):
                     break
                 else:
-                    images_counter += 1
-                    yield image_dict, fits_metadata_dict
+                    if (tel_filter_list is None) or (fits_metadata_dict['tel_id'] in tel_filter_list):
+                        if (ev_filter_list is None) or (fits_metadata_dict['event_id'] in ev_filter_list):
+                            if (cam_filter_list is None) or (fits_metadata_dict['cam_id'] in cam_filter_list):
+                                images_counter += 1
+                                yield image_dict, fits_metadata_dict
         elif file_path.lower().endswith((".fits", ".fit")):
             if (max_num_images is not None) and (images_counter >= max_num_images):
                 break
@@ -177,8 +184,9 @@ def image_generator(path_list, max_num_images=None, tel_filter_list=None, ev_fil
                 image_dict, fits_metadata_dict = load_benchmark_images(file_path)
                 if (tel_filter_list is None) or (fits_metadata_dict['tel_id'] in tel_filter_list):
                     if (ev_filter_list is None) or (fits_metadata_dict['event_id'] in ev_filter_list):
-                        images_counter += 1
-                        yield image_dict, fits_metadata_dict
+                        if (cam_filter_list is None) or (fits_metadata_dict['cam_id'] in cam_filter_list):
+                            images_counter += 1
+                            yield image_dict, fits_metadata_dict
         else:
             raise Exception("Wrong item:", file_path)
 
