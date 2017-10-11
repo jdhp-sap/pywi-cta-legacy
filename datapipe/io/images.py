@@ -23,12 +23,27 @@
 __all__ = ['load',
            'save',
            'mpl_save',
-           'plot']
+           'plot',
+           'image_files_in_dir',
+           'image_files_in_paths',
+           'image_generator']
 
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
+
+import numpy as np
+import os
+
+import ctapipe
+from ctapipe.io.hessio import hessio_event_source
+
+import ctapipe.image.geometry_converter as ctapipe_geom_converter
+from ctapipe.instrument import CameraGeometry
+
+# calibrator
+from ctapipe.calib import CameraCalibrator
 
 import os
 
@@ -46,7 +61,7 @@ class WrongHDUError(FitsError):
     """
 
     def __init__(self, file_path, hdu_index):
-        super(WrongHDUError, self).__init__("File {} doesn't have data in HDU {}.".format(file_path, hdu_index))
+        super().__init__("File {} doesn't have data in HDU {}.".format(file_path, hdu_index))
         self.file_path = file_path
         self.hdu_index = hdu_index
 
@@ -60,7 +75,7 @@ class NotAnImageError(FitsError):
     """
 
     def __init__(self, file_path, hdu_index):
-        super(NotAnImageError, self).__init__("HDU {} in file {} doesn't contain any image.".format(hdu_index, file_path))
+        super().__init__("HDU {} in file {} doesn't contain any image.".format(hdu_index, file_path))
         self.file_path = file_path
         self.hdu_index = hdu_index
 
@@ -71,7 +86,7 @@ class WrongDimensionError(FitsError):
     """
 
     def __init__(self):
-        super(WrongDimensionError, self).__init__("The input image should be a 2D or a 3D numpy array.")
+        super().__init__("The input image should be a 2D or a 3D numpy array.")
 
 class WrongFitsFileStructure(FitsError):
     """Exception raised when trying to load a FITS file which doesn't contain a
@@ -82,11 +97,263 @@ class WrongFitsFileStructure(FitsError):
     """
 
     def __init__(self, file_path):
-        super(WrongFitsFileStructure, self).__init__("File {} doesn't contain a valid structure.".format(file_path))
+        super().__init__("File {} doesn't contain a valid structure.".format(file_path))
         self.file_path = file_path
 
 
-# LOAD BENCHMARK IMAGE #######################################################
+# DIRECTORY PARSER ############################################################
+
+def image_files_in_dir(directory_path, max_num_files=None):
+    """
+    Return the list of all FITS files and Simtel files in `directory_path`.
+    """
+
+    FILE_EXT = (".simtel", ".simtel.gz", ".fits", ".fit")
+    directory_path = os.path.expanduser(directory_path)
+
+    files_counter = 0
+
+    for file_name in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, file_name)
+        if os.path.isfile(file_path) and file_name.lower().endswith(FILE_EXT):
+            files_counter += 1
+            if (max_num_files is not None) and (files_counter > max_num_files):
+                break
+            else:
+                yield file_path
+
+
+def image_files_in_paths(path_list, max_num_files=None):
+    """Return an iterable sequence all FITS files path and Simtel files path in `path_list`.
+
+    `path_list` can contain files and directories.
+    """
+
+    files_counter = 0
+
+    for path in path_list:
+        if os.path.isdir(path):
+            # If path is a directory
+            for file_path in image_files_in_dir(path):
+                files_counter += 1
+                if (max_num_files is not None) and (files_counter > max_num_files):
+                    break
+                else:
+                    yield file_path
+        elif os.path.isfile(path):
+            # If path is a regular file
+            files_counter += 1
+            if (max_num_files is not None) and (files_counter > max_num_files):
+                break
+            else:
+                yield path
+        else:
+            raise Exception("Wrong item:", path)
+
+
+# LOAD IMAGES ################################################################
+
+def image_generator(path_list, max_num_images=None, tel_filter_list=None, ev_filter_list=None):
+    """Return an iterable sequence all calibrated images in `path_list`.
+
+    `path_list` can contain FITS/Simtel files and directories.
+    """
+
+    # TODO: tel_id filter and event_id filter
+
+    images_counter = 0
+
+    for file_path in image_files_in_paths(path_list):
+        if file_path.lower().endswith((".simtel", ".simtel.gz")):
+            for image_dict, fits_metadata_dict in simtel_images_generator(file_path, tel_filter_list, ev_filter_list):
+                if (max_num_images is not None) and (images_counter >= max_num_images):
+                    break
+                else:
+                    images_counter += 1
+                    yield image_dict, fits_metadata_dict
+        elif file_path.lower().endswith((".fits", ".fit")):
+            if (max_num_images is not None) and (images_counter >= max_num_images):
+                break
+            else:
+                image_dict, fits_metadata_dict = load_benchmark_images(file_path)
+                if (tel_filter_list is None) or (fits_metadata_dict['tel_id'] in tel_filter_list):
+                    if (ev_filter_list is None) or (fits_metadata_dict['event_id'] in ev_filter_list):
+                        images_counter += 1
+                        yield image_dict, fits_metadata_dict
+        else:
+            raise Exception("Wrong item:", file_path)
+
+
+# LOAD SIMTEL IMAGE ##########################################################
+
+def quantity_to_tuple(quantity, unit_str):
+    """
+    Splits a quantity into a tuple of (value,unit) where unit is FITS complient.
+
+    Useful to write FITS header keywords with units in a comment.
+
+    Parameters
+    ----------
+    quantity : astropy quantity
+        The Astropy quantity to split.
+    unit_str: str
+        Unit string representation readable by astropy.units (e.g. 'm', 'TeV', ...)
+
+    Returns
+    -------
+    tuple
+        A tuple containing the value and the quantity.
+    """
+    return quantity.to(unit_str).value, quantity.to(unit_str).unit.to_string(format='FITS')
+
+
+def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None):
+    """
+    TODO
+    """
+
+    raise NotImplementedError()           # TODO
+
+    # EXTRACT IMAGES ##########################################################
+
+    # hessio_event_source returns a Python generator that streams data from an
+    # EventIO/HESSIO MC data file (e.g. a standard CTA data file).
+    # This generator contains ctapipe.core.Container instances ("event").
+    # 
+    # Parameters:
+    # - max_events: maximum number of events to read
+    # - allowed_tels: select only a subset of telescope, if None, all are read.
+
+    source = hessio_event_source(file_path, allowed_tels=tel_filter_list)
+
+    # ITERATE OVER EVENTS #####################################################
+
+    calib = CameraCalibrator(None, None)
+
+    for event in source:
+
+        calib.calibrate(event)  # calibrate the event
+
+        event_id = int(event.dl0.event_id)
+
+        if (ev_filter_list is None) or (event_id in ev_filter_list):
+
+            # ITERATE OVER IMAGES #############################################
+
+            for tel_id in event.trig.tels_with_trigger:
+
+                tel_id = int(tel_id)
+
+                if tel_id in tel_filter_list:
+
+                    # CHECK THE IMAGE GEOMETRY ################################
+
+                    x, y = event.inst.pixel_pos[tel_id]
+                    foclen = event.inst.optical_foclen[tel_id]
+                    geom = CameraGeometry.guess(x, y, foclen)
+
+                    # GET IMAGES ##############################################
+
+                    pe_image = event.mc.tel[tel_id].photo_electron_image   # 1D np array
+
+                    #uncalibrated_image = event.dl0.tel[tel_id].adc_sums  # ctapipe 0.3.0
+                    uncalibrated_image = event.r0.tel[tel_id].adc_sums    # ctapipe 0.4.0
+                    pedestal = event.mc.tel[tel_id].pedestal
+                    gain = event.mc.tel[tel_id].dc_to_pe
+                    pixel_pos = event.inst.pixel_pos[tel_id]
+
+                    calibrated_image = event.dl1.tel[tel_id].image
+
+                    # CONVERTING GEOMETRY (1D TO 2D) ##########################
+
+                    if geom.cam_id != "DigiCam":
+                        buffer_id_str = geom.cam_id + "0"
+
+                        geom2d, pe_image_2d =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pe_image,              buffer_id_str, add_rot=0)
+                        geom2d, calibrated_image_2d =   ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, calibrated_image[0],   buffer_id_str, add_rot=0)
+
+                        geom2d, uncalibrated_image_2d = ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, uncalibrated_image[0], buffer_id_str, add_rot=0)
+                        geom2d, pedestal_2d =           ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, pedestal[0],           buffer_id_str, add_rot=0)
+                        geom2d, gains_2d =              ctapipe_geom_converter.convert_geometry_1d_to_2d(geom, gain[0],               buffer_id_str, add_rot=0)
+
+                        # Make a mock pixel position array...
+                        pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
+                                                            np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))
+
+                        # The ctapipe geometry converter operate on one channel
+                        # only and then takes and return a 2D array but datapipe
+                        # fits files keep all channels and thus takes 3D arrays...
+
+                        uncalibrated_image_2d = np.array([uncalibrated_image_2d])  # TODO
+                        pedestal_2d =           np.array([pedestal_2d])  # TODO
+                        gains_2d =              np.array([gains_2d])  # TODO
+
+                        # GET PIXEL MASK ##########################################
+
+                        pixel_mask = geom2d.mask.astype(int)  # 1 for pixels with actual data, 0 for virtual (blank) pixels
+                    else:
+                        raise NotImplementedError()           # TODO
+                        # TODO
+
+                    # PUT NAN IN BLANK PIXELS #################################
+
+                    calibrated_image_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
+                    pe_image_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
+
+                    uncalibrated_image_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
+                    pedestal_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
+                    gains_2d[np.logical_not(geom2d.mask)] = np.nan  # TODO
+
+                    pixel_pos_2d[0,np.logical_not(geom2d.mask)] = np.nan  # TODO
+                    pixel_pos_2d[1,np.logical_not(geom2d.mask)] = np.nan  # TODO
+
+                    # MAKE METADATA ###########################################
+
+                    metadata = {}
+
+                    metadata['version'] = 1    # Version of the datapipe data format
+
+                    metadata['cam_id'] = geom.cam_id
+
+                    metadata['tel_id'] = tel_id
+                    metadata['event_id'] = event_id
+                    metadata['simtel_path'] = file_path
+
+                    metadata['num_tel_with_trigger'] = len(event.trig.tels_with_trigger)
+
+                    metadata['mc_energy'] =  quantity_to_tuple(event.mc.energy, 'TeV')
+                    metadata['mc_azimuth'] = quantity_to_tuple(event.mc.az, 'rad')
+                    metadata['mc_altitude'] = quantity_to_tuple(event.mc.alt, 'rad')
+                    metadata['mc_core_x'] = quantity_to_tuple(event.mc.core_x, 'm')
+                    metadata['mc_core_y'] = quantity_to_tuple(event.mc.core_y, 'm')
+                    metadata['mc_height_first_interaction'] = quantity_to_tuple(event.mc.h_first_int, 'm')
+
+                    metadata['ev_count'] = int(event.count)
+                    
+                    metadata['run_id'] = int(event.dl0.run_id)
+                    metadata['num_tel_with_data'] = len(event.dl0.tels_with_data)
+
+                    metadata['optical_foclen'] = quantity_to_tuple(event.inst.optical_foclen[tel_id], 'm')
+                    metadata['tel_pos_x'] = quantity_to_tuple(event.inst.tel_pos[tel_id][0], 'm')
+                    metadata['tel_pos_y'] = quantity_to_tuple(event.inst.tel_pos[tel_id][1], 'm')
+                    metadata['tel_pos_z'] = quantity_to_tuple(event.inst.tel_pos[tel_id][2], 'm')
+
+                    # IMAGES ##################################################
+
+                    images_dict = {}
+
+                    images_dict["input_image"] = calibrated_image_2d
+                    images_dict["reference_image"] = pe_image_2d
+                    images_dict["adc_sum_image"] = uncalibrated_image_2d
+                    images_dict["pedestal_image"] = pedestal_2d
+                    images_dict["gains_image"] = gains_2d
+                    images_dict["pixels_position"] = pixel_pos_2d
+                    images_dict["pixels_mask"] = pixel_mask
+
+    return images_dict, metadata
+
+
+# LOAD FITS BENCHMARK IMAGE ##################################################
 
 def load_benchmark_images(input_file_path):
     """Return images contained in the given FITS file.
