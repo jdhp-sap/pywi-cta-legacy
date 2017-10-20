@@ -106,24 +106,33 @@ def wavelet_transform(input_img,
     #print(input_img)
     #images.plot(input_img, "Noise injected")
 
-    # WRITE THE INPUT FILE (FITS) ##########################
+    try:
+        # WRITE THE INPUT FILE (FITS) ##########################
 
-    images.save(input_img, input_file_path)
+        images.save(input_img, input_file_path)
 
-    # EXECUTE MR_TRANSFORM #################################
+        # EXECUTE MR_TRANSFORM #################################
 
-    cmd = 'mr_transform -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
-    os.system(cmd)
+        cmd = 'mr_transform -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+        os.system(cmd)
 
-    cmd = "mv {}.mr {}".format(mr_output_file_path, mr_output_file_path)
-    os.system(cmd)
+        cmd = "mv {}.mr {}".format(mr_output_file_path, mr_output_file_path)
+        os.system(cmd)
 
-    # READ THE MR_TRANSFORM OUTPUT FILE ####################
+        # READ THE MR_TRANSFORM OUTPUT FILE ####################
 
-    plan_imgs = images.load(mr_output_file_path, 0)
+        plan_imgs = images.load(mr_output_file_path, 0)
 
-    if plan_imgs.ndim != 3:
-        raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
+        # CHECK RESULT #########################################
+
+        if plan_imgs.ndim != 3:
+            raise Exception("Unexpected error: the output FITS file should contain a 3D array.")
+
+    finally:
+        # REMOVE FITS FILES ####################################
+
+        os.remove(input_file_path)
+        os.remove(mr_output_file_path)
     
     return plan_imgs
 
