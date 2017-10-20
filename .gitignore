@@ -1,15 +1,10 @@
 # MISC ########################################################################
 
-data
-sandbox/
+MISC/
+xps/
 *.pdf
 *.json
 *.fits
-
-FORMER_EXAMPLES/
-PERPENDICULAR_HIT_DISTRIBUTION_TESTS/
-a_ranger/
-img_ex/
 
 # PYTHON ######################################################################
 
