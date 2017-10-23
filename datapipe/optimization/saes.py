@@ -101,7 +101,7 @@ def main():
     res = minimize(func,
                    init_min_val=init_min_val,
                    init_max_val=init_max_val,
-                   num_gen=5,
+                   num_gen=100,
                    mu=3,
                    lmb=6,
                    callback=callback)
@@ -179,7 +179,7 @@ def minimize(objective_function,
     res['x'] =     pop[:mu,1:-1].tolist()
     res['fun'] =   pop[:mu,-1].tolist()
     res['nit'] = gen + 1
-    res['nfev'] = res.nit * lmb + mu
+    res['nfev'] = res['nit'] * lmb + mu
     res['parent_pop'] = pop[:mu,:].tolist()
     res['init_min_val'] = init_min_val
     res['init_max_val'] = init_max_val
