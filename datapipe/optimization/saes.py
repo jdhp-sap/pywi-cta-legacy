@@ -33,9 +33,9 @@ from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 
 def main():
 
-    #instrument = "astri"
+    instrument = "astri"
     #instrument = "astri_konrad"
-    instrument = "digicam"
+    #instrument = "digicam"
     #instrument = "flashcam"
     #instrument = "nectarcam"
     #instrument = "lstcam"
@@ -168,10 +168,11 @@ def minimize(objective_function,
 
         # Select the best individuals ##################
         pop = pop[pop[:,-1].argsort()]
-        pop[mu:, :] = np.nan
 
         if callback is not None:
             callback(pop.tolist())
+
+        pop[mu:, :] = np.nan
 
     res = {}
     res['sigma'] = pop[:mu,0].tolist()
