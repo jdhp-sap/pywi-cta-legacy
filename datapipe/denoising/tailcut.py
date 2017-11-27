@@ -147,10 +147,10 @@ def main():
     parser = argparse.ArgumentParser(description="Denoise FITS images with the tailcut algorithm.")
 
     parser.add_argument("--high_threshold", "-T", type=float, default=0, metavar="FLOAT", 
-                        help="The 'high' threshold value (between 0 and 1)")
+                        help="The 'high' threshold value")
 
     parser.add_argument("--low_threshold", "-t", type=float, default=0, metavar="FLOAT", 
-                        help="The 'low' threshold value (between 0 and 1)")
+                        help="The 'low' threshold value")
 
     parser.add_argument("--kill-isolated-pixels", action="store_true",
                         help="Suppress isolated pixels in the support (scipy implementation)")
