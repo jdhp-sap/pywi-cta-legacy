@@ -166,9 +166,13 @@ digicam_mini_konrad)
 
     TC_PARAMS="--label=\"Tailcut-6-3\" -T6 -t3 --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
 
-    # 2017/09/11
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,3,4,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s3-3-4-4" ;
+    ## 2017/09/11
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s3,3,4,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s3-3-4-4" ;
+
+    # 2017/10/24
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s6.274,2.629,7.755,0.076 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s6.274-2.629-7.755-0.076" ;
     ;;
 flashcam_mini_inaf)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
@@ -198,9 +202,13 @@ nectarcam_grid_prod3b_north)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
 
-    # 2017/09/07
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
+    ## 2017/09/07
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
+
+    # 2017/10/24
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s13.013,2.549,6.559,1.412 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s13.013-2.549-6.559-1.412" ;
     ;;
 lstcam_grid_prod3b_north)
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
@@ -214,9 +222,13 @@ lstcam_grid_prod3b_north)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
 
-    # 2017/09/07
-    WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
-    WT_LABEL="WT-K-k-C1-m3-n4-s2-2.5-4-1" ;
+    ## 2017/09/07
+    #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    #WT_LABEL="WT-K-k-C1-m3-n4-s2-2.5-4-1" ;
+
+    # 2017/10/24
+    WT_PARAMS="-K -k -C1 -m3 -n4 -s23.343,2.490,-2.856,-0.719 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
+    WT_LABEL="WT-K-k-C1-m3-n4-s23.343-2.490--2.856--0.719" ;
     ;;
 *)
     echo "Unknown option" ;
