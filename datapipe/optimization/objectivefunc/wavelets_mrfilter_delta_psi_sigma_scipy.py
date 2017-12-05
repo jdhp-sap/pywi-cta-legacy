@@ -27,6 +27,15 @@ import numpy as np
 from datapipe.denoising.wavelets_mrfilter import WaveletTransform
 from datapipe.benchmark import assess
 
+
+def norm_angle_diff(angle_in_degrees):
+    """Normalize the difference of 2 angles in degree.
+
+    This function is used to normalize the "delta psi" angle.
+    """
+    return np.abs(np.mod(angle_in_degrees + 90, 180) - 90.)
+
+
 # OPTIMIZER ##################################################################
 
 class ObjectiveFunction:
@@ -130,7 +139,7 @@ class ObjectiveFunction:
                 output_image_parameter_psi_rad = image_dict["img_ref_hillas_2_psi"]
                 reference_image_parameter_psi_rad = image_dict["img_cleaned_hillas_2_psi"]
                 delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
-                normalized_delta_psi_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
+                normalized_delta_psi_deg = norm_angle_diff(np.degrees(delta_psi_rad))
 
                 if image_dict["score_name"][0] != "delta_psi":
                     raise Exception("Cannot get the score")

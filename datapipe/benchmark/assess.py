@@ -120,6 +120,14 @@ def normalize_array(input_array):
     return output_array
 
 
+def norm_angle_diff(angle_in_degrees):
+    """Normalize the difference of 2 angles in degree.
+
+    This function is used to normalize the "delta psi" angle.
+    """
+    return abs(((angle_in_degrees + 90) % 180) - 90.)
+
+
 ###############################################################################
 # METRIC FUNCTIONS                                                            #
 ###############################################################################
@@ -644,7 +652,7 @@ def metric_delta_psi(input_img, output_image, reference_image, pixels_position, 
     reference_image_parameter_psi_rad = reference_image_parameters.psi.to(u.rad).value
     delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
 
-    normalized_delta_psi_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
+    normalized_delta_psi_deg = norm_angle_diff(math.degrees(delta_psi_rad))
 
     return normalized_delta_psi_deg
 
@@ -747,10 +755,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
     delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
 
     # Normalized psi
-    normalized_delta_psi = float(np.abs(np.sin(delta_psi_rad)))
-
-    # Normalized psi2
-    normalized_delta_psi2_deg = abs(np.fmod(np.degrees(delta_psi_rad), 90.))
+    normalized_delta_psi = norm_angle_diff(math.degrees(delta_psi_rad))
 
     ## Miss
     #output_image_parameter_miss = output_image_parameters.miss.value
@@ -763,17 +768,16 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
         suffix_str = ''
 
     score_dict = collections.OrderedDict((
-                    ('hillas' + str(hillas_implementation) + '_delta_size'      + suffix_str, delta_size),
-                    ('hillas' + str(hillas_implementation) + '_delta_cen_x'     + suffix_str, delta_cen_x),
-                    ('hillas' + str(hillas_implementation) + '_delta_cen_y'     + suffix_str, delta_cen_y),
-                    ('hillas' + str(hillas_implementation) + '_delta_length'    + suffix_str, delta_length),
-                    ('hillas' + str(hillas_implementation) + '_delta_width'     + suffix_str, delta_width),
-                    ('hillas' + str(hillas_implementation) + '_delta_r'         + suffix_str, delta_r),
-                    ('hillas' + str(hillas_implementation) + '_delta_phi'       + suffix_str, delta_phi),
-                    ('hillas' + str(hillas_implementation) + '_delta_psi'       + suffix_str, delta_psi_rad),
-                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm'  + suffix_str, normalized_delta_psi),
-                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm2' + suffix_str, normalized_delta_psi2_deg),
-                    #('hillas' + str(hillas_implementation) + '_delta_miss'     + suffix_str, delta_miss)
+                    ('hillas' + str(hillas_implementation) + '_delta_size'     + suffix_str, delta_size),
+                    ('hillas' + str(hillas_implementation) + '_delta_cen_x'    + suffix_str, delta_cen_x),
+                    ('hillas' + str(hillas_implementation) + '_delta_cen_y'    + suffix_str, delta_cen_y),
+                    ('hillas' + str(hillas_implementation) + '_delta_length'   + suffix_str, delta_length),
+                    ('hillas' + str(hillas_implementation) + '_delta_width'    + suffix_str, delta_width),
+                    ('hillas' + str(hillas_implementation) + '_delta_r'        + suffix_str, delta_r),
+                    ('hillas' + str(hillas_implementation) + '_delta_phi'      + suffix_str, delta_phi),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi'      + suffix_str, delta_psi_rad),
+                    ('hillas' + str(hillas_implementation) + '_delta_psi_norm' + suffix_str, normalized_delta_psi),
+                    #('hillas' + str(hillas_implementation) + '_delta_miss'    + suffix_str, delta_miss)
                  ))
 
     Score = collections.namedtuple('Score', score_dict.keys())
