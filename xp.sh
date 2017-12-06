@@ -100,7 +100,7 @@ astri_mini_cropped)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
 
-    TC_PARAMS="--label=\"Tailcut-7-5\" -T7 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri_cropped.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-7-3.5\" -T7 -t3.5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri_cropped.geom.json" ;
 
     # OLD VERSION
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -116,7 +116,7 @@ astri_mini_inaf)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
 
-    TC_PARAMS="--label=\"Tailcut-7-5\" -T7 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-7-3.5\" -T7 -t3.5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
 
     ## 2016
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -136,7 +136,7 @@ astri_mini_konrad)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_konrad_cdf.json ;
 
-    TC_PARAMS="--label=\"Tailcut-7-5\" -T7 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-7-3.5\" -T7 -t3.5 --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
 
     ## 2017/02
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -154,7 +154,7 @@ gct_unk)
 
     WT_NAN_NOISE_CDF_FILE= ;
 
-    TC_PARAMS="--label=\"Tailcut-4-2\" -T4 -t2 --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-2-1\" -T2 -t1 --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
     WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
     ;;
@@ -164,7 +164,7 @@ digicam_mini_konrad)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/digicam_konrad_cdf.json ;
 
-    TC_PARAMS="--label=\"Tailcut-6-3\" -T6 -t3 --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-3-1.5\" -T3 -t1.5 --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
 
     ## 2017/09/11
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3,3,4,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -180,7 +180,7 @@ flashcam_mini_inaf)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/flashcam_grid_prod3b_north_cdf.json ;
 
-    TC_PARAMS="--label=\"Tailcut-15-12\" -T15 -t12 --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-5-2.5\" -T5 -t2.5 --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json" ;
 
     ## 2017/07
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s4,4,5,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -196,7 +196,7 @@ nectarcam_grid_prod3b_north)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf.json ;
 
-    TC_PARAMS="--label=\"Tailcut-8-4\" -T8 -t4 --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-4-2\" -T4 -t2 --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
 
     ## 2017/08
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -216,7 +216,7 @@ lstcam_grid_prod3b_north)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf.json ;
 
-    TC_PARAMS="--label=\"Tailcut-10-5\" -T10 -t5 --kill-isolated-pixels --geom ./datapipe/io/geom/lstcam2d.geom.json" ;
+    TC_PARAMS="--label=\"Tailcut-4-2\" -T4 -t2 --kill-isolated-pixels --geom ./datapipe/io/geom/lstcam2d.geom.json" ;
 
     ## 2017/08
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
