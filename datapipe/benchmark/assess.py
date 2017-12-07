@@ -40,6 +40,7 @@ import astropy.units as u
 import collections
 
 import numpy as np
+import math
 
 from datapipe.image.hillas_parameters import get_hillas_parameters
 
