@@ -197,6 +197,7 @@ digicam_mini_konrad)
 
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
 
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
