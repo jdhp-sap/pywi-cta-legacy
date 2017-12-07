@@ -98,9 +98,19 @@ astri_mini_inaf)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
 
-    TC_HTH="7" ;
-    TC_LTH="3.5" ;
+    #TC_HTH="10" ; # HESS
+    #TC_LTH="5" ;  # HESS
+
+    #TC_HTH="7" ; # Tino
+    #TC_LTH="5" ; # Tino
+
+    TC_HTH="7" ;   # CTA Abelardo 2nd pass
+    TC_LTH="3.5" ; # CTA Abelardo 2nd pass
+
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
+
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2016
@@ -121,9 +131,19 @@ astri_mini_konrad)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_konrad_cdf.json ;
 
-    TC_HTH="7" ;
-    TC_LTH="3.5" ;
+    #TC_HTH="10" ; # HESS
+    #TC_LTH="5" ;  # HESS
+
+    #TC_HTH="7" ; # Tino
+    #TC_LTH="5" ; # Tino
+
+    TC_HTH="7" ;   # CTA Abelardo 2nd pass
+    TC_LTH="3.5" ; # CTA Abelardo 2nd pass
+
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
+
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/02
@@ -142,9 +162,19 @@ gct_unk)
 
     WT_NAN_NOISE_CDF_FILE= ;
 
-    TC_HTH="2" ;
-    TC_LTH="1" ;
+    #TC_HTH="10" ; # HESS
+    #TC_LTH="5" ;  # HESS
+
+    #TC_HTH="4" ; # CTA Abelardo 1st pass
+    #TC_LTH="2" ; # CTA Abelardo 1st pass
+
+    TC_HTH="2" ; # CTA Abelardo 2nd pass
+    TC_LTH="1" ; # CTA Abelardo 2nd pass
+
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
+
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -156,9 +186,18 @@ digicam_mini_konrad)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/digicam_konrad_cdf.json ;
 
-    TC_HTH="3" ;
-    TC_LTH="1.5" ;
+    #TC_HTH="10" ; # HESS
+    #TC_LTH="5" ;  # HESS
+
+    #TC_HTH="6" ; # CTA Abelardo 1st pass
+    #TC_LTH="3" ; # CTA Abelardo 1st pass
+
+    TC_HTH="3" ;   # CTA Abelardo 2nd pass
+    TC_LTH="1.5" ; # CTA Abelardo 2nd pass
+
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
+
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/09/11
@@ -175,9 +214,19 @@ flashcam_mini_inaf)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/flashcam_grid_prod3b_north_cdf.json ;
 
-    TC_HTH="5" ;
-    TC_LTH="2.5" ;
+    #TC_HTH="10" ; # HESS
+    #TC_LTH="5" ;  # HESS
+
+    #TC_HTH="8" ; # CTA Abelardo 1st pass
+    #TC_LTH="4" ; # CTA Abelardo 1st pass
+
+    TC_HTH="5" ;   # CTA Abelardo 2nd pass
+    TC_LTH="2.5" ; # CTA Abelardo 2nd pass
+
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json" ;
+
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/07
@@ -194,9 +243,19 @@ nectarcam_grid_prod3b_north)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf.json ;
 
-    TC_HTH="4" ;
-    TC_LTH="2" ;
+    #TC_HTH="10" ; # HESS
+    #TC_LTH="5" ;  # HESS
+
+    #TC_HTH="8" ; # CTA Abelardo 1st pass
+    #TC_LTH="4" ; # CTA Abelardo 1st pass
+
+    TC_HTH="4" ; # CTA Abelardo 2nd pass
+    TC_LTH="2" ; # CTA Abelardo 2nd pass
+
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
+
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/08
@@ -217,9 +276,19 @@ lstcam_grid_prod3b_north)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf.json ;
 
-    TC_HTH="4" ;
-    TC_LTH="2" ;
+    #TC_HTH="10" ; # HESS
+    #TC_LTH="5" ;  # HESS
+
+    #TC_HTH="6" ; # CTA Abelardo 1st pass
+    #TC_LTH="3" ; # CTA Abelardo 1st pass
+
+    TC_HTH="4" ; # CTA Abelardo 2nd pass
+    TC_LTH="2" ; # CTA Abelardo 2nd pass
+
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/lstcam2d.geom.json" ;
+
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/08
