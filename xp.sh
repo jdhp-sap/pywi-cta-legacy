@@ -11,7 +11,7 @@ NUM_IMG=0
 
 #INST="astri_mini_inaf"
 #INST="astri_mini_konrad"
-#INST="gct_unk"
+#INST="gct_mini_konrad"
 INST="digicam_mini_konrad"
 
 #INST="flashcam_mini_inaf"
@@ -154,13 +154,11 @@ astri_mini_konrad)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s3,1,3.5,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s3-1-3.5-1" ;
     ;;
-gct_unk)
-    # TODO
+gct_mini_konrad)
+    GAMMA_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/gamma ;
+    PROTON_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/proton ;
 
-    PROTON_FITS_DIR=~/gct_data/fits/proton ;
-    #PROTON_FITS_DIR=~/gct_data/fits/proton/group1run100[0123].simtel.gz_TEL0* ;
-
-    WT_NAN_NOISE_CDF_FILE= ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/gct_konrad_cdf.json ;
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
