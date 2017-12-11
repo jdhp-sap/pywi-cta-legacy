@@ -80,17 +80,6 @@ echo "MRFILTER_TMP_DIR: ${MRFILTER_TMP_DIR}"
 #GAMMA_FITS_DIR=${MRFILTER_TMP_DIR}/astri_data/fits_flashcam/gamma
 #PROTON_FITS_DIR=${MRFILTER_TMP_DIR}/astri_data/fits_flashcam/proton
 
-# Tailcut thresholds (cf. Tino):
-# "ASTRICam": (5, 7),  # (5, 10)?
-# "FlashCam": (12, 15),
-# # ASWG Zeuthen talk by Abelardo Moralejo:
-# "LSTCam": (5, 10),
-# "NectarCam": (4, 8),
-# # "FlashCam": (4, 8),  # there is some scaling missing?
-# "DigiCam": (3, 6),
-# "GCTCam": (2, 4),
-# "SCTCam": (1.5, 3)}
-
 case ${INST} in
 astri_mini_inaf)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
@@ -117,11 +106,11 @@ astri_mini_inaf)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3       --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s3"
 
-    ## 2017/02
+    ## 2017/02 (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
 
-    # 2017/09/07
+    # 2017/09/07 (BF res0.5)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s1,1,2,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s1-1-2-1" ;
     ;;
@@ -146,11 +135,11 @@ astri_mini_konrad)
     #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
-    ## 2017/02
+    ## 2017/02 (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
 
-    # 2017/09/07
+    # 2017/09/07 (BF res0.5)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s3,1,3.5,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s3-1-3.5-1" ;
     ;;
@@ -199,11 +188,11 @@ digicam_mini_konrad)
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
-    ## 2017/09/11
+    ## 2017/09/11 (BF res1) (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3,3,4,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s3-3-4-4" ;
 
-    # 2017/10/24
+    # 2017/10/24 (SAES)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s6.274,2.629,7.755,0.076 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s6.274-2.629-7.755-0.076" ;
     ;;
@@ -228,11 +217,11 @@ flashcam_mini_inaf)
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
-    ## 2017/07
+    ## 2017/07 (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s4,4,5,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s4-4-5-4" ;
 
-    # 2017/09/07
+    # 2017/09/07 (BF res0.5)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s4.5,4.5,4.5,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s4.5-4.5-4.5-1" ;
     ;;
@@ -261,11 +250,11 @@ nectarcam_grid_prod3b_north)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
 
-    ## 2017/09/07
+    ## 2017/09/07 (BF res0.5) (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s3-2.5-4-1" ;
 
-    # 2017/10/24
+    # 2017/10/24 (SAES)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s13.013,2.549,6.559,1.412 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s13.013-2.549-6.559-1.412" ;
     ;;
@@ -290,15 +279,15 @@ lstcam_grid_prod3b_north)
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
-    ## 2017/08
+    ## 2017/08 (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
 
-    ## 2017/09/07
+    ## 2017/09/07 (BF res0.5)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     #WT_LABEL="WT-K-k-C1-m3-n4-s2-2.5-4-1" ;
 
-    # 2017/10/24
+    # 2017/10/24 (SAES)
     WT_PARAMS="-K -k -C1 -m3 -n4 -s23.343,2.490,-2.856,-0.719 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
     WT_LABEL="WT-K-k-C1-m3-n4-s23.343-2.490--2.856--0.719" ;
     ;;
