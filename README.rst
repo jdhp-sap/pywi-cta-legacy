@@ -1,6 +1,6 @@
-=====================
-SAp CTA data pipeline
-=====================
+========================
+CTAPipe Wavelet Cleaning
+========================
 
 Copyright (c) 2016 Jeremie DECOCK (www.jdhp.org) and Tino Michael
 
