@@ -21,4 +21,5 @@
 # THE SOFTWARE.
 
 __all__ = ['bruteforce',
-           'objectivefunc']
+           'objectivefunc',
+           'saes']
