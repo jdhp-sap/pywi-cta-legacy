@@ -151,8 +151,12 @@ class ObjectiveFunction:
 if __name__ == "__main__":
     # Test...
 
-    #func = ObjectiveFunction(input_files=["./MISC/testset/gamma/digicam/"])
-    func = ObjectiveFunction(input_files=["/dev/shm/.jd/digicam/gamma/"])
+    from datapipe.io import geometry_converter
+
+    geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/digicam2d.geom.json")
+
+    #func = ObjectiveFunction(input_files=["./MISC/testset/gamma/digicam/"], geom=geom)
+    func = ObjectiveFunction(input_files=["/dev/shm/.jd/digicam/gamma/"], geom=geom)
 
     threshold_list = [10, 5]
 
