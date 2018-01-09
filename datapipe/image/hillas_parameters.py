@@ -24,6 +24,8 @@ __all__ = ['get_hillas_parameters']
 
 from ctapipe.image.hillas import hillas_parameters_1
 from ctapipe.image.hillas import hillas_parameters_2
+from ctapipe.image.hillas import hillas_parameters_3
+from ctapipe.image.hillas import hillas_parameters_4
 
 import astropy.units as u
 import copy
@@ -35,7 +37,7 @@ Warning: so far, this module only works with "rectangular 2D images", but it
 handle "missing pixels" (i.e. NaN values).
 """
 
-def get_hillas_parameters(image, implementation=2, pixels_position=None):
+def get_hillas_parameters(image, implementation=4, pixels_position=None):
     r"""Return Hillas parameters [hillas]_ of the given ``image``.
 
     See https://github.com/cta-observatory/ctapipe/blob/master/ctapipe/image/hillas.py#L83
@@ -85,7 +87,13 @@ def get_hillas_parameters(image, implementation=2, pixels_position=None):
 
     if implementation == 1:
         params = hillas_parameters_1(xx * u.meter, yy * u.meter, flat_img)
-    else:
+    elif implementation == 2:
         params = hillas_parameters_2(xx * u.meter, yy * u.meter, flat_img)
+    elif implementation == 3:
+        params = hillas_parameters_3(xx * u.meter, yy * u.meter, flat_img)
+    elif implementation == 4:
+        params = hillas_parameters_4(xx * u.meter, yy * u.meter, flat_img)
+    else:
+        raise ValueError("Wrong Hillas implementation ID.")
 
     return params
