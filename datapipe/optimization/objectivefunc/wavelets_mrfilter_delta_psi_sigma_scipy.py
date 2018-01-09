@@ -40,7 +40,7 @@ def norm_angle_diff(angle_in_degrees):
 
 class ObjectiveFunction:
 
-    def __init__(self, input_files, noise_distribution=None, max_num_img=None):
+    def __init__(self, input_files, noise_distribution=None, max_num_img=None, aggregation_method="mean"):
         self.call_number = 0
 
         # Init the wavelet class
@@ -52,6 +52,10 @@ class ObjectiveFunction:
 
         self.noise_distribution = noise_distribution
 
+        self.aggregation_method = aggregation_method  # "mean" or "median"
+
+        print("aggregation method:", self.aggregation_method)
+
         # PRE PROCESSING FILTERING ############################################
 
         # TODO...
@@ -60,7 +64,7 @@ class ObjectiveFunction:
     def __call__(self, sigma_list):
         self.call_number += 1
 
-        mean_score = np.inf
+        aggregated_score = np.inf
 
         try:
             k_sigma_noise_threshold = ",".join([str(sigma) for sigma in sigma_list])
@@ -149,14 +153,17 @@ class ObjectiveFunction:
                 score_list.append(normalized_delta_psi_deg)
 
             # Compute the mean
-            mean_score = np.array([score_list]).mean()
+            if self.aggregation_method == "mean":
+                aggregated_score = np.array([score_list]).mean()
+            elif self.aggregation_method == "median":
+                aggregated_score = np.array([score_list]).median()
 
             # TODO: save results in a JSON file (?)
-            print(algo_params_var, mean_score)
+            print(algo_params_var, aggregated_score, self.aggregation_method)
         except Exception as e:
             print(e)
 
-        return mean_score
+        return aggregated_score
 
 
 if __name__ == "__main__":
