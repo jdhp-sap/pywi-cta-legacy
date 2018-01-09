@@ -117,20 +117,21 @@ class ObjectiveFunction:
 
                 # GET THE CLEANED IMAGE SCORE
 
-                if ("img_ref_hillas_2_psi" not in image_dict) or ("img_cleaned_hillas_2_psi" not in image_dict):
-                    raise Exception("Cannot get the score")
+                if ("img_ref_hillas_2_psi" in image_dict) and ("img_cleaned_hillas_2_psi" in image_dict):
+                    output_image_parameter_psi_rad = image_dict["img_ref_hillas_2_psi"]
+                    reference_image_parameter_psi_rad = image_dict["img_cleaned_hillas_2_psi"]
+                    delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
+                    normalized_delta_psi_deg = norm_angle_diff(np.degrees(delta_psi_rad))
 
-                output_image_parameter_psi_rad = image_dict["img_ref_hillas_2_psi"]
-                reference_image_parameter_psi_rad = image_dict["img_cleaned_hillas_2_psi"]
-                delta_psi_rad = reference_image_parameter_psi_rad - output_image_parameter_psi_rad
-                normalized_delta_psi_deg = norm_angle_diff(np.degrees(delta_psi_rad))
+                    #if image_dict["score_name"][0] != "delta_psi":
+                    #    raise Exception("Cannot get the score")
+                    #normalized_delta_psi_deg = image_dict["score"][0]
 
-                if image_dict["score_name"][0] != "delta_psi":
-                    raise Exception("Cannot get the score")
-
-                normalized_delta_psi_deg = image_dict["score"][0]
-
-                score_list.append(normalized_delta_psi_deg)
+                    score_list.append(normalized_delta_psi_deg)
+                else:
+                    # The cleaning algorithm failed to clean this image
+                    # TODO: add a penalty
+                    score_list.append(90.)  # the worst score
 
             # Compute the mean
             if self.aggregation_method == "mean":
