@@ -157,6 +157,8 @@ class ObjectiveFunction:
                 aggregated_score = np.array([score_list]).mean()
             elif self.aggregation_method == "median":
                 aggregated_score = np.array([score_list]).median()
+            else:
+                raise ValueError("Unknown value for aggregation_method: {}".format(self.aggregation_method))
 
             # TODO: save results in a JSON file (?)
             print(algo_params_var, aggregated_score, self.aggregation_method)
