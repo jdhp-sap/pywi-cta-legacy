@@ -26,12 +26,20 @@ import math
 import numpy as np
 
 import json
-from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import ObjectiveFunction
+from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import ObjectiveFunction as WaveletObjectiveFunction
+from datapipe.optimization.objectivefunc.tailcut_delta_psi import ObjectiveFunction as TailcutObjectiveFunction
 
+# For wavelets
 import datapipe.denoising.cdf
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 
+# For tailcut
+from datapipe.io import geometry_converter
+
 def main():
+
+    algo = "wavelet_mrfilter"
+    #algo = "tailcut"
 
     instrument = "astri"
     #instrument = "astri_konrad"
@@ -40,56 +48,109 @@ def main():
     #instrument = "nectarcam"
     #instrument = "lstcam"
 
+    print("algo:", algo)
+    print("instrument:", instrument)
+
     if instrument == "astri":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
         input_files = ["/dev/shm/.jd/astri/gamma/"]
-        init_min_val = np.array([0., 0., 0., 0.])  # TODO
-        init_max_val = np.array([5., 5., 5., 5.])  # TODO
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
+
+        if algo == "wavelet":
+            init_min_val = np.array([0., 0., 0., 0.])  # TODO
+            init_max_val = np.array([5., 5., 5., 5.])  # TODO
+        elif algo == "tailcut":
+            init_min_val = np.array([1., 1.])    # TODO
+            init_max_val = np.array([15., 15.])  # TODO
 
     elif instrument == "astri_konrad":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
         input_files = ["/dev/shm/.jd/astri_konrad/gamma/"]
-        init_min_val = np.array([0., 0., 0., 0.])  # TODO
-        init_max_val = np.array([5., 5., 5., 5.])  # TODO
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
+
+        if algo == "wavelet":
+            init_min_val = np.array([0., 0., 0., 0.])  # TODO
+            init_max_val = np.array([5., 5., 5., 5.])  # TODO
+        elif algo == "tailcut":
+            init_min_val = np.array([1., 1.])    # TODO
+            init_max_val = np.array([15., 15.])  # TODO
 
     elif instrument == "digicam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.DIGICAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/digicam/gamma/"]
-        init_min_val = np.array([-3., -4., -3., 0.])
-        init_max_val = np.array([10., 8., 7., 5.])
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.DIGICAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/digicam2d.geom.json")
+
+        if algo == "wavelet":
+            init_min_val = np.array([-3., -4., -3., 0.])
+            init_max_val = np.array([10., 8., 7., 5.])
+        elif algo == "tailcut":
+            init_min_val = np.array([1., 1.])    # TODO
+            init_max_val = np.array([15., 15.])  # TODO
 
     elif instrument == "flashcam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/flashcam/gamma/"]
-        init_min_val = np.array([0., 0., 0., 0.])  # TODO
-        init_max_val = np.array([5., 5., 5., 5.])  # TODO
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/flashcam2d.geom.json")
+
+        if algo == "wavelet":
+            init_min_val = np.array([0., 0., 0., 0.])  # TODO
+            init_max_val = np.array([5., 5., 5., 5.])  # TODO
+        elif algo == "tailcut":
+            init_min_val = np.array([1., 1.])    # TODO
+            init_max_val = np.array([15., 15.])  # TODO
 
     elif instrument == "nectarcam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/nectarcam/gamma/"]
-        init_min_val = np.array([-4., -4., -4., 0.])
-        init_max_val = np.array([16., 10., 8., 4.])
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/nectarcam2d.geom.json")
+
+        if algo == "wavelet":
+            init_min_val = np.array([-4., -4., -4., 0.])
+            init_max_val = np.array([16., 10., 8., 4.])
+        elif algo == "tailcut":
+            init_min_val = np.array([1., 1.])    # TODO
+            init_max_val = np.array([15., 15.])  # TODO
 
     elif instrument == "lstcam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/lstcam/gamma/"]
-        init_min_val = np.array([-4., -5., -4., 0.])
-        init_max_val = np.array([14., 9., 6., 4.])
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/lstcam2d.geom.json")
+
+        if algo == "wavelet":
+            init_min_val = np.array([-4., -5., -4., 0.])
+            init_max_val = np.array([14., 9., 6., 4.])
+        elif algo == "tailcut":
+            init_min_val = np.array([1., 1.])    # TODO
+            init_max_val = np.array([15., 15.])  # TODO
 
     else:
 
         raise Exception("Unknown instrument", instrument)
 
-    func = ObjectiveFunction(input_files=input_files,
-                             noise_distribution=noise_distribution,
-                             max_num_img=None,
-                             aggregation_method="mean")  # "mean" or "median"
+    if algo == "wavelet":
+
+        func = WaveletObjectiveFunction(input_files=input_files,
+                                        noise_distribution=noise_distribution,
+                                        max_num_img=None,
+                                        aggregation_method="mean")  # "mean" or "median"
+
+    elif algo == "tailcut":
+
+        func = TailcutObjectiveFunction(input_files=input_files,
+                                        geom=geom,
+                                        max_num_img=None,
+                                        aggregation_method="mean")  # "mean" or "median"
+
+    else:
+
+        raise ValueError("Unknown algorithm", algo)
+
 
     pop_list = []
 
