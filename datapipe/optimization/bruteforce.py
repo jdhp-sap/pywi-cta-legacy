@@ -24,8 +24,8 @@ __all__ = []
 
 import json
 from scipy import optimize
-from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import WaveletObjectiveFunction
-from datapipe.optimization.objectivefunc.tailcut_delta_psi import TailcutObjectiveFunction
+from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import ObjectiveFunction as WaveletObjectiveFunction
+from datapipe.optimization.objectivefunc.tailcut_delta_psi import ObjectiveFunction as TailcutObjectiveFunction
 
 # For wavelets
 import datapipe.denoising.cdf
