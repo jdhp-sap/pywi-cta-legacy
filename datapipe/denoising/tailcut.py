@@ -73,7 +73,7 @@ class Tailcut(AbstractCleaningAlgorithm):
         if geom is None:
             raise Exception("Geom have to be defined")    # TODO
 
-        # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
+        # 2D ARRAY (FITS IMAGE) TO CTAPIPE IMAGE ###############
 
         if geom.cam_id.lower() in ("astri", "astricam"):
             img_1d = geometry_converter.array_2d_to_astri(input_img)
