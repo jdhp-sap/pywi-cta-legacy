@@ -88,7 +88,8 @@ def main():
 
     func = ObjectiveFunction(input_files=input_files,
                              noise_distribution=noise_distribution,
-                             max_num_img=None)
+                             max_num_img=None,
+                             aggregation_method="mean")  # "mean" or "median"
 
     pop_list = []
 
