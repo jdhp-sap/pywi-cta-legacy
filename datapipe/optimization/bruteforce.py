@@ -24,7 +24,7 @@ __all__ = []
 
 import json
 from scipy import optimize
-from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi_sigma_scipy import ObjectiveFunction
+from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import ObjectiveFunction
 
 import datapipe.denoising.cdf
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
@@ -74,7 +74,8 @@ def main():
 
     func = ObjectiveFunction(input_files=input_files,
                              noise_distribution=noise_distribution,
-                             max_num_img=None)
+                             max_num_img=None,
+                             aggregation_method="mean")  # "mean" or "median"
 
     s1_slice = slice(1, 5, 1)
     s2_slice = slice(1, 5, 1)

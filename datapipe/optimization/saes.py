@@ -26,7 +26,7 @@ import math
 import numpy as np
 
 import json
-from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi_sigma_scipy import ObjectiveFunction
+from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import ObjectiveFunction
 
 import datapipe.denoising.cdf
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
