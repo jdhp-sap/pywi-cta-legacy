@@ -46,6 +46,8 @@ def main():
     #instrument = "nectarcam"
     #instrument = "lstcam"
 
+    print("algo:", algo)
+    print("instrument:", instrument)
 
     if instrument == "astri":
 
