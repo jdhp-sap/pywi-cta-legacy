@@ -24,12 +24,20 @@ __all__ = []
 
 import json
 from scipy import optimize
-from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import ObjectiveFunction
+from datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi import WaveletObjectiveFunction
+from datapipe.optimization.objectivefunc.tailcut_delta_psi import TailcutObjectiveFunction
 
+# For wavelets
 import datapipe.denoising.cdf
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 
+# For tailcut
+from datapipe.io import geometry_converter
+
 def main():
+
+    algo = "wavelet_mrfilter"
+    #algo = "tailcut"
 
     instrument = "astri"
     #instrument = "astri_konrad"
@@ -38,54 +46,80 @@ def main():
     #instrument = "nectarcam"
     #instrument = "lstcam"
 
+
     if instrument == "astri":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
         input_files = ["/dev/shm/.jd/astri/gamma/"]
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
 
     elif instrument == "astri_konrad":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
         input_files = ["/dev/shm/.jd/astri_konrad/gamma/"]
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
 
     elif instrument == "digicam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.DIGICAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/digicam/gamma/"]
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.DIGICAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/digicam2d.geom.json")
 
     elif instrument == "flashcam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/flashcam/gamma/"]
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/flashcam2d.geom.json")
 
     elif instrument == "nectarcam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/nectarcam/gamma/"]
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/nectarcam2d.geom.json")
 
     elif instrument == "lstcam":
 
-        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
         input_files = ["/dev/shm/.jd/lstcam/gamma/"]
+        noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
+        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/lstcam2d.geom.json")
 
     else:
 
         raise Exception("Unknown instrument", instrument)
 
-    func = ObjectiveFunction(input_files=input_files,
-                             noise_distribution=noise_distribution,
-                             max_num_img=None,
-                             aggregation_method="mean")  # "mean" or "median"
+    if algo == "wavelet":
 
-    s1_slice = slice(1, 5, 1)
-    s2_slice = slice(1, 5, 1)
-    s3_slice = slice(1, 5, 1)
-    s4_slice = slice(1, 5, 1)
+        func = WaveletObjectiveFunction(input_files=input_files,
+                                        noise_distribution=noise_distribution,
+                                        max_num_img=None,
+                                        aggregation_method="mean")  # "mean" or "median"
 
-    search_ranges = (s1_slice,
-                     s2_slice,
-                     s3_slice,
-                     s4_slice)
+        s1_slice = slice(1, 5, 1)
+        s2_slice = slice(1, 5, 1)
+        s3_slice = slice(1, 5, 1)
+        s4_slice = slice(1, 5, 1)
+
+        search_ranges = (s1_slice,
+                         s2_slice,
+                         s3_slice,
+                         s4_slice)
+
+    elif algo == "tailcut":
+
+        func = TailcutObjectiveFunction(input_files=input_files,
+                                        geom=geom,
+                                        max_num_img=None,
+                                        aggregation_method="mean")  # "mean" or "median"
+
+        s1_slice = slice(1, 10, 1)
+        s2_slice = slice(1, 10, 1)
+
+        search_ranges = (s1_slice,
+                         s2_slice)
+
+    else:
+
+        raise ValueError("Unknown algorithm", algo)
 
     res = optimize.brute(func,
                          search_ranges,
