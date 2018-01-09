@@ -151,7 +151,8 @@ class ObjectiveFunction:
 if __name__ == "__main__":
     # Test...
 
-    func = ObjectiveFunction(input_files=["./MISC/testset/gamma/digicam/"])
+    #func = ObjectiveFunction(input_files=["./MISC/testset/gamma/digicam/"])
+    func = ObjectiveFunction(input_files=["/dev/shm/.jd/digicam/gamma/"])
 
     threshold_list = [10, 5]
 
