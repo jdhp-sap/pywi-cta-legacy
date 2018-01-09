@@ -67,8 +67,8 @@ class ObjectiveFunction:
         aggregated_score = np.inf
 
         try:
-            high_threshold = threshold_list[0]
-            low_threshold = threshold_list[1]
+            high_threshold = float(threshold_list[0])
+            low_threshold = float(threshold_list[1])
             low_threshold = min(low_threshold, high_threshold)  # low threshold should not be greater than high threshold
 
             algo_params_var = {
