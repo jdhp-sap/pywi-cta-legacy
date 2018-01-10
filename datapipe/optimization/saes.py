@@ -243,8 +243,8 @@ def minimize(objective_function,
     res['nit'] = gen + 1
     res['nfev'] = res['nit'] * lmb + mu
     res['parent_pop'] = pop[:mu,:].tolist()
-    res['init_min_val'] = init_min_val
-    res['init_max_val'] = init_max_val
+    res['init_min_val'] = init_min_val.tolist()
+    res['init_max_val'] = init_max_val.tolist()
     res['num_gen'] = num_gen
     res['mu'] = mu
     res['lambda'] = lmb
