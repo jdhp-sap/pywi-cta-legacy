@@ -57,7 +57,7 @@ def main():
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
         geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
 
-        if algo == "wavelet":
+        if algo == "wavelet_mrfilter":
             init_min_val = np.array([0., 0., 0., 0.])  # TODO
             init_max_val = np.array([5., 5., 5., 5.])  # TODO
         elif algo == "tailcut":
@@ -70,7 +70,7 @@ def main():
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
         geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
 
-        if algo == "wavelet":
+        if algo == "wavelet_mrfilter":
             init_min_val = np.array([0., 0., 0., 0.])  # TODO
             init_max_val = np.array([5., 5., 5., 5.])  # TODO
         elif algo == "tailcut":
@@ -83,7 +83,7 @@ def main():
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.DIGICAM_CDF_FILE)
         geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/digicam2d.geom.json")
 
-        if algo == "wavelet":
+        if algo == "wavelet_mrfilter":
             init_min_val = np.array([-3., -4., -3., 0.])
             init_max_val = np.array([10., 8., 7., 5.])
         elif algo == "tailcut":
@@ -96,7 +96,7 @@ def main():
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
         geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/flashcam2d.geom.json")
 
-        if algo == "wavelet":
+        if algo == "wavelet_mrfilter":
             init_min_val = np.array([0., 0., 0., 0.])  # TODO
             init_max_val = np.array([5., 5., 5., 5.])  # TODO
         elif algo == "tailcut":
@@ -109,7 +109,7 @@ def main():
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
         geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/nectarcam2d.geom.json")
 
-        if algo == "wavelet":
+        if algo == "wavelet_mrfilter":
             init_min_val = np.array([-4., -4., -4., 0.])
             init_max_val = np.array([16., 10., 8., 4.])
         elif algo == "tailcut":
@@ -122,7 +122,7 @@ def main():
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
         geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/lstcam2d.geom.json")
 
-        if algo == "wavelet":
+        if algo == "wavelet_mrfilter":
             init_min_val = np.array([-4., -5., -4., 0.])
             init_max_val = np.array([14., 9., 6., 4.])
         elif algo == "tailcut":
@@ -133,7 +133,7 @@ def main():
 
         raise Exception("Unknown instrument", instrument)
 
-    if algo == "wavelet":
+    if algo == "wavelet_mrfilter":
 
         func = WaveletObjectiveFunction(input_files=input_files,
                                         noise_distribution=noise_distribution,

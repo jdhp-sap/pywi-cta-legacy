@@ -89,7 +89,7 @@ def main():
 
         raise Exception("Unknown instrument", instrument)
 
-    if algo == "wavelet":
+    if algo == "wavelet_mrfilter":
 
         func = WaveletObjectiveFunction(input_files=input_files,
                                         noise_distribution=noise_distribution,
