@@ -189,7 +189,8 @@ digicam_mini_konrad)
 
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
-    TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
+    TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/09/11 (BF res1) (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s3,3,4,4 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -250,7 +251,8 @@ nectarcam_grid_prod3b_north)
 
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
-    TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
+    TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/08
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -286,7 +288,8 @@ lstcam_grid_prod3b_north)
 
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
-    TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
+    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
+    TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/08 (presented in LaPalma CTA meeting 2017-11-05)
     #WT_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
