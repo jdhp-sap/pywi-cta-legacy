@@ -173,14 +173,17 @@ digicam_mini_konrad)
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/digicam_konrad_cdf.json ;
 
-    #TC_HTH="10" ; # HESS
-    #TC_LTH="5" ;  # HESS
+    #TC_HTH="10" ;  # HESS
+    #TC_LTH="5" ;   # HESS
 
-    #TC_HTH="6" ; # CTA Abelardo 1st pass
-    #TC_LTH="3" ; # CTA Abelardo 1st pass
+    #TC_HTH="6" ;   # CTA Abelardo 1st pass
+    #TC_LTH="3" ;   # CTA Abelardo 1st pass
 
-    TC_HTH="3" ;   # CTA Abelardo 2nd pass
-    TC_LTH="1.5" ; # CTA Abelardo 2nd pass
+    #TC_HTH="3" ;   # CTA Abelardo 2nd pass
+    #TC_LTH="1.5" ; # CTA Abelardo 2nd pass
+
+    TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
+    TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
 
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
 
@@ -234,11 +237,14 @@ nectarcam_grid_prod3b_north)
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
 
-    #TC_HTH="8" ; # CTA Abelardo 1st pass
-    #TC_LTH="4" ; # CTA Abelardo 1st pass
+    #TC_HTH="8" ;  # CTA Abelardo 1st pass
+    #TC_LTH="4" ;  # CTA Abelardo 1st pass
 
-    TC_HTH="4" ; # CTA Abelardo 2nd pass
-    TC_LTH="2" ; # CTA Abelardo 2nd pass
+    #TC_HTH="4" ;  # CTA Abelardo 2nd pass
+    #TC_LTH="2" ;  # CTA Abelardo 2nd pass
+
+    TC_HTH="5" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
+    TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
 
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
 
@@ -270,8 +276,11 @@ lstcam_grid_prod3b_north)
     #TC_HTH="6" ; # CTA Abelardo 1st pass
     #TC_LTH="3" ; # CTA Abelardo 1st pass
 
-    TC_HTH="4" ; # CTA Abelardo 2nd pass
-    TC_LTH="2" ; # CTA Abelardo 2nd pass
+    #TC_HTH="4" ; # CTA Abelardo 2nd pass
+    #TC_LTH="2" ; # CTA Abelardo 2nd pass
+
+    TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
+    TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
 
     TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/lstcam2d.geom.json" ;
 
