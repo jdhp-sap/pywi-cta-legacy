@@ -113,8 +113,8 @@ def main():
                                         max_num_img=None,
                                         aggregation_method="mean")  # "mean" or "median"
 
-        s1_slice = slice(1, 10, 1)
-        s2_slice = slice(1, 10, 1)
+        s1_slice = slice(-2., 10., 0.5)
+        s2_slice = slice(-2., 10., 0.5)
 
         search_ranges = (s1_slice,
                          s2_slice)
