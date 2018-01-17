@@ -206,7 +206,7 @@
     "channel_threshold": 190,
     "inst": "NectarCam",
     "num_samples": 27198010,
-    "simtel_file": "/Users/jdecock/vm-shared/data/grid_prod3b_north/simtel/gamma/gamma_20deg_0deg_run103___cta-prod3-lapalma3-2147m-LaPalma.simtel.gz",
+    "simtel_file": "/Users/jdecock/data/grid_prod3b_north/simtel/gamma/gamma_20deg_0deg_run103___cta-prod3-lapalma3-2147m-LaPalma.simtel.gz",
     "tel_id_filter_list": [
         43,
         44,
