@@ -64,12 +64,18 @@ class ObjectiveFunction:
     def __call__(self, threshold_list):
         self.call_number += 1
 
-        aggregated_score = np.inf
+        aggregated_score = float('inf')
 
         try:
             high_threshold = float(threshold_list[0])
             low_threshold = float(threshold_list[1])
-            low_threshold = min(low_threshold, high_threshold)  # low threshold should not be greater than high threshold
+
+            if low_threshold > high_threshold:
+                # To avoid useless computation, reject solutions where low threshold is greater than high threshold
+                # (these solutions have the same result than the solution `low_threshold == high_threshold`)
+                return float('nan')
+
+            #low_threshold = min(low_threshold, high_threshold)  # low threshold should not be greater than high threshold
 
             algo_params_var = {
                         "high_threshold": high_threshold,
