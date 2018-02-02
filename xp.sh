@@ -12,12 +12,12 @@ NUM_IMG=0
 #INST="astri_mini_inaf"
 #INST="astri_mini_konrad"
 #INST="gct_mini_konrad"
-INST="digicam_mini_konrad"
+#INST="digicam_mini_konrad"
 
 #INST="flashcam_mini_inaf"
 #INST="nectarcam_grid_prod3b_north"
 
-#INST="lstcam_grid_prod3b_north"
+INST="lstcam_grid_prod3b_north"
 
 ###############################################################################
 ###############################################################################
@@ -96,8 +96,6 @@ astri_mini_inaf)
     TC_HTH="7" ;   # CTA Abelardo 2nd pass
     TC_LTH="3.5" ; # CTA Abelardo 2nd pass
 
-    TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
-
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
@@ -129,8 +127,6 @@ astri_mini_konrad)
     TC_HTH="7" ;   # CTA Abelardo 2nd pass
     TC_LTH="3.5" ; # CTA Abelardo 2nd pass
 
-    TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/astri.geom.json" ;
-
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
@@ -158,8 +154,6 @@ gct_mini_konrad)
     TC_HTH="2" ; # CTA Abelardo 2nd pass
     TC_LTH="1" ; # CTA Abelardo 2nd pass
 
-    TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/gct.geom.json" ;
-
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
@@ -184,8 +178,6 @@ digicam_mini_konrad)
 
     TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
     TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
-
-    TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/digicam2d.geom.json" ;
 
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
@@ -214,8 +206,6 @@ flashcam_mini_inaf)
 
     TC_HTH="5" ;   # CTA Abelardo 2nd pass
     TC_LTH="2.5" ; # CTA Abelardo 2nd pass
-
-    TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/flashcam2d.geom.json" ;
 
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
@@ -246,8 +236,6 @@ nectarcam_grid_prod3b_north)
 
     TC_HTH="5" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
     TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
-
-    TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/nectarcam2d.geom.json" ;
 
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
@@ -284,8 +272,6 @@ lstcam_grid_prod3b_north)
     TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
     TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
 
-    TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels --geom ./datapipe/io/geom/lstcam2d.geom.json" ;
-
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
@@ -308,6 +294,8 @@ lstcam_grid_prod3b_north)
     exit 1
     ;;
 esac
+
+TC_PARAMS="-T${TC_HTH} -t${TC_LTH} --kill-isolated-pixels" ;
 
 echo "TC_PARAMS: ${TC_PARAMS}"
 echo "TC_LABEL:  ${TC_LABEL}"

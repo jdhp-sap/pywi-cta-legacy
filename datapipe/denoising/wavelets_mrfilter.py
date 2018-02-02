@@ -42,11 +42,9 @@ import numpy as np
 import os
 import time
 
-import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 from datapipe.io import images
-
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
@@ -106,7 +104,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     raw_option_string=None,
                     tmp_files_directory=".",       # "/Volumes/ramdisk"
                     mrfilter_directory=None,       # "/Volumes/ramdisk"
-                    output_data_dict=None):
+                    output_data_dict=None,
+                    **kwargs):
         """
         Do the wavelet transform.
 
@@ -531,6 +530,9 @@ def main():
 
     # COMMON OPTIONS
 
+    parser.add_argument("--debug", action="store_true",
+                        help="Debug mode")
+
     parser.add_argument("--benchmark", "-b", metavar="STRING",
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images")
@@ -581,6 +583,7 @@ def main():
     verbose = args.verbose
     tmp_dir = args.tmp_dir
 
+    debug = args.debug
     benchmark_method = args.benchmark
     label = args.label
     plot = args.plot
@@ -637,8 +640,8 @@ def main():
                                          benchmark_method,
                                          output_file_path,
                                          plot=plot,
-                                         saveplot=saveplot)
-
+                                         saveplot=saveplot,
+                                         debug=debug)
 
 if __name__ == "__main__":
     main()

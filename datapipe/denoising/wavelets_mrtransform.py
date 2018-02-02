@@ -75,9 +75,10 @@ class WrongDimensionError(MrTransformError):
 ##############################################################################
 
 def wavelet_transform(input_img,
-                      number_of_scales=4,
+                      num_scales=4,
                       tmp_files_directory=".",       # "/Volumes/ramdisk"
-                      noise_distribution=None):
+                      noise_distribution=None,
+                      **kwargs):
     """
     Do the wavelet transform.
     """
@@ -113,7 +114,7 @@ def wavelet_transform(input_img,
 
         # EXECUTE MR_TRANSFORM #################################
 
-        cmd = 'mr_transform -n{} "{}" {}'.format(number_of_scales, input_file_path, mr_output_file_path)
+        cmd = 'mr_transform -n{} "{}" {}'.format(num_scales, input_file_path, mr_output_file_path)
         os.system(cmd)
 
         cmd = "mv {}.mr {}".format(mr_output_file_path, mr_output_file_path)
@@ -143,7 +144,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         super().__init__()
         self.label = "WT (mr_transform)"  # Name to show in plots
 
-    def clean_image(self, input_img, number_of_scales=4,
+    def clean_image(self, input_img, num_scales=4,
                     noise_distribution=None,
                     tmp_files_directory=".",       # "/Volumes/ramdisk"
                     output_data_dict=None):
@@ -161,7 +162,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         eventuellement -w pour le debug
         """
 
-        plan_imgs = wavelet_transform(input_img, number_of_scales, noise_distribution)
+        plan_imgs = wavelet_transform(input_img, num_scales, noise_distribution)
 
         # DENOISE THE INPUT IMAGE WITH MR_TRANSFORM PLANES #####
 
@@ -225,12 +226,21 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
-    parser.add_argument("--number_of_scales", "-n", type=int, default=4, metavar="INTEGER",
+    parser.add_argument("--num_scales", "-n", type=int, default=4, metavar="INTEGER",
                         help="number of scales used in the multiresolution transform (default: 4)")
+
+    # COMMON OPTIONS
+
+    parser.add_argument("--debug", action="store_true",
+                        help="Debug mode")
 
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images")
+
+    parser.add_argument("--label", "-l", default=None,
+                        metavar="STRING",
+                        help="The label attached to the produced results")
 
     parser.add_argument("--plot", action="store_true",
                         help="Plot images")
@@ -249,10 +259,14 @@ def main():
 
     args = parser.parse_args()
 
-    number_of_scales = args.number_of_scales
+    num_scales = args.num_scales
+
+    debug = args.debug
     benchmark_method = args.benchmark
+    label = args.label
     plot = args.plot
     saveplot = args.saveplot
+
     input_file_or_dir_path_list = args.fileargs
 
     if args.output is None:
@@ -260,16 +274,20 @@ def main():
     else:
         output_file_path = args.output
 
-    cleaning_function_params = {"number_of_scales": number_of_scales}
+    cleaning_function_params = {"num_scales": num_scales}
 
     cleaning_algorithm = WaveletTransform()
+
+    if label is not None:
+        cleaning_algorithm.label = label
+
     cleaning_algorithm.run(cleaning_function_params,
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
-                           plot,
-                           saveplot)
-
+                           plot=plot,
+                           saveplot=saveplot,
+                           debug=debug)
 
 if __name__ == "__main__":
     main()

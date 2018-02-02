@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)
+# Copyright (c) 2016,2017,2018 Jérémie DECOCK (http://www.jdhp.org)
 
 # This script is provided under the terms and conditions of the MIT license:
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -43,6 +43,7 @@ import numpy as np
 import math
 
 from datapipe.image.hillas_parameters import get_hillas_parameters
+from datapipe.image.geometry_converter import image_2d_to_1d
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
@@ -51,15 +52,11 @@ from skimage.measure import compare_ssim as ssim
 from skimage.measure import compare_psnr as psnr
 from skimage.measure import compare_nrmse as nrmse
 
-
 ###############################################################################
 # EXCEPTIONS                                                                  #
 ###############################################################################
 
 class AssessError(Exception):
-    pass
-
-class UnknownMethod(AssessError):
     pass
 
 class EmptyOutputImageError(AssessError):
@@ -135,7 +132,7 @@ def norm_angle_diff(angle_in_degrees):
 
 # Mean-Squared Error (MSE) ####################################################
 
-def metric_mse(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric_mse(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Mean-Squared Error* (MSE) metric.
 
@@ -173,7 +170,7 @@ def metric_mse(input_img, output_image, reference_image, pixels_position=None, p
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -196,7 +193,7 @@ def metric_mse(input_img, output_image, reference_image, pixels_position=None, p
 
 # Normalized Root Mean-Squared Error (NRMSE) ##################################
 
-def metric_nrmse(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric_nrmse(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Normalized Root Mean-Squared Error* (NRMSE) metric.
 
@@ -229,7 +226,7 @@ def metric_nrmse(input_img, output_image, reference_image, pixels_position=None,
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -245,11 +242,11 @@ def metric_nrmse(input_img, output_image, reference_image, pixels_position=None,
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
     
-    #if (params is not None) and ('nrmse_normalize_type' in params) and (params['nrmse_normalize_type'].lower() == 'euclidian'):
+    #if ('nrmse_normalize_type' in kwargs) and (kwargs['nrmse_normalize_type'].lower() == 'euclidian'):
     #    denom = 
     # TODO: see https://github.com/scikit-image/scikit-image/blob/master/skimage/measure/simple_metrics.py#L82
 
-    mse = metric_mse(input_img, output_image, reference_image, params)
+    mse = metric_mse(input_img, output_image, reference_image, **kwargs)
     denom = np.sqrt(np.nanmean((reference_image * output_image), dtype=np.float64))
     score = np.sqrt(mse) / denom
 
@@ -258,7 +255,7 @@ def metric_nrmse(input_img, output_image, reference_image, pixels_position=None,
 
 # Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################
 
-def metric1(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric1(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with a (unusually) normalized version of the *Root Mean-Squared Error*
     (RMSE) metric.
@@ -296,7 +293,7 @@ def metric1(input_img, output_image, reference_image, pixels_position=None, para
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -322,7 +319,7 @@ def metric1(input_img, output_image, reference_image, pixels_position=None, para
 
 # Mean Pixel Difference 2 #####################################################
 
-def metric2(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric2(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{shape}}` metric.
 
@@ -349,7 +346,7 @@ def metric2(input_img, output_image, reference_image, pixels_position=None, para
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -379,7 +376,7 @@ def metric2(input_img, output_image, reference_image, pixels_position=None, para
 
 # Relative Total Counts Difference (mpdspd) ###################################
 
-def metric3(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric3(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}^+_{\text{energy}}`
     (a.k.a. *relative total counts difference*) metric.
@@ -404,7 +401,7 @@ def metric3(input_img, output_image, reference_image, pixels_position=None, para
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -431,7 +428,7 @@ def metric3(input_img, output_image, reference_image, pixels_position=None, para
 
 # Signed Relative Total Counts Difference (sspd) ##############################
 
-def metric4(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric4(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the :math:`\mathcal{E}_{\text{energy}}`
     (a.k.a. *signed relative total counts difference*) metric.
@@ -456,7 +453,7 @@ def metric4(input_img, output_image, reference_image, pixels_position=None, para
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -483,7 +480,7 @@ def metric4(input_img, output_image, reference_image, pixels_position=None, para
 
 # Structural Similarity Index Measure (SSIM) ##################################
 
-def metric_ssim(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric_ssim(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Structural Similarity Index Measure* (SSIM) metric.
 
@@ -522,7 +519,7 @@ def metric_ssim(input_img, output_image, reference_image, pixels_position=None, 
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -562,7 +559,7 @@ def metric_ssim(input_img, output_image, reference_image, pixels_position=None, 
 
 # Peak Signal-to-Noise Ratio (PSNR) ###########################################
 
-def metric_psnr(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric_psnr(input_img, output_image, reference_image, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Peak Signal-to-Noise Ratio* (PSNR) metric.
 
@@ -577,7 +574,7 @@ def metric_psnr(input_img, output_image, reference_image, pixels_position=None, 
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -608,7 +605,7 @@ def metric_psnr(input_img, output_image, reference_image, pixels_position=None, 
 
 # Delta psi ###################################################################
 
-def metric_delta_psi(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_delta_psi(input_img, output_image, reference_image, geom, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the following relative *psi parameters* (relative difference of shower angle between the cleaned image and the reference image).
 
@@ -621,7 +618,7 @@ def metric_delta_psi(input_img, output_image, reference_image, pixels_position, 
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -635,18 +632,22 @@ def metric_delta_psi(input_img, output_image, reference_image, pixels_position, 
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
 
-    if params is not None and "kill" in params and params["kill"]:
+    if "kill" in kwargs and kwargs["kill"]:
         # Remove isolated pixels on the reference image before assessment.
-        reference_image = kill_isolated_pixels(reference_image, threshold=params["kill_threshold"])
+        reference_image = kill_isolated_pixels(reference_image, threshold=kwargs["kill_threshold"])
 
-    if params is not None and "hillas_implementation" in params and params["hillas_implementation"] in (1, 2):
+    if "hillas_implementation" in kwargs and kwargs["hillas_implementation"] in (1, 2, 3, 4):
         # Remove isolated pixels on the reference image before assessment.
-        hillas_implementation = params["hillas_implementation"]
+        hillas_implementation = kwargs["hillas_implementation"]
     else:
         hillas_implementation = 2
 
-    output_image_parameters = get_hillas_parameters(output_image, hillas_implementation, pixels_position)
-    reference_image_parameters = get_hillas_parameters(reference_image, hillas_implementation, pixels_position)
+    if output_image.ndim == 2:
+        output_image = image_2d_to_1d(output_image, geom.cam_id)        # TODO!!!
+    if reference_image.ndim == 2:
+        reference_image = image_2d_to_1d(reference_image, geom.cam_id)  # TODO!!!
+    output_image_parameters = get_hillas_parameters(geom, output_image, hillas_implementation)
+    reference_image_parameters = get_hillas_parameters(geom, reference_image, hillas_implementation)
 
     # Psi (shower direction angle)
     output_image_parameter_psi_rad = output_image_parameters.psi.to(u.rad).value
@@ -660,7 +661,7 @@ def metric_delta_psi(input_img, output_image, reference_image, pixels_position, 
 
 # Hillas delta ################################################################
 
-def metric_hillas_delta(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_hillas_delta(input_img, output_image, reference_image, geom, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the following relative *Hillas parameters*:
 
@@ -686,7 +687,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -700,18 +701,22 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
     output_image = output_image.astype('float64', copy=True)
     reference_image = reference_image.astype('float64', copy=True)
 
-    if params is not None and "kill" in params and params["kill"]:
+    if ("kill" in kwargs) and kwargs["kill"] and ("kill_threshold" in kwargs):
         # Remove isolated pixels on the reference image before assessment.
-        reference_image = kill_isolated_pixels(reference_image, threshold=params["kill_threshold"])
+        reference_image = kill_isolated_pixels(reference_image, threshold=kwargs["kill_threshold"])
 
-    if params is not None and "hillas_implementation" in params and params["hillas_implementation"] in (1, 2):
+    if ("hillas_implementation" in kwargs) and (kwargs["hillas_implementation"] in (1, 2, 3, 4)):
         # Remove isolated pixels on the reference image before assessment.
-        hillas_implementation = params["hillas_implementation"]
+        hillas_implementation = kwargs["hillas_implementation"]
     else:
         hillas_implementation = 2
 
-    output_image_parameters = get_hillas_parameters(output_image, hillas_implementation, pixels_position)
-    reference_image_parameters = get_hillas_parameters(reference_image, hillas_implementation, pixels_position)
+    if output_image.ndim == 2:
+        output_image = image_2d_to_1d(output_image, geom.cam_id)        # TODO!!!
+    if reference_image.ndim == 2:
+        reference_image = image_2d_to_1d(reference_image, geom.cam_id)  # TODO!!!
+    output_image_parameters = get_hillas_parameters(geom, output_image, hillas_implementation)
+    reference_image_parameters = get_hillas_parameters(geom, reference_image, hillas_implementation)
 
     #print(reference_image_parameters)
 
@@ -763,7 +768,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
     #reference_image_parameter_miss = reference_image_parameters.miss.value
     #delta_miss = reference_image_parameter_miss - output_image_parameter_miss
 
-    if params is not None and "kill" in params and params["kill"]:
+    if "kill" in kwargs and kwargs["kill"]:
         suffix_str = '_kill'
     else:
         suffix_str = ''
@@ -788,7 +793,7 @@ def metric_hillas_delta(input_img, output_image, reference_image, pixels_positio
 
 # Hillas delta 2 ##############################################################
 
-def metric_hillas_delta2(input_img, output_image, reference_image, pixels_position, params=None):
+def metric_hillas_delta2(input_img, output_image, reference_image, geom, **kwargs):
     r"""Compute the score of ``output_image`` regarding ``reference_image``
     with the *Hillas parameters*.
 
@@ -805,7 +810,7 @@ def metric_hillas_delta2(input_img, output_image, reference_image, pixels_positi
     reference_image: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -814,20 +819,17 @@ def metric_hillas_delta2(input_img, output_image, reference_image, pixels_positi
         The score of the image cleaning algorithm for the given image.
     """
 
-    if params is None:
-        params = {}
+    kwargs["kill"] = True
+    kwargs["kill_threshold"] = 0.2   # TODO: don't give an hardcoded value
 
-    params["kill"] = True
-    params["kill_threshold"] = 0.2   # TODO: don't give an hardcoded value
-
-    scores = metric_hillas_delta(input_img, output_image, reference_image, pixels_position, params)
+    scores = metric_hillas_delta(input_img, output_image, reference_image, geom, **kwargs)
 
     return scores
 
 
 # Kill isolated pixels ########################################################
 
-def metric_kill_isolated_pixels(input_img, output_image, reference_image, pixels_position=None, params=None):
+def metric_kill_isolated_pixels(input_img, output_image, reference_image, **kwargs):
     delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(output_image)
 
     score_dict = collections.OrderedDict((
@@ -876,7 +878,7 @@ METRIC_NAME_DICT = {
     metric_kill_isolated_pixels: "kill_isolated_pixels"
 }
 
-def assess_image_cleaning(input_img, output_img, reference_img, pixels_position, benchmark_method, params=None):
+def assess_image_cleaning(input_img, output_img, reference_img, benchmark_method, **kwargs):
     r"""Compute the score of `output_image` regarding `reference_image`
     with the `benchmark_method` metrics:
 
@@ -904,7 +906,7 @@ def assess_image_cleaning(input_img, output_img, reference_img, pixels_position,
     reference_img: 2D ndarray
         The actual clean image (the best result that can be expected for the
         image cleaning algorithm).
-    params: dict
+    kwargs: dict
         Additional options.
 
     Returns
@@ -918,7 +920,7 @@ def assess_image_cleaning(input_img, output_img, reference_img, pixels_position,
         metric_name_list = []
 
         for metric_function in BENCHMARK_DICT[benchmark_method]:
-            score = metric_function(input_img, output_img, reference_img, pixels_position, params) 
+            score = metric_function(input_img, output_img, reference_img, **kwargs) 
 
             if isinstance(score, collections.Sequence):
                 score_list.extend(score)
@@ -929,7 +931,7 @@ def assess_image_cleaning(input_img, output_img, reference_img, pixels_position,
 
         assert len(score_list) == len(metric_name_list)
     except KeyError as e:
-        raise UnknownMethod()
+        raise ValueError("Unknown benchmark method {}".format(benchmark_method))
 
     #for s, m in zip(score_list, metric_name_list):
     #    print(m, ":", s, type(s))

@@ -33,24 +33,14 @@ This snippet requires Numpy, Matplotlib and PIL/Pillow Python libraries.
 """
 
 import argparse
-import datetime
-import json
-import os
-import numpy as np
-import time
 
-import datapipe.denoising
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
-from datapipe.benchmark import assess
-from datapipe.io import images
-from datapipe.io import geometry_converter
-
+from datapipe.image import geometry_converter
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 from datapipe.image.kill_isolated_pixels import number_of_islands
 
-import ctapipe.io
-from ctapipe.image.cleaning import tailcuts_clean, dilate
+from ctapipe.image.cleaning import tailcuts_clean
 
 class Tailcut(AbstractCleaningAlgorithm):
 
@@ -64,67 +54,37 @@ class Tailcut(AbstractCleaningAlgorithm):
                     low_threshold=8.,
                     kill_isolated_pixels=False,
                     verbose=False,
-                    geom=None,
-                    output_data_dict=None):
-        """
-        vim ./ctapipe/reco/cleaning.py ./ctapipe/reco/tests/test_cleaning.py ./ctapipe/tools/camdemo.py ./examples/read_hessio_single_tel.py
+                    cam_id=None,
+                    output_data_dict=None,
+                    **kwargs):
+        """Apply ctapipe's tail-cut image cleaning on ``.
+
         """
 
-        if geom is None:
+        if cam_id is None:
             raise Exception("Geom have to be defined")    # TODO
 
         # 2D ARRAY (FITS IMAGE) TO CTAPIPE IMAGE ###############
 
-        if geom.cam_id.lower() in ("astri", "astricam"):
-            img_1d = geometry_converter.array_2d_to_astri(input_img)
-        elif geom.cam_id.lower() in ("astri_cropped", "digicam2d", "flashcam2d", "nectarcam2d", "lstcam2d"):
-            img_1d = input_img.flatten()
-            img_1d[np.isnan(img_1d)] = 0
-        elif geom.cam_id.lower() in ("gct", "gate", "chec"):
-            img_1d = geometry_converter.array_2d_to_gct(input_img)
-        else:
-            raise Exception("Unknown cam_id")    # TODO
+        geom_1d = geometry_converter.get_geom1d(cam_id)
+        img_1d = geometry_converter.image_2d_to_1d(input_img, cam_id)
 
         # APPLY TAILCUT CLEANING ##############################
 
-        mask = tailcuts_clean(geom,
+        mask = tailcuts_clean(geom_1d,
                               img_1d,
                               picture_thresh=high_threshold,
                               boundary_thresh=low_threshold)
-
-        ##if True not in mask: continue       # TODO ?????
-        #dilate(geom, mask)                   # TODO ?
-
         img_1d[mask == False] = 0
-
-        #for ii in range(3):
-        #    reco.cleaning.dilate(geom, cleanmask)
-        #    image[cleanmask == 0] = 0  # zero noise pixels
 
         # CTAPIPE IMAGE TO 2D ARRAY (FITS IMAGE) ###############
 
-        if geom.cam_id.lower() in ("astri", "astricam"):
-            cleaned_img = geometry_converter.astri_to_2d_array(img_1d, crop=False)
-        elif geom.cam_id.lower() in ("astri_cropped"):
-            cleaned_img = img_1d.reshape(40, 40)
-        elif geom.cam_id.lower() in ("gct", "gate", "chec"):
-            cleaned_img = geometry_converter.gct_to_2d_array(img_1d)
-        elif geom.cam_id.lower() in ("digicam2d"):
-            cleaned_img = img_1d.reshape(48, 48)
-            cleaned_img[np.isnan(input_img)] = np.nan
-        elif geom.cam_id.lower() in ("flashcam2d"):
-            cleaned_img = img_1d.reshape(56, 56)
-            cleaned_img[np.isnan(input_img)] = np.nan
-        elif geom.cam_id.lower() in ("nectarcam2d", "lstcam2d"):
-            cleaned_img = img_1d.reshape(55, 55)
-            cleaned_img[np.isnan(input_img)] = np.nan
-        else:
-            raise Exception("Unknown cam_id")    # TODO
+        cleaned_img_2d = geometry_converter.image_1d_to_2d(img_1d, cam_id)
 
         # KILL ISOLATED PIXELS #################################
 
-        img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
-        img_cleaned_num_islands = number_of_islands(cleaned_img)
+        img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img_2d)
+        img_cleaned_num_islands = number_of_islands(cleaned_img_2d)
 
         if output_data_dict is not None:
             output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
@@ -135,9 +95,9 @@ class Tailcut(AbstractCleaningAlgorithm):
         if kill_isolated_pixels:
             if verbose:
                 print("Kill isolated pixels")
-            cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
+            cleaned_img_2d = scipy_kill_isolated_pixels(cleaned_img_2d)
 
-        return cleaned_img
+        return cleaned_img_2d
 
 
 def main():
@@ -160,6 +120,9 @@ def main():
 
     # COMMON OPTIONS
 
+    parser.add_argument("--debug", action="store_true",
+                        help="Debug mode")
+
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images")
@@ -178,10 +141,6 @@ def main():
                         metavar="FILE",
                         help="The output file path (JSON)")
 
-    parser.add_argument("--geom", "-g", required=True,
-                        metavar="FILE",
-                        help="The path of the file that defines the geometry of the telescope (GEOM.JSON)")
-
     parser.add_argument("fileargs", nargs="+", metavar="FILE",
                         help="The files image to process (FITS)."
                              "If fileargs is a directory,"
@@ -192,9 +151,9 @@ def main():
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
     kill_isolated_pixels = args.kill_isolated_pixels
-    geom_path = args.geom
     verbose = args.verbose
 
+    debug = args.debug
     benchmark_method = args.benchmark
     label = args.label
     plot = args.plot
@@ -207,14 +166,11 @@ def main():
     else:
         output_file_path = args.output
 
-    geom = geometry_converter.json_file_to_geom(geom_path)
-
     cleaning_function_params = {
                 "high_threshold": high_threshold,
                 "low_threshold": low_threshold,
                 "kill_isolated_pixels": kill_isolated_pixels,
-                "verbose": verbose,
-                "geom": geom
+                "verbose": verbose
             }
 
     cleaning_algorithm = Tailcut()
@@ -227,8 +183,8 @@ def main():
                                          benchmark_method,
                                          output_file_path,
                                          plot=plot,
-                                         saveplot=saveplot)
-
+                                         saveplot=saveplot,
+                                         debug=debug)
 
 if __name__ == "__main__":
     main()

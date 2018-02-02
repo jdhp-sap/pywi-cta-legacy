@@ -59,7 +59,7 @@ class FFT(AbstractCleaningAlgorithm):
         super(FFT, self).__init__()
         self.label = "FFT"  # Name to show in plots
 
-    def clean_image(self, input_img, shift=False, threshold=0., base_file_path="fft"):
+    def clean_image(self, input_img, shift=False, threshold=0., base_file_path="fft", **kwargs):
         """
         Do the fourier transform.
         """

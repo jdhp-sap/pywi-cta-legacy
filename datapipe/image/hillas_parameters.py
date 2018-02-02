@@ -27,17 +27,16 @@ from ctapipe.image.hillas import hillas_parameters_2
 from ctapipe.image.hillas import hillas_parameters_3
 from ctapipe.image.hillas import hillas_parameters_4
 
-import astropy.units as u
-import copy
+from ctapipe.instrument import CameraGeometry
 
-import numpy as np
+import copy
 
 """
 Warning: so far, this module only works with "rectangular 2D images", but it
 handle "missing pixels" (i.e. NaN values).
 """
 
-def get_hillas_parameters(image, implementation=4, pixels_position=None):
+def get_hillas_parameters(geom: CameraGeometry, image, implementation=4):
     r"""Return Hillas parameters [hillas]_ of the given ``image``.
 
     See https://github.com/cta-observatory/ctapipe/blob/master/ctapipe/image/hillas.py#L83
@@ -45,6 +44,9 @@ def get_hillas_parameters(image, implementation=4, pixels_position=None):
 
     Parameters
     ----------
+    geom : CameraGeomatry
+        The geometry of the image to parametrize
+
     image : Numpy array
         The image to parametrize
 
@@ -65,34 +67,14 @@ def get_hillas_parameters(image, implementation=4, pixels_position=None):
     # Copy image to prevent tricky bugs
     image = image.copy()
 
-    # Flatten image and remove NaN values
-    flat_img = image[np.isfinite(image)]
-
-    if pixels_position is not None:
-        # Copy pixel_position to prevent tricky bugs
-        #pixels_position = (np.copy(pixels_position[0]), np.copy(pixels_position[1]))
-        pixels_position = copy.deepcopy(pixels_position)
-
-        # Flatten pixels_position and remove NaN values
-        xx = pixels_position[0][np.isfinite(pixels_position[0])]
-        yy = pixels_position[1][np.isfinite(pixels_position[1])]
-    else:
-        x = np.arange(0, np.shape(image)[1])
-        y = np.arange(0, np.shape(image)[0])
-        xx, yy = np.meshgrid(x, y)
-
-        # Flatten pixels_position and remove pixels that are NaN in `image`
-        xx = xx[np.isfinite(image)].flatten()
-        yy = yy[np.isfinite(image)].flatten()
-
     if implementation == 1:
-        params = hillas_parameters_1(xx * u.meter, yy * u.meter, flat_img)
+        params = hillas_parameters_1(geom, image)
     elif implementation == 2:
-        params = hillas_parameters_2(xx * u.meter, yy * u.meter, flat_img)
+        params = hillas_parameters_2(geom, image)
     elif implementation == 3:
-        params = hillas_parameters_3(xx * u.meter, yy * u.meter, flat_img)
+        params = hillas_parameters_3(geom, image)
     elif implementation == 4:
-        params = hillas_parameters_4(xx * u.meter, yy * u.meter, flat_img)
+        params = hillas_parameters_4(geom, image)
     else:
         raise ValueError("Wrong Hillas implementation ID.")
 

@@ -20,7 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['hillas_parameters',
+__all__ = ['geometry_converter',
+           'hillas_parameters',
            'kill_isolated_pixels',
            'signal_to_border_distance']
 

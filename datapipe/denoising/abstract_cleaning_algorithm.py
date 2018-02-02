@@ -33,6 +33,8 @@ import traceback
 
 import astropy.units as u
 
+from ctapipe.instrument import camera
+
 from datapipe.image.hillas_parameters import get_hillas_parameters
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
@@ -45,8 +47,12 @@ from datapipe.image.signal_to_border_distance import pemax_on_border
 from datapipe.benchmark import assess
 from datapipe.io import images
 
+from datapipe.image import geometry_converter
+
 # TODO:
 # - maj les modules de Tino
+
+HILLAS_IMPLEMENTATION = 2      # TODO
 
 ###############################################################################
 
@@ -72,7 +78,8 @@ class AbstractCleaningAlgorithm(object):
             plot=False,
             saveplot=None,
             ref_img_as_input=False,      # This option is a hack to easily produce CSV files...
-            max_num_img=None):
+            max_num_img=None,
+            debug=False):
 
         image_counter = 0
         launch_time = time.perf_counter()
@@ -128,6 +135,11 @@ class AbstractCleaningAlgorithm(object):
 
                     image_dict.update(fits_metadata_dict)
 
+                    # Make the original 1D geom (required for the 2D to 1D geometry conversion, for Tailcut and for Hillas) ###
+                    cam_id = fits_metadata_dict['cam_id']
+                    cleaning_function_params["cam_id"] = cam_id
+                    geom1d = geometry_converter.get_geom1d(cam_id)
+
                     if benchmark_method is not None:
 
                         # FETCH ADDITIONAL IMAGE METADATA #####################
@@ -154,7 +166,8 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_in_max_pe"] = float(np.nanmax(input_img))
                         image_dict["img_in_num_pix"] = int( (input_img[np.isfinite(input_img)] > 0).sum() )
 
-                        hillas_params_2_ref_img = get_hillas_parameters(reference_img, 2, pixels_position)
+                        reference_img1d = geometry_converter.image_2d_to_1d(reference_img, fits_metadata_dict['cam_id'])
+                        hillas_params_2_ref_img = get_hillas_parameters(geom1d, reference_img1d, HILLAS_IMPLEMENTATION)   # TODO GEOM
 
                         image_dict["img_ref_hillas_2_size"] =     float(hillas_params_2_ref_img.size)
                         image_dict["img_ref_hillas_2_cen_x"] =    hillas_params_2_ref_img.cen_x.value
@@ -193,11 +206,13 @@ class AbstractCleaningAlgorithm(object):
 
                         # ASSESS THE CLEANING #################################
 
+                        kwargs = {'geom': geom1d,
+                                  'hillas_implementation': HILLAS_IMPLEMENTATION}  # TODO GEOM
                         score_tuple, score_name_tuple = assess.assess_image_cleaning(input_img,
                                                                                      cleaned_img,
                                                                                      reference_img,
-                                                                                     pixels_position,
-                                                                                     benchmark_method)    # TODO: NaN
+                                                                                     benchmark_method,
+                                                                                     **kwargs)
 
                         image_dict["img_cleaned_signal_to_border"] = signal_to_border(cleaned_img)
                         image_dict["img_cleaned_signal_to_border_distance"] = signal_to_border_distance(cleaned_img)
@@ -213,7 +228,8 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_cleaned_max_pe"] = float(np.nanmax(cleaned_img))
                         image_dict["img_cleaned_num_pix"] = int( (cleaned_img[np.isfinite(cleaned_img)] > 0).sum() )
 
-                        hillas_params_2_cleaned_img = get_hillas_parameters(cleaned_img, 2, pixels_position)
+                        cleaned_img1d = geometry_converter.image_2d_to_1d(reference_img, fits_metadata_dict['cam_id'])
+                        hillas_params_2_cleaned_img = get_hillas_parameters(geom1d, cleaned_img1d, HILLAS_IMPLEMENTATION)    # GEOM
 
                         image_dict["img_cleaned_hillas_2_size"] =     float(hillas_params_2_cleaned_img.size)
                         image_dict["img_cleaned_hillas_2_cen_x"] =    hillas_params_2_cleaned_img.cen_x.value
@@ -252,8 +268,9 @@ class AbstractCleaningAlgorithm(object):
                 except Exception as e:
                     print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
 
-                    # DEBUG: uncomment the following line to have the full trackback
-                    #traceback.print_tb(e.__traceback__, file=sys.stdout)
+                    if debug:
+                        # The following line print the full trackback
+                        traceback.print_tb(e.__traceback__, file=sys.stdout)
 
                     if benchmark_method is not None:
 
@@ -310,11 +327,6 @@ class AbstractCleaningAlgorithm(object):
             output_dict["benchmark_method"] = benchmark_method
             output_dict["system"] = " ".join(os.uname())
             output_dict["io"] = io_list
-
-            try:
-                del output_dict["algo_params"]["geom"]   # The geom object use by Tailcut is not JSON serializable
-            except:
-                pass
 
             with open(output_file_path, "w") as fd:
                 json.dump(output_dict, fd, sort_keys=True, indent=4)  # pretty print format
