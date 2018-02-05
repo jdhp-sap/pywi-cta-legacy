@@ -85,7 +85,7 @@ astri_mini_inaf)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/astri/proton ;
 
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf.json ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_inaf_cdf_gamma.json ;
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
@@ -116,7 +116,7 @@ astri_mini_konrad)
     GAMMA_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/proton ;
 
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_konrad_cdf.json ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_konrad_cdf_gamma.json ;
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
@@ -143,7 +143,7 @@ gct_mini_konrad)
     GAMMA_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/gamma ;
     PROTON_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/proton ;
 
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/gct_konrad_cdf.json ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/gct_konrad_cdf_gamma.json ;
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
@@ -165,7 +165,7 @@ digicam_mini_konrad)
     GAMMA_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/gamma ;
     PROTON_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/proton ;
 
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/digicam_konrad_cdf.json ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/digicam_konrad_cdf_gamma.json ;
 
     #TC_HTH="10" ;  # HESS
     #TC_LTH="5" ;   # HESS
@@ -196,7 +196,7 @@ flashcam_mini_inaf)
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/flashcam/proton ;
 
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/flashcam_grid_prod3b_north_cdf.json ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/flashcam_grid_prod3b_north_cdf_gamma.json ;
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
@@ -223,7 +223,7 @@ nectarcam_grid_prod3b_north)
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
     PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/proton ;
 
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf.json ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf_gamma.json ;
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
@@ -258,7 +258,7 @@ lstcam_grid_prod3b_north)
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
     PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/lst/proton ;
 
-    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf.json ;
+    WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf_gamma.json ;
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
