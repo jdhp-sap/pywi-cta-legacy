@@ -26,6 +26,8 @@ __all__ = ['image_2d_to_1d',
 import ctapipe.image.geometry_converter as geomconv
 from ctapipe.instrument import camera
 
+import numpy as np
+
 """
 Convert the 2D array image format used by the wavelet image cleaning to the
 1D array image format used by ctapipe.
@@ -65,10 +67,11 @@ def get_geom2d(cam_id):
 
     if cam_id in ("DigiCam", "NectarCam", "FlashCam", "LSTCam"):
         # TODO: dirty hack !!!!!!!!!!!
+        rotation = 0
         geom2d, image2d = geomconv.convert_geometry_hex1d_to_rect2d(geom1d,
-                                                                    np.zeros(geom.pix_x.shape),
-                                                                    geom1d.cam_id + str(rot),
-                                                                    add_rot=0) # TODO
+                                                                    np.zeros(geom1d.pix_x.shape),
+                                                                    geom1d.cam_id + str(rotation),
+                                                                    add_rot=rotation) # TODO
     elif cam_id == "ASTRICam":
         num_pixels_x = 7*8
         num_pixels_y = 7*8
