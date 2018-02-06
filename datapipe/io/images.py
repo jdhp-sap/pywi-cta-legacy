@@ -191,7 +191,7 @@ def image_generator(path_list,
     for file_path in image_files_in_paths(path_list):
         if file_path.lower().endswith((".simtel", ".simtel.gz")):
             # SIMTEL FILES
-            for image in simtel_images_generator(file_path, tel_filter_list, ev_filter_list, kwargs):
+            for image in simtel_images_generator(file_path, tel_filter_list, ev_filter_list, **kwargs):
                 if (max_num_images is not None) and (images_counter >= max_num_images):
                     break
                 else:
