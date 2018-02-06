@@ -228,7 +228,7 @@ class AbstractCleaningAlgorithm(object):
                         image_dict["img_cleaned_max_pe"] = float(np.nanmax(cleaned_img))
                         image_dict["img_cleaned_num_pix"] = int( (cleaned_img[np.isfinite(cleaned_img)] > 0).sum() )
 
-                        cleaned_img1d = geometry_converter.image_2d_to_1d(reference_img, fits_metadata_dict['cam_id'])
+                        cleaned_img1d = geometry_converter.image_2d_to_1d(cleaned_img, fits_metadata_dict['cam_id'])
                         hillas_params_2_cleaned_img = get_hillas_parameters(geom1d, cleaned_img1d, HILLAS_IMPLEMENTATION)    # GEOM
 
                         image_dict["img_cleaned_hillas_2_size"] =     float(hillas_params_2_cleaned_img.size)
