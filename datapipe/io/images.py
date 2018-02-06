@@ -210,7 +210,8 @@ def image_generator(path_list,
                     if (ev_filter_list is None) or (fits_metadata_dict['event_id'] in ev_filter_list):
                         if (cam_filter_list is None) or (fits_metadata_dict['cam_id'] in cam_filter_list):
                             images_counter += 1
-                            yield image_dict, fits_metadata_dict   # TODO: named tuple
+
+                            yield Image2D(**image_dict, meta=fits_metadata_dict)
         else:
             raise Exception("Wrong item:", file_path)
 
