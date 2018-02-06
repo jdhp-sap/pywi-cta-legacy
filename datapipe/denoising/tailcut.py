@@ -62,7 +62,7 @@ class Tailcut(AbstractCleaningAlgorithm):
         """
 
         if cam_id is None:
-            raise Exception("Geom have to be defined")    # TODO
+            raise Exception("cam_id have to be defined")    # TODO
 
         # 2D ARRAY (FITS IMAGE) TO CTAPIPE IMAGE ###############
 
