@@ -45,7 +45,7 @@ from datapipe.image.signal_to_border_distance import signal_to_border_distance
 from datapipe.image.signal_to_border_distance import pemax_on_border
 
 from datapipe.benchmark import assess
-from datapipe.io import images
+import datapipe.io.images
 
 from datapipe.image import geometry_converter
 
@@ -119,7 +119,7 @@ class AbstractCleaningAlgorithm(object):
                     # READ THE INPUT FILE #####################################
 
                     initial_time = time.perf_counter()
-                    fits_images_dict, fits_metadata_dict = images.load_benchmark_images(input_file_path)
+                    fits_images_dict, fits_metadata_dict = datapipe.io.images.load_benchmark_images(input_file_path)
                     load_input_image_time_sec = time.perf_counter() - initial_time
 
                     if self.verbose:
@@ -253,7 +253,7 @@ class AbstractCleaningAlgorithm(object):
                         title_list = ["Input image", "Reference image", "Cleaned image"] 
 
                         if plot:
-                            images.plot_list(image_list, title_list, fits_metadata_dict)
+                            datapipe.io.images.plot_list(image_list, title_list, fits_metadata_dict)
 
                         if saveplot is not None:
                             if len(input_file_or_dir_path_list) > 1:
@@ -263,7 +263,7 @@ class AbstractCleaningAlgorithm(object):
                                 plot_file_path = saveplot
 
                             print("Saving {}".format(plot_file_path))
-                            images.mpl_save_list(image_list, plot_file_path, title_list, fits_metadata_dict)
+                            datapipe.io.images.mpl_save_list(image_list, plot_file_path, title_list, fits_metadata_dict)
 
                 except Exception as e:
                     print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
