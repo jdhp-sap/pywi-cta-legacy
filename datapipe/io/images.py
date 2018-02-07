@@ -47,6 +47,7 @@ import ctapipe
 from ctapipe.io.hessio import hessio_event_source
 from ctapipe.instrument import CameraGeometry
 from ctapipe.calib import CameraCalibrator
+import ctapipe.visualization
 
 from datapipe.image.hillas_parameters import get_hillas_parameters
 from datapipe.io import geometry_converter
