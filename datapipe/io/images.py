@@ -318,8 +318,6 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
 
         # CONVERTING GEOMETRY (1D TO 2D) ##########################
 
-        geom2d = geometry_converter.get_geom2d(cam_id)
-
         if cam_id in ("CHEC", "DigiCam", "FlashCam"):
 
             pe_image_2d = geometry_converter.image_1d_to_2d(pe_image, cam_id=cam_id)
