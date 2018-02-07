@@ -329,10 +329,10 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
 
             pe_image_2d = geometry_converter.image_1d_to_2d(pe_image, cam_id=cam_id)
             calibrated_image_2d = geometry_converter.image_1d_to_2d(calibrated_image, cam_id=cam_id)
-            uncalibrated_image_2d = geometry_converter.image_1d_to_2d(uncalibrated_image, cam_id=cam_id)
-            pedestal_2d = geometry_converter.image_1d_to_2d(pedestal, cam_id=cam_id)
-            gains_2d = geometry_converter.image_1d_to_2d(gain, cam_id=cam_id)
-            pixel_pos_2d = geometry_converter.image_1d_to_2d(pixel_pos, cam_id=cam_id)   # TODO
+
+            uncalibrated_image_2d = geometry_converter.image_1d_to_2d(uncalibrated_image[0], cam_id=cam_id)
+            pedestal_2d = geometry_converter.image_1d_to_2d(pedestal[0], cam_id=cam_id)
+            gains_2d = geometry_converter.image_1d_to_2d(gain[0], cam_id=cam_id)
 
         elif cam_id in TWO_CHANNELS_CAMERAS:
 
@@ -346,12 +346,12 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
             gains_2d_ch0 = geometry_converter.image_1d_to_2d(gain[0], cam_id=cam_id)
             gains_2d_ch1 = geometry_converter.image_1d_to_2d(gain[1], cam_id=cam_id)
 
-            # Make a mock pixel position array...
-            pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
-                                                np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))
-
         else:
             raise NotImplementedError(geom1d.cam_id)  # TODO
+
+        # Make a mock pixel position array...
+        pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
+                                            np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))
 
         # FIX THE ARRAY SHAPE #####################################
 
