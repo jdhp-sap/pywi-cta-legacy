@@ -241,6 +241,9 @@ def quantity_to_tuple(quantity, unit_str):
 
 def simtel_event_to_images(event, tel_id, ctapipe_format=False):
 
+    SINGLE_CHANNEL_CAMERAS = ("CHEC", "DigiCam", "FlashCam")
+    TWO_CHANNELS_CAMERAS = ("ASTRICam", "NectarCam", "LSTCam")
+
     # GUESS THE IMAGE GEOMETRY ################################
 
     x, y = event.inst.pixel_pos[tel_id]
@@ -297,6 +300,10 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
         calibrated_image[1, calibrated_image[0,:] <= LST_CAM_CHANNEL_THRESHOLD] = 0
         calibrated_image[0, calibrated_image[0,:] >  LST_CAM_CHANNEL_THRESHOLD] = 0
         calibrated_image = calibrated_image.sum(axis=0)
+    elif cam_id in SINGLE_CHANNEL_CAMERAS :
+        calibrated_image = calibrated_image[0]
+    else:
+        raise ValueError("Unknown camera: {}".format(cam_id))
 
     # METADATA ###############################################
 
@@ -318,7 +325,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
 
         # CONVERTING GEOMETRY (1D TO 2D) ##########################
 
-        if cam_id in ("CHEC", "DigiCam", "FlashCam"):
+        if cam_id in SINGLE_CHANNEL_CAMERAS:
 
             pe_image_2d = geometry_converter.image_1d_to_2d(pe_image, cam_id=cam_id)
             calibrated_image_2d = geometry_converter.image_1d_to_2d(calibrated_image, cam_id=cam_id)
@@ -327,7 +334,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
             gains_2d = geometry_converter.image_1d_to_2d(gain, cam_id=cam_id)
             pixel_pos_2d = geometry_converter.image_1d_to_2d(pixel_pos, cam_id=cam_id)   # TODO
 
-        elif cam_id in ("ASTRICam", "NectarCam", "LSTCam"):
+        elif cam_id in TWO_CHANNELS_CAMERAS:
 
             pe_image_2d = geometry_converter.image_1d_to_2d(pe_image, cam_id=cam_id)
             calibrated_image_2d = geometry_converter.image_1d_to_2d(calibrated_image, cam_id=cam_id)
@@ -352,13 +359,11 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
         # only and then takes and return a 2D array but datapipe
         # fits files keep all channels and thus takes 3D arrays...
 
-        if cam_id in ("CHEC", "DigiCam", "FlashCam"):
-            # Single channel instruments ##########################
+        if cam_id in SINGLE_CHANNEL_CAMERAS:
             uncalibrated_image_2d = np.array([uncalibrated_image_2d])
             pedestal_2d =           np.array([pedestal_2d])
             gains_2d =              np.array([gains_2d])
-        elif cam_id in ("ASTRICam", "NectarCam", "LSTCam"):
-            # Double channel instruments ##########################
+        elif cam_id in TWO_CHANNELS_CAMERAS:
             uncalibrated_image_2d = np.array([uncalibrated_image_2d_ch0, uncalibrated_image_2d_ch1])
             pedestal_2d =           np.array([pedestal_2d_ch0, pedestal_2d_ch1 ])
             gains_2d =              np.array([gains_2d_ch0, gains_2d_ch1])
