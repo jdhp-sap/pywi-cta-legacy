@@ -27,6 +27,7 @@ import ctapipe.image.geometry_converter as geomconv
 from ctapipe.instrument import camera
 
 import numpy as np
+import sys
 
 """
 Convert the 2D array image format used by the wavelet image cleaning to the
@@ -49,12 +50,27 @@ def get_geom1d(cam_id):
     geom1d: CameraGeometry
         The `cam_id` camera geometry for ctapipe **1D images**.
     """
-    camera_names = camera.CameraGeometry.get_known_camera_names()
-    if cam_id not in camera_names:
-        error_str = "Unknown camera name {}. Should be one of: {}.".format(cam_id,
-                                                                           ", ".join(camera_names))
-        raise ValueError(error_str)
-    return camera.CameraGeometry.from_name(cam_id)
+
+    # Use a cache to speedup geom access (~1 micro sec instead of ~70 micro sec)
+    geometry_converter_module = sys.modules[__name__]
+    var_name = "_geom1d_" + cam_id
+
+    if hasattr(geometry_converter_module, var_name):
+
+        geom1d = getattr(geometry_converter_module, var_name)
+
+    else:
+
+        camera_names = camera.CameraGeometry.get_known_camera_names()
+
+        if cam_id not in camera_names:
+            error_str = "Unknown camera name {}. Should be one of: {}.".format(cam_id, ", ".join(camera_names))
+            raise ValueError(error_str)
+
+        geom1d = camera.CameraGeometry.from_name(cam_id)
+        setattr(geometry_converter_module, var_name, geom1d)
+
+    return geom1d
 
 def get_geom2d(cam_id):
     """TODO!!!!!!!!!!!!!
@@ -86,6 +102,12 @@ def get_geom2d(cam_id):
                                                         range_x,
                                                         range_y)
         geom2d.cam_id = "ASTRICam2D"
+        #shape_2d = (num_pixels_x, num_pixels_y)
+        #geom2d.pix_x = geom2d.pix_x.reshape(shape_2d)
+        #geom2d.pix_y = geom2d.pix_y.reshape(shape_2d)
+        ##geom2d.mask = geom2d.mask.reshape(shape_2d)
+        #geom2d.pix_area = geom2d.pix_area.reshape(shape_2d)
+        raise NotImplementedError()
     elif cam_id == "CHEC":
         num_pixels_x = 6*8
         num_pixels_y = 6*8
@@ -100,6 +122,7 @@ def get_geom2d(cam_id):
                                                         range_x,
                                                         range_y)
         geom2d.cam_id = "CHEC2D"
+        raise NotImplementedError()
     else:
         raise ValueError("1D to 2D image converter: unknown camera {}.".format(cam_id))
 
