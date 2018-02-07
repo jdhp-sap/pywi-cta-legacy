@@ -862,6 +862,9 @@ def plot_ctapipe_image(image, geom, figsize=(10, 10), title=None, title_fontsize
     if not plot_axis:
         disp.axes.set_axis_off()
 
+    if title is None:
+        title = geom.cam_id
+
     disp.axes.set_title(title, fontsize=title_fontsize)
 
     return disp
