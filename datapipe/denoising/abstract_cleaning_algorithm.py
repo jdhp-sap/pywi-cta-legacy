@@ -24,7 +24,6 @@ import copy
 import datetime
 import json
 import os
-import math
 import numpy as np
 import random
 import sys
@@ -33,24 +32,15 @@ import traceback
 
 import astropy.units as u
 
-from ctapipe.instrument import camera
-
+from datapipe.benchmark import assess
 from datapipe.image.hillas_parameters import get_hillas_parameters
-
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 from datapipe.image.kill_isolated_pixels import number_of_islands
-
 from datapipe.image.signal_to_border_distance import signal_to_border
 from datapipe.image.signal_to_border_distance import signal_to_border_distance
 from datapipe.image.signal_to_border_distance import pemax_on_border
-
-from datapipe.benchmark import assess
-import datapipe.io.images
-
 from datapipe.image import geometry_converter
-
-# TODO:
-# - maj les modules de Tino
+import datapipe.io.images
 
 HILLAS_IMPLEMENTATION = 2      # TODO
 
