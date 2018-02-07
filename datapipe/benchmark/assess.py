@@ -43,7 +43,7 @@ import numpy as np
 import math
 
 from datapipe.image.hillas_parameters import get_hillas_parameters
-from datapipe.image.geometry_converter import image_2d_to_1d
+from datapipe.io.geometry_converter import image_2d_to_1d
 
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats

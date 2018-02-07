@@ -39,7 +39,7 @@ from datapipe.image.kill_isolated_pixels import number_of_islands
 from datapipe.image.signal_to_border_distance import signal_to_border
 from datapipe.image.signal_to_border_distance import signal_to_border_distance
 from datapipe.image.signal_to_border_distance import pemax_on_border
-from datapipe.image import geometry_converter
+from datapipe.io import geometry_converter
 import datapipe.io.images
 
 HILLAS_IMPLEMENTATION = 2      # TODO

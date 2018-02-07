@@ -45,12 +45,11 @@ import astropy.units as u
 
 import ctapipe
 from ctapipe.io.hessio import hessio_event_source
-import ctapipe.image.geometry_converter as ctapipe_geom_converter
 from ctapipe.instrument import CameraGeometry
 from ctapipe.calib import CameraCalibrator
 
-from datapipe.image import geometry_converter
 from datapipe.image.hillas_parameters import get_hillas_parameters
+from datapipe.io import geometry_converter
 
 # EXCEPTIONS #################################################################
 
