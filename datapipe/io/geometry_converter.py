@@ -24,11 +24,7 @@
 ... TODO
 """
 
-__all__ = ['geom_to_json_dict',
-           'geom_to_json_file',
-           'json_dict_to_geom',
-           'json_file_to_geom',
-           'astri_to_2d_array',
+__all__ = ['astri_to_2d_array',
            'astri_to_3d_array',
            '2d_array_to_astri',
            'gct_to_2d_array',
@@ -46,54 +42,6 @@ import ctapipe
 
 # New version
 from ctapipe.instrument import camera
-
-###############################################################################
-
-def geom_to_json_dict(geom):
-    json_dict = {
-                 "cam_id": geom.cam_id,
-                 "pix_id": geom.pix_id.tolist(),
-                 "pix_x": geom.pix_x.value.tolist(),
-                 "pix_y": geom.pix_y.value.tolist(),
-                 "pix_area": geom.pix_area.value.tolist(),
-                 "neighbors": geom.neighbors,
-                 "pix_type": geom.pix_type
-                 #"cam_rotation": geom.cam_rotation.value,
-                 #"pix_rotation": geom.pix_rotation
-                }
-
-    return json_dict
-
-
-def geom_to_json_file(geom, json_file_path):
-    json_dict = geom_to_json_dict(geom)
-
-    with open(json_file_path, "w") as fd:
-        json.dump(json_dict, fd)                           # no pretty print
-        #json.dump(json_dict, fd, sort_keys=True, indent=4)  # pretty print format
-
-
-def json_dict_to_geom(json_dict):
-    cam_id = json_dict['cam_id']
-    pix_id = np.array(json_dict['pix_id'])
-    pix_x =  np.array(json_dict['pix_x']) * u.meter
-    pix_y =  np.array(json_dict['pix_y']) * u.meter
-    pix_area =  np.array(json_dict['pix_area']) * (u.meter ** 2)
-    neighbors = json_dict['neighbors']
-    pix_type =  json_dict['pix_type']
-
-    geom = camera.CameraGeometry(cam_id, pix_id, pix_x, pix_y, pix_area, pix_type, neighbors=neighbors)
-
-    return geom
-
-
-def json_file_to_geom(json_file_path):
-    with open(json_file_path, 'r') as fd:
-        json_dict = json.load(fd)
-
-    geom = json_dict_to_geom(json_dict)
-
-    return geom
 
 ###############################################################################
 

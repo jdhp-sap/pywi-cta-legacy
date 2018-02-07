@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 
 __all__ = ['geometry_converter',
-           'geom',
            'images',
            'montecarlo_calibration_astri',
            'montecarlo_calibration_gct',

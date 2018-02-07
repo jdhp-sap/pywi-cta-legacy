@@ -40,7 +40,7 @@ def norm_angle_diff(angle_in_degrees):
 
 class ObjectiveFunction:
 
-    def __init__(self, input_files, geom=None, max_num_img=None, aggregation_method="mean"):
+    def __init__(self, input_files, max_num_img=None, aggregation_method="mean"):
         self.call_number = 0
 
         # Init the wavelet class
@@ -49,8 +49,6 @@ class ObjectiveFunction:
         # Make the image list
         self.input_files = input_files
         self.max_num_img = max_num_img
-
-        self.geom = geom
 
         self.aggregation_method = aggregation_method  # "mean" or "median"
 
@@ -92,7 +90,6 @@ class ObjectiveFunction:
             algo_params = {
                         "kill_isolated_pixels": True,
                         "verbose": False,
-                        "geom": self.geom
                     }
 
             algo_params.update(algo_params_var)
@@ -158,12 +155,8 @@ class ObjectiveFunction:
 if __name__ == "__main__":
     # Test...
 
-    from datapipe.io import geometry_converter
-
-    geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/digicam2d.geom.json")
-
-    #func = ObjectiveFunction(input_files=["./MISC/testset/gamma/digicam/"], geom=geom)
-    func = ObjectiveFunction(input_files=["/dev/shm/.jd/digicam/gamma/"], geom=geom)
+    #func = ObjectiveFunction(input_files=["./MISC/testset/gamma/digicam/"])
+    func = ObjectiveFunction(input_files=["/dev/shm/.jd/digicam/gamma/"])
 
     threshold_list = [10, 5]
 

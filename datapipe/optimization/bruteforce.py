@@ -31,9 +31,6 @@ from datapipe.optimization.objectivefunc.tailcut_delta_psi import ObjectiveFunct
 import datapipe.denoising.cdf
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 
-# For tailcut
-from datapipe.io import geometry_converter
-
 def main():
 
     algo = "wavelet_mrfilter"
@@ -53,37 +50,31 @@ def main():
 
         input_files = ["/dev/shm/.jd/astri/gamma/"]
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
-        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
 
     elif instrument == "astri_konrad":
 
         input_files = ["/dev/shm/.jd/astri_konrad/gamma/"]
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.ASTRI_CDF_FILE)
-        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/astri.geom.json")
 
     elif instrument == "digicam":
 
         input_files = ["/dev/shm/.jd/digicam/gamma/"]
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.DIGICAM_CDF_FILE)
-        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/digicam2d.geom.json")
 
     elif instrument == "flashcam":
 
         input_files = ["/dev/shm/.jd/flashcam/gamma/"]
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.FLASHCAM_CDF_FILE)
-        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/flashcam2d.geom.json")
 
     elif instrument == "nectarcam":
 
         input_files = ["/dev/shm/.jd/nectarcam/gamma/"]
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.NECTARCAM_CDF_FILE)
-        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/nectarcam2d.geom.json")
 
     elif instrument == "lstcam":
 
         input_files = ["/dev/shm/.jd/lstcam/gamma/"]
         noise_distribution = EmpiricalDistribution(datapipe.denoising.cdf.LSTCAM_CDF_FILE)
-        geom = geometry_converter.json_file_to_geom("./datapipe/io/geom/lstcam2d.geom.json")
 
     else:
 
@@ -109,7 +100,6 @@ def main():
     elif algo == "tailcut":
 
         func = TailcutObjectiveFunction(input_files=input_files,
-                                        geom=geom,
                                         max_num_img=None,
                                         aggregation_method="mean")  # "mean" or "median"
 
