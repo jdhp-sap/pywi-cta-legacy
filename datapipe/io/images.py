@@ -85,8 +85,7 @@ class NotAnImageError(FitsError):
         self.hdu_index = hdu_index
 
 class WrongDimensionError(FitsError):
-    """
-    Exception raised when trying to save a FITS with more than 3 dimensions
+    """ Exception raised when trying to save a FITS with more than 3 dimensions
     or less than 2 dimensions.
     """
 
@@ -109,8 +108,7 @@ class WrongFitsFileStructure(FitsError):
 # DIRECTORY PARSER ############################################################
 
 def image_files_in_dir(directory_path, max_num_files=None):
-    """
-    Return the list of all FITS files and Simtel files in `directory_path`.
+    """ Return the list of all FITS files and Simtel files in `directory_path`.
     """
 
     FILE_EXT = (".simtel", ".simtel.gz", ".fits", ".fit")
@@ -183,7 +181,19 @@ def image_generator(path_list,
                     **kwargs):
     """Return an iterable sequence all calibrated images in `path_list`.
 
-    `path_list` can contain FITS/Simtel files and directories.
+    Parameters
+    ----------
+    path_list
+        The path of files containing the images to extract. It can contain
+        FITS/Simtel files and directories.
+    max_num_images
+        The maximum number of images to iterate.
+    tel_filter_list
+        Only iterate images from telescopes defined in this list.
+    ev_filter_list
+        Only iterate images from events defined in this list.
+    cam_filter_list
+        Only iterate images from cameras defined in this list.
     """
 
     images_counter = 0
@@ -219,8 +229,7 @@ def image_generator(path_list,
 # LOAD SIMTEL IMAGE ##########################################################
 
 def quantity_to_tuple(quantity, unit_str):
-    """
-    Splits a quantity into a tuple of (value,unit) where unit is FITS complient.
+    """Splits a quantity into a tuple of (value,unit) where unit is FITS compliant.
 
     Useful to write FITS header keywords with units in a comment.
 
@@ -240,6 +249,9 @@ def quantity_to_tuple(quantity, unit_str):
 
 
 def simtel_event_to_images(event, tel_id, ctapipe_format=False):
+    """
+    TODO
+    """
 
     SINGLE_CHANNEL_CAMERAS = ("CHEC", "DigiCam", "FlashCam")
     TWO_CHANNELS_CAMERAS = ("ASTRICam", "NectarCam", "LSTCam")
@@ -447,6 +459,7 @@ def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None
 
                     image.meta['tel_id'] = tel_id
                     image.meta['event_id'] = event_id
+                    image.meta['file_path'] = file_path
                     image.meta['simtel_path'] = file_path
 
                     image.meta['num_tel_with_trigger'] = len(event.trig.tels_with_trigger)
@@ -517,6 +530,7 @@ def load_benchmark_images(input_file_path):
 
     metadata_dict['tel_id'] = hdu0.header['tel_id']
     metadata_dict['event_id'] = hdu0.header['event_id']
+    metadata_dict['file_path'] = input_file_path
     metadata_dict['simtel_path'] = hdu0.header['simtel']
 
     metadata_dict['num_tel_with_trigger'] = hdu0.header['tel_trig']
@@ -610,8 +624,7 @@ def save_benchmark_images(img,
                           pixel_mask,
                           metadata,
                           output_file_path):
-    """
-    Write a FITS file containing pe_img, output_file_path and metadata.
+    """Write a FITS file containing pe_img, output_file_path and metadata.
 
     Parameters
     ----------
@@ -976,8 +989,8 @@ def plot_list(img_list, title_list, metadata_dict=None):
         main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
                                                             metadata_dict['tel_id'],
                                                             metadata_dict['event_id'],
-                                                            metadata_dict['mc_energy'],
-                                                            metadata_dict['mc_energy_unit'])
+                                                            metadata_dict['mc_energy'][0],
+                                                            metadata_dict['mc_energy'][1])
     else:
         main_title = ""
 
@@ -995,8 +1008,8 @@ def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
         main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
                                                             metadata_dict['tel_id'],
                                                             metadata_dict['event_id'],
-                                                            metadata_dict['mc_energy'],
-                                                            metadata_dict['mc_energy_unit'])
+                                                            metadata_dict['mc_energy'][0],
+                                                            metadata_dict['mc_energy'][1])
     else:
         main_title = ""
 
