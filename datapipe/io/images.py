@@ -200,22 +200,23 @@ def image_generator(path_list,
     images_counter = 0
 
     for file_path in image_files_in_paths(path_list):
-        if file_path.lower().endswith((".simtel", ".simtel.gz")):
-            # SIMTEL FILES
-            for image in simtel_images_generator(file_path, tel_filter_list, ev_filter_list, cam_filter_list, **kwargs):
-                if (max_num_images is not None) and (images_counter >= max_num_images):
-                    break
-                else:
-                    if (tel_filter_list is None) or (image.meta['tel_id'] in tel_filter_list):
-                        if (ev_filter_list is None) or (image.meta['event_id'] in ev_filter_list):
-                            if (cam_filter_list is None) or (image.meta['cam_id'] in cam_filter_list):
-                                images_counter += 1
-                                yield image
-        elif file_path.lower().endswith((".fits", ".fit")):
-            # FITS FILES
-            if (max_num_images is not None) and (images_counter >= max_num_images):
-                break
-            else:
+        if (max_num_images is not None) and (images_counter >= max_num_images):
+            break
+        else:
+            if file_path.lower().endswith((".simtel", ".simtel.gz")):
+                # SIMTEL FILES
+                for image in simtel_images_generator(file_path, tel_filter_list, ev_filter_list, cam_filter_list, **kwargs):
+                    if (max_num_images is not None) and (images_counter >= max_num_images):
+                        pyhessio.close_file()
+                        break
+                    else:
+                        if (tel_filter_list is None) or (image.meta['tel_id'] in tel_filter_list):
+                            if (ev_filter_list is None) or (image.meta['event_id'] in ev_filter_list):
+                                if (cam_filter_list is None) or (image.meta['cam_id'] in cam_filter_list):
+                                    images_counter += 1
+                                    yield image
+            elif file_path.lower().endswith((".fits", ".fit")):
+                # FITS FILES
                 image_dict, fits_metadata_dict = load_benchmark_images(file_path)   # TODO: named tuple
                 if (tel_filter_list is None) or (fits_metadata_dict['tel_id'] in tel_filter_list):
                     if (ev_filter_list is None) or (fits_metadata_dict['event_id'] in ev_filter_list):
@@ -223,8 +224,8 @@ def image_generator(path_list,
                             images_counter += 1
 
                             yield Image2D(**image_dict, meta=fits_metadata_dict)
-        else:
-            raise Exception("Wrong item:", file_path)
+            else:
+                raise Exception("Wrong item:", file_path)
 
 
 # LOAD SIMTEL IMAGE ##########################################################
