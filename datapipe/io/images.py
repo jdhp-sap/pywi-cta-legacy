@@ -44,6 +44,7 @@ from astropy.io import fits
 import astropy.units as u
 
 import ctapipe
+import pyhessio
 from ctapipe.io.hessio import hessio_event_source
 from ctapipe.instrument import CameraGeometry
 from ctapipe.calib import CameraCalibrator
@@ -509,6 +510,9 @@ def simtel_images_generator(file_path,
                         #images_dict["pixels_mask"] = mask_2d
 
                         yield image
+
+    # End of file
+    pyhessio.close_file()
 
 
 # LOAD FITS BENCHMARK IMAGE ##################################################
