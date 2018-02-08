@@ -362,8 +362,12 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
             raise NotImplementedError(geom1d.cam_id)  # TODO
 
         # Make a mock pixel position array...
-        pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min(), pixel_pos[0].max(), pe_image_2d.shape[0]),
-                                            np.linspace(pixel_pos[1].min(), pixel_pos[1].max(), pe_image_2d.shape[1])))
+        pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min().value,
+                                                        pixel_pos[0].max().value,
+                                                        pe_image_2d.shape[0]),
+                                            np.linspace(pixel_pos[1].min().value,
+                                                        pixel_pos[1].max().value,
+                                                        pe_image_2d.shape[1])))
 
         # FIX THE ARRAY SHAPE #####################################
 
