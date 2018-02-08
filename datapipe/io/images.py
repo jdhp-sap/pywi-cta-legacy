@@ -764,7 +764,7 @@ def save(img, output_file_path):
 
     hdu = fits.PrimaryHDU(img)
 
-    hdu.writeto(output_file_path, clobber=True)  # clobber=True: overwrite the file if it already exists
+    hdu.writeto(output_file_path, overwrite=True)  # overwrite=True: overwrite the file if it already exists
 
 
 ###############################################################################
