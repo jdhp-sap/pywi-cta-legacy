@@ -47,6 +47,23 @@ HILLAS_IMPLEMENTATION = 2      # TODO
 ###############################################################################
 
 class AbstractCleaningAlgorithm(object):
+    """A convenient optional wrapper to simplify the image cleaning analysis.
+    
+    Common processing to run and assess the image cleaning procedure on a set
+    of images and save results. This class gather some common procedures to
+    avoid code duplication in image cleaning modules:
+    - call the cleaning algorithm on an image set;
+    - assess the cleaning procedure using a set of estimators;
+    - apply various pre-processing and post-processing procedures (e.g.
+      geometry conversion);
+    - collect and save metadata, results and intermediate values that are
+      useful for analysis;
+    - measure and save the execution time;
+    - manage exceptions;
+    - ...
+    
+    This abstract class is supposed to be inherited by the others image
+    cleaning classes."""
 
     def __init__(self):
         self.label = "Unknown"  # Name to show in plots
@@ -54,8 +71,6 @@ class AbstractCleaningAlgorithm(object):
 
     def __call__(self, *pargs, **kargs):
         return self.clean_image(*pargs, **kargs)
-
-    # STR #####################################################################
 
     def __str__(self):
         return "{}".format(self.algorithm_label)
@@ -67,9 +82,47 @@ class AbstractCleaningAlgorithm(object):
             output_file_path,
             plot=False,
             saveplot=None,
-            ref_img_as_input=False,      # This option is a hack to easily produce CSV files...
+            ref_img_as_input=False,     # A hack to easily produce CSV files...
             max_num_img=None,
             debug=False):
+        """A convenient optional wrapper to simplify the image cleaning analysis.
+
+        Apply the image cleaning analysis on `input_file_or_dir_path_list`,
+        apply some pre-processing and post-processing procedures, collect and
+        return results, intermediate values and metadata.
+        
+        Parameters
+        ----------
+        cleaning_function_params
+            A dictionary containing the parameters required for the image
+            cleaning method.
+        input_file_or_dir_path_list
+            A list of file to clean. Can be a list of simtel files, fits files
+            or directories containing such files.
+        benchmark_method
+            The list of estimators to use to assess the image cleaning.
+        output_file_path
+            The result file path (a JSON file).
+        plot
+            The result of each cleaning is plot if `True`.
+        saveplot
+            The result of each cleaning is saved if `True`.
+        ref_img_as_input
+            This option is a hack to easily produce a "flatten" CSV results
+            files.
+        max_num_img
+            The number of images to process among the input set
+            (`input_file_or_dir_path_list`).
+        debug
+            Stop the execution and print the full traceback when an exception
+            is encountered if this parameter is `True`. Report exceptions and
+            continue with the next input image if this parameter is `False`.
+        
+        Returns
+        -------
+        dict
+            Results, intermediate values and metadata.
+        """
 
         image_counter = 0
         launch_time = time.perf_counter()
