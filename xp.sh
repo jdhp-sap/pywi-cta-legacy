@@ -91,15 +91,14 @@ astri_mini_inaf)
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="7" ; # Tino
     #TC_LTH="5" ; # Tino
+    #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
 
     TC_HTH="7" ;   # CTA Abelardo 2nd pass
     TC_LTH="3.5" ; # CTA Abelardo 2nd pass
-
-    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2016
@@ -126,15 +125,14 @@ astri_mini_konrad)
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="7" ; # Tino
     #TC_LTH="5" ; # Tino
+    #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
 
     TC_HTH="7" ;   # CTA Abelardo 2nd pass
     TC_LTH="3.5" ; # CTA Abelardo 2nd pass
-
-    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-Tino-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/02 (presented in LaPalma CTA meeting 2017-11-05)
@@ -157,15 +155,14 @@ gct_mini_konrad)
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="4" ; # CTA Abelardo 1st pass
     #TC_LTH="2" ; # CTA Abelardo 1st pass
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
 
     TC_HTH="2" ; # CTA Abelardo 2nd pass
     TC_LTH="1" ; # CTA Abelardo 2nd pass
-
-    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     WT_PARAMS="-K -k -C1 -m3 -n4 -s2,2,3,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MRFILTER_TMP_DIR}" ;
@@ -181,19 +178,18 @@ digicam_mini_konrad)
 
     #TC_HTH="10" ;  # HESS
     #TC_LTH="5" ;   # HESS
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="6" ;   # CTA Abelardo 1st pass
     #TC_LTH="3" ;   # CTA Abelardo 1st pass
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="3" ;   # CTA Abelardo 2nd pass
     #TC_LTH="1.5" ; # CTA Abelardo 2nd pass
+    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
     TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
-
-    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/09/11 (BF res1) (presented in LaPalma CTA meeting 2017-11-05)
@@ -214,15 +210,14 @@ flashcam_mini_inaf)
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="8" ; # CTA Abelardo 1st pass
     #TC_LTH="4" ; # CTA Abelardo 1st pass
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
 
     TC_HTH="5" ;   # CTA Abelardo 2nd pass
     TC_LTH="2.5" ; # CTA Abelardo 2nd pass
-
-    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/07 (presented in LaPalma CTA meeting 2017-11-05)
@@ -243,19 +238,18 @@ nectarcam_grid_prod3b_north)
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="8" ;  # CTA Abelardo 1st pass
     #TC_LTH="4" ;  # CTA Abelardo 1st pass
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="4" ;  # CTA Abelardo 2nd pass
     #TC_LTH="2" ;  # CTA Abelardo 2nd pass
+    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     TC_HTH="5" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
     TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
-
-    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/08
@@ -282,19 +276,18 @@ lstcam_grid_prod3b_north)
 
     #TC_HTH="10" ; # HESS
     #TC_LTH="5" ;  # HESS
+    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="6" ; # CTA Abelardo 1st pass
     #TC_LTH="3" ; # CTA Abelardo 1st pass
+    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="4" ; # CTA Abelardo 2nd pass
     #TC_LTH="2" ; # CTA Abelardo 2nd pass
+    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
     TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
     TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
-
-    #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
-    #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
     TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
 
     ## 2017/08 (presented in LaPalma CTA meeting 2017-11-05)
