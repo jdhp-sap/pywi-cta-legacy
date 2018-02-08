@@ -20,8 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import common_functions as common
-
 import argparse
 import collections
 import numpy as np
@@ -79,6 +77,12 @@ COLUMNS_DESC["cam"]      = "Name of the camera (ASTRI, GCT, ...)"
 #    for key, value in COLUMNS_DESC:
 #        print
 #
+
+
+def parse_json_file(json_file_path):
+    with open(json_file_path, "r") as fd:
+        json_data = json.load(fd)
+    return json_data
 
 
 def save(output_file_path, data_array, header_list):
@@ -228,7 +232,7 @@ def main():
 
     for input_file_path in input_file_list:
         print(input_file_path)
-        json_dict = common.parse_json_file(input_file_path)
+        json_dict = parse_json_file(input_file_path)
 
         # Make the file output array
         io_list = json_dict["io"]
