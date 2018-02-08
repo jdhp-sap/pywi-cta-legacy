@@ -86,6 +86,7 @@ class AbstractCleaningAlgorithm(object):
             ref_img_as_input=False,     # A hack to easily produce CSV files...
             max_num_img=None,
             tel_id=None,
+            event_id=None,
             cam_id=None,
             debug=False):
         """A convenient optional wrapper to simplify the image cleaning analysis.
@@ -137,12 +138,16 @@ class AbstractCleaningAlgorithm(object):
         if tel_id is not None:
             tel_id = [tel_id]
 
+        if event_id is not None:
+            event_id = [event_id]
+
         if cam_id is not None:
             cam_id = [cam_id]
 
         for image in image_generator(input_file_or_dir_path_list,
                                      max_num_images=max_num_img,
                                      tel_filter_list=tel_id,
+                                     ev_filter_list=event_id,
                                      cam_filter_list=cam_id,
                                      ctapipe_format=False):
 

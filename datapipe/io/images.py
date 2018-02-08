@@ -205,7 +205,11 @@ def image_generator(path_list,
         else:
             if file_path.lower().endswith((".simtel", ".simtel.gz")):
                 # SIMTEL FILES
-                for image in simtel_images_generator(file_path, tel_filter_list, ev_filter_list, cam_filter_list, **kwargs):
+                for image in simtel_images_generator(file_path,
+                                                     tel_filter_list,
+                                                     ev_filter_list,
+                                                     cam_filter_list,
+                                                     **kwargs):
                     if (max_num_images is not None) and (images_counter >= max_num_images):
                         pyhessio.close_file()
                         break
