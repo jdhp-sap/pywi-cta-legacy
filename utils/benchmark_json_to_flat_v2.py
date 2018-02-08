@@ -24,6 +24,7 @@ import argparse
 import collections
 import numpy as np
 import math
+import json
 import os
 
 
@@ -155,15 +156,15 @@ def extract_columns(input_file_path, image_dict, benchmark_dict):
     line["Evt"]     = image_dict["event_id"]
     line["Tel"]     = image_dict["tel_id"]
     line["Exect"]   = image_dict["full_clean_execution_time_sec"] if "full_clean_execution_time_sec" in image_dict else "NaN"
-    line["Xtel"]    = image_dict["tel_pos_x"]
-    line["Ytel"]    = image_dict["tel_pos_y"]
-    line["Ztel"]    = image_dict["tel_pos_z"]
-    line["E"]       = image_dict["mc_energy"]
-    line["Theta"]   = image_dict["mc_altitude"]
-    line["Phi"]     = image_dict["mc_azimuth"]
-    line["X"]       = image_dict["mc_core_x"]
-    line["Y"]       = image_dict["mc_core_y"]
-    line["Z"]       = image_dict["mc_height_first_interaction"]
+    line["Xtel"]    = image_dict["tel_pos_x"] if "tel_pos_x_unit" in image_dict else image_dict["tel_pos_x"][0]
+    line["Ytel"]    = image_dict["tel_pos_y"] if "tel_pos_y_unit" in image_dict else image_dict["tel_pos_y"][0]
+    line["Ztel"]    = image_dict["tel_pos_z"] if "tel_pos_z_unit" in image_dict else image_dict["tel_pos_z"][0]
+    line["E"]       = image_dict["mc_energy"] if "mc_energy_unit" in image_dict else image_dict["mc_energy"][0]
+    line["Theta"]   = image_dict["mc_altitude"] if "mc_altitude_unit" in image_dict else image_dict["mc_altitude"][0]
+    line["Phi"]     = image_dict["mc_azimuth"] if "mc_azimuth_unit" in image_dict else image_dict["mc_azimuth"][0]
+    line["X"]       = image_dict["mc_core_x"] if "mc_core_x_unit" in image_dict else image_dict["mc_core_x"][0]
+    line["Y"]       = image_dict["mc_core_y"] if "mc_core_y_unit" in image_dict else image_dict["mc_core_y"][0]
+    line["Z"]       = image_dict["mc_height_first_interaction"] if "mc_height_first_interaction_unit" in image_dict else image_dict["mc_height_first_interaction"][0]
     #
     line["peSum"]   = image_dict["img_cleaned_sum_pe"] if "img_cleaned_sum_pe"  in image_dict else "NaN"        # TODO !!!!!           # REF, IN
     line["Type"]    = benchmark_dict["label"]
