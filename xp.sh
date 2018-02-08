@@ -4,7 +4,7 @@
 
 # SETUP #######################################################################
 
-NUM_IMG=0
+NUM_IMG=15000
 #NUM_IMG=100
 
 # INSTRUMENT ##########################
@@ -82,6 +82,8 @@ echo "MRFILTER_TMP_DIR: ${MRFILTER_TMP_DIR}"
 
 case ${INST} in
 astri_mini_inaf)
+    CAM_ID="ASTRICam"
+
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/astri/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/astri/proton ;
 
@@ -113,8 +115,12 @@ astri_mini_inaf)
     WT_LABEL="WT-K-k-C1-m3-n4-s1-1-2-1" ;
     ;;
 astri_mini_konrad)
-    GAMMA_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/gamma ;
-    PROTON_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/proton ;
+    CAM_ID="ASTRICam"
+
+    #GAMMA_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/gamma ;
+    #PROTON_FITS_DIR=~/data/astri_mini_array_konrad/fits/astri_v2/proton ;
+    GAMMA_FITS_DIR=~/data/astri_mini_array_konrad/simtel/astri_v2/gamma/ ;
+    PROTON_FITS_DIR=~/data/astri_mini_array_konrad/simtel/astri_v2/proton/ ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/astri_konrad_cdf_gamma.json ;
 
@@ -140,8 +146,12 @@ astri_mini_konrad)
     WT_LABEL="WT-K-k-C1-m3-n4-s3-1-3.5-1" ;
     ;;
 gct_mini_konrad)
-    GAMMA_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/gamma ;
-    PROTON_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/proton ;
+    CAM_ID="CHEC"
+
+    #GAMMA_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/gamma ;
+    #PROTON_FITS_DIR=~/data/gct_mini_array_konrad/fits/gct/proton ;
+    GAMMA_FITS_DIR=~/data/gct_mini_array_konrad/simtel/gct/gamma/ ;
+    PROTON_FITS_DIR=~/data/gct_mini_array_konrad/simtel/gct/proton/ ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/gct_konrad_cdf_gamma.json ;
 
@@ -162,6 +172,8 @@ gct_mini_konrad)
     WT_LABEL="WT-K-k-C1-m3-n4-s2-2-3-3" ;
     ;;
 digicam_mini_konrad)
+    CAM_ID="DigiCam"
+
     GAMMA_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/gamma ;
     PROTON_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/proton ;
 
@@ -193,6 +205,8 @@ digicam_mini_konrad)
     WT_LABEL="WT-K-k-C1-m3-n4-s6.274-2.629-7.755-0.076" ;
     ;;
 flashcam_mini_inaf)
+    CAM_ID="FlashCam"
+
     GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
     PROTON_FITS_DIR=~/data/astri_mini_array/fits/flashcam/proton ;
 
@@ -220,6 +234,8 @@ flashcam_mini_inaf)
     WT_LABEL="WT-K-k-C1-m3-n4-s4.5-4.5-4.5-1" ;
     ;;
 nectarcam_grid_prod3b_north)
+    CAM_ID="NectarCam"
+
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
     PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/proton ;
 
@@ -255,6 +271,8 @@ nectarcam_grid_prod3b_north)
     WT_LABEL="WT-K-k-C1-m3-n4-s13.013-2.549-6.559-1.412" ;
     ;;
 lstcam_grid_prod3b_north)
+    CAM_ID="LSTCam"
+
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
     PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/lst/proton ;
 
@@ -323,51 +341,22 @@ fi
 
 sleep 5
 
-case ${NUM_IMG} in
-0)
-    ###################
-    # ALL GAMMAS ######
-    ###################
+###################
+# ALL GAMMAS ######
+###################
 
-    echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                      -o score_gamma_ref.json          ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_ref.json.log ;
-    echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                    -o score_gamma_input.json        ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_input.json.log ;
-    echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="${TC_LABEL}" ${TC_PARAMS} -o score_gamma_${TC_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${TC_LABEL}.json.log ;
-    echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL}" ${WT_PARAMS} -o score_gamma_${WT_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_LABEL}.json.log ;
-    for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
+echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Ref"                      -o score_gamma_ref.json          ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_ref.json.log ;
+echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Input"                    -o score_gamma_input.json        ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_input.json.log ;
+echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${TC_LABEL}" ${TC_PARAMS} -o score_gamma_${TC_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${TC_LABEL}.json.log ;
+echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_LABEL}" ${WT_PARAMS} -o score_gamma_${WT_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_LABEL}.json.log ;
+for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 
-    #####################
-    ## ALL PROTONS ######
-    #####################
+#####################
+## ALL PROTONS ######
+#####################
 
-    echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                      -o score_proton_ref.json         ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_ref.json.log ;
-    echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                    -o score_proton_input.json       ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_input.json.log ;
-    echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="${TC_LABEL}" ${TC_PARAMS} -o score_proton_${TC_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${TC_LABEL}.json.log ;
-    echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL}" ${WT_PARAMS} -o score_proton_${WT_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_LABEL}.json.log ;
-    for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
-    ;;
-*)
-    ###################
-    # GAMMAS ##########
-    ###################
-
-    echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                      -o score_gamma_ref.json          $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                    -o score_gamma_input.json        $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           -b all --label="${TC_LABEL}" ${TC_PARAMS} -o score_gamma_${TC_LABEL}.json  $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    #echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py           --plot ${TC_PARAMS}                                                       $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL}" ${WT_PARAMS} -o score_gamma_${WT_LABEL}.json  $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    #echo "* GAMMA WT"     & ./datapipe/denoising/wavelets_mrfilter.py --plot ${WT_PARAMS}                                                       $(find ${GAMMA_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
-
-    ###################
-    # PROTONS #########
-    ###################
-
-    echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --label="Ref"                      -o score_proton_ref.json         $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --label="Input"                    -o score_proton_input.json       $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --label="${TC_LABEL}" ${TC_PARAMS} -o score_proton_${TC_LABEL}.json $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    #echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           --plot ${TC_PARAMS}                                                       $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --label="${WT_LABEL}" ${WT_PARAMS} -o score_proton_${WT_LABEL}.json $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    #echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py --plot ${WT_PARAMS}                                                       $(find ${PROTON_FITS_DIR} -type f -name "*.fits" | head -n ${NUM_IMG}) ;
-    for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
-    ;;
-esac
+echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py          -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Ref"                      -o score_proton_ref.json         ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_ref.json.log ;
+echo "* NULL (INPUT)" & ./datapipe/denoising/null.py              -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Input"                    -o score_proton_input.json       ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_input.json.log ;
+echo "* PROTON TC"    & ./datapipe/denoising/tailcut.py           -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${TC_LABEL}" ${TC_PARAMS} -o score_proton_${TC_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${TC_LABEL}.json.log ;
+echo "* PROTON WT"    & ./datapipe/denoising/wavelets_mrfilter.py -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_LABEL}" ${WT_PARAMS} -o score_proton_${WT_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_LABEL}.json.log ;
+for FILE in ${MRFILTER_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done

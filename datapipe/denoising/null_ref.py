@@ -55,6 +55,15 @@ def main():
     parser = argparse.ArgumentParser(description='"Denoise" FITS images with the "null" algorithm (which does nothing but which is usefull for CSV conversion).')
 
 
+    parser.add_argument("--max-images", type=int, metavar="INTEGER", 
+                        help="The maximum number of images to process")
+
+    parser.add_argument("--telid", type=int, metavar="INTEGER", 
+                        help="Only process images from the specified telescope")
+
+    parser.add_argument("--camid", metavar="STRING", 
+                        help="Only process images from the specified camera")
+
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
                         help="The benchmark method to use to assess the algorithm for the"
                              "given images")
@@ -75,6 +84,9 @@ def main():
 
     args = parser.parse_args()
 
+    max_images = args.max_images
+    tel_id = args.telid
+    cam_id = args.camid
     benchmark_method = args.benchmark
     label = args.label
     input_file_or_dir_path_list = args.fileargs
@@ -95,6 +107,9 @@ def main():
                            input_file_or_dir_path_list,
                            benchmark_method,
                            output_file_path,
+                           max_num_img=max_images,
+                           tel_id=tel_id,
+                           cam_id=cam_id,
                            ref_img_as_input=True)
 
 
