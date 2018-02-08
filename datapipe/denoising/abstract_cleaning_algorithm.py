@@ -100,7 +100,9 @@ class AbstractCleaningAlgorithm(object):
             A list of file to clean. Can be a list of simtel files, fits files
             or directories containing such files.
         benchmark_method
-            The list of estimators to use to assess the image cleaning.
+            The list of estimators to use to assess the image cleaning. If
+            `None`, images are cleaned but nothing is returned (can be used
+            with e.g. the `plot` and/or `saveplot` options).
         output_file_path
             The result file path (a JSON file).
         plot
