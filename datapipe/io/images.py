@@ -201,7 +201,7 @@ def image_generator(path_list,
     for file_path in image_files_in_paths(path_list):
         if file_path.lower().endswith((".simtel", ".simtel.gz")):
             # SIMTEL FILES
-            for image in simtel_images_generator(file_path, tel_filter_list, ev_filter_list, **kwargs):
+            for image in simtel_images_generator(file_path, tel_filter_list, ev_filter_list, cam_filter_list, **kwargs):
                 if (max_num_images is not None) and (images_counter >= max_num_images):
                     break
                 else:
@@ -315,7 +315,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
     elif cam_id in SINGLE_CHANNEL_CAMERAS :
         calibrated_image = calibrated_image[0]
     else:
-        raise ValueError("Unknown camera: {}".format(cam_id))
+        raise NotImplementedError("Unknown camera: {}".format(cam_id))
 
     # METADATA ###############################################
 
@@ -359,7 +359,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
             gains_2d_ch1 = geometry_converter.image_1d_to_2d(gain[1], cam_id=cam_id)
 
         else:
-            raise NotImplementedError(geom1d.cam_id)  # TODO
+            raise NotImplementedError("Unknown camera: {}".format(cam_id))
 
         # Make a mock pixel position array...
         pixel_pos_2d = np.array(np.meshgrid(np.linspace(pixel_pos[0].min().value,
@@ -384,7 +384,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
             pedestal_2d =           np.array([pedestal_2d_ch0, pedestal_2d_ch1 ])
             gains_2d =              np.array([gains_2d_ch0, gains_2d_ch1])
         else:
-            raise NotImplementedError(cam_id)  # TODO
+            raise NotImplementedError("Unknown camera: {}".format(cam_id))
 
         # GET PIXEL MASK AND PUT NAN IN BLANK PIXELS ##############
 
@@ -418,7 +418,12 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
                        meta=metadata)
 
 
-def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None, ctapipe_format=False, **kwargs):
+def simtel_images_generator(file_path,
+                            tel_filter_list=None,
+                            ev_filter_list=None,
+                            cam_filter_list=None,
+                            ctapipe_format=False,
+                            **kwargs):
     """
     TODO
     """
@@ -455,49 +460,55 @@ def simtel_images_generator(file_path, tel_filter_list=None, ev_filter_list=None
 
                 if (tel_filter_list is None) or (tel_id in tel_filter_list):
 
-                    image = simtel_event_to_images(event, tel_id, ctapipe_format=ctapipe_format)
+                    try:
+                        image = simtel_event_to_images(event, tel_id, ctapipe_format=ctapipe_format)
+                        cam_id = image.meta['cam_id']
+                    except NotImplementedError:
+                        cam_id = None
 
-                    # MAKE METADATA ###########################################
+                    if (cam_id is not None) and ((cam_filter_list is None) or (cam_id in cam_filter_list)):
 
-                    image.meta['version'] = 1    # Version of the datapipe data format
+                        # MAKE METADATA ###########################################
 
-                    image.meta['tel_id'] = tel_id
-                    image.meta['event_id'] = event_id
-                    image.meta['file_path'] = file_path
-                    image.meta['simtel_path'] = file_path
+                        image.meta['version'] = 1    # Version of the datapipe data format
 
-                    image.meta['num_tel_with_trigger'] = len(event.trig.tels_with_trigger)
+                        image.meta['tel_id'] = tel_id
+                        image.meta['event_id'] = event_id
+                        image.meta['file_path'] = file_path
+                        image.meta['simtel_path'] = file_path
 
-                    image.meta['mc_energy'] =  quantity_to_tuple(event.mc.energy, 'TeV')
-                    image.meta['mc_azimuth'] = quantity_to_tuple(event.mc.az, 'rad')
-                    image.meta['mc_altitude'] = quantity_to_tuple(event.mc.alt, 'rad')
-                    image.meta['mc_core_x'] = quantity_to_tuple(event.mc.core_x, 'm')
-                    image.meta['mc_core_y'] = quantity_to_tuple(event.mc.core_y, 'm')
-                    image.meta['mc_height_first_interaction'] = quantity_to_tuple(event.mc.h_first_int, 'm')
+                        image.meta['num_tel_with_trigger'] = len(event.trig.tels_with_trigger)
 
-                    image.meta['ev_count'] = int(event.count)
+                        image.meta['mc_energy'] =  quantity_to_tuple(event.mc.energy, 'TeV')
+                        image.meta['mc_azimuth'] = quantity_to_tuple(event.mc.az, 'rad')
+                        image.meta['mc_altitude'] = quantity_to_tuple(event.mc.alt, 'rad')
+                        image.meta['mc_core_x'] = quantity_to_tuple(event.mc.core_x, 'm')
+                        image.meta['mc_core_y'] = quantity_to_tuple(event.mc.core_y, 'm')
+                        image.meta['mc_height_first_interaction'] = quantity_to_tuple(event.mc.h_first_int, 'm')
 
-                    image.meta['run_id'] = int(event.dl0.run_id)
-                    image.meta['num_tel_with_data'] = len(event.dl0.tels_with_data)
+                        image.meta['ev_count'] = int(event.count)
 
-                    image.meta['optical_foclen'] = quantity_to_tuple(event.inst.optical_foclen[tel_id], 'm')
-                    image.meta['tel_pos_x'] = quantity_to_tuple(event.inst.tel_pos[tel_id][0], 'm')
-                    image.meta['tel_pos_y'] = quantity_to_tuple(event.inst.tel_pos[tel_id][1], 'm')
-                    image.meta['tel_pos_z'] = quantity_to_tuple(event.inst.tel_pos[tel_id][2], 'm')
+                        image.meta['run_id'] = int(event.dl0.run_id)
+                        image.meta['num_tel_with_data'] = len(event.dl0.tels_with_data)
 
-                    # IMAGES ##################################################
+                        image.meta['optical_foclen'] = quantity_to_tuple(event.inst.optical_foclen[tel_id], 'm')
+                        image.meta['tel_pos_x'] = quantity_to_tuple(event.inst.tel_pos[tel_id][0], 'm')
+                        image.meta['tel_pos_y'] = quantity_to_tuple(event.inst.tel_pos[tel_id][1], 'm')
+                        image.meta['tel_pos_z'] = quantity_to_tuple(event.inst.tel_pos[tel_id][2], 'm')
 
-                    #images_dict = {}
+                        # IMAGES ##################################################
 
-                    #images_dict["input_image"] = calibrated_image_2d
-                    #images_dict["reference_image"] = pe_image_2d
-                    #images_dict["adc_sum_image"] = uncalibrated_image_2d
-                    #images_dict["pedestal_image"] = pedestal_2d
-                    #images_dict["gains_image"] = gains_2d
-                    #images_dict["pixels_position"] = pixel_pos_2d
-                    #images_dict["pixels_mask"] = mask_2d
+                        #images_dict = {}
 
-                    yield image
+                        #images_dict["input_image"] = calibrated_image_2d
+                        #images_dict["reference_image"] = pe_image_2d
+                        #images_dict["adc_sum_image"] = uncalibrated_image_2d
+                        #images_dict["pedestal_image"] = pedestal_2d
+                        #images_dict["gains_image"] = gains_2d
+                        #images_dict["pixels_position"] = pixel_pos_2d
+                        #images_dict["pixels_mask"] = mask_2d
+
+                        yield image
 
 
 # LOAD FITS BENCHMARK IMAGE ##################################################
