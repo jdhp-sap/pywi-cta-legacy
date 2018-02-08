@@ -40,6 +40,7 @@ from datapipe.image.signal_to_border_distance import signal_to_border
 from datapipe.image.signal_to_border_distance import signal_to_border_distance
 from datapipe.image.signal_to_border_distance import pemax_on_border
 from datapipe.io import geometry_converter
+from datapipe.io.images import image_generator
 import datapipe.io.images
 
 HILLAS_IMPLEMENTATION = 2      # TODO
@@ -84,6 +85,8 @@ class AbstractCleaningAlgorithm(object):
             saveplot=None,
             ref_img_as_input=False,     # A hack to easily produce CSV files...
             max_num_img=None,
+            tel_id=None,
+            cam_id=None,
             debug=False):
         """A convenient optional wrapper to simplify the image cleaning analysis.
 
@@ -126,231 +129,221 @@ class AbstractCleaningAlgorithm(object):
             Results, intermediate values and metadata.
         """
 
-        image_counter = 0
         launch_time = time.perf_counter()
 
         if benchmark_method is not None:
-            io_list = []
+            io_list = []           # The list of returned dictionaries
 
-        for input_file_or_dir_path in input_file_or_dir_path_list:
+        if tel_id is not None:
+            tel_id = [tel_id]
 
-            if os.path.isdir(input_file_or_dir_path):
-                input_file_path_list = []
-                for dir_item in os.listdir(input_file_or_dir_path):
-                    dir_item_path = os.path.join(input_file_or_dir_path, dir_item)
-                    if dir_item_path.lower().endswith('.fits') and os.path.isfile(dir_item_path):
-                        input_file_path_list.append(dir_item_path)
-            else:
-                input_file_path_list = [input_file_or_dir_path]
+        if cam_id is not None:
+            cam_id = [cam_id]
 
-            if max_num_img is not None:
-                if max_num_img < len(input_file_path_list):
-                    input_file_path_list = random.sample(input_file_path_list, max_num_img)
-                    max_num_img = 0                              # For next loops
-                else:
-                    max_num_img -= len(input_file_path_list)     # For next loops
+        for image in image_generator(input_file_or_dir_path_list,
+                                     max_num_images=max_num_img,
+                                     tel_filter_list=tel_id,
+                                     cam_filter_list=cam_id,
+                                     ctapipe_format=False):
 
-            for input_file_path in input_file_path_list:
+            input_file_path = image.meta['file_path']
 
-                image_counter += 1
+            if self.verbose:
+                print(input_file_path)
+
+            # `image_dict` contains metadata (to be returned) on the current image
+            image_dict = {"input_file_path": input_file_path}
+
+            try:
+                # READ THE INPUT FILE #####################################
+
                 if self.verbose:
-                    print("* {}: PROCESS IMAGE NUMBER {}".format(self.label, image_counter), end="")
+                    print("TEL{}_EV{}".format(image.meta["tel_id"],
+                                              image.meta["event_id"]))
 
-                # CLEAN ONE IMAGE #############################################
+                reference_img = image.reference_image
+                pixels_position = image.pixels_position
 
-                image_dict = {"input_file_path": input_file_path}
+                if ref_img_as_input:
+                    # This option is a hack to easily produce CSV files with
+                    # the "null_ref" "cleaning" module...
+                    input_img = copy.deepcopy(reference_img)
+                else:
+                    input_img = image.input_image
 
-                try:
-                    # READ THE INPUT FILE #####################################
+                image_dict.update(image.meta)
 
-                    initial_time = time.perf_counter()
-                    fits_images_dict, fits_metadata_dict = datapipe.io.images.load_benchmark_images(input_file_path)
-                    load_input_image_time_sec = time.perf_counter() - initial_time
+                # Make the original 1D geom (required for the 2D to 1D geometry
+                # conversion, for Tailcut and for Hillas)
+                cam_id = image.meta['cam_id']
+                cleaning_function_params["cam_id"] = cam_id
+                geom1d = geometry_converter.get_geom1d(cam_id)
 
-                    if self.verbose:
-                        print(" (TEL{}_EV{})".format(fits_metadata_dict["tel_id"], fits_metadata_dict["event_id"]))
+                if benchmark_method is not None:
 
-                    reference_img = fits_images_dict["reference_image"]
-                    pixels_position = fits_images_dict["pixels_position"]
+                    # FETCH ADDITIONAL IMAGE METADATA #####################
 
-                    if ref_img_as_input:
-                        input_img = copy.deepcopy(reference_img)    # This option is a hack to easily produce CSV files with the "null_ref" "cleaning" module...
-                    else:
-                        input_img = fits_images_dict["input_image"]
+                    image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)                   # TODO: NaN
+                    image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img) # TODO: NaN
+                    image_dict["img_ref_pemax_on_border"] = pemax_on_border(reference_img)                     # TODO: NaN
 
-                    image_dict.update(fits_metadata_dict)
+                    delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(reference_img)       # TODO: NaN
+                    num_islands = number_of_islands(reference_img)                                             # TODO: NaN
 
-                    # Make the original 1D geom (required for the 2D to 1D geometry conversion, for Tailcut and for Hillas) ###
-                    cam_id = fits_metadata_dict['cam_id']
-                    cleaning_function_params["cam_id"] = cam_id
-                    geom1d = geometry_converter.get_geom1d(cam_id)
+                    image_dict["img_ref_islands_delta_pe"] = delta_pe
+                    image_dict["img_ref_islands_delta_abs_pe"] = delta_abs_pe
+                    image_dict["img_ref_islands_delta_num_pixels"] = delta_num_pixels
+                    image_dict["img_ref_num_islands"] = num_islands
 
-                    if benchmark_method is not None:
+                    image_dict["img_ref_sum_pe"] = float(np.nansum(reference_img))
+                    image_dict["img_ref_min_pe"] = float(np.nanmin(reference_img))
+                    image_dict["img_ref_max_pe"] = float(np.nanmax(reference_img))
+                    image_dict["img_ref_num_pix"] = int( (reference_img[np.isfinite(reference_img)] > 0).sum() )
 
-                        # FETCH ADDITIONAL IMAGE METADATA #####################
+                    image_dict["img_in_sum_pe"] = float(np.nansum(input_img))
+                    image_dict["img_in_min_pe"] = float(np.nanmin(input_img))
+                    image_dict["img_in_max_pe"] = float(np.nanmax(input_img))
+                    image_dict["img_in_num_pix"] = int( (input_img[np.isfinite(input_img)] > 0).sum() )
 
-                        image_dict["img_ref_signal_to_border"] = signal_to_border(reference_img)                   # TODO: NaN
-                        image_dict["img_ref_signal_to_border_distance"] = signal_to_border_distance(reference_img) # TODO: NaN
-                        image_dict["img_ref_pemax_on_border"] = pemax_on_border(reference_img)                     # TODO: NaN
+                    reference_img1d = geometry_converter.image_2d_to_1d(reference_img, image.meta['cam_id'])
+                    hillas_params_2_ref_img = get_hillas_parameters(geom1d, reference_img1d, HILLAS_IMPLEMENTATION)   # TODO GEOM
 
-                        delta_pe, delta_abs_pe, delta_num_pixels = kill_isolated_pixels_stats(reference_img)       # TODO: NaN
-                        num_islands = number_of_islands(reference_img)                                             # TODO: NaN
+                    image_dict["img_ref_hillas_2_size"] =     float(hillas_params_2_ref_img.size)
+                    image_dict["img_ref_hillas_2_cen_x"] =    hillas_params_2_ref_img.cen_x.value
+                    image_dict["img_ref_hillas_2_cen_y"] =    hillas_params_2_ref_img.cen_y.value
+                    image_dict["img_ref_hillas_2_length"] =   hillas_params_2_ref_img.length.value
+                    image_dict["img_ref_hillas_2_width"] =    hillas_params_2_ref_img.width.value
+                    image_dict["img_ref_hillas_2_r"] =        hillas_params_2_ref_img.r.value
+                    image_dict["img_ref_hillas_2_phi"] =      hillas_params_2_ref_img.phi.to(u.rad).value
+                    image_dict["img_ref_hillas_2_psi"] =      hillas_params_2_ref_img.psi.to(u.rad).value
+                    try:
+                        image_dict["img_ref_hillas_2_miss"] = float(hillas_params_2_ref_img.miss.value)
+                    except:
+                        image_dict["img_ref_hillas_2_miss"] = None
+                    image_dict["img_ref_hillas_2_kurtosis"] = hillas_params_2_ref_img.kurtosis
+                    image_dict["img_ref_hillas_2_skewness"] = hillas_params_2_ref_img.skewness
 
-                        image_dict["img_ref_islands_delta_pe"] = delta_pe
-                        image_dict["img_ref_islands_delta_abs_pe"] = delta_abs_pe
-                        image_dict["img_ref_islands_delta_num_pixels"] = delta_num_pixels
-                        image_dict["img_ref_num_islands"] = num_islands
+                # CLEAN THE INPUT IMAGE ###################################
 
-                        image_dict["img_ref_sum_pe"] = float(np.nansum(reference_img))
-                        image_dict["img_ref_min_pe"] = float(np.nanmin(reference_img))
-                        image_dict["img_ref_max_pe"] = float(np.nanmax(reference_img))
-                        image_dict["img_ref_num_pix"] = int( (reference_img[np.isfinite(reference_img)] > 0).sum() )
+                # Copy the image (otherwise some cleaning functions like Tailcut may change it)
+                #input_img_copy = copy.deepcopy(input_img)
+                input_img_copy = input_img.astype('float64', copy=True)
 
-                        image_dict["img_in_sum_pe"] = float(np.nansum(input_img))
-                        image_dict["img_in_min_pe"] = float(np.nanmin(input_img))
-                        image_dict["img_in_max_pe"] = float(np.nanmax(input_img))
-                        image_dict["img_in_num_pix"] = int( (input_img[np.isfinite(input_img)] > 0).sum() )
+                cleaning_function_params["output_data_dict"] = {}
 
-                        reference_img1d = geometry_converter.image_2d_to_1d(reference_img, fits_metadata_dict['cam_id'])
-                        hillas_params_2_ref_img = get_hillas_parameters(geom1d, reference_img1d, HILLAS_IMPLEMENTATION)   # TODO GEOM
+                initial_time = time.perf_counter()
+                cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)   # TODO: NaN
+                full_clean_execution_time_sec = time.perf_counter() - initial_time
 
-                        image_dict["img_ref_hillas_2_size"] =     float(hillas_params_2_ref_img.size)
-                        image_dict["img_ref_hillas_2_cen_x"] =    hillas_params_2_ref_img.cen_x.value
-                        image_dict["img_ref_hillas_2_cen_y"] =    hillas_params_2_ref_img.cen_y.value
-                        image_dict["img_ref_hillas_2_length"] =   hillas_params_2_ref_img.length.value
-                        image_dict["img_ref_hillas_2_width"] =    hillas_params_2_ref_img.width.value
-                        image_dict["img_ref_hillas_2_r"] =        hillas_params_2_ref_img.r.value
-                        image_dict["img_ref_hillas_2_phi"] =      hillas_params_2_ref_img.phi.to(u.rad).value
-                        image_dict["img_ref_hillas_2_psi"] =      hillas_params_2_ref_img.psi.to(u.rad).value
-                        try:
-                            image_dict["img_ref_hillas_2_miss"] = float(hillas_params_2_ref_img.miss.value)
-                        except:
-                            image_dict["img_ref_hillas_2_miss"] = None
-                        image_dict["img_ref_hillas_2_kurtosis"] = hillas_params_2_ref_img.kurtosis
-                        image_dict["img_ref_hillas_2_skewness"] = hillas_params_2_ref_img.skewness
+                if benchmark_method is not None:
+                    image_dict.update(cleaning_function_params["output_data_dict"])
+                    del cleaning_function_params["output_data_dict"]
 
-                    # CLEAN THE INPUT IMAGE ###################################
+                # ASSESS OR PRINT THE CLEANED IMAGE #######################
 
-                    # Copy the image (otherwise some cleaning functions like Tailcut may change it)
-                    #input_img_copy = copy.deepcopy(input_img)
-                    input_img_copy = input_img.astype('float64', copy=True)
+                if benchmark_method is not None:
 
-                    cleaning_function_params["output_data_dict"] = {}
+                    # ASSESS THE CLEANING #################################
 
-                    initial_time = time.perf_counter()
-                    cleaned_img = self.clean_image(input_img_copy, **cleaning_function_params)   # TODO: NaN
-                    full_clean_execution_time_sec = time.perf_counter() - initial_time
+                    kwargs = {'geom': geom1d,
+                              'hillas_implementation': HILLAS_IMPLEMENTATION}  # TODO GEOM
+                    score_tuple, score_name_tuple = assess.assess_image_cleaning(input_img,
+                                                                                 cleaned_img,
+                                                                                 reference_img,
+                                                                                 benchmark_method,
+                                                                                 **kwargs)
 
-                    if benchmark_method is not None:
-                        image_dict.update(cleaning_function_params["output_data_dict"])
-                        del cleaning_function_params["output_data_dict"]
+                    image_dict["img_cleaned_signal_to_border"] = signal_to_border(cleaned_img)
+                    image_dict["img_cleaned_signal_to_border_distance"] = signal_to_border_distance(cleaned_img)
+                    image_dict["img_cleaned_pemax_on_border"] = pemax_on_border(cleaned_img)
 
-                    # ASSESS OR PRINT THE CLEANED IMAGE #######################
+                    image_dict["score"] = score_tuple
+                    image_dict["score_name"] = score_name_tuple
+                    image_dict["full_clean_execution_time_sec"] = full_clean_execution_time_sec
 
-                    if benchmark_method is not None:
+                    image_dict["img_cleaned_sum_pe"] = float(np.nansum(cleaned_img))
+                    image_dict["img_cleaned_min_pe"] = float(np.nanmin(cleaned_img))
+                    image_dict["img_cleaned_max_pe"] = float(np.nanmax(cleaned_img))
+                    image_dict["img_cleaned_num_pix"] = int( (cleaned_img[np.isfinite(cleaned_img)] > 0).sum() )
 
-                        # ASSESS THE CLEANING #################################
+                    cleaned_img1d = geometry_converter.image_2d_to_1d(cleaned_img, image.meta['cam_id'])
+                    hillas_params_2_cleaned_img = get_hillas_parameters(geom1d, cleaned_img1d, HILLAS_IMPLEMENTATION)    # GEOM
 
-                        kwargs = {'geom': geom1d,
-                                  'hillas_implementation': HILLAS_IMPLEMENTATION}  # TODO GEOM
-                        score_tuple, score_name_tuple = assess.assess_image_cleaning(input_img,
-                                                                                     cleaned_img,
-                                                                                     reference_img,
-                                                                                     benchmark_method,
-                                                                                     **kwargs)
+                    image_dict["img_cleaned_hillas_2_size"] =     float(hillas_params_2_cleaned_img.size)
+                    image_dict["img_cleaned_hillas_2_cen_x"] =    hillas_params_2_cleaned_img.cen_x.value
+                    image_dict["img_cleaned_hillas_2_cen_y"] =    hillas_params_2_cleaned_img.cen_y.value
+                    image_dict["img_cleaned_hillas_2_length"] =   hillas_params_2_cleaned_img.length.value
+                    image_dict["img_cleaned_hillas_2_width"] =    hillas_params_2_cleaned_img.width.value
+                    image_dict["img_cleaned_hillas_2_r"] =        hillas_params_2_cleaned_img.r.value
+                    image_dict["img_cleaned_hillas_2_phi"] =      hillas_params_2_cleaned_img.phi.to(u.rad).value
+                    image_dict["img_cleaned_hillas_2_psi"] =      hillas_params_2_cleaned_img.psi.to(u.rad).value
+                    try:
+                        image_dict["img_cleaned_hillas_2_miss"] = float(hillas_params_2_cleaned_img.miss.value)
+                    except:
+                        image_dict["img_cleaned_hillas_2_miss"] = None
+                    image_dict["img_cleaned_hillas_2_kurtosis"] = hillas_params_2_cleaned_img.kurtosis
+                    image_dict["img_cleaned_hillas_2_skewness"] = hillas_params_2_cleaned_img.skewness
 
-                        image_dict["img_cleaned_signal_to_border"] = signal_to_border(cleaned_img)
-                        image_dict["img_cleaned_signal_to_border_distance"] = signal_to_border_distance(cleaned_img)
-                        image_dict["img_cleaned_pemax_on_border"] = pemax_on_border(cleaned_img)
+                # PLOT IMAGES #########################################################
 
-                        image_dict["score"] = score_tuple
-                        image_dict["score_name"] = score_name_tuple
-                        image_dict["full_clean_execution_time_sec"] = full_clean_execution_time_sec
-                        image_dict["load_input_image_time_sec"] = load_input_image_time_sec
+                if plot or (saveplot is not None):
+                    image_list = [input_img, reference_img, cleaned_img] 
+                    title_list = ["Input image", "Reference image", "Cleaned image"] 
 
-                        image_dict["img_cleaned_sum_pe"] = float(np.nansum(cleaned_img))
-                        image_dict["img_cleaned_min_pe"] = float(np.nanmin(cleaned_img))
-                        image_dict["img_cleaned_max_pe"] = float(np.nanmax(cleaned_img))
-                        image_dict["img_cleaned_num_pix"] = int( (cleaned_img[np.isfinite(cleaned_img)] > 0).sum() )
+                    if plot:
+                        datapipe.io.images.plot_list(image_list, title_list, image.meta)
 
-                        cleaned_img1d = geometry_converter.image_2d_to_1d(cleaned_img, fits_metadata_dict['cam_id'])
-                        hillas_params_2_cleaned_img = get_hillas_parameters(geom1d, cleaned_img1d, HILLAS_IMPLEMENTATION)    # GEOM
+                    if saveplot is not None:
+                        if len(input_file_or_dir_path_list) > 1:
+                            basename, extension = os.path.splitext(saveplot)
+                            plot_file_path = "{}_E{}_T{}{}".format(basename, image.meta["event_id"], image.meta["tel_id"], extension)
+                        else:
+                            plot_file_path = saveplot
 
-                        image_dict["img_cleaned_hillas_2_size"] =     float(hillas_params_2_cleaned_img.size)
-                        image_dict["img_cleaned_hillas_2_cen_x"] =    hillas_params_2_cleaned_img.cen_x.value
-                        image_dict["img_cleaned_hillas_2_cen_y"] =    hillas_params_2_cleaned_img.cen_y.value
-                        image_dict["img_cleaned_hillas_2_length"] =   hillas_params_2_cleaned_img.length.value
-                        image_dict["img_cleaned_hillas_2_width"] =    hillas_params_2_cleaned_img.width.value
-                        image_dict["img_cleaned_hillas_2_r"] =        hillas_params_2_cleaned_img.r.value
-                        image_dict["img_cleaned_hillas_2_phi"] =      hillas_params_2_cleaned_img.phi.to(u.rad).value
-                        image_dict["img_cleaned_hillas_2_psi"] =      hillas_params_2_cleaned_img.psi.to(u.rad).value
-                        try:
-                            image_dict["img_cleaned_hillas_2_miss"] = float(hillas_params_2_cleaned_img.miss.value)
-                        except:
-                            image_dict["img_cleaned_hillas_2_miss"] = None
-                        image_dict["img_cleaned_hillas_2_kurtosis"] = hillas_params_2_cleaned_img.kurtosis
-                        image_dict["img_cleaned_hillas_2_skewness"] = hillas_params_2_cleaned_img.skewness
+                        print("Saving {}".format(plot_file_path))
+                        datapipe.io.images.mpl_save_list(image_list, plot_file_path, title_list, image.meta)
 
-                    # PLOT IMAGES #########################################################
+            except Exception as e:
+                print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
 
-                    if plot or (saveplot is not None):
-                        image_list = [input_img, reference_img, cleaned_img] 
-                        title_list = ["Input image", "Reference image", "Cleaned image"] 
+                if debug:
+                    # The following line print the full trackback
+                    traceback.print_tb(e.__traceback__, file=sys.stdout)
 
-                        if plot:
-                            datapipe.io.images.plot_list(image_list, title_list, fits_metadata_dict)
+                if benchmark_method is not None:
 
-                        if saveplot is not None:
-                            if len(input_file_or_dir_path_list) > 1:
-                                basename, extension = os.path.splitext(saveplot)
-                                plot_file_path = "{}_E{}_T{}{}".format(basename, fits_metadata_dict["event_id"], fits_metadata_dict["tel_id"], extension)
-                            else:
-                                plot_file_path = saveplot
+                    # http://docs.python.org/2/library/sys.html#sys.exc_info
+                    exc_type, exc_value, exc_traceback = sys.exc_info() # most recent (if any) by default
 
-                            print("Saving {}".format(plot_file_path))
-                            datapipe.io.images.mpl_save_list(image_list, plot_file_path, title_list, fits_metadata_dict)
+                    '''
+                    Reason this _can_ be bad: If an (unhandled) exception happens AFTER this,
+                    or if we do not delete the labels on (not much) older versions of Py, the
+                    reference we created can linger.
 
-                except Exception as e:
-                    print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
+                    traceback.format_exc/print_exc do this very thing, BUT note this creates a
+                    temp scope within the function.
+                    '''
 
-                    if debug:
-                        # The following line print the full trackback
-                        traceback.print_tb(e.__traceback__, file=sys.stdout)
+                    error_dict = {
+                                  'filename': exc_traceback.tb_frame.f_code.co_filename,
+                                  'lineno'  : exc_traceback.tb_lineno,
+                                  'name'    : exc_traceback.tb_frame.f_code.co_name,
+                                  'type'    : exc_type.__name__,
+                                  #'message' : exc_value.message
+                                  'message' : str(e)
+                                 }
 
-                    if benchmark_method is not None:
+                    del(exc_type, exc_value, exc_traceback) # So we don't leave our local labels/objects dangling
+                    # This still isn't "completely safe", though!
 
-                        # http://docs.python.org/2/library/sys.html#sys.exc_info
-                        exc_type, exc_value, exc_traceback = sys.exc_info() # most recent (if any) by default
+                    #error_dict = {"type": str(type(e)),
+                    #              "message": str(e)}
 
-                        '''
-                        Reason this _can_ be bad: If an (unhandled) exception happens AFTER this,
-                        or if we do not delete the labels on (not much) older versions of Py, the
-                        reference we created can linger.
+                    image_dict["error"] = error_dict
 
-                        traceback.format_exc/print_exc do this very thing, BUT note this creates a
-                        temp scope within the function.
-                        '''
-
-                        error_dict = {
-                                      'filename': exc_traceback.tb_frame.f_code.co_filename,
-                                      'lineno'  : exc_traceback.tb_lineno,
-                                      'name'    : exc_traceback.tb_frame.f_code.co_name,
-                                      'type'    : exc_type.__name__,
-                                      #'message' : exc_value.message
-                                      'message' : str(e)
-                                     }
-
-                        del(exc_type, exc_value, exc_traceback) # So we don't leave our local labels/objects dangling
-                        # This still isn't "completely safe", though!
-
-                        #error_dict = {"type": str(type(e)),
-                        #              "message": str(e)}
-
-                        image_dict["error"] = error_dict
-
-                finally:
-                    if benchmark_method is not None:
-                        io_list.append(image_dict)
+            finally:
+                if benchmark_method is not None:
+                    io_list.append(image_dict)
 
         if benchmark_method is not None:
             error_list = [image_dict["error"] for image_dict in io_list if "error" in image_dict]

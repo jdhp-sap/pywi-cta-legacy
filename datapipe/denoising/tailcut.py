@@ -106,22 +106,31 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with the tailcut algorithm.")
 
-    parser.add_argument("--high_threshold", "-T", type=float, default=0, metavar="FLOAT", 
+    parser.add_argument("--high-threshold", "-T", type=float, default=0, metavar="FLOAT", 
                         help="The 'high' threshold value")
 
-    parser.add_argument("--low_threshold", "-t", type=float, default=0, metavar="FLOAT", 
+    parser.add_argument("--low-threshold", "-t", type=float, default=0, metavar="FLOAT", 
                         help="The 'low' threshold value")
 
     parser.add_argument("--kill-isolated-pixels", action="store_true",
                         help="Suppress isolated pixels in the support (scipy implementation)")
 
+    # COMMON OPTIONS
+
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Verbose mode")
 
-    # COMMON OPTIONS
-
     parser.add_argument("--debug", action="store_true",
                         help="Debug mode")
+
+    parser.add_argument("--max-images", type=int, metavar="INTEGER", 
+                        help="The maximum number of images to process")
+
+    parser.add_argument("--telid", type=int, metavar="INTEGER", 
+                        help="Only process images from the specified telescope")
+
+    parser.add_argument("--camid", metavar="STRING", 
+                        help="Only process images from the specified camera")
 
     parser.add_argument("--benchmark", "-b", metavar="STRING", 
                         help="The benchmark method to use to assess the algorithm for the"
@@ -151,9 +160,12 @@ def main():
     high_threshold = args.high_threshold
     low_threshold = args.low_threshold
     kill_isolated_pixels = args.kill_isolated_pixels
-    verbose = args.verbose
 
+    verbose = args.verbose
     debug = args.debug
+    max_images = args.max_images
+    tel_id = args.telid
+    cam_id = args.camid
     benchmark_method = args.benchmark
     label = args.label
     plot = args.plot
@@ -175,6 +187,9 @@ def main():
 
     cleaning_algorithm = Tailcut()
 
+    if verbose:
+        cleaning_algorithm.verbose = True
+
     if label is not None:
         cleaning_algorithm.label = label
 
@@ -184,6 +199,9 @@ def main():
                                          output_file_path,
                                          plot=plot,
                                          saveplot=saveplot,
+                                         max_num_img=max_images,
+                                         tel_id=tel_id,
+                                         cam_id=cam_id,
                                          debug=debug)
 
 if __name__ == "__main__":

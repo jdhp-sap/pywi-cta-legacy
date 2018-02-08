@@ -522,16 +522,25 @@ def main():
     parser.add_argument("--noise-cdf-file", metavar="FILE",
                         help="The JSON file containing the Cumulated Distribution Function of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=None.")
 
-    parser.add_argument("--verbose", "-v", action="store_true",
-                        help="Verbose mode")
-
     parser.add_argument("--tmp-dir", default=".", metavar="DIRECTORY",
                         help="The directory where temporary files are written.")
 
     # COMMON OPTIONS
 
+    parser.add_argument("--verbose", "-v", action="store_true",
+                        help="Verbose mode")
+
     parser.add_argument("--debug", action="store_true",
                         help="Debug mode")
+
+    parser.add_argument("--max-images", type=int, metavar="INTEGER", 
+                        help="The maximum number of images to process")
+
+    parser.add_argument("--telid", type=int, metavar="INTEGER", 
+                        help="Only process images from the specified telescope")
+
+    parser.add_argument("--camid", metavar="STRING", 
+                        help="Only process images from the specified camera")
 
     parser.add_argument("--benchmark", "-b", metavar="STRING",
                         help="The benchmark method to use to assess the algorithm for the"
@@ -580,10 +589,13 @@ def main():
     correction_offset = args.correction_offset
     input_image_scale = args.input_image_scale
     noise_cdf_file = args.noise_cdf_file
-    verbose = args.verbose
     tmp_dir = args.tmp_dir
 
+    verbose = args.verbose
     debug = args.debug
+    max_images = args.max_images
+    tel_id = args.telid
+    cam_id = args.camid
     benchmark_method = args.benchmark
     label = args.label
     plot = args.plot
@@ -632,6 +644,9 @@ def main():
 
     cleaning_algorithm = WaveletTransform()
 
+    if verbose:
+        cleaning_algorithm.verbose = True
+
     if label is not None:
         cleaning_algorithm.label = label
 
@@ -641,6 +656,9 @@ def main():
                                          output_file_path,
                                          plot=plot,
                                          saveplot=saveplot,
+                                         max_num_img=max_images,
+                                         tel_id=tel_id,
+                                         cam_id=cam_id,
                                          debug=debug)
 
 if __name__ == "__main__":

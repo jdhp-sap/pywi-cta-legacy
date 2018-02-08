@@ -767,6 +767,91 @@ def save(img, output_file_path):
     hdu.writeto(output_file_path, clobber=True)  # clobber=True: overwrite the file if it already exists
 
 
+###############################################################################
+
+def plot_ctapipe_image(image, geom, figsize=(10, 10), title=None, title_fontsize=24, plot_colorbar=True, plot_axis=True):
+    fig = plt.figure(figsize=figsize)
+    disp = ctapipe.visualization.CameraDisplay(geom, image=image)
+    #disp.enable_pixel_picker()
+
+    if plot_colorbar:
+        disp.add_colorbar(fraction=0.04, pad=0.04)
+        disp.colorbar.ax.tick_params(labelsize=18)
+
+    if not plot_axis:
+        disp.axes.set_axis_off()
+
+    if title is None:
+        title = geom.cam_id
+
+    disp.axes.set_title(title, fontsize=title_fontsize)
+
+    return disp
+
+def plot_hillas_parameters_on_axes(ax, image, geom, hillas_params=None, plot_axis_only=False, auto_lim=True, hillas_implementation=2):
+    """Plot the shower ellipse and direction on an existing matplotlib axes."""
+    if hillas_params is None:
+        hillas_params = get_hillas_parameters(geom, image, implementation=hillas_implementation)
+
+    centroid = (hillas_params.cen_x.value, hillas_params.cen_y.value)
+    length = hillas_params.length.value
+    width = hillas_params.width.value
+    angle = hillas_params.psi.to(u.rad).value
+
+    #print("centroid:", centroid)
+    #print("length:",   length)
+    #print("width:",    width)
+    #print("angle:",    angle)
+
+    if not plot_axis_only:
+        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
+        ax.axes.add_patch(ellipse)
+
+    title = ax.axes.get_title()
+    ax.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
+
+    # Plot the center of the ellipse
+
+    if not plot_axis_only:
+        ax.scatter(*centroid, c="r", marker="x", linewidth=2)
+
+    # Plot the shower ax
+
+    p0_x = centroid[0]
+    p0_y = centroid[1]
+
+    p1_x = p0_x + math.cos(angle)
+    p1_y = p0_y + math.sin(angle)
+
+    p2_x = p0_x + math.cos(angle + math.pi)
+    p2_y = p0_y + math.sin(angle + math.pi)
+
+    ax.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
+
+    if not plot_axis_only:
+        p3_x = p0_x + math.cos(angle) * length / 2.
+        p3_y = p0_y + math.sin(angle) * length / 2.
+
+        ax.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
+
+        p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
+        p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
+
+        ax.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
+
+    # Set (back) ax limits
+
+    if auto_lim:
+        pixels_position = (geom.pix_x.value, geom.pix_y.value)
+        pos_x_min, pos_x_max = np.nanmin(pixels_position[0]), np.nanmax(pixels_position[0])
+        pos_y_min, pos_y_max = np.nanmin(pixels_position[1]), np.nanmax(pixels_position[1])
+
+        ax.set_xlim(xmin=pos_x_min)
+        ax.set_xlim(xmax=pos_x_max)
+        ax.set_ylim(ymin=pos_y_min)
+        ax.set_ylim(ymax=pos_y_max)
+
+
 # MATPLOTLIB ##################################################################
 
 COLOR_MAP = cm.gnuplot2
@@ -864,91 +949,6 @@ def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=None, title=""):
     plt.show()
 
 
-###############################################################################
-
-def plot_ctapipe_image(image, geom, figsize=(10, 10), title=None, title_fontsize=24, plot_colorbar=True, plot_axis=True):
-    fig = plt.figure(figsize=figsize)
-    disp = ctapipe.visualization.CameraDisplay(geom, image=image)
-    #disp.enable_pixel_picker()
-
-    if plot_colorbar:
-        disp.add_colorbar(fraction=0.04, pad=0.04)
-        disp.colorbar.ax.tick_params(labelsize=18)
-
-    if not plot_axis:
-        disp.axes.set_axis_off()
-
-    if title is None:
-        title = geom.cam_id
-
-    disp.axes.set_title(title, fontsize=title_fontsize)
-
-    return disp
-
-def plot_hillas_parameters_on_axes(ax, image, geom, hillas_params=None, plot_axis_only=False, auto_lim=True, hillas_implementation=2):
-    """Plot the shower ellipse and direction on an existing matplotlib axes."""
-    if hillas_params is None:
-        hillas_params = get_hillas_parameters(geom, image, implementation=hillas_implementation)
-
-    centroid = (hillas_params.cen_x.value, hillas_params.cen_y.value)
-    length = hillas_params.length.value
-    width = hillas_params.width.value
-    angle = hillas_params.psi.to(u.rad).value
-
-    #print("centroid:", centroid)
-    #print("length:",   length)
-    #print("width:",    width)
-    #print("angle:",    angle)
-
-    if not plot_axis_only:
-        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
-        ax.axes.add_patch(ellipse)
-
-    title = ax.axes.get_title()
-    ax.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
-
-    # Plot the center of the ellipse
-
-    if not plot_axis_only:
-        ax.scatter(*centroid, c="r", marker="x", linewidth=2)
-
-    # Plot the shower ax
-
-    p0_x = centroid[0]
-    p0_y = centroid[1]
-
-    p1_x = p0_x + math.cos(angle)
-    p1_y = p0_y + math.sin(angle)
-
-    p2_x = p0_x + math.cos(angle + math.pi)
-    p2_y = p0_y + math.sin(angle + math.pi)
-
-    ax.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
-
-    if not plot_axis_only:
-        p3_x = p0_x + math.cos(angle) * length / 2.
-        p3_y = p0_y + math.sin(angle) * length / 2.
-
-        ax.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
-
-        p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
-        p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
-
-        ax.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
-
-    # Set (back) ax limits
-
-    if auto_lim:
-        pixels_position = (geom.pix_x.value, geom.pix_y.value)
-        pos_x_min, pos_x_max = np.nanmin(pixels_position[0]), np.nanmax(pixels_position[0])
-        pos_y_min, pos_y_max = np.nanmin(pixels_position[1]), np.nanmax(pixels_position[1])
-
-        ax.set_xlim(xmin=pos_x_min)
-        ax.set_xlim(xmax=pos_x_max)
-        ax.set_ylim(ymin=pos_y_min)
-        ax.set_ylim(ymax=pos_y_max)
-
-
 
 def _plot_list(img_list, title_list, main_title=None):
     fig, ax_tuple = plt.subplots(nrows=1, ncols=len(img_list), figsize=(12, 4))
@@ -986,11 +986,18 @@ def plot_list(img_list, title_list, metadata_dict=None):
 
     # Main title
     if metadata_dict is not None:
+        if 'mc_energy_unit' in metadata_dict:
+            mc_energy = metadata_dict['mc_energy']
+            mc_energy_unit = metadata_dict['mc_energy_unit']
+        else:
+            mc_energy = metadata_dict['mc_energy'][0]
+            mc_energy_unit = metadata_dict['mc_energy'][1]
+
         main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
                                                             metadata_dict['tel_id'],
                                                             metadata_dict['event_id'],
-                                                            metadata_dict['mc_energy'][0],
-                                                            metadata_dict['mc_energy'][1])
+                                                            mc_energy,
+                                                            mc_energy_unit)
     else:
         main_title = ""
 
@@ -1005,11 +1012,18 @@ def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
 
     # Main title
     if metadata_dict is not None:
+        if 'mc_energy_unit' in metadata_dict:
+            mc_energy = metadata_dict['mc_energy']
+            mc_energy_unit = metadata_dict['mc_energy_unit']
+        else:
+            mc_energy = metadata_dict['mc_energy'][0]
+            mc_energy_unit = metadata_dict['mc_energy'][1]
+
         main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
                                                             metadata_dict['tel_id'],
                                                             metadata_dict['event_id'],
-                                                            metadata_dict['mc_energy'][0],
-                                                            metadata_dict['mc_energy'][1])
+                                                            mc_energy,
+                                                            mc_energy_unit)
     else:
         main_title = ""
 
