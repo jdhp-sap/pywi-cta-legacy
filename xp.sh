@@ -275,6 +275,8 @@ lstcam_grid_prod3b_north)
 
     GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
     PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/lst/proton ;
+    #GAMMA_FITS_DIR=~/data/grid_prod3b_north/simtel/gamma ;
+    #PROTON_FITS_DIR=~/data/grid_prod3b_north/simtel/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf_gamma.json ;
 
