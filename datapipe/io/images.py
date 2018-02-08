@@ -210,11 +210,8 @@ def image_generator(path_list,
                         pyhessio.close_file()
                         break
                     else:
-                        if (tel_filter_list is None) or (image.meta['tel_id'] in tel_filter_list):
-                            if (ev_filter_list is None) or (image.meta['event_id'] in ev_filter_list):
-                                if (cam_filter_list is None) or (image.meta['cam_id'] in cam_filter_list):
-                                    images_counter += 1
-                                    yield image
+                        images_counter += 1
+                        yield image
             elif file_path.lower().endswith((".fits", ".fit")):
                 # FITS FILES
                 image_dict, fits_metadata_dict = load_benchmark_images(file_path)   # TODO: named tuple
