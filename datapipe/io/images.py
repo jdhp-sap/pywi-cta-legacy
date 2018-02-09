@@ -796,6 +796,7 @@ def plot_ctapipe_image(image,
                        title=None,
                        title_fontsize=24,
                        norm='lin',
+                       highlight_mask=None,
                        plot_colorbar=True,
                        plot_axis=True,
                        colorbar_orientation='horizontal',
@@ -835,6 +836,9 @@ def plot_ctapipe_image(image,
     if plot_colorbar:
         disp.add_colorbar(ax=disp.axes, fraction=0.04, pad=0.04, orientation=colorbar_orientation)
         disp.colorbar.ax.tick_params(labelsize=18)
+
+    if highlight_mask is not None:
+        disp.highlight_pixels(mask, linewidth=4, color='white', alpha=0.9)
 
     if not plot_axis:
         disp.axes.set_axis_off()
@@ -1025,18 +1029,39 @@ def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=None, title=""):
 
 
 
-def _plot_list(img_list, title_list, geom_list, hillas_list, main_title=None):
+def _plot_list(img_list,
+               geom_list,
+               title_list=None,
+               hillas_list=None,
+               highlight_mask_list=None,
+               main_title=None):
+    """Plot several images at once."""
     num_imgs = len(img_list)
 
     fig, ax_tuple = plt.subplots(nrows=1, ncols=num_imgs, figsize=(num_imgs*6, 6))
 
-    for img, title, ax, geom, plot_hillas in zip(img_list, title_list, ax_tuple, geom_list, hillas_list):
+    if title_list is None:
+        title_list = [None for i in img_list]
+
+    if hillas_list is None:
+        hillas_list = [None for i in img_list]
+
+    if highlight_mask_list is None:
+        highlight_mask_list = [None for i in img_list]
+
+    for img, title, ax, geom, plot_hillas, highlight_mask in zip(img_list,
+                                                                 title_list,
+                                                                 ax_tuple,
+                                                                 geom_list,
+                                                                 hillas_list,
+                                                                 highlight_mask_list):
 
         disp = plot_ctapipe_image(img,
-                                  geom,
+                                  geom=geom,
                                   ax=ax,
                                   title=title,
                                   norm='lin',
+                                  highlight_mask=highlight_mask,
                                   plot_colorbar=True,
                                   plot_axis=True)
 
@@ -1052,19 +1077,24 @@ def _plot_list(img_list, title_list, geom_list, hillas_list, main_title=None):
         plt.subplots_adjust(top=0.85)
 
 
-def plot_list(img_list, title_list, geom_list, hillas_list=None, metadata_dict=None):
-    """
-    img should be a list of 2D numpy array.
+def plot_list(img_list,
+              geom_list,
+              title_list=None,
+              hillas_list=None,
+              highlight_mask_list=None,
+              metadata_dict=None):
+    """Plot several images at once.
+
+    Parameters
+    ----------
+    img_list
+        A list of 2D numpy array to plot.
     """
 
     # Main title
     if metadata_dict is not None:
-        if 'mc_energy_unit' in metadata_dict:
-            mc_energy = metadata_dict['mc_energy']
-            mc_energy_unit = metadata_dict['mc_energy_unit']
-        else:
-            mc_energy = metadata_dict['mc_energy'][0]
-            mc_energy_unit = metadata_dict['mc_energy'][1]
+        mc_energy = metadata_dict['mc_energy'] if 'mc_energy_unit' in metadata_dict else metadata_dict['mc_energy'][0]
+        mc_energy_unit = metadata_dict['mc_energy_unit'] if 'mc_energy_unit' in metadata_dict else metadata_dict['mc_energy'][1]
 
         main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
                                                             metadata_dict['tel_id'],
@@ -1072,25 +1102,36 @@ def plot_list(img_list, title_list, geom_list, hillas_list=None, metadata_dict=N
                                                             mc_energy,
                                                             mc_energy_unit)
     else:
-        main_title = ""
+        main_title = None
 
-    _plot_list(img_list, title_list, geom_list, hillas_list, main_title)
+    _plot_list(img_list,
+               geom_list,
+               title_list=title_list,
+               hillas_list=hillas_list,
+               highlight_mask_list=highlight_mask_list,
+               main_title=main_title)
     plt.show()
 
 
-def mpl_save_list(img_list, output_file_path, title_list, geom_list, hillas_list, metadata_dict=None):
-    """
-    img should be a list of 2D numpy array.
+def mpl_save_list(img_list,
+                  geom_list,
+                  output_file_path,
+                  title_list=None,
+                  hillas_list=None,
+                  highlight_mask_list=None,
+                  metadata_dict=None):
+    """Plot several images at once.
+
+    Parameters
+    ----------
+    img_list
+        A list of 2D numpy array to plot.
     """
 
     # Main title
     if metadata_dict is not None:
-        if 'mc_energy_unit' in metadata_dict:
-            mc_energy = metadata_dict['mc_energy']
-            mc_energy_unit = metadata_dict['mc_energy_unit']
-        else:
-            mc_energy = metadata_dict['mc_energy'][0]
-            mc_energy_unit = metadata_dict['mc_energy'][1]
+        mc_energy = metadata_dict['mc_energy'] if 'mc_energy_unit' in metadata_dict else metadata_dict['mc_energy'][0]
+        mc_energy_unit = metadata_dict['mc_energy_unit'] if 'mc_energy_unit' in metadata_dict else metadata_dict['mc_energy'][1]
 
         main_title = "{} (Tel. {}, Ev. {}) {:.2E}{}".format(os.path.basename(metadata_dict['simtel_path']),
                                                             metadata_dict['tel_id'],
@@ -1100,7 +1141,12 @@ def mpl_save_list(img_list, output_file_path, title_list, geom_list, hillas_list
     else:
         main_title = ""
 
-    _plot_list(img_list, title_list, geom_list, hillas_list, main_title)
+    _plot_list(img_list,
+               geom_list,
+               title_list=title_list,
+               hillas_list=hillas_list,
+               highlight_mask_list=highlight_mask_list,
+               main_title=main_title)
     plt.savefig(output_file_path, bbox_inches='tight')
     plt.close('all')
 

@@ -301,20 +301,22 @@ class AbstractCleaningAlgorithm(object):
 
                     if plot:
                         datapipe.io.images.plot_list(image_list,
-                                                     title_list,
                                                      geom_list=geom_list,
+                                                     title_list=title_list,
                                                      hillas_list=hillas_list,
                                                      metadata_dict=image.meta)
 
                     if saveplot is not None:
-                        if len(input_file_or_dir_path_list) > 1:
-                            basename, extension = os.path.splitext(saveplot)
-                            plot_file_path = "{}_E{}_T{}{}".format(basename, image.meta["event_id"], image.meta["tel_id"], extension)
-                        else:
-                            plot_file_path = saveplot
+                        basename, extension = os.path.splitext(saveplot)
+                        plot_file_path = "{}_E{}_T{}{}".format(basename, image.meta["event_id"], image.meta["tel_id"], extension)
 
                         print("Saving {}".format(plot_file_path))
-                        datapipe.io.images.mpl_save_list(image_list, plot_file_path, title_list, image.meta)
+                        datapipe.io.images.mpl_save_list(image_list,
+                                                         geom_list=geom_list,
+                                                         output_file_path=plot_file_path,
+                                                         title_list=title_list,
+                                                         hillas_list=hillas_list,
+                                                         metadata_dict=image.meta)
 
             except Exception as e:
                 print("Abort image {}: {} ({})".format(input_file_path, e, type(e)))
