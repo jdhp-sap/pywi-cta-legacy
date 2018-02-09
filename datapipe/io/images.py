@@ -789,13 +789,51 @@ def save(img, output_file_path):
 
 ###############################################################################
 
-def plot_ctapipe_image(image, geom, figsize=(10, 10), title=None, title_fontsize=24, plot_colorbar=True, plot_axis=True):
-    fig = plt.figure(figsize=figsize)
-    disp = ctapipe.visualization.CameraDisplay(geom, image=image)
+def plot_ctapipe_image(image,
+                       geom,
+                       ax=None,
+                       figsize=(10, 10),
+                       title=None,
+                       title_fontsize=24,
+                       norm='lin',
+                       plot_colorbar=True,
+                       plot_axis=True,
+                       colorbar_orientation='horizontal',
+                       colorbar_limits=None):
+    """Plot an image.
+    
+    Parameters
+    ----------
+    image : array_like
+        Array of values corresponding to the pixels in the CameraGeometry.
+    geometry : `~ctapipe.instrument.CameraGeometry`
+        Definition of the Camera/Image
+    ax : `matplotlib.axes.Axes`
+        A matplotlib axes object to plot on, or None to create a new one
+    title : str (default "Camera")
+        Title to put on camera plot
+    norm : str or `matplotlib.color.Normalize` instance (default 'lin')
+        Normalization for the color scale.
+        Supported str arguments are
+        - 'lin': linear scale
+        - 'log': logarithmic scale (base 10)
+    cmap : str or `matplotlib.colors.Colormap` (default 'hot')
+        Color map to use (see `matplotlib.cm`)"""
+
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+
+    if colorbar_limits is not None:
+        disp.set_limits_minmax(colorbar_limits[0], colorbar_limits[1])
+
+    disp = ctapipe.visualization.CameraDisplay(geom,
+                                               image=image,
+                                               ax=ax,
+                                               norm=norm)
     #disp.enable_pixel_picker()
 
     if plot_colorbar:
-        disp.add_colorbar(fraction=0.04, pad=0.04)
+        disp.add_colorbar(ax=disp.axes, fraction=0.04, pad=0.04, orientation=colorbar_orientation)
         disp.colorbar.ax.tick_params(labelsize=18)
 
     if not plot_axis:
@@ -806,9 +844,26 @@ def plot_ctapipe_image(image, geom, figsize=(10, 10), title=None, title_fontsize
 
     disp.axes.set_title(title, fontsize=title_fontsize)
 
+    if colorbar_orientation == 'horizontal':
+        # https://stackoverflow.com/questions/8482588/putting-text-in-top-left-corner-of-matplotlib-plot
+        disp.axes.text(0.5, 0.01, "Intensity (photoelectrons)",
+                       horizontalalignment='center',
+                       verticalalignment='top',
+                       fontsize=22,
+                       transform=disp.axes.transAxes)
+
+    plt.tight_layout()
+
     return disp
 
-def plot_hillas_parameters_on_axes(ax, image, geom, hillas_params=None, plot_axis_only=False, auto_lim=True, hillas_implementation=2):
+
+def plot_hillas_parameters_on_axes(ax,
+                                   image,
+                                   geom,
+                                   hillas_params=None,
+                                   plot_axis_only=False,
+                                   auto_lim=True,
+                                   hillas_implementation=2):
     """Plot the shower ellipse and direction on an existing matplotlib axes."""
     if hillas_params is None:
         hillas_params = get_hillas_parameters(geom, image, implementation=hillas_implementation)
@@ -970,36 +1025,34 @@ def plot_hist(img, num_bins=50, logx=False, logy=False, x_max=None, title=""):
 
 
 
-def _plot_list(img_list, title_list, main_title=None):
-    fig, ax_tuple = plt.subplots(nrows=1, ncols=len(img_list), figsize=(12, 4))
+def _plot_list(img_list, title_list, geom_list, hillas_list, main_title=None):
+    num_imgs = len(img_list)
 
-    for img, title, ax in zip(img_list, title_list, ax_tuple):
-        ax.set_title(title)
+    fig, ax_tuple = plt.subplots(nrows=1, ncols=num_imgs, figsize=(num_imgs*6, 6))
 
-        #im = ax.imshow(img,
-        #               origin='lower',
-        #               interpolation='nearest',
-        #               vmin=min(img.min(), 0),
-        #               cmap=COLOR_MAP)
+    for img, title, ax, geom, plot_hillas in zip(img_list, title_list, ax_tuple, geom_list, hillas_list):
 
-        # Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)
-        masked = np.ma.masked_where(np.isnan(img), img)
+        disp = plot_ctapipe_image(img,
+                                  geom,
+                                  ax=ax,
+                                  title=title,
+                                  norm='lin',
+                                  plot_colorbar=True,
+                                  plot_axis=True)
 
-        cmap = COLOR_MAP
-        cmap.set_bad('black')
-        im = ax.imshow(masked,
-                       origin='lower',
-                       interpolation='nearest',
-                       cmap=cmap)
-
-        plt.colorbar(im, ax=ax) # draw the colorbar
+        if plot_hillas:
+            plot_hillas_parameters_on_axes(disp.axes,
+                                           img,
+                                           geom)
+        #plt.savefig('tailcut_cleaned_img.pdf')
+        #disp.show()
 
     if main_title is not None:
         fig.suptitle(main_title, fontsize=18)
         plt.subplots_adjust(top=0.85)
 
 
-def plot_list(img_list, title_list, metadata_dict=None):
+def plot_list(img_list, title_list, geom_list, hillas_list=None, metadata_dict=None):
     """
     img should be a list of 2D numpy array.
     """
@@ -1021,11 +1074,11 @@ def plot_list(img_list, title_list, metadata_dict=None):
     else:
         main_title = ""
 
-    _plot_list(img_list, title_list, main_title)
+    _plot_list(img_list, title_list, geom_list, hillas_list, main_title)
     plt.show()
 
 
-def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
+def mpl_save_list(img_list, output_file_path, title_list, geom_list, hillas_list, metadata_dict=None):
     """
     img should be a list of 2D numpy array.
     """
@@ -1047,7 +1100,7 @@ def mpl_save_list(img_list, output_file_path, title_list, metadata_dict=None):
     else:
         main_title = ""
 
-    _plot_list(img_list, title_list, main_title)
+    _plot_list(img_list, title_list, geom_list, hillas_list, main_title)
     plt.savefig(output_file_path, bbox_inches='tight')
     plt.close('all')
 

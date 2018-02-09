@@ -210,7 +210,7 @@ class AbstractCleaningAlgorithm(object):
                     image_dict["img_in_max_pe"] = float(np.nanmax(input_img))
                     image_dict["img_in_num_pix"] = int( (input_img[np.isfinite(input_img)] > 0).sum() )
 
-                    reference_img1d = geometry_converter.image_2d_to_1d(reference_img, image.meta['cam_id'])
+                    reference_img1d = geometry_converter.image_2d_to_1d(reference_img, cam_id)
                     hillas_params_2_ref_img = get_hillas_parameters(geom1d, reference_img1d, HILLAS_IMPLEMENTATION)   # TODO GEOM
 
                     image_dict["img_ref_hillas_2_size"] =     float(hillas_params_2_ref_img.size)
@@ -271,7 +271,7 @@ class AbstractCleaningAlgorithm(object):
                     image_dict["img_cleaned_max_pe"] = float(np.nanmax(cleaned_img))
                     image_dict["img_cleaned_num_pix"] = int( (cleaned_img[np.isfinite(cleaned_img)] > 0).sum() )
 
-                    cleaned_img1d = geometry_converter.image_2d_to_1d(cleaned_img, image.meta['cam_id'])
+                    cleaned_img1d = geometry_converter.image_2d_to_1d(cleaned_img, cam_id)
                     hillas_params_2_cleaned_img = get_hillas_parameters(geom1d, cleaned_img1d, HILLAS_IMPLEMENTATION)    # GEOM
 
                     image_dict["img_cleaned_hillas_2_size"] =     float(hillas_params_2_cleaned_img.size)
@@ -292,11 +292,19 @@ class AbstractCleaningAlgorithm(object):
                 # PLOT IMAGES #########################################################
 
                 if plot or (saveplot is not None):
-                    image_list = [input_img, reference_img, cleaned_img] 
+                    image_list = [geometry_converter.image_2d_to_1d(input_img, cam_id),
+                                  geometry_converter.image_2d_to_1d(reference_img, cam_id),
+                                  geometry_converter.image_2d_to_1d(cleaned_img, cam_id)] 
                     title_list = ["Input image", "Reference image", "Cleaned image"] 
+                    geom_list = [geom1d, geom1d, geom1d] 
+                    hillas_list = [False, True, True]
 
                     if plot:
-                        datapipe.io.images.plot_list(image_list, title_list, image.meta)
+                        datapipe.io.images.plot_list(image_list,
+                                                     title_list,
+                                                     geom_list=geom_list,
+                                                     hillas_list=hillas_list,
+                                                     metadata_dict=image.meta)
 
                     if saveplot is not None:
                         if len(input_file_or_dir_path_list) > 1:
