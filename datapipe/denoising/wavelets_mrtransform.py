@@ -383,24 +383,15 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
-    parser.add_argument("--type-of-filtering", "-f", type=int, metavar="INTEGER",
+    parser.add_argument("--type-of-filtering", "-f", metavar="STRING",
                         help="""Type of filtering:
-                            1: Multiresolution Hard K-Sigma Thresholding
-                            2: Multiresolution Soft K-Sigma Thresholding
-                            3: Iterative Multiresolution Thresholding
-                            4: Adjoint operator applied to the multiresolution support
-                            5: Bivariate Shrinkage
-                            6: Multiresolution Wiener Filtering
-                            7: Total Variation + Wavelet Constraint
-                            8: Wavelet Constraint Iterative Methods
-                            9: Median Absolute Deviation (MAD) Hard Thesholding
-                            10: Median Absolute Deviation (MAD) Soft Thesholding.
-                            Default=1.""")
+                            'hard_filtering': Multiresolution Hard Thresholding
+                            'ksigma_hard_filtering': Multiresolution Hard K-Sigma Thresholding""")
 
     parser.add_argument("--number-of-scales", "-n", type=int, metavar="integer",
                         help="Number of scales used in the multiresolution transform. Default=4.")
 
-    parser.add_argument("--filter-thresholds", "-s", metavar="FLOAT",
+    parser.add_argument("--filter-thresholds", "-s", metavar="FLOAT LIST",
                         help="Thresholds used for the plane filtering.")
 
     parser.add_argument("--suppress-last-scale", "-K", action="store_true",
@@ -465,9 +456,9 @@ def main():
 
     type_of_filtering = args.type_of_filtering
     number_of_scales = args.number_of_scales
-    suppress_last_scale = args.suppress_last_scale
+    suppress_last_scale = args.suppress_last_scale    # TODO
     kill_isolated_pixels = args.kill_isolated_pixels
-    filter_thresholds = args.filter_thresholds
+    filter_thresholds_str = args.filter_thresholds
     detect_only_positive_structure = args.detect_only_positive_structure
     noise_cdf_file = args.noise_cdf_file
     tmp_dir = args.tmp_dir
@@ -484,6 +475,8 @@ def main():
     saveplot = args.saveplot
 
     input_file_or_dir_path_list = args.fileargs
+
+    filter_thresholds = [float(threshold_str) for threshold_str in filter_thresholds_str.split(",")]
 
     if args.output is None:
         output_file_path = "score_wavelets_benchmark_{}.json".format(benchmark_method)
