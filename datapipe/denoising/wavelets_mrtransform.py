@@ -192,7 +192,7 @@ def filter_planes(wavelet_planes,
                   method='hard_filtering',
                   thresholds=None,
                   detect_only_positive_structure=False,
-                  debug=False)
+                  debug=False):
                   #**kwargs):
     """Filter the wavelet planes.
     
