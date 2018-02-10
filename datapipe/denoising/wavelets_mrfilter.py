@@ -106,8 +106,32 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     mrfilter_directory=None,       # "/Volumes/ramdisk"
                     output_data_dict=None,
                     **kwargs):
-        """
-        Do the wavelet transform.
+        """Clean the `input_img` image.
+
+        Apply the wavelet transform, filter planes and return the reverse
+        transformed image.
+
+        Parameters
+        ----------
+        input_img : array_like
+            The input image to transform.
+        number_of_scales : int
+            The number of scales used to transform `input_image` or in other words
+            the number of wavelet planes returned.
+        tmp_files_directory : str
+            The path of the directory used to store mr_transform temporary data.
+            The default is the current directory, but it may be more appropriate to
+            specify here the path of a directory mounted in a ramdisk to speedup
+            I/Os ("/Volumes/ramdisk" on MacOSX or "/dev/shm" on Linux).
+        noise_distribution : EmpiricalDistribution
+            The noise distribution used to fill 'empty' NaN pixels with the
+            appropriate random noise distribution. If none, NaN pixels are fill
+            with zeros (which may add unwanted harmonics in wavelet planes).
+
+        Returns
+        -------
+        array_like
+            Return the cleaned image.
 
         Raises
         ------
@@ -174,7 +198,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         try:
             initial_time = time.perf_counter()
-            images.save(input_img, input_file_path)
+            images.save_fits(input_img, input_file_path)
             exec_time_sec = time.perf_counter() - initial_time
             if output_data_dict is not None:
                 output_data_dict["save_tmp_file_time_sec"] = exec_time_sec
@@ -240,7 +264,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         try:
             initial_time = time.perf_counter()
-            cleaned_img = images.load(mr_output_file_path, 0)
+            cleaned_img = images.load_fits(mr_output_file_path, 0)
             exec_time_sec = time.perf_counter() - initial_time
             if output_data_dict is not None:
                 output_data_dict["load_tmp_file_time_sec"] = exec_time_sec
@@ -314,6 +338,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
 
 def main():
+    """The main module execution function.
+
+    Contains the instructions executed when the module is not imported but
+    directly called from the system command line.
+    """
 
     # PARSE OPTIONS ###########################################################
 

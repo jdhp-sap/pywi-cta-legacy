@@ -20,8 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['load',
-           'save',
+__all__ = ['load_fits',
+           'save_fits',
            'mpl_save',
            'plot',
            'image_files_in_dir',
@@ -719,7 +719,7 @@ def save_benchmark_images(img,
 
 # LOAD AND SAVE FITS FILES ###################################################
 
-def load(input_file_path, hdu_index):
+def load_fits(input_file_path, hdu_index):
     """Return the image array contained in the given HDU of the given FITS file.
 
     Parameters
@@ -763,12 +763,12 @@ def load(input_file_path, hdu_index):
     return image_array
 
 
-def save(img, output_file_path):
-    """Save the `img` image array to the `output_file_path` FITS file.
+def save_fits(img, output_file_path):
+    """Save the `img` image (array_like) to the `output_file_path` FITS file.
 
     Parameters
     ----------
-    img : ndarray
+    img : array_like
         The image to save (should be a 2D or a 3D numpy array)
     output_file_path : str
         The path of the FITS file where to save the `img`
@@ -819,7 +819,8 @@ def plot_ctapipe_image(image,
         - 'lin': linear scale
         - 'log': logarithmic scale (base 10)
     cmap : str or `matplotlib.colors.Colormap` (default 'hot')
-        Color map to use (see `matplotlib.cm`)"""
+        Color map to use (see `matplotlib.cm`)
+    """
 
     if ax is None:
         fig = plt.figure(figsize=figsize)
