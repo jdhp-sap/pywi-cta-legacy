@@ -343,6 +343,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                                            debug=debug)
 
         filtered_wavelet_planes = filter_planes(wavelet_planes[0:-1],
+                                                method=type_of_filtering,
+                                                thresholds=filter_thresholds,
+                                                detect_only_positive_structure=detect_only_positive_structure,
                                                 debug=debug)
         filtered_wavelet_planes.append(wavelet_planes[-1])     # Append the last (unfiltered) plane
 
@@ -477,6 +480,8 @@ def main():
     input_file_or_dir_path_list = args.fileargs
 
     filter_thresholds = [float(threshold_str) for threshold_str in filter_thresholds_str.split(",")]
+
+    # TODO: CHECK ARGS...
 
     if args.output is None:
         output_file_path = "score_wavelets_benchmark_{}.json".format(benchmark_method)
