@@ -184,8 +184,10 @@ def wavelet_transform(input_image,
 
         os.remove(input_file_path)
         os.remove(mr_output_file_path)
-    
-    return wavelet_planes
+
+    wavelet_planes_list = [plane for plane in wavelet_planes]
+
+    return wavelet_planes_list
 
 
 def filter_planes(wavelet_planes,
@@ -354,23 +356,24 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
         # KILL ISOLATED PIXELS #################################
 
-        img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
-        img_cleaned_num_islands = number_of_islands(cleaned_img)
+        # TODO
+        #img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
+        #img_cleaned_num_islands = number_of_islands(cleaned_img)
 
-        if output_data_dict is not None:
-            output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
-            output_data_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
-            output_data_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
-            output_data_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
+        #if output_data_dict is not None:
+        #    output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
+        #    output_data_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
+        #    output_data_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
+        #    output_data_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
 
-        if kill_isolated_pixels:
-            if verbose:
-                print("Kill isolated pixels")
-            initial_time = time.perf_counter()
-            cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
-            exec_time_sec = time.perf_counter() - initial_time
-            if output_data_dict is not None:
-                output_data_dict["scipy_kill_isolated_pixels_time_sec"] = exec_time_sec
+        #if kill_isolated_pixels:
+        #    if verbose:
+        #        print("Kill isolated pixels")
+        #    initial_time = time.perf_counter()
+        #    cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
+        #    exec_time_sec = time.perf_counter() - initial_time
+        #    if output_data_dict is not None:
+        #        output_data_dict["scipy_kill_isolated_pixels_time_sec"] = exec_time_sec
 
         return cleaned_image
 
