@@ -20,20 +20,74 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""
-Denoise FITS and PNG images with Wavelet Transform.
+"""Denoise FITS and PNG images with Wavelet Transform.
 
 This script use mr_transform -- a program written CEA/CosmoStat
 (www.cosmostat.org) -- to make Wavelet Transform.
 
-It originally came from
-https://github.com/jdhp-sap/snippets/blob/master/mr_transform/mr_transform_wrapper_denoising.py.
+Usage
+-----
+
+    wavelets_mrtransform.py [-h] [--type-of-filtering STRING]
+                                 [--filter-thresholds FLOAT LIST]
+                                 [--last-scale STRING]
+                                 [--detect-only-positive-structures]
+                                 [--kill-isolated-pixels]
+                                 [--noise-cdf-file FILE] [--tmp-dir DIRECTORY]
+                                 [--verbose] [--debug] [--max-images INTEGER]
+                                 [--telid INTEGER] [--eventid INTEGER]
+                                 [--camid STRING] [--benchmark STRING]
+                                 [--label STRING] [--plot] [--saveplot FILE]
+                                 [--output FILE]
+                                 FILE [FILE ...]
+
+    Denoise FITS images with Wavelet Transform.
+
+    positional arguments:
+      FILE                  The files image to process (FITS).If fileargs is a
+                            directory,all FITS files it contains are processed.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --type-of-filtering STRING, -f STRING
+                            Type of filtering: hard_filtering,
+                            ksigma_hard_filtering
+      --filter-thresholds FLOAT LIST, -t FLOAT LIST
+                            Thresholds used for the plane filtering.
+      --last-scale STRING, -L STRING
+                            Last plane treatment: keep, drop, mask
+      --detect-only-positive-structures, -p
+                            Detect only positive structure
+      --kill-isolated-pixels
+                            Suppress isolated pixels in the support (scipy
+                            implementation)
+      --noise-cdf-file FILE
+                            The JSON file containing the Cumulated Distribution
+                            Function of the noise model used to inject artificial
+                            noise in blank pixels (those with a NaN value).
+                            Default=None.
+      --tmp-dir DIRECTORY   The directory where temporary files are written.
+      --verbose, -v         Verbose mode
+      --debug               Debug mode
+      --max-images INTEGER  The maximum number of images to process
+      --telid INTEGER       Only process images from the specified telescope
+      --eventid INTEGER     Only process images from the specified event
+      --camid STRING        Only process images from the specified camera
+      --benchmark STRING, -b STRING
+                            The benchmark method to use to assess the algorithm
+                            for thegiven images
+      --label STRING, -l STRING
+                            The label attached to the produced results
+      --plot                Plot images
+      --saveplot FILE       The output file where to save plotted images
+      --output FILE, -o FILE
+                            The output file path (JSON)
 
 Examples
 --------
-  ./denoising_with_wavelets_mr_transform.py -h
-  ./denoising_with_wavelets_mr_transform.py ./test.fits
-  ipython3 -- ./denoising_with_wavelets_mr_transform.py -n4 ./test.fits
+  ./wavelets_mrtransform.py -h
+  ./wavelets_mrtransform.py ./test.fits
+  ipython3 -- ./wavelets_mrtransform.py -t 10,3.5,1 ./test.fits
 
 Notes
 -----
@@ -61,6 +115,15 @@ from datapipe.io import images
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
 from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
 from datapipe.image.kill_isolated_pixels import number_of_islands
+
+# CONSTANTS ##################################################################
+
+AVAILABLE_TYPE_OF_FILTERING = ('hard_filtering', 'ksigma_hard_filtering')
+AVAILABLE_LAST_SCALE_OPTIONS = ('keep', 'drop', 'mask')
+
+DEFAULT_TYPE_OF_FILTERING = 'hard_filtering'
+DEFAULT_FILTER_THRESHOLDS = '0,0'            # TODO: change the default value...
+DEFAULT_LAST_SCALE_TREATMENT = 'keep'
 
 # EXCEPTIONS #################################################################
 
@@ -191,9 +254,9 @@ def wavelet_transform(input_image,
 
 
 def filter_planes(wavelet_planes,
-                  method='hard_filtering',
-                  thresholds=None,
-                  detect_only_positive_structure=False,
+                  method=DEFAULT_TYPE_OF_FILTERING,
+                  thresholds=DEFAULT_FILTER_THRESHOLDS,
+                  detect_only_positive_structures=False,
                   debug=False):
                   #**kwargs):
     """Filter the wavelet planes.
@@ -221,7 +284,7 @@ def filter_planes(wavelet_planes,
 
         if method == 'hard_filtering':
 
-            if detect_only_positive_structure:
+            if detect_only_positive_structures:
                 plane_mask = plane > thresholds[plane_index]
             else:
                 plane_mask = abs(plane) > thresholds[plane_index]
@@ -240,7 +303,7 @@ def filter_planes(wavelet_planes,
             # make the image mask, but sometimes results looks better when all
             # negative coefficients are dropped ("plane > (plane_noise_std * 3.)")
 
-            if detect_only_positive_structure:
+            if detect_only_positive_structures:
                 plane_mask = plane > (plane_noise_std * thresholds[plane_index])
             else:
                 plane_mask = abs(plane) > (plane_noise_std * thresholds[plane_index])  
@@ -262,7 +325,7 @@ def filter_planes(wavelet_planes,
 
 
 def inverse_wavelet_transform(wavelet_planes,
-                              last_plane='keep',
+                              last_plane=DEFAULT_LAST_SCALE_TREATMENT,
                               debug=False):
     """Compute the inverse wavelet transform of `wavelet_planes`.
 
@@ -303,7 +366,7 @@ def inverse_wavelet_transform(wavelet_planes,
 
 
 class WaveletTransform(AbstractCleaningAlgorithm):
-    """TODO"""
+    """The wavelet transform wrapper for ctapipe."""
 
     def __init__(self):
         super().__init__()
@@ -311,12 +374,11 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
     def clean_image(self,
                     input_img,
-                    type_of_filtering=None,
-                    number_of_scales=4,
-                    suppress_last_scale=False,
+                    type_of_filtering=DEFAULT_TYPE_OF_FILTERING,
+                    filter_thresholds=DEFAULT_FILTER_THRESHOLDS,
+                    last_scale_treatment=DEFAULT_LAST_SCALE_TREATMENT,
+                    detect_only_positive_structures=False,
                     kill_isolated_pixels=False,
-                    filter_thresholds=None,
-                    detect_only_positive_structure=False,
                     noise_distribution=None,
                     tmp_files_directory=".",
                     output_data_dict=None,
@@ -327,16 +389,37 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         Apply the wavelet transform, filter planes and return the reverse
         transformed image.
 
-        mr_filter
-        -K 
-        -k
-        -F2
-        -C1
-        -s3
-        -m2  (a essayer ou -m10)
+        Parameters
+        ----------
+        input_image : array_like
+            The image to clean.
+        type_of_filtering : str
+            Type of filtering: 'hard_filtering' or 'ksigma_hard_filtering'.
+        filter_thresholds : list of float
+            Thresholds used for the plane filtering.
+        last_scale_treatment : str
+            Last plane treatment: 'keep', 'drop' or 'mask'.
+        detect_only_positive_structures : bool
+            Detect only positive structures.
+        kill_isolated_pixels : bool
+            Suppress isolated pixels in the support.
+        noise_distribution : bool
+            The JSON file containing the Cumulated Distribution Function of the
+            noise model used to inject artificial noise in blank pixels (those
+            with a NaN value).
+        tmp_files_directory : str
+            The path of the directory where temporary files are written.
+        output_data_dict : dict
+            A dictionary used to return results and intermediate results.
+        debug : bool
+            Print additional information if `True`.
 
-        eventuellement -w pour le debug
+        Returns
+        -------
+            Return the cleaned image.
         """
+
+        number_of_scales = len(filter_thresholds)
 
         wavelet_planes = wavelet_transform(input_img,
                                            number_of_scales=number_of_scales,
@@ -347,11 +430,12 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         filtered_wavelet_planes = filter_planes(wavelet_planes[0:-1],
                                                 method=type_of_filtering,
                                                 thresholds=filter_thresholds,
-                                                detect_only_positive_structure=detect_only_positive_structure,
+                                                detect_only_positive_structures=detect_only_positive_structures,
                                                 debug=debug)
         filtered_wavelet_planes.append(wavelet_planes[-1])     # Append the last (unfiltered) plane
 
         cleaned_image = inverse_wavelet_transform(filtered_wavelet_planes,
+                                                  last_plane=last_scale_treatment,
                                                   debug=debug)
 
         # KILL ISOLATED PIXELS #################################
@@ -389,25 +473,20 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
-    parser.add_argument("--type-of-filtering", "-f", metavar="STRING",
-                        help="""Type of filtering:
-                            'hard_filtering': Multiresolution Hard Thresholding
-                            'ksigma_hard_filtering': Multiresolution Hard K-Sigma Thresholding""")
+    parser.add_argument("--type-of-filtering", "-f", metavar="STRING", default=DEFAULT_TYPE_OF_FILTERING,
+                        help="Type of filtering: {}.".format(", ".join(AVAILABLE_TYPE_OF_FILTERING)))
 
-    parser.add_argument("--number-of-scales", "-n", type=int, metavar="integer",
-                        help="Number of scales used in the multiresolution transform. Default=4.")
-
-    parser.add_argument("--filter-thresholds", "-s", metavar="FLOAT LIST",
+    parser.add_argument("--filter-thresholds", "-t", metavar="FLOAT LIST", default=DEFAULT_FILTER_THRESHOLDS,
                         help="Thresholds used for the plane filtering.")
 
-    parser.add_argument("--suppress-last-scale", "-K", action="store_true",
-                        help="Suppress the last scale (to have background pixels = 0)")
+    parser.add_argument("--last-scale", "-L", metavar="STRING", default=DEFAULT_LAST_SCALE_TREATMENT,
+                        help="Last plane treatment: {}.".format(", ".join(AVAILABLE_LAST_SCALE_OPTIONS)))
 
-    parser.add_argument("--detect-only-positive-structure", "-p", action="store_true",
-                        help="Detect only positive structure")
+    parser.add_argument("--detect-only-positive-structures", "-p", action="store_true",
+                        help="Detect only positive structures.")
 
     parser.add_argument("--kill-isolated-pixels", action="store_true",
-                        help="Suppress isolated pixels in the support (scipy implementation)")
+                        help="Suppress isolated pixels in the support (scipy implementation).")
 
     parser.add_argument("--noise-cdf-file", metavar="FILE",
                         help="The JSON file containing the Cumulated Distribution Function of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=None.")
@@ -461,11 +540,10 @@ def main():
     args = parser.parse_args()
 
     type_of_filtering = args.type_of_filtering
-    number_of_scales = args.number_of_scales
-    suppress_last_scale = args.suppress_last_scale    # TODO
-    kill_isolated_pixels = args.kill_isolated_pixels
     filter_thresholds_str = args.filter_thresholds
-    detect_only_positive_structure = args.detect_only_positive_structure
+    last_scale_treatment = args.last_scale
+    detect_only_positive_structures = args.detect_only_positive_structures
+    kill_isolated_pixels = args.kill_isolated_pixels
     noise_cdf_file = args.noise_cdf_file
     tmp_dir = args.tmp_dir
 
@@ -482,9 +560,25 @@ def main():
 
     input_file_or_dir_path_list = args.fileargs
 
-    filter_thresholds = [float(threshold_str) for threshold_str in filter_thresholds_str.split(",")]
+    # CHECK OPTIONS #############################
 
-    # TODO: CHECK ARGS...
+    if type_of_filtering not in AVAILABLE_TYPE_OF_FILTERING:
+        raise ValueError('Unknown type of filterning: "{}". Should be in {}'.format(type_of_filtering,
+                                                                                   AVAILABLE_TYPE_OF_FILTERING))
+
+    try:
+        filter_thresholds = [float(threshold_str) for threshold_str in filter_thresholds_str.split(",")]
+    except:
+        raise ValueError('Wrong filter thresholds: "{}". Should be in a list of figures separated by a comma (e.g. "3,2,3")'.format(filter_thresholds_str))
+
+    if last_scale_treatment not in AVAILABLE_LAST_SCALE_OPTIONS:
+        raise ValueError('Unknown type of last scale treatment: "{}". Should be in {}'.format(last_scale_treatment ,
+                                                                                              AVAILABLE_LAST_SCALE_OPTIONS))
+
+    # TODO: check the noise_cdf_file value
+    # TODO: check the tmp_dir value
+
+    #############################################
 
     if args.output is None:
         output_file_path = "score_wavelets_benchmark_{}.json".format(benchmark_method)
@@ -498,14 +592,13 @@ def main():
 
     cleaning_function_params = {
             "type_of_filtering": type_of_filtering,
-            "number_of_scales": number_of_scales,
-            "suppress_last_scale": suppress_last_scale,
-            "kill_isolated_pixels": kill_isolated_pixels,
             "filter_thresholds": filter_thresholds,
-            "detect_only_positive_structure": detect_only_positive_structure,
+            "last_scale_treatment": last_scale_treatment,
+            "detect_only_positive_structures": detect_only_positive_structures,
+            "kill_isolated_pixels": kill_isolated_pixels,
             "noise_distribution": noise_distribution,
-            "verbose": verbose,
-            "tmp_files_directory": tmp_dir
+            "tmp_files_directory": tmp_dir,
+            "verbose": verbose
         }
 
     cleaning_algorithm = WaveletTransform()
