@@ -49,7 +49,27 @@ import numpy as np
 import scipy.interpolate
 import json
 
+from . import cdf
+
 INTERPOLATION_METH = 'spline1'
+
+def get_cdf_file_path(cam_id):
+    if cam_id == 'LSTCam':
+        cdf_file_path = cdf.LSTCAM_CDF_FILE
+    elif cam_id == 'NectarCam':
+        cdf_file_path = cdf.NECTARCAM_CDF_FILE
+    elif cam_id == 'FlashCam':
+        cdf_file_path = cdf.FLASHCAM_CDF_FILE
+    elif cam_id == 'DigiCam':
+        cdf_file_path = cdf.DIGICAM_CDF_FILE
+    elif cam_id == 'CHEC':
+        cdf_file_path = cdf.GCT_CDF_FILE
+    elif cam_id == 'ASTRICam':
+        cdf_file_path = cdf.ASTRI_CDF_FILE
+    else:
+        raise NotImplementedError("Unknown camera {}.".format(cam_id))
+
+    return cdf_file_path 
 
 class EmpiricalDistribution:
     def __init__(self, cdf_json_file_path):
