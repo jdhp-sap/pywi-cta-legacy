@@ -876,6 +876,10 @@ def plot_hillas_parameters_on_axes(ax,
                                    auto_lim=True,
                                    hillas_implementation=2):
     """Plot the shower ellipse and direction on an existing matplotlib axes."""
+
+    x_lim = ax.get_xlim()
+    y_lim = ax.get_ylim()
+
     try:
         if hillas_params is None:
             hillas_params = get_hillas_parameters(geom, image, implementation=hillas_implementation)
@@ -895,7 +899,7 @@ def plot_hillas_parameters_on_axes(ax,
             ax.axes.add_patch(ellipse)
 
         title = ax.axes.get_title()
-        ax.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
+        ax.title.set_text("{} ({:.2f}°)".format(title, np.degrees(angle)))
 
         # Plot the center of the ellipse
 
@@ -936,14 +940,8 @@ def plot_hillas_parameters_on_axes(ax,
         # Set (back) ax limits
 
         if auto_lim:
-            pixels_position = (geom.pix_x.value, geom.pix_y.value)
-            pos_x_min, pos_x_max = np.nanmin(pixels_position[0]), np.nanmax(pixels_position[0])
-            pos_y_min, pos_y_max = np.nanmin(pixels_position[1]), np.nanmax(pixels_position[1])
-
-            ax.set_xlim(xmin=pos_x_min)
-            ax.set_xlim(xmax=pos_x_max)
-            ax.set_ylim(ymin=pos_y_min)
-            ax.set_ylim(ymax=pos_y_max)
+            ax.set_xlim(x_lim)
+            ax.set_ylim(y_lim)
     except HillasParameterizationError as err:
         print(err)
 
@@ -1149,7 +1147,7 @@ def _plot_list(img_list,
                                   norm='lin',
                                   highlight_mask=highlight_mask,
                                   plot_colorbar=True,
-                                  plot_axis=True)
+                                  plot_axis=False)
 
         if plot_hillas:
             plot_hillas_parameters_on_axes(disp.axes,
