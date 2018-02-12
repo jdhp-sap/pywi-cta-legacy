@@ -869,7 +869,10 @@ def plot_hillas_parameters_on_axes(ax,
                                    image,
                                    geom,
                                    hillas_params=None,
-                                   plot_axis_only=False,
+                                   plot_ellipse=True,
+                                   plot_axis=True,
+                                   plot_actual_axis_pm=True,
+                                   plot_inner_axes=False,
                                    auto_lim=True,
                                    hillas_implementation=2):
     """Plot the shower ellipse and direction on an existing matplotlib axes."""
@@ -887,7 +890,7 @@ def plot_hillas_parameters_on_axes(ax,
         #print("width:",    width)
         #print("angle:",    angle)
 
-        if not plot_axis_only:
+        if plot_ellipse:
             ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
             ax.axes.add_patch(ellipse)
 
@@ -896,10 +899,10 @@ def plot_hillas_parameters_on_axes(ax,
 
         # Plot the center of the ellipse
 
-        if not plot_axis_only:
+        if plot_ellipse:
             ax.scatter(*centroid, c="r", marker="x", linewidth=2)
 
-        # Plot the shower ax
+        # Plot the shower axis
 
         p0_x = centroid[0]
         p0_y = centroid[1]
@@ -912,7 +915,14 @@ def plot_hillas_parameters_on_axes(ax,
 
         ax.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
 
-        if not plot_axis_only:
+        # Plot the actual axis in pointing source mode
+
+        if plot_actual_axis_pm:
+            ax.plot([0, p0_x], [0, p0_y], ':g', lw=2)
+
+        # Plot the shower inner axes
+
+        if plot_inner_axes:
             p3_x = p0_x + math.cos(angle) * length / 2.
             p3_y = p0_y + math.sin(angle) * length / 2.
 
