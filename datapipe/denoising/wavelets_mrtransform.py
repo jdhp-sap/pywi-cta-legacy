@@ -124,7 +124,8 @@ AVAILABLE_TYPE_OF_FILTERING = ('hard_filtering', 'ksigma_hard_filtering')
 AVAILABLE_LAST_SCALE_OPTIONS = ('keep', 'drop', 'mask')
 
 DEFAULT_TYPE_OF_FILTERING = 'hard_filtering'
-DEFAULT_FILTER_THRESHOLDS = '0,0'            # TODO: change the default value...
+DEFAULT_FILTER_THRESHOLDS_STR = '0,0'            # TODO: change the default value...
+DEFAULT_FILTER_THRESHOLDS = [float(threshold_str) for threshold_str in DEFAULT_FILTER_THRESHOLDS_STR.split(",")]
 DEFAULT_LAST_SCALE_TREATMENT = 'mask'
 
 # EXCEPTIONS #################################################################
@@ -498,7 +499,7 @@ def main():
     parser.add_argument("--type-of-filtering", "-f", metavar="STRING", default=DEFAULT_TYPE_OF_FILTERING,
                         help="Type of filtering: {}.".format(", ".join(AVAILABLE_TYPE_OF_FILTERING)))
 
-    parser.add_argument("--filter-thresholds", "-t", metavar="FLOAT LIST", default=DEFAULT_FILTER_THRESHOLDS,
+    parser.add_argument("--filter-thresholds", "-t", metavar="FLOAT LIST", default=DEFAULT_FILTER_THRESHOLDS_STR,
                         help="Thresholds used for the plane filtering.")
 
     parser.add_argument("--last-scale", "-L", metavar="STRING", default=DEFAULT_LAST_SCALE_TREATMENT,
