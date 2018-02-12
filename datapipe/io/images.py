@@ -43,8 +43,11 @@ import os
 from astropy.io import fits
 import astropy.units as u
 
+import pandas as pd
+
 import ctapipe
 import pyhessio
+from ctapipe.image.hillas import HillasParameterizationError
 from ctapipe.io.hessio import hessio_event_source
 from ctapipe.instrument import CameraGeometry
 from ctapipe.calib import CameraCalibrator
@@ -870,67 +873,139 @@ def plot_hillas_parameters_on_axes(ax,
                                    auto_lim=True,
                                    hillas_implementation=2):
     """Plot the shower ellipse and direction on an existing matplotlib axes."""
-    if hillas_params is None:
-        hillas_params = get_hillas_parameters(geom, image, implementation=hillas_implementation)
+    try:
+        if hillas_params is None:
+            hillas_params = get_hillas_parameters(geom, image, implementation=hillas_implementation)
 
-    centroid = (hillas_params.cen_x.value, hillas_params.cen_y.value)
-    length = hillas_params.length.value
-    width = hillas_params.width.value
-    angle = hillas_params.psi.to(u.rad).value
+        centroid = (hillas_params.cen_x.value, hillas_params.cen_y.value)
+        length = hillas_params.length.value
+        width = hillas_params.width.value
+        angle = hillas_params.psi.to(u.rad).value
 
-    #print("centroid:", centroid)
-    #print("length:",   length)
-    #print("width:",    width)
-    #print("angle:",    angle)
+        #print("centroid:", centroid)
+        #print("length:",   length)
+        #print("width:",    width)
+        #print("angle:",    angle)
 
-    if not plot_axis_only:
-        ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
-        ax.axes.add_patch(ellipse)
+        if not plot_axis_only:
+            ellipse = Ellipse(xy=centroid, width=length, height=width, angle=np.degrees(angle), fill=False, color='red', lw=2)
+            ax.axes.add_patch(ellipse)
 
-    title = ax.axes.get_title()
-    ax.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
+        title = ax.axes.get_title()
+        ax.axes.set_title("{} ({:.2f}°)".format(title, np.degrees(angle)))
 
-    # Plot the center of the ellipse
+        # Plot the center of the ellipse
 
-    if not plot_axis_only:
-        ax.scatter(*centroid, c="r", marker="x", linewidth=2)
+        if not plot_axis_only:
+            ax.scatter(*centroid, c="r", marker="x", linewidth=2)
 
-    # Plot the shower ax
+        # Plot the shower ax
 
-    p0_x = centroid[0]
-    p0_y = centroid[1]
+        p0_x = centroid[0]
+        p0_y = centroid[1]
 
-    p1_x = p0_x + math.cos(angle)
-    p1_y = p0_y + math.sin(angle)
+        p1_x = p0_x + math.cos(angle)
+        p1_y = p0_y + math.sin(angle)
 
-    p2_x = p0_x + math.cos(angle + math.pi)
-    p2_y = p0_y + math.sin(angle + math.pi)
+        p2_x = p0_x + math.cos(angle + math.pi)
+        p2_y = p0_y + math.sin(angle + math.pi)
 
-    ax.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
+        ax.plot([p1_x, p2_x], [p1_y, p2_y], ':r', lw=2)
 
-    if not plot_axis_only:
-        p3_x = p0_x + math.cos(angle) * length / 2.
-        p3_y = p0_y + math.sin(angle) * length / 2.
+        if not plot_axis_only:
+            p3_x = p0_x + math.cos(angle) * length / 2.
+            p3_y = p0_y + math.sin(angle) * length / 2.
 
-        ax.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
+            ax.plot([p0_x, p3_x], [p0_y, p3_y], '-r')
 
-        p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
-        p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
+            p4_x = p0_x + math.cos(angle + math.pi/2.) * width / 2.
+            p4_y = p0_y + math.sin(angle + math.pi/2.) * width / 2.
 
-        ax.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
+            ax.plot([p0_x, p4_x], [p0_y, p4_y], '-g')
 
-    # Set (back) ax limits
+        # Set (back) ax limits
 
-    if auto_lim:
-        pixels_position = (geom.pix_x.value, geom.pix_y.value)
-        pos_x_min, pos_x_max = np.nanmin(pixels_position[0]), np.nanmax(pixels_position[0])
-        pos_y_min, pos_y_max = np.nanmin(pixels_position[1]), np.nanmax(pixels_position[1])
+        if auto_lim:
+            pixels_position = (geom.pix_x.value, geom.pix_y.value)
+            pos_x_min, pos_x_max = np.nanmin(pixels_position[0]), np.nanmax(pixels_position[0])
+            pos_y_min, pos_y_max = np.nanmin(pixels_position[1]), np.nanmax(pixels_position[1])
 
-        ax.set_xlim(xmin=pos_x_min)
-        ax.set_xlim(xmax=pos_x_max)
-        ax.set_ylim(ymin=pos_y_min)
-        ax.set_ylim(ymax=pos_y_max)
+            ax.set_xlim(xmin=pos_x_min)
+            ax.set_xlim(xmax=pos_x_max)
+            ax.set_ylim(ymin=pos_y_min)
+            ax.set_ylim(ymax=pos_y_max)
+    except HillasParameterizationError as err:
+        print(err)
 
+
+def print_hillas_parameters(image,
+                            cam_id,
+                            implementation=2):
+
+    geom = geometry_converter.get_geom1d(cam_id)
+
+    try:
+        hillas_params = get_hillas_parameters(geom,
+                                              image,
+                                              implementation=implementation)
+
+        print("cen_x:...", hillas_params.cen_x)
+        print("cen_y:...", hillas_params.cen_y)
+
+        print("length:..", hillas_params.length)
+        print("width:...", hillas_params.width)
+
+        print("size:....", hillas_params.size, "PE")
+        print("NPE: ....", np.nansum(image), "PE")
+
+        print("psi:.....", hillas_params.psi)
+
+        print("miss:....", hillas_params.miss)
+        print("phi:.....", hillas_params.phi)
+        print("r:.......", hillas_params.r)
+
+        print("kurtosis:", hillas_params.kurtosis)
+        print("skewness:", hillas_params.skewness)
+    except HillasParameterizationError as err:
+        print(err)
+
+
+def hillas_parameters_to_df(image,
+                            cam_id,
+                            implementation=2):
+
+    geom = geometry_converter.get_geom1d(cam_id)
+
+    columns = ['cen_x_m', 'cen_y_m', 'length_m', 'width_m', 'size_pe',
+               'psi_rad', 'miss_m', 'phi_rad', 'r_m', 'kurtosis', 'skewness']
+    data = np.full([1, len(columns)], np.nan)
+
+    df = pd.DataFrame(data=data, columns=columns)
+
+    try:
+        hillas_params = get_hillas_parameters(geom,
+                                              image,
+                                              implementation=implementation)
+        df.loc[0, "cen_x_m"] = hillas_params.cen_x.to(u.meter).value
+        df.loc[0, "cen_y_m"] = hillas_params.cen_y.to(u.meter).value
+
+        df.loc[0, "length_m"] = hillas_params.length.to(u.meter).value
+        df.loc[0, "width_m"]  = hillas_params.width.to(u.meter).value
+
+        df.loc[0, "size_pe"] = hillas_params.size
+
+        df.loc[0, "psi_rad"] = hillas_params.psi.to(u.rad).value
+
+        df.loc[0, "miss_m"] = hillas_params.miss.to(u.meter).value
+        df.loc[0, "phi_rad"] = hillas_params.phi.to(u.rad).value
+        df.loc[0, "r_m"] = hillas_params.r.to(u.meter).value
+
+        df.loc[0, "kurtosis"] = hillas_params.kurtosis
+        df.loc[0, "skewness"] = hillas_params.skewness
+    except HillasParameterizationError as err:
+        print(err)
+
+    return df
 
 # MATPLOTLIB ##################################################################
 
