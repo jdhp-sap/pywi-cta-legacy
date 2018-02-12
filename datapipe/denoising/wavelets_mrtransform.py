@@ -87,7 +87,7 @@ Examples
 --------
   ./wavelets_mrtransform.py -h
   ./wavelets_mrtransform.py ./test.fits
-  ipython3 -- ./wavelets_mrtransform.py -t 10,3.5,1 ./test.fits
+  ipython3 -- ./wavelets_mrtransform.py -t 21.5,11.7 ./test.fits
 
 Notes
 -----
@@ -118,12 +118,14 @@ from datapipe.image.kill_isolated_pixels import number_of_islands
 
 # CONSTANTS ##################################################################
 
+DEBUG = False
+
 AVAILABLE_TYPE_OF_FILTERING = ('hard_filtering', 'ksigma_hard_filtering')
 AVAILABLE_LAST_SCALE_OPTIONS = ('keep', 'drop', 'mask')
 
 DEFAULT_TYPE_OF_FILTERING = 'hard_filtering'
 DEFAULT_FILTER_THRESHOLDS = '0,0'            # TODO: change the default value...
-DEFAULT_LAST_SCALE_TREATMENT = 'keep'
+DEFAULT_LAST_SCALE_TREATMENT = 'mask'
 
 # EXCEPTIONS #################################################################
 
@@ -150,8 +152,7 @@ class WrongDimensionError(MrTransformError):
 def wavelet_transform(input_image,
                       number_of_scales=4,
                       tmp_files_directory=".",
-                      noise_distribution=None,
-                      debug=False):
+                      noise_distribution=None):
     """Compute the wavelet transform of `input_image`.
 
     Parameters
@@ -170,8 +171,6 @@ def wavelet_transform(input_image,
         The noise distribution used to fill 'empty' NaN pixels with the
         appropriate random noise distribution. If none, NaN pixels are fill
         with zeros (which may add unwanted harmonics in wavelet planes).
-    debug : bool, optional
-        Do debug plots and prints if `True`.
 
     Returns
     -------
@@ -190,31 +189,34 @@ def wavelet_transform(input_image,
         msg = "The data should be a 2D array."
         raise WrongDimensionError(msg)
 
+    # INJECT NOISE IN NAN PIXELS ###########################################
+
+    # TODO: should this noise injection be done in the abstract 'run()' function ?
+
+    # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
+
+    if noise_distribution is not None:
+        nan_mask = np.isnan(input_image)
+
+        if DEBUG:
+            print(input_image)
+            images.plot(input_image, "In")
+            images.plot(nan_mask, "Mask")
+
+        nan_noise_size = np.count_nonzero(nan_mask)
+        input_image[nan_mask] = noise_distribution.rvs(size=nan_noise_size)
+
+        if DEBUG:
+            print(input_image)
+            images.plot(input_image, "Noise injected")
+
+    # DO THE WAVELET TRANSFORM #############################################
+
     input_file_name = ".tmp_{}_{}_in.fits".format(os.getpid(), time.time())
     input_file_path = os.path.join(tmp_files_directory, input_file_name)
 
     output_file_name = ".tmp_{}_{}_out.fits".format(os.getpid(), time.time())
     mr_output_file_path = os.path.join(tmp_files_directory, output_file_name)
-
-    # INJECT NOISE IN NAN PIXELS ###########################
-
-    # TODO: should this noise injection be done in the abstract 'rum()' function ?
-
-    # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
-    nan_mask = np.isnan(input_image)
-
-    if debug:  # TODO: remove this, use notebooks instead...
-        print(input_image)
-        images.plot(input_image, "In")
-        images.plot(nan_mask, "Mask")
-
-    if noise_distribution is not None:
-        nan_noise_size = np.count_nonzero(nan_mask)
-        input_image[nan_mask] = noise_distribution.rvs(size=nan_noise_size)
-
-    if debug:  # TODO: remove this, use notebooks instead...
-        print(input_image)
-        images.plot(input_image, "Noise injected")
 
     try:
         # WRITE THE INPUT FILE (FITS) ##########################
@@ -250,26 +252,35 @@ def wavelet_transform(input_image,
 
     wavelet_planes_list = [plane for plane in wavelet_planes]
 
+    # INJECT NOISE IN NAN: PUT BACK NAN VALUES #############
+
+    if noise_distribution is not None:
+        for plane in wavelet_planes_list:
+            plane[nan_mask] = np.nan
+
     return wavelet_planes_list
 
 
 def filter_planes(wavelet_planes,
                   method=DEFAULT_TYPE_OF_FILTERING,
                   thresholds=DEFAULT_FILTER_THRESHOLDS,
-                  detect_only_positive_structures=False,
-                  debug=False):
+                  detect_only_positive_structures=False):
                   #**kwargs):
     """Filter the wavelet planes.
+
+    The last plane (called residuals) is kept unmodified.
     
     Parameters
     ----------
     wavelet_planes : list of array_like
-        The wavelet planes to filter.
+        The wavelet planes to filter, including the last *residual* plane.
     method : str, optional
         The filtering method to use. So far, only the 'hard_filtering' and
         'ksigma_hard_filtering' methods are implemented.
-    debug : bool, optional
-        Do debug plots and prints if `True`.
+    thresholds : list of float
+        Thresholds used for the plane filtering.
+    detect_only_positive_structures : bool
+        Detect only positive structures.
 
     Returns
     -------
@@ -278,7 +289,7 @@ def filter_planes(wavelet_planes,
     """
     filtered_wavelet_planes = copy.deepcopy(wavelet_planes)
 
-    # The last plane should be kept unmodified
+    # The last plane is kept unmodified
 
     for plane_index, plane in enumerate(wavelet_planes[0:-1]):
 
@@ -316,7 +327,7 @@ def filter_planes(wavelet_planes,
 
         filtered_wavelet_planes[plane_index] = filtered_plane
 
-        if debug:  # TODO: remove this, use notebooks instead...
+        if DEBUG:
             images.plot(plane, title="Plane {}".format(plane_index))
             images.plot(plane_mask, title="Binary mask for plane {}".format(plane_index))
             images.plot(filtered_plane, title="Filtered plane {}".format(plane_index))
@@ -325,8 +336,7 @@ def filter_planes(wavelet_planes,
 
 
 def inverse_wavelet_transform(wavelet_planes,
-                              last_plane=DEFAULT_LAST_SCALE_TREATMENT,
-                              debug=False):
+                              last_plane=DEFAULT_LAST_SCALE_TREATMENT):
     """Compute the inverse wavelet transform of `wavelet_planes`.
 
     Parameters
@@ -337,8 +347,6 @@ def inverse_wavelet_transform(wavelet_planes,
         Define what to do with the last plane: 'keep' to keep it in the inverse
         transform, 'drop' to remove it in the inverse transform, 'mask' to keep
         only pixels that are *significant* in the others planes.
-    debug : bool, optional
-        Do debug plots and prints if `True`.
 
     Returns
     -------
@@ -353,14 +361,17 @@ def inverse_wavelet_transform(wavelet_planes,
 
     # Apply a special treatment with the last plane (residuals plane)
     if last_plane == "keep":
+
         # Keep the last plane
-        output_image += plane[-1]
+        output_image += wavelet_planes[-1]
+
     elif last_plane == "mask":
+
         # Only keep last plane's pixels that are *significant* in the others planes
         significant_pixels_mask = np.zeros(wavelet_planes[0].shape)
         for plane in wavelet_planes[0:-1]:
             significant_pixels_mask[plane > 0] = 1
-        output_image += plane[-1] * significant_pixels_mask
+        output_image += wavelet_planes[-1] * significant_pixels_mask
 
     return output_image
 
@@ -373,7 +384,7 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         self.label = "WT (mr_transform)"  # Name to show in plots
 
     def clean_image(self,
-                    input_img,
+                    input_image,
                     type_of_filtering=DEFAULT_TYPE_OF_FILTERING,
                     filter_thresholds=DEFAULT_FILTER_THRESHOLDS,
                     last_scale_treatment=DEFAULT_LAST_SCALE_TREATMENT,
@@ -382,9 +393,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
                     noise_distribution=None,
                     tmp_files_directory=".",
                     output_data_dict=None,
-                    debug=False,
                     **kwargs):
-        """Clean the `input_img` image.
+        """Clean the `input_image` image.
 
         Apply the wavelet transform, filter planes and return the reverse
         transformed image.
@@ -411,53 +421,65 @@ class WaveletTransform(AbstractCleaningAlgorithm):
             The path of the directory where temporary files are written.
         output_data_dict : dict
             A dictionary used to return results and intermediate results.
-        debug : bool
-            Print additional information if `True`.
 
         Returns
         -------
             Return the cleaned image.
         """
 
-        number_of_scales = len(filter_thresholds)
+        if DEBUG:
+            print("Filter thresholds:", filter_thresholds)
 
-        wavelet_planes = wavelet_transform(input_img,
+        number_of_scales = len(filter_thresholds) + 1
+
+        if DEBUG:
+            print("Number of scales:", number_of_scales)
+
+        # COMPUTE THE WAVELET TRANSFORM #######################################
+
+        wavelet_planes = wavelet_transform(input_image,
                                            number_of_scales=number_of_scales,
                                            tmp_files_directory=tmp_files_directory,
-                                           noise_distribution=noise_distribution,
-                                           debug=debug)
+                                           noise_distribution=noise_distribution)
 
-        filtered_wavelet_planes = filter_planes(wavelet_planes[0:-1],
+        if DEBUG:
+            for index, plane in enumerate(wavelet_planes):
+                images.plot(plane, "Plane " + str(index))
+
+        # FILTER WAVELET PLANES ###############################################
+
+        filtered_wavelet_planes = filter_planes(wavelet_planes,
                                                 method=type_of_filtering,
                                                 thresholds=filter_thresholds,
-                                                detect_only_positive_structures=detect_only_positive_structures,
-                                                debug=debug)
-        filtered_wavelet_planes.append(wavelet_planes[-1])     # Append the last (unfiltered) plane
+                                                detect_only_positive_structures=detect_only_positive_structures)
+
+        #if DEBUG:
+        #    for index, plane in enumerate(filtered_wavelet_planes):
+        #        images.plot(plane, "Filtered plane " + str(index))
+
+        # COMPUTE THE INVERSE TRANSFORM #######################################
 
         cleaned_image = inverse_wavelet_transform(filtered_wavelet_planes,
-                                                  last_plane=last_scale_treatment,
-                                                  debug=debug)
+                                                  last_plane=last_scale_treatment)
+        if DEBUG:
+            images.plot(cleaned_image, "Cleaned image")
 
-        # KILL ISOLATED PIXELS #################################
+        # KILL ISOLATED PIXELS ################################################
 
-        # TODO
-        #img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_isolated_pixels_stats(cleaned_img)
-        #img_cleaned_num_islands = number_of_islands(cleaned_img)
+        kill_islands = kill_isolated_pixels_stats(cleaned_image)
+        img_cleaned_islands_delta_pe, img_cleaned_islands_delta_abs_pe, img_cleaned_islands_delta_num_pixels = kill_islands
+        img_cleaned_num_islands = number_of_islands(cleaned_image)
 
-        #if output_data_dict is not None:
-        #    output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
-        #    output_data_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
-        #    output_data_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
-        #    output_data_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
+        if output_data_dict is not None:
+            output_data_dict["img_cleaned_islands_delta_pe"] = img_cleaned_islands_delta_pe
+            output_data_dict["img_cleaned_islands_delta_abs_pe"] = img_cleaned_islands_delta_abs_pe
+            output_data_dict["img_cleaned_islands_delta_num_pixels"] = img_cleaned_islands_delta_num_pixels
+            output_data_dict["img_cleaned_num_islands"] = img_cleaned_num_islands
 
-        #if kill_isolated_pixels:
-        #    if verbose:
-        #        print("Kill isolated pixels")
-        #    initial_time = time.perf_counter()
-        #    cleaned_img = scipy_kill_isolated_pixels(cleaned_img)
-        #    exec_time_sec = time.perf_counter() - initial_time
-        #    if output_data_dict is not None:
-        #        output_data_dict["scipy_kill_isolated_pixels_time_sec"] = exec_time_sec
+        if kill_isolated_pixels:
+            cleaned_image = scipy_kill_isolated_pixels(cleaned_image)
+            if DEBUG:
+                images.plot(cleaned_image, "Cleaned image after island kill")
 
         return cleaned_image
 
@@ -564,7 +586,7 @@ def main():
 
     if type_of_filtering not in AVAILABLE_TYPE_OF_FILTERING:
         raise ValueError('Unknown type of filterning: "{}". Should be in {}'.format(type_of_filtering,
-                                                                                   AVAILABLE_TYPE_OF_FILTERING))
+                                                                                    AVAILABLE_TYPE_OF_FILTERING))
 
     try:
         filter_thresholds = [float(threshold_str) for threshold_str in filter_thresholds_str.split(",")]
