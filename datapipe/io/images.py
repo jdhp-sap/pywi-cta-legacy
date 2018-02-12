@@ -842,7 +842,7 @@ def plot_ctapipe_image(image,
         disp.colorbar.ax.tick_params(labelsize=18)
 
     if highlight_mask is not None:
-        disp.highlight_pixels(mask, linewidth=4, color='white', alpha=0.9)
+        disp.highlight_pixels(highlight_mask, linewidth=4, color='white', alpha=0.9)
 
     if not plot_axis:
         disp.axes.set_axis_off()
