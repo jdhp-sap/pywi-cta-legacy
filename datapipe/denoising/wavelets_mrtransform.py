@@ -371,7 +371,7 @@ def inverse_wavelet_transform(wavelet_planes,
         # Only keep last plane's pixels that are *significant* in the others planes
         significant_pixels_mask = np.zeros(wavelet_planes[0].shape)
         for plane in wavelet_planes[0:-1]:
-            significant_pixels_mask[plane > 0] = 1
+            significant_pixels_mask[plane != 0] = 1
         output_image += wavelet_planes[-1] * significant_pixels_mask
 
     return output_image
