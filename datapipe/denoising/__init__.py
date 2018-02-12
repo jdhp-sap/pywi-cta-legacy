@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 __all__ = ['abstract_cleaning_algorithm',
+           'cdf',
            'fft',
            'null',
            'null_ref',
