@@ -120,7 +120,7 @@ from datapipe.image.kill_isolated_pixels import number_of_islands
 
 DEBUG = False
 
-AVAILABLE_TYPE_OF_FILTERING = ('hard_filtering', 'ksigma_hard_filtering')
+AVAILABLE_TYPE_OF_FILTERING = ('hard_filtering', 'ksigma_hard_filtering', 'common_hard_filtering')
 AVAILABLE_LAST_SCALE_OPTIONS = ('keep', 'drop', 'mask')
 
 DEFAULT_TYPE_OF_FILTERING = 'hard_filtering'
@@ -294,7 +294,7 @@ def filter_planes(wavelet_planes,
 
     for plane_index, plane in enumerate(wavelet_planes[0:-1]):
 
-        if method == 'hard_filtering':
+        if method in ('hard_filtering', 'common_hard_filtering'):
 
             if detect_only_positive_structures:
                 plane_mask = plane > thresholds[plane_index]
@@ -332,6 +332,21 @@ def filter_planes(wavelet_planes,
             images.plot(plane, title="Plane {}".format(plane_index))
             images.plot(plane_mask, title="Binary mask for plane {}".format(plane_index))
             images.plot(filtered_plane, title="Filtered plane {}".format(plane_index))
+
+    if method == 'common_hard_filtering':
+
+        # Use the same significant pixels on each plane
+
+        # Init the common pixel mask to "all pixels rejected"
+        common_significant_pixels_mask = np.zeros(wavelet_planes[0].shape)
+
+        for filtered_plane in filtered_wavelet_planes[0:-1]:
+            current_significant_pixels_mask = (np.isfinite(filtered_plane) * (filtered_plane != 0))
+            common_significant_pixels_mask = np.logical_or(common_significant_pixels_mask, current_significant_pixels_mask)
+
+        for plane_index, plane in enumerate(wavelet_planes[0:-1]):
+            filtered_plane = plane * common_significant_pixels_mask
+            filtered_wavelet_planes[plane_index] = filtered_plane
 
     return filtered_wavelet_planes
 
