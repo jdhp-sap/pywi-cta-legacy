@@ -280,37 +280,77 @@ lstcam_grid_prod3b_north)
     #TC_LTH="5" ;  # HESS
     #TC_LABEL="Tailcut-HESS-${TC_HTH}-${TC_LTH}" ;
 
-    #TC_HTH="6" ; # CTA Abelardo 1st pass
-    #TC_LTH="3" ; # CTA Abelardo 1st pass
-    #TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
+    TC_HTH="6" ; # CTA Abelardo 1st pass
+    TC_LTH="3" ; # CTA Abelardo 1st pass
+    TC_LABEL="Tailcut-CTA1-${TC_HTH}-${TC_LTH}" ;
 
     #TC_HTH="4" ; # CTA Abelardo 2nd pass
     #TC_LTH="2" ; # CTA Abelardo 2nd pass
     #TC_LABEL="Tailcut-CTA2-${TC_HTH}-${TC_LTH}" ;
 
-    TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
-    TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
-    TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
+    #TC_HTH="4" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
+    #TC_LTH="1" ;   # 2018/01/09 Brutforce Delta psi optim (res 1.0, 1000 img, mean, 30-2000 PE, missing img penalty: 90)
+    #TC_LABEL="Tailcut-BF1-${TC_HTH}-${TC_LTH}" ;
 
     # MR_FILTER ###############################################################
 
-    ## 2017/08 (presented in LaPalma CTA meeting 2017-11-05)
-    #WT_MRF_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
-    #WT_MRF_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
+    # 2017/08 (presented in LaPalma CTA meeting 2017-11-05)
+    WT_MRF_PARAMS="-K -k -C1 -m3 -n4 -s2,4.5,3.5,3 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRF_LABEL="WT-K-k-C1-m3-n4-s2-4.5-3.5-3" ;
 
     ## 2017/09/07 (BF res0.5)
     #WT_MRF_PARAMS="-K -k -C1 -m3 -n4 -s2,2.5,4,1 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
     #WT_MRF_LABEL="WT-K-k-C1-m3-n4-s2-2.5-4-1" ;
 
-    # 2017/10/24 (SAES)
-    WT_MRF_PARAMS="-K -k -C1 -m3 -n4 -s23.343,2.490,-2.856,-0.719 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
-    WT_MRF_LABEL="WT-K-k-C1-m3-n4-s23.343-2.490--2.856--0.719" ;
+    ## 2017/10/24 (SAES)
+    #WT_MRF_PARAMS="-K -k -C1 -m3 -n4 -s23.343,2.490,-2.856,-0.719 --kill-isolated-pixels --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    #WT_MRF_LABEL="WT-K-k-C1-m3-n4-s23.343-2.490--2.856--0.719" ;
 
     # MR_TRANSFORM ############################################################
 
     # 2017/02/14
     WT_MRT_PARAMS="-f hard_filtering -t 23.7,3.25,1. -L mask -p --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
     WT_MRT_LABEL="WT_MRT_-f_hard_filtering_-t_23.7_3.25_1._-L_mask_-p" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f hard_filtering -t 15.,2.,1. -L mask -p --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_hard_filtering_-t_15._2._1._-L_mask_-p" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f hard_filtering -t 13.,1.5 -L mask -p --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_hard_filtering_-t_13._1.5_-L_mask_-p" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f hard_filtering -t 13.,1.3 -L mask -p --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_hard_filtering_-t_13._1.3_-L_mask_-p" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f hard_filtering -t 10.,1.3 -L mask -p --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_hard_filtering_-t_10._1.3_-L_mask_-p" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f hard_filtering -t 7.5,1.3 -L mask -p --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_hard_filtering_-t_7.5_1.3_-L_mask_-p" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f common_hard_filtering -t 15.,2.,1. -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_15._2._1._-L_mask" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f common_hard_filtering -t 13.,1.5 -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_13._1.5_-L_mask" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f common_hard_filtering -t 13.,1.3 -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_13._1.3_-L_mask" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f common_hard_filtering -t 10.,1.3 -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_10._1.3_-L_mask" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f common_hard_filtering -t 7.5,1.3 -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_7.5_1.3_-L_mask" ;
     ;;
 *)
     echo "Unknown option" ;
