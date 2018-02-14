@@ -395,8 +395,8 @@ sleep 5
 echo "* NULL (REF.)"  & ./datapipe/denoising/null_ref.py             -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Ref"                      -o score_gamma_ref.json          ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_ref.json.log ;
 echo "* NULL (INPUT)" & ./datapipe/denoising/null.py                 -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Input"                    -o score_gamma_input.json        ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_all_null_input.json.log ;
 echo "* GAMMA TC"     & ./datapipe/denoising/tailcut.py              -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${TC_LABEL}" ${TC_PARAMS} -o score_gamma_${TC_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${TC_LABEL}.json.log ;
-#echo "* GAMMA WT MRF" & ./datapipe/denoising/wavelets_mrfilter.py    -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_MRF_LABEL}" ${WT_MRF_PARAMS} -o score_gamma_${WT_MRF_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_MRF_LABEL}.json.log ;
-#for FILE in ${MR_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
+echo "* GAMMA WT MRF" & ./datapipe/denoising/wavelets_mrfilter.py    -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_MRF_LABEL}" ${WT_MRF_PARAMS} -o score_gamma_${WT_MRF_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_MRF_LABEL}.json.log ;
+for FILE in ${MR_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 echo "* GAMMA WT MRT" & ./datapipe/denoising/wavelets_mrtransform.py -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_MRT_LABEL}" ${WT_MRT_PARAMS} -o score_gamma_${WT_MRT_LABEL}.json  ${GAMMA_FITS_DIR} 2>&1 | tee score_gamma_${WT_MRT_LABEL}.json.log ;
 for FILE in ${MR_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 
@@ -407,7 +407,7 @@ for FILE in ${MR_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 echo "* NULL (REF.)"   & ./datapipe/denoising/null_ref.py             -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Ref"                      -o score_proton_ref.json         ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_ref.json.log ;
 echo "* NULL (INPUT)"  & ./datapipe/denoising/null.py                 -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="Input"                    -o score_proton_input.json       ${PROTON_FITS_DIR} 2>&1 | tee score_proton_all_null_input.json.log ;
 echo "* PROTON TC"     & ./datapipe/denoising/tailcut.py              -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${TC_LABEL}" ${TC_PARAMS} -o score_proton_${TC_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${TC_LABEL}.json.log ;
-#echo "* PROTON WT MRF" & ./datapipe/denoising/wavelets_mrfilter.py    -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_MRF_LABEL}" ${WT_MRF_PARAMS} -o score_proton_${WT_MRF_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_MRF_LABEL}.json.log ;
-#for FILE in ${MR_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
+echo "* PROTON WT MRF" & ./datapipe/denoising/wavelets_mrfilter.py    -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_MRF_LABEL}" ${WT_MRF_PARAMS} -o score_proton_${WT_MRF_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_MRF_LABEL}.json.log ;
+for FILE in ${MR_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
 echo "* PROTON WT MRT" & ./datapipe/denoising/wavelets_mrtransform.py -b all --max-images ${NUM_IMG} --camid ${CAM_ID} --label="${WT_MRT_LABEL}" ${WT_MRT_PARAMS} -o score_proton_${WT_MRT_LABEL}.json ${PROTON_FITS_DIR} 2>&1 | tee score_proton_${WT_MRT_LABEL}.json.log ;
 for FILE in ${MR_TMP_DIR}/.tmp*.fits ; do rm $FILE ; done
