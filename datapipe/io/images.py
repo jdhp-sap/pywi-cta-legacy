@@ -56,6 +56,8 @@ import ctapipe.visualization
 from datapipe.image.hillas_parameters import get_hillas_parameters
 from datapipe.io import geometry_converter
 
+DEBUG = False
+
 # EXCEPTIONS #################################################################
 
 class FitsError(Exception):
@@ -107,6 +109,30 @@ class WrongFitsFileStructure(FitsError):
     def __init__(self, file_path):
         super().__init__("File {} doesn't contain a valid structure.".format(file_path))
         self.file_path = file_path
+
+
+# FILL NAN PIXELS #############################################################
+
+def fill_nan_pixels(image, noise_distribution=None):
+    # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
+    nan_mask = np.isnan(image)
+
+    if DEBUG:
+        print(image)
+        plot(image, "In")
+        plot(nan_mask, "Mask")
+
+    if noise_distribution is not None:
+        nan_noise_size = np.count_nonzero(nan_mask)
+        image[nan_mask] = noise_distribution.rvs(size=nan_noise_size)
+    else:
+        image[nan_mask] = 0
+
+    if DEBUG:
+        print(image)
+        plot(image, "Noise injected")
+
+    return nan_mask
 
 
 # DIRECTORY PARSER ############################################################

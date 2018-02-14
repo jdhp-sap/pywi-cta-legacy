@@ -194,22 +194,7 @@ def wavelet_transform(input_image,
 
     # TODO: should this noise injection be done in the abstract 'run()' function ?
 
-    # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
-
-    if noise_distribution is not None:
-        nan_mask = np.isnan(input_image)
-
-        if DEBUG:
-            print(input_image)
-            images.plot(input_image, "In")
-            images.plot(nan_mask, "Mask")
-
-        nan_noise_size = np.count_nonzero(nan_mask)
-        input_image[nan_mask] = noise_distribution.rvs(size=nan_noise_size)
-
-        if DEBUG:
-            print(input_image)
-            images.plot(input_image, "Noise injected")
+    nan_mask = images.fill_nan_pixels(input_image, noise_distribution)
 
     # DO THE WAVELET TRANSFORM #############################################
 

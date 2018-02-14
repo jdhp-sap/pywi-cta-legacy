@@ -339,22 +339,8 @@ class WaveletTransform(AbstractCleaningAlgorithm):
         # INJECT NOISE IN NAN ##################################
 
         # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
-        nan_mask = np.isnan(input_img)
 
-        if DEBUG:
-            print(input_img)
-            images.plot(input_img, "In")
-            images.plot(nan_mask, "Mask")
-
-        if noise_distribution is not None:
-            nan_noise_size = np.count_nonzero(nan_mask)
-            input_img[nan_mask] = noise_distribution.rvs(size=nan_noise_size)
-
-            #print("* Noise injection ON")
-
-        if DEBUG:
-            print(input_img)
-            images.plot(input_img, "Noise injected")
+        nan_mask = images.fill_nan_pixels(input_img, noise_distribution)
 
         # APPLY AN OFFSET ######################################
 
