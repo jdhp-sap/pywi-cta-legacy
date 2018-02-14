@@ -266,7 +266,6 @@ def filter_planes(wavelet_planes,
                   method=DEFAULT_TYPE_OF_FILTERING,
                   thresholds=DEFAULT_FILTER_THRESHOLDS,
                   detect_only_positive_structures=False):
-                  #**kwargs):
     """Filter the wavelet planes.
 
     The last plane (called residuals) is kept unmodified.
