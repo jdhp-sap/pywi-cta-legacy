@@ -1,0 +1,1163 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>datapipe.benchmark.assess &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="SAp CTA data pipeline 0.1.dev4 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SAp CTA data pipeline
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer’s notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SAp CTA data pipeline</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>datapipe.benchmark.assess</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for datapipe.benchmark.assess</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)</span>
+
+<span class="c1"># This script is provided under the terms and conditions of the MIT license:</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normalize_array&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_mse&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_nrmse&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric1&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric2&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric3&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric4&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_ssim&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_psnr&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_delta_psi&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_hillas_delta&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_hillas_delta2&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;metric_kill_isolated_pixels&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;assess_image_cleaning&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">datapipe.image.hillas_parameters</span> <span class="k">import</span> <span class="n">get_hillas_parameters</span>
+
+<span class="kn">from</span> <span class="nn">datapipe.image.kill_isolated_pixels</span> <span class="k">import</span> <span class="n">kill_isolated_pixels</span>
+<span class="kn">from</span> <span class="nn">datapipe.image.kill_isolated_pixels</span> <span class="k">import</span> <span class="n">kill_isolated_pixels_stats</span>
+
+<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="k">import</span> <span class="n">compare_ssim</span> <span class="k">as</span> <span class="n">ssim</span>
+<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="k">import</span> <span class="n">compare_psnr</span> <span class="k">as</span> <span class="n">psnr</span>
+<span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="k">import</span> <span class="n">compare_nrmse</span> <span class="k">as</span> <span class="n">nrmse</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># EXCEPTIONS                                                                  #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="k">class</span> <span class="nc">AssessError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">UnknownMethod</span><span class="p">(</span><span class="n">AssessError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">EmptyOutputImageError</span><span class="p">(</span><span class="n">AssessError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception raised when the output image only have null pixels (to prevent</span>
+<span class="sd">    division by 0 in the assess function).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EmptyOutputImageError</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Empty output image error&quot;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">EmptyReferenceImageError</span><span class="p">(</span><span class="n">AssessError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception raised when the reference image only have null pixels (to prevent</span>
+<span class="sd">    division by 0 in the assess function).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EmptyReferenceImageError</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;Empty reference image error&quot;</span><span class="p">)</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># TOOL FUNCTIONS                                                              #</span>
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="normalize_array"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.normalize_array">[docs]</a><span class="k">def</span> <span class="nf">normalize_array</span><span class="p">(</span><span class="n">input_array</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize the given image such that its pixels value fit between 0.0</span>
+<span class="sd">    and 1.0.</span>
+
+<span class="sd">    It applies</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{normalize}(\boldsymbol{S}) = \frac{ \boldsymbol{S} - \text{min}(\boldsymbol{S}) }{ \text{max}(\boldsymbol{S}) - \text{min}(\boldsymbol{S}) }</span>
+
+<span class="sd">    where :math:`\boldsymbol{S}` is the input array (an image).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image : Numpy array</span>
+<span class="sd">        The image to normalize (whatever its shape)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Numpy array</span>
+<span class="sd">        The normalized version of the input image (keeping the same dimension</span>
+<span class="sd">        and shape)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">input_array</span> <span class="o">=</span> <span class="n">input_array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">min_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span>
+    <span class="n">max_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span>
+
+    <span class="n">output_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_array</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_value</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_array</span></div>
+
+
+<span class="k">def</span> <span class="nf">norm_angle_diff</span><span class="p">(</span><span class="n">angle_in_degrees</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normalize the difference of 2 angles in degree.</span>
+
+<span class="sd">    This function is used to normalize the &quot;delta psi&quot; angle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(((</span><span class="n">angle_in_degrees</span> <span class="o">+</span> <span class="mi">90</span><span class="p">)</span> <span class="o">%</span> <span class="mi">180</span><span class="p">)</span> <span class="o">-</span> <span class="mf">90.</span><span class="p">)</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># METRIC FUNCTIONS                                                            #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1"># Mean-Squared Error (MSE) ####################################################</span>
+
+<div class="viewcode-block" id="metric_mse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_mse">[docs]</a><span class="k">def</span> <span class="nf">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the *Mean-Squared Error* (MSE) metric.</span>
+
+<span class="sd">    It applies</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{MSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \hat{\boldsymbol{S}} - \boldsymbol{S}^* \right)^{\circ 2} \right\rangle</span>
+
+<span class="sd">    with:</span>
+<span class="sd">    </span>
+<span class="sd">    - :math:`\hat{\boldsymbol{S}}` the algorithm&#39;s output image (i.e. the</span>
+<span class="sd">      *cleaned* image);</span>
+<span class="sd">    - :math:`\boldsymbol{S}^*` the reference image (i.e. the *clean* image);</span>
+<span class="sd">    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix</span>
+<span class="sd">      :math:`\boldsymbol{S}`;</span>
+<span class="sd">    - :math:`\boldsymbol{S}^{\circ 2}` the</span>
+<span class="sd">      `Hadamar power &lt;https://en.wikipedia.org/wiki/Hadamard_product_(matrices)#Analogous_operations&gt;`_</span>
+<span class="sd">      (i.e. the element wise square) of matrix :math:`\boldsymbol{S}`.</span>
+
+<span class="sd">    See http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-mse</span>
+<span class="sd">    for more information.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This function is not well-suited to high dynamic range images handled with</span>
+<span class="sd">    this project (errors are correlated with energy levels).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">output_image</span> <span class="o">-</span> <span class="n">reference_image</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span></div>
+
+
+<span class="c1"># Normalized Root Mean-Squared Error (NRMSE) ##################################</span>
+
+<div class="viewcode-block" id="metric_nrmse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_nrmse">[docs]</a><span class="k">def</span> <span class="nf">metric_nrmse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the *Normalized Root Mean-Squared Error* (NRMSE) metric.</span>
+
+<span class="sd">    It applies</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{NRMSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{\sqrt{\text{MSE}}}{\sqrt{ \left\langle \hat{\boldsymbol{S}} \circ \boldsymbol{S}^* \right\rangle }}</span>
+
+<span class="sd">    with:</span>
+<span class="sd">    </span>
+<span class="sd">    - :math:`\hat{\boldsymbol{S}}` the algorithm&#39;s output image (i.e. the</span>
+<span class="sd">      *cleaned* image);</span>
+<span class="sd">    - :math:`\boldsymbol{S}^*` the reference image (i.e. the *clean* image);</span>
+<span class="sd">    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix</span>
+<span class="sd">      :math:`\boldsymbol{S}`;</span>
+<span class="sd">    - :math:`\circ` the</span>
+<span class="sd">      `Hadamar product &lt;https://en.wikipedia.org/wiki/Hadamard_product_(matrices)&gt;`_</span>
+<span class="sd">      (i.e. the element wise product operator).</span>
+
+<span class="sd">    See http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-nrmse and</span>
+<span class="sd">    https://en.wikipedia.org/wiki/Root-mean-square_deviation for more information.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1">#if (params is not None) and (&#39;nrmse_normalize_type&#39; in params) and (params[&#39;nrmse_normalize_type&#39;].lower() == &#39;euclidian&#39;):</span>
+    <span class="c1">#    denom = </span>
+    <span class="c1"># TODO: see https://github.com/scikit-image/scikit-image/blob/master/skimage/measure/simple_metrics.py#L82</span>
+
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">((</span><span class="n">reference_image</span> <span class="o">*</span> <span class="n">output_image</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span></div>
+
+
+<span class="c1"># Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################</span>
+
+<div class="viewcode-block" id="metric1"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric1">[docs]</a><span class="k">def</span> <span class="nf">metric1</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with a (unusually) normalized version of the *Root Mean-Squared Error*</span>
+<span class="sd">    (RMSE) metric.</span>
+
+<span class="sd">    It applies</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{uNRMSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \left( \hat{\boldsymbol{S}}_n - \boldsymbol{S}^*_n \right)^{\circ 2} \right)^{\circ \frac{1}{2}} \right\rangle</span>
+
+<span class="sd">    with:</span>
+<span class="sd">    </span>
+<span class="sd">    - :math:`\hat{\boldsymbol{S}}_n`</span>
+<span class="sd">      the algorithm&#39;s normalized output image (i.e. the *cleaned* image),</span>
+<span class="sd">      (using :func:`normalize_array`);</span>
+<span class="sd">    - :math:`\boldsymbol{S}^*_n`</span>
+<span class="sd">      the normalized reference image (i.e. the *clean* image)</span>
+<span class="sd">      (using :func:`normalize_array`);</span>
+<span class="sd">    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix</span>
+<span class="sd">      :math:`\boldsymbol{S}`;</span>
+<span class="sd">    - :math:`\boldsymbol{S}^{\circ 2}` the</span>
+<span class="sd">      `Hadamar power &lt;https://en.wikipedia.org/wiki/Hadamard_product_(matrices)#Analogous_operations&gt;`_</span>
+<span class="sd">      (i.e. the element wise square) of matrix :math:`\boldsymbol{S}`.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This function is not robust to noise on extreme values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">normalize_array</span><span class="p">(</span><span class="n">output_image</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">normalize_array</span><span class="p">(</span><span class="n">reference_image</span><span class="p">)</span>
+
+    <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">output_image</span> <span class="o">-</span> <span class="n">reference_image</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span></div>
+
+
+<span class="c1"># Mean Pixel Difference 2 #####################################################</span>
+
+<div class="viewcode-block" id="metric2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric2">[docs]</a><span class="k">def</span> <span class="nf">metric2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the :math:`\mathcal{E}_{\text{shape}}` metric.</span>
+
+<span class="sd">    It applies</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \text{abs} \left( \frac{\hat{\boldsymbol{S}}}{\sum_i \hat{\boldsymbol{S}}_i} - \frac{\boldsymbol{S}^*}{\sum_i \boldsymbol{S}^*_i} \right) \right\rangle</span>
+
+<span class="sd">    with:</span>
+<span class="sd">    </span>
+<span class="sd">    - :math:`\hat{\boldsymbol{S}}` the algorithm&#39;s output image</span>
+<span class="sd">      (i.e. the *cleaned* image);</span>
+<span class="sd">    - :math:`\boldsymbol{S}^*` the reference image (i.e. the *clean* image);</span>
+<span class="sd">    - :math:`\langle \boldsymbol{S} \rangle` the average of matrix</span>
+<span class="sd">      :math:`\boldsymbol{S}`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">sum_output_image</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">output_image</span><span class="p">))</span>
+    <span class="n">sum_reference_image</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">reference_image</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">sum_output_image</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>                 <span class="c1"># TODO</span>
+        <span class="k">raise</span> <span class="n">EmptyOutputImageError</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">sum_reference_image</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>              <span class="c1"># TODO</span>
+        <span class="k">raise</span> <span class="n">EmptyReferenceImageError</span><span class="p">()</span>
+
+    <span class="n">mark</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">output_image</span> <span class="o">/</span> <span class="n">sum_output_image</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">reference_image</span> <span class="o">/</span> <span class="n">sum_reference_image</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">mark</span><span class="p">)</span></div>
+
+
+<span class="c1"># Relative Total Counts Difference (mpdspd) ###################################</span>
+
+<div class="viewcode-block" id="metric3"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric3">[docs]</a><span class="k">def</span> <span class="nf">metric3</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the :math:`\mathcal{E}^+_{\text{energy}}`</span>
+<span class="sd">    (a.k.a. *relative total counts difference*) metric.</span>
+
+<span class="sd">    It applies</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{ \text{abs} \left( \sum_i \hat{\boldsymbol{S}}_i - \sum_i \boldsymbol{S}^*_i \right) }{ \sum_i \boldsymbol{S}^*_i }</span>
+
+<span class="sd">    with :math:`\hat{\boldsymbol{S}}` the algorithm&#39;s output image</span>
+<span class="sd">    (i.e. the *cleaned* image)</span>
+<span class="sd">    and :math:`\boldsymbol{S}^*` the reference image</span>
+<span class="sd">    (i.e. the *clean* image).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">sum_output_image</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">output_image</span><span class="p">))</span>
+    <span class="n">sum_reference_image</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">reference_image</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">sum_reference_image</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>              <span class="c1"># TODO</span>
+        <span class="k">raise</span> <span class="n">EmptyReferenceImageError</span><span class="p">()</span>
+
+    <span class="n">mark</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sum_output_image</span> <span class="o">-</span> <span class="n">sum_reference_image</span><span class="p">)</span> <span class="o">/</span> <span class="n">sum_reference_image</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">mark</span><span class="p">)</span></div>
+
+
+<span class="c1"># Signed Relative Total Counts Difference (sspd) ##############################</span>
+
+<div class="viewcode-block" id="metric4"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric4">[docs]</a><span class="k">def</span> <span class="nf">metric4</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the :math:`\mathcal{E}_{\text{energy}}`</span>
+<span class="sd">    (a.k.a. *signed relative total counts difference*) metric.</span>
+<span class="sd">    </span>
+<span class="sd">    It applies</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{ \sum_i \hat{\boldsymbol{S}}_i - \sum_i \boldsymbol{S}^*_i }{ \sum_i \boldsymbol{S}^*_i }</span>
+
+<span class="sd">    with :math:`\hat{\boldsymbol{S}}` the algorithm&#39;s output image</span>
+<span class="sd">    (i.e. the *cleaned* image)</span>
+<span class="sd">    and :math:`\boldsymbol{S}^*` the reference image</span>
+<span class="sd">    (i.e. the *clean* image).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">sum_output_image</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">output_image</span><span class="p">))</span>
+    <span class="n">sum_reference_image</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">reference_image</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">sum_reference_image</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>              <span class="c1"># TODO</span>
+        <span class="k">raise</span> <span class="n">EmptyReferenceImageError</span><span class="p">()</span>
+
+    <span class="n">mark</span> <span class="o">=</span> <span class="p">(</span><span class="n">sum_output_image</span> <span class="o">-</span> <span class="n">sum_reference_image</span><span class="p">)</span> <span class="o">/</span> <span class="n">sum_reference_image</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">mark</span><span class="p">)</span></div>
+
+
+<span class="c1"># Structural Similarity Index Measure (SSIM) ##################################</span>
+
+<div class="viewcode-block" id="metric_ssim"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_ssim">[docs]</a><span class="k">def</span> <span class="nf">metric_ssim</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the *Structural Similarity Index Measure* (SSIM) metric.</span>
+
+<span class="sd">    See [1]_, [2]_, [3]_ and [4]_ for more information.</span>
+<span class="sd">    </span>
+<span class="sd">    The SSIM index is calculated on various windows of an image.</span>
+<span class="sd">    The measure between two windows :math:`x` and :math:`y` of common size</span>
+<span class="sd">    :math:`N.N` is:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \hbox{SSIM}(x,y) = \frac{(2\mu_x\mu_y + c_1)(2\sigma_{xy} + c_2)}{(\mu_x^2 + \mu_y^2 + c_1)(\sigma_x^2 + \sigma_y^2 + c_2)}</span>
+
+<span class="sd">    with:</span>
+
+<span class="sd">    * :math:`\scriptstyle\mu_x` the average of :math:`\scriptstyle x`;</span>
+<span class="sd">    * :math:`\scriptstyle\mu_y` the average of :math:`\scriptstyle y`;</span>
+<span class="sd">    * :math:`\scriptstyle\sigma_x^2` the variance of :math:`\scriptstyle x`;</span>
+<span class="sd">    * :math:`\scriptstyle\sigma_y^2` the variance of :math:`\scriptstyle y`;</span>
+<span class="sd">    * :math:`\scriptstyle \sigma_{xy}` the covariance of :math:`\scriptstyle x` and :math:`\scriptstyle y`;</span>
+<span class="sd">    * :math:`\scriptstyle c_1 = (k_1L)^2`, :math:`\scriptstyle c_2 = (k_2L)^2` two variables to stabilize the division with weak denominator;</span>
+<span class="sd">    * :math:`\scriptstyle L` the dynamic range of the pixel-values (typically this is :math:`\scriptstyle 2^{\#bits\ per\ pixel}-1`);</span>
+<span class="sd">    * :math:`\scriptstyle k_1 = 0.01` and :math:`\scriptstyle k_2 = 0.03` by default.</span>
+
+<span class="sd">    The SSIM index satisfies the condition of symmetry:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{SSIM}(x, y) = \text{SSIM}(y, x)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Wang, Z., Bovik, A. C., Sheikh, H. R., &amp; Simoncelli, E. P.</span>
+<span class="sd">       (2004). Image quality assessment: From error visibility to</span>
+<span class="sd">       structural similarity. IEEE Transactions on Image Processing,</span>
+<span class="sd">       13, 600-612.</span>
+<span class="sd">       https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf,</span>
+<span class="sd">       DOI:10.1.1.11.2477</span>
+<span class="sd">    .. [2] Avanaki, A. N. (2009). Exact global histogram specification</span>
+<span class="sd">       optimized for structural similarity. Optical Review, 16, 613-621.</span>
+<span class="sd">       http://arxiv.org/abs/0901.0065,</span>
+<span class="sd">       DOI:10.1007/s10043-009-0119-z</span>
+<span class="sd">    .. [3] http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-ssim</span>
+<span class="sd">    .. [4] https://en.wikipedia.org/wiki/Structural_similarity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO: the following two lines may be wrong...</span>
+    <span class="n">output_image</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">output_image</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">reference_image</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">reference_image</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">ssim_val</span><span class="p">,</span> <span class="n">ssim_image</span> <span class="o">=</span> <span class="n">ssim</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gaussian_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">ssim_val</span><span class="p">)</span></div>
+
+
+<span class="c1"># Peak Signal-to-Noise Ratio (PSNR) ###########################################</span>
+
+<div class="viewcode-block" id="metric_psnr"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_psnr">[docs]</a><span class="k">def</span> <span class="nf">metric_psnr</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the *Peak Signal-to-Noise Ratio* (PSNR) metric.</span>
+
+<span class="sd">    See [5]_ and [6]_ for more information.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [5] http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.compare_psnr</span>
+<span class="sd">    .. [6] https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO: the following two lines may be wrong...</span>
+    <span class="n">output_image</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">output_image</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">reference_image</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">reference_image</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1">#psnr_val = psnr(output_image, reference_image, dynamic_range=1e3)</span>
+    <span class="n">psnr_val</span> <span class="o">=</span> <span class="n">psnr</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">data_range</span><span class="o">=</span><span class="mf">1e3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">psnr_val</span><span class="p">)</span></div>
+
+
+<span class="c1"># Delta psi ###################################################################</span>
+
+<div class="viewcode-block" id="metric_delta_psi"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_delta_psi">[docs]</a><span class="k">def</span> <span class="nf">metric_delta_psi</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the following relative *psi parameters* (relative difference of shower angle between the cleaned image and the reference image).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
+        <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
+        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">kill_isolated_pixels</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;hillas_implementation&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
+        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">output_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
+    <span class="n">reference_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
+
+    <span class="c1"># Psi (shower direction angle)</span>
+    <span class="n">output_image_parameter_psi_rad</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_psi_rad</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_psi_rad</span> <span class="o">=</span> <span class="n">reference_image_parameter_psi_rad</span> <span class="o">-</span> <span class="n">output_image_parameter_psi_rad</span>
+
+    <span class="n">normalized_delta_psi_deg</span> <span class="o">=</span> <span class="n">norm_angle_diff</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">delta_psi_rad</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">normalized_delta_psi_deg</span></div>
+
+
+<span class="c1"># Hillas delta ################################################################</span>
+
+<div class="viewcode-block" id="metric_hillas_delta"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the following relative *Hillas parameters*:</span>
+
+<span class="sd">    * :math:`\Delta_{\text{size}}   = \text{reference_image}_{\text{size}}   - \text{output_image}_{\text{size_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{cen_x}}  = \text{reference_image}_{\text{cen_x}}  - \text{output_image}_{\text{cen_x_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{cen_y}}  = \text{reference_image}_{\text{cen_y}}  - \text{output_image}_{\text{cen_y_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{length}} = \text{reference_image}_{\text{length}} - \text{output_image}_{\text{length_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{width}}  = \text{reference_image}_{\text{width}}  - \text{output_image}_{\text{width_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{r}}      = \text{reference_image}_{\text{r}}      - \text{output_image}_{\text{r_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{phi}}    = \text{reference_image}_{\text{phi}}    - \text{output_image}_{\text{phi_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{psi}}    = \text{reference_image}_{\text{psi}}    - \text{output_image}_{\text{psi_out}}`</span>
+<span class="sd">    * :math:`\Delta_{\text{miss}}   = \text{reference_image}_{\text{miss}}   - \text{output_image}_{\text{miss_out}}`</span>
+
+<span class="sd">    See http://adsabs.harvard.edu/abs/1989ApJ...342..379W for more details</span>
+<span class="sd">    about Hillas parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    namedtuple</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Copy and cast images to prevent tricky bugs</span>
+    <span class="c1"># See https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.astype.html#numpy-ndarray-astype</span>
+    <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
+        <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
+        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">kill_isolated_pixels</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;hillas_implementation&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
+        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">output_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
+    <span class="n">reference_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
+
+    <span class="c1">#print(reference_image_parameters)</span>
+
+    <span class="c1"># Size</span>
+    <span class="n">output_image_parameter_size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">output_image_parameters</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">reference_image_parameter_size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">delta_size</span> <span class="o">=</span> <span class="n">reference_image_parameter_size</span> <span class="o">-</span> <span class="n">output_image_parameter_size</span>
+
+    <span class="c1"># Centroid x</span>
+    <span class="n">output_image_parameter_cen_x</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">cen_x</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_cen_x</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">cen_x</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_cen_x</span> <span class="o">=</span> <span class="n">reference_image_parameter_cen_x</span> <span class="o">-</span> <span class="n">output_image_parameter_cen_x</span>
+
+    <span class="c1"># Centroid y</span>
+    <span class="n">output_image_parameter_cen_y</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">cen_y</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_cen_y</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">cen_y</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_cen_y</span> <span class="o">=</span> <span class="n">reference_image_parameter_cen_y</span> <span class="o">-</span> <span class="n">output_image_parameter_cen_y</span>
+
+    <span class="c1"># Length</span>
+    <span class="n">output_image_parameter_length</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_length</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_length</span> <span class="o">=</span> <span class="n">reference_image_parameter_length</span> <span class="o">-</span> <span class="n">output_image_parameter_length</span>
+
+    <span class="c1"># Width</span>
+    <span class="n">output_image_parameter_width</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_width</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_width</span> <span class="o">=</span> <span class="n">reference_image_parameter_width</span> <span class="o">-</span> <span class="n">output_image_parameter_width</span>
+
+    <span class="c1"># R</span>
+    <span class="n">output_image_parameter_r</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_r</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_r</span> <span class="o">=</span> <span class="n">reference_image_parameter_r</span> <span class="o">-</span> <span class="n">output_image_parameter_r</span>
+
+    <span class="c1"># Phi</span>
+    <span class="n">output_image_parameter_phi</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_phi</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_phi</span> <span class="o">=</span> <span class="n">reference_image_parameter_phi</span> <span class="o">-</span> <span class="n">output_image_parameter_phi</span>
+
+    <span class="c1"># Psi (shower direction angle)</span>
+    <span class="n">output_image_parameter_psi_rad</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">reference_image_parameter_psi_rad</span> <span class="o">=</span> <span class="n">reference_image_parameters</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">delta_psi_rad</span> <span class="o">=</span> <span class="n">reference_image_parameter_psi_rad</span> <span class="o">-</span> <span class="n">output_image_parameter_psi_rad</span>
+
+    <span class="c1"># Normalized psi</span>
+    <span class="n">normalized_delta_psi</span> <span class="o">=</span> <span class="n">norm_angle_diff</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">delta_psi_rad</span><span class="p">))</span>
+
+    <span class="c1">## Miss</span>
+    <span class="c1">#output_image_parameter_miss = output_image_parameters.miss.value</span>
+    <span class="c1">#reference_image_parameter_miss = reference_image_parameters.miss.value</span>
+    <span class="c1">#delta_miss = reference_image_parameter_miss - output_image_parameter_miss</span>
+
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
+        <span class="n">suffix_str</span> <span class="o">=</span> <span class="s1">&#39;_kill&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">suffix_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="n">score_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">((</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_size&#39;</span>     <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_size</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_cen_x&#39;</span>    <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_cen_x</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_cen_y&#39;</span>    <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_cen_y</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_length&#39;</span>   <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_length</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_width&#39;</span>    <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_width</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_r&#39;</span>        <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_r</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_phi&#39;</span>      <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_phi</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_psi&#39;</span>      <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">delta_psi_rad</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;hillas&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">hillas_implementation</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_delta_psi_norm&#39;</span> <span class="o">+</span> <span class="n">suffix_str</span><span class="p">,</span> <span class="n">normalized_delta_psi</span><span class="p">),</span>
+                    <span class="c1">#(&#39;hillas&#39; + str(hillas_implementation) + &#39;_delta_miss&#39;    + suffix_str, delta_miss)</span>
+                 <span class="p">))</span>
+
+    <span class="n">Score</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Score&#39;</span><span class="p">,</span> <span class="n">score_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">Score</span><span class="p">(</span><span class="o">**</span><span class="n">score_dict</span><span class="p">)</span></div>
+
+
+<span class="c1"># Hillas delta 2 ##############################################################</span>
+
+<div class="viewcode-block" id="metric_hillas_delta2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta2">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
+<span class="sd">    with the *Hillas parameters*.</span>
+
+<span class="sd">    It works exactly like :func:`metric_hillas_delta` except that isolated</span>
+<span class="sd">    pixels are removed from the ``reference_image`` before the evaluation</span>
+<span class="sd">    (using :func:`datapipe.image.kill_isolated_pixels`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_image: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_image: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    namedtuple</span>
+<span class="sd">        The score of the image cleaning algorithm for the given image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span>   <span class="c1"># TODO: don&#39;t give an hardcoded value</span>
+
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">scores</span></div>
+
+
+<span class="c1"># Kill isolated pixels ########################################################</span>
+
+<span class="k">def</span> <span class="nf">metric_kill_isolated_pixels</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">delta_pe</span><span class="p">,</span> <span class="n">delta_abs_pe</span><span class="p">,</span> <span class="n">delta_num_pixels</span> <span class="o">=</span> <span class="n">kill_isolated_pixels_stats</span><span class="p">(</span><span class="n">output_image</span><span class="p">)</span>
+
+    <span class="n">score_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">((</span>
+                    <span class="p">(</span><span class="s1">&#39;kill_isolated_pixels_delta_pe&#39;</span><span class="p">,</span>         <span class="n">delta_pe</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;kill_isolated_pixels_delta_abs_pe&#39;</span><span class="p">,</span>     <span class="n">delta_abs_pe</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;kill_isolated_pixels_delta_num_pixels&#39;</span><span class="p">,</span> <span class="n">delta_num_pixels</span><span class="p">)</span>
+                 <span class="p">))</span>
+
+    <span class="n">Score</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Score&#39;</span><span class="p">,</span> <span class="n">score_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">Score</span><span class="p">(</span><span class="o">**</span><span class="n">score_dict</span><span class="p">)</span>
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># ASSESS FUNCTIONS DRIVER                                                     #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="n">BENCHMARK_DICT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mse&quot;</span><span class="p">:</span>                  <span class="p">(</span><span class="n">metric_mse</span><span class="p">,),</span>
+    <span class="s2">&quot;nrmse&quot;</span><span class="p">:</span>                <span class="p">(</span><span class="n">metric_nrmse</span><span class="p">,),</span>
+    <span class="s2">&quot;unrmse&quot;</span><span class="p">:</span>               <span class="p">(</span><span class="n">metric1</span><span class="p">,),</span>
+    <span class="s2">&quot;e_shape&quot;</span><span class="p">:</span>              <span class="p">(</span><span class="n">metric2</span><span class="p">,),</span>
+    <span class="s2">&quot;e_energy&quot;</span><span class="p">:</span>             <span class="p">(</span><span class="n">metric3</span><span class="p">,),</span>
+    <span class="s2">&quot;mpdspd&quot;</span><span class="p">:</span>               <span class="p">(</span><span class="n">metric2</span><span class="p">,</span> <span class="n">metric3</span><span class="p">),</span>
+    <span class="s2">&quot;sspd&quot;</span><span class="p">:</span>                 <span class="p">(</span><span class="n">metric4</span><span class="p">,),</span>
+    <span class="s2">&quot;ssim&quot;</span><span class="p">:</span>                 <span class="p">(</span><span class="n">metric_ssim</span><span class="p">,),</span>
+    <span class="s2">&quot;psnr&quot;</span><span class="p">:</span>                 <span class="p">(</span><span class="n">metric_psnr</span><span class="p">,),</span>
+    <span class="s2">&quot;delta_psi&quot;</span><span class="p">:</span>            <span class="p">(</span><span class="n">metric_delta_psi</span><span class="p">,),</span>
+    <span class="s2">&quot;hillas_delta&quot;</span><span class="p">:</span>         <span class="p">(</span><span class="n">metric_hillas_delta</span><span class="p">,),</span>
+    <span class="s2">&quot;hillas_delta2&quot;</span><span class="p">:</span>        <span class="p">(</span><span class="n">metric_hillas_delta2</span><span class="p">,),</span>
+    <span class="s2">&quot;kill_isolated_pixels&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">metric_kill_isolated_pixels</span><span class="p">,),</span>
+    <span class="s2">&quot;all&quot;</span><span class="p">:</span>                  <span class="p">(</span><span class="n">metric_mse</span><span class="p">,</span> <span class="n">metric_nrmse</span><span class="p">,</span> <span class="n">metric2</span><span class="p">,</span> <span class="n">metric3</span><span class="p">,</span> <span class="n">metric4</span><span class="p">,</span> <span class="n">metric_ssim</span><span class="p">,</span> <span class="n">metric_psnr</span><span class="p">,</span> <span class="n">metric_hillas_delta</span><span class="p">,</span> <span class="n">metric_hillas_delta2</span><span class="p">,</span> <span class="n">metric_kill_isolated_pixels</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">METRIC_NAME_DICT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">metric_mse</span><span class="p">:</span>                  <span class="s2">&quot;mse&quot;</span><span class="p">,</span>
+    <span class="n">metric_nrmse</span><span class="p">:</span>                <span class="s2">&quot;nrmse&quot;</span><span class="p">,</span>
+    <span class="n">metric1</span><span class="p">:</span>                     <span class="s2">&quot;unrmse&quot;</span><span class="p">,</span>
+    <span class="n">metric2</span><span class="p">:</span>                     <span class="s2">&quot;e_shape&quot;</span><span class="p">,</span>
+    <span class="n">metric3</span><span class="p">:</span>                     <span class="s2">&quot;e_energy&quot;</span><span class="p">,</span>
+    <span class="n">metric4</span><span class="p">:</span>                     <span class="s2">&quot;sspd&quot;</span><span class="p">,</span>
+    <span class="n">metric_ssim</span><span class="p">:</span>                 <span class="s2">&quot;ssim&quot;</span><span class="p">,</span>
+    <span class="n">metric_psnr</span><span class="p">:</span>                 <span class="s2">&quot;psnr&quot;</span><span class="p">,</span>
+    <span class="n">metric_delta_psi</span><span class="p">:</span>            <span class="s2">&quot;delta_psi&quot;</span><span class="p">,</span>
+    <span class="n">metric_hillas_delta</span><span class="p">:</span>         <span class="s2">&quot;hillas_delta&quot;</span><span class="p">,</span>
+    <span class="n">metric_hillas_delta2</span><span class="p">:</span>        <span class="s2">&quot;hillas_delta2&quot;</span><span class="p">,</span>
+    <span class="n">metric_kill_isolated_pixels</span><span class="p">:</span> <span class="s2">&quot;kill_isolated_pixels&quot;</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="assess_image_cleaning"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.assess_image_cleaning">[docs]</a><span class="k">def</span> <span class="nf">assess_image_cleaning</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">benchmark_method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of `output_image` regarding `reference_image`</span>
+<span class="sd">    with the `benchmark_method` metrics:</span>
+
+<span class="sd">    - &quot;mse&quot;:                  :func:`metric_mse`</span>
+<span class="sd">    - &quot;nrmse&quot;:                :func:`metric_nrmse`</span>
+<span class="sd">    - &quot;unrmse&quot;:               :func:`metric1`</span>
+<span class="sd">    - &quot;e_shape&quot;:              :func:`metric2`</span>
+<span class="sd">    - &quot;e_energy&quot;:             :func:`metric3`</span>
+<span class="sd">    - &quot;mpdspd&quot;:               :func:`metric2`, :func:`metric3`</span>
+<span class="sd">    - &quot;sspd&quot;:                 :func:`metric4`</span>
+<span class="sd">    - &quot;ssim&quot;:                 :func:`metric_ssim`</span>
+<span class="sd">    - &quot;psnr&quot;:                 :func:`metric_psnr`</span>
+<span class="sd">    - &quot;delta_psi&quot;:            :func:`metric_delta_psi`</span>
+<span class="sd">    - &quot;hillas_delta&quot;:         :func:`metric_hillas_delta`</span>
+<span class="sd">    - &quot;hillas_delta2&quot;:        :func:`metric_hillas_delta2`</span>
+<span class="sd">    - &quot;kill_isolated_pixels&quot;: :func:`metric_kill_isolated_pixels`</span>
+<span class="sd">    - &quot;all&quot;:                  :func:`metric_mse`, :func:`metric_nrmse`, :func:`metric2`, :func:`metric3`, :func:`metric4`, :func:`metric_ssim`, :func:`metric_psnr`, :func:`metric_hillas_delta`, :func:`metric_hillas_delta2`, :func:`metric_kill_isolated_pixels`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_img: 2D ndarray</span>
+<span class="sd">        The RAW original image.</span>
+<span class="sd">    output_img: 2D ndarray</span>
+<span class="sd">        The cleaned image returned by the image cleanning algorithm to assess.</span>
+<span class="sd">    reference_img: 2D ndarray</span>
+<span class="sd">        The actual clean image (the best result that can be expected for the</span>
+<span class="sd">        image cleaning algorithm).</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Additional options.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple of float numbers</span>
+<span class="sd">        The score(s) of the image cleaning algorithm for the given image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">score_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">metric_name_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">metric_function</span> <span class="ow">in</span> <span class="n">BENCHMARK_DICT</span><span class="p">[</span><span class="n">benchmark_method</span><span class="p">]:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">metric_function</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> 
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
+                <span class="n">score_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+                <span class="n">metric_name_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">score</span><span class="o">.</span><span class="n">_fields</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">score_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+                <span class="n">metric_name_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">METRIC_NAME_DICT</span><span class="p">[</span><span class="n">metric_function</span><span class="p">])</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">score_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">metric_name_list</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UnknownMethod</span><span class="p">()</span>
+
+    <span class="c1">#for s, m in zip(score_list, metric_name_list):</span>
+    <span class="c1">#    print(m, &quot;:&quot;, s, type(s))</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">score_list</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">metric_name_list</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2010-2015, Jérémie Decock.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.dev4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
