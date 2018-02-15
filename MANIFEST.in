@@ -1,9 +1,12 @@
 include AUTHORS
 include LICENSE
-include debian8-dist.sh
+
+include setup.cfg
+
 include *.txt
 include *.rst
 include *.md
+
 recursive-include docs *
 recursive-include examples *.py
 recursive-include scripts *.py
@@ -12,4 +15,9 @@ recursive-exclude docs *.pyc
 recursive-exclude docs *.pyo
 recursive-exclude tests *.pyc
 recursive-exclude tests *.pyo
+
+prune build
 prune docs/_build
+prune docs/api
+
+global-exclude *.pyc *.o
