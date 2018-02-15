@@ -355,6 +355,14 @@ lstcam_grid_prod3b_north)
     # 2017/02/14
     WT_MRT_PARAMS="-f common_hard_filtering -t 11.,1.8,0.7 -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
     WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_11._1.8_0.7_-L_mask" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f common_hard_filtering -t 9.,1.5,0.6 -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_9._1.5_0.6_-L_mask" ;
+
+    # 2017/02/14
+    WT_MRT_PARAMS="-f common_hard_filtering -t 9.5,1.5 -L mask --noise-cdf-file=${WT_NAN_NOISE_CDF_FILE} --tmp-dir=${MR_TMP_DIR}" ;
+    WT_MRT_LABEL="WT_MRT_-f_common_hard_filtering_-t_9.5_1.5_-L_mask" ;
     ;;
 *)
     echo "Unknown option" ;
