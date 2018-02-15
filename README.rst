@@ -5,10 +5,11 @@ CTAPipe Wavelet Cleaning
 Copyright (c) 2016 Jeremie DECOCK (www.jdhp.org) and Tino Michael
 
 * Online documentation: http://sap-cta-data-pipeline.readthedocs.io/en/latest/
-* Source code: https://github.com/jdhp-sap/sap-cta-data-pipeline
+* Source code: https://jdhp-sap.github.io/ctapipe-wavelet-filter/
 * Issue tracker: https://github.com/jdhp-sap/sap-cta-data-pipeline/issues
 * datapipe on PyPI: https://pypi.python.org/pypi/datapipe
 
+.. Former documentation:  https://github.com/jdhp-sap/sap-cta-data-pipeline
 
 Description
 ===========
