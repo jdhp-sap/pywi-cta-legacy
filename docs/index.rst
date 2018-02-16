@@ -21,11 +21,10 @@ Contents:
    API <api>
    developer
 
-* Online documentation: http://datapipe.readthedocs.org
-* Source code: https://github.com/jdhp-sap/sap-cta-data-pipeline
-* Issue tracker: https://github.com/jdhp-sap/sap-cta-data-pipeline/issues
+* Online documentation: https://jdhp-sap.github.io/ctapipe-wavelet-filter/
+* Source code: https://github.com/jdhp-sap/ctapipe-wavelet-filter
+* Issue tracker: https://github.com/jdhp-sap/ctapipe-wavelet-filter/issues
 * datapipe on PyPI: https://pypi.python.org/pypi/datapipe
-
 
 Indices and tables
 ==================
@@ -34,11 +33,9 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
 Credits
 =======
 
 Created by `Jérémie Decock`_ and Tino Michael.
-
 
 .. _Jérémie Decock: http://www.jdhp.org
