@@ -1,0 +1,612 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>datapipe.denoising.abstract_cleaning_algorithm &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="SAp CTA data pipeline 0.1.dev4 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SAp CTA data pipeline
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer’s notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SAp CTA data pipeline</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>datapipe.denoising.abstract_cleaning_algorithm</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for datapipe.denoising.abstract_cleaning_algorithm</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)</span>
+
+<span class="c1"># This script is provided under the terms and conditions of the MIT license:</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">from</span> <span class="nn">datapipe.benchmark</span> <span class="k">import</span> <span class="n">assess</span>
+<span class="kn">from</span> <span class="nn">datapipe.image.hillas_parameters</span> <span class="k">import</span> <span class="n">get_hillas_parameters</span>
+<span class="kn">from</span> <span class="nn">datapipe.image.kill_isolated_pixels</span> <span class="k">import</span> <span class="n">kill_isolated_pixels_stats</span>
+<span class="kn">from</span> <span class="nn">datapipe.image.kill_isolated_pixels</span> <span class="k">import</span> <span class="n">number_of_islands</span>
+<span class="kn">from</span> <span class="nn">datapipe.image.signal_to_border_distance</span> <span class="k">import</span> <span class="n">signal_to_border</span>
+<span class="kn">from</span> <span class="nn">datapipe.image.signal_to_border_distance</span> <span class="k">import</span> <span class="n">signal_to_border_distance</span>
+<span class="kn">from</span> <span class="nn">datapipe.image.signal_to_border_distance</span> <span class="k">import</span> <span class="n">pemax_on_border</span>
+<span class="kn">from</span> <span class="nn">datapipe.io</span> <span class="k">import</span> <span class="n">geometry_converter</span>
+<span class="kn">from</span> <span class="nn">datapipe.io.images</span> <span class="k">import</span> <span class="n">image_generator</span>
+<span class="kn">import</span> <span class="nn">datapipe.io.images</span>
+
+<span class="n">HILLAS_IMPLEMENTATION</span> <span class="o">=</span> <span class="mi">2</span>      <span class="c1"># TODO</span>
+
+<span class="c1">###############################################################################</span>
+
+<div class="viewcode-block" id="AbstractCleaningAlgorithm"><a class="viewcode-back" href="../../../api_filter.html#datapipe.denoising.abstract_cleaning_algorithm.AbstractCleaningAlgorithm">[docs]</a><span class="k">class</span> <span class="nc">AbstractCleaningAlgorithm</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A convenient optional wrapper to simplify the image cleaning analysis.</span>
+<span class="sd">    </span>
+<span class="sd">    Common processing to run and assess the image cleaning procedure on a set</span>
+<span class="sd">    of images and save results. This class gather some common procedures to</span>
+<span class="sd">    avoid code duplication in image cleaning modules:</span>
+<span class="sd">    - call the cleaning algorithm on an image set;</span>
+<span class="sd">    - assess the cleaning procedure using a set of estimators;</span>
+<span class="sd">    - apply various pre-processing and post-processing procedures (e.g.</span>
+<span class="sd">      geometry conversion);</span>
+<span class="sd">    - collect and save metadata, results and intermediate values that are</span>
+<span class="sd">      useful for analysis;</span>
+<span class="sd">    - measure and save the execution time;</span>
+<span class="sd">    - manage exceptions;</span>
+<span class="sd">    - ...</span>
+<span class="sd">    </span>
+<span class="sd">    This abstract class is supposed to be inherited by the others image</span>
+<span class="sd">    cleaning classes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>  <span class="c1"># Name to show in plots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>    <span class="c1"># Debug mode</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">pargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_image</span><span class="p">(</span><span class="o">*</span><span class="n">pargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithm_label</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AbstractCleaningAlgorithm.run"><a class="viewcode-back" href="../../../api_filter.html#datapipe.denoising.abstract_cleaning_algorithm.AbstractCleaningAlgorithm.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">cleaning_function_params</span><span class="p">,</span>
+            <span class="n">input_file_or_dir_path_list</span><span class="p">,</span>
+            <span class="n">benchmark_method</span><span class="p">,</span>
+            <span class="n">output_file_path</span><span class="p">,</span>
+            <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">saveplot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">ref_img_as_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>     <span class="c1"># A hack to easily produce CSV files...</span>
+            <span class="n">max_num_img</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">tel_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">event_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">cam_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A convenient optional wrapper to simplify the image cleaning analysis.</span>
+
+<span class="sd">        Apply the image cleaning analysis on `input_file_or_dir_path_list`,</span>
+<span class="sd">        apply some pre-processing and post-processing procedures, collect and</span>
+<span class="sd">        return results, intermediate values and metadata.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cleaning_function_params</span>
+<span class="sd">            A dictionary containing the parameters required for the image</span>
+<span class="sd">            cleaning method.</span>
+<span class="sd">        input_file_or_dir_path_list</span>
+<span class="sd">            A list of file to clean. Can be a list of simtel files, fits files</span>
+<span class="sd">            or directories containing such files.</span>
+<span class="sd">        benchmark_method</span>
+<span class="sd">            The list of estimators to use to assess the image cleaning. If</span>
+<span class="sd">            `None`, images are cleaned but nothing is returned (can be used</span>
+<span class="sd">            with e.g. the `plot` and/or `saveplot` options).</span>
+<span class="sd">        output_file_path</span>
+<span class="sd">            The result file path (a JSON file).</span>
+<span class="sd">        plot</span>
+<span class="sd">            The result of each cleaning is plot if `True`.</span>
+<span class="sd">        saveplot</span>
+<span class="sd">            The result of each cleaning is saved if `True`.</span>
+<span class="sd">        ref_img_as_input</span>
+<span class="sd">            This option is a hack to easily produce a &quot;flatten&quot; CSV results</span>
+<span class="sd">            files.</span>
+<span class="sd">        max_num_img</span>
+<span class="sd">            The number of images to process among the input set</span>
+<span class="sd">            (`input_file_or_dir_path_list`).</span>
+<span class="sd">        debug</span>
+<span class="sd">            Stop the execution and print the full traceback when an exception</span>
+<span class="sd">            is encountered if this parameter is `True`. Report exceptions and</span>
+<span class="sd">            continue with the next input image if this parameter is `False`.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Results, intermediate values and metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">launch_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">benchmark_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">io_list</span> <span class="o">=</span> <span class="p">[]</span>           <span class="c1"># The list of returned dictionaries</span>
+
+        <span class="k">if</span> <span class="n">tel_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tel_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">tel_id</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">event_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">event_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">event_id</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cam_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">cam_id</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">image_generator</span><span class="p">(</span><span class="n">input_file_or_dir_path_list</span><span class="p">,</span>
+                                     <span class="n">max_num_images</span><span class="o">=</span><span class="n">max_num_img</span><span class="p">,</span>
+                                     <span class="n">tel_filter_list</span><span class="o">=</span><span class="n">tel_id</span><span class="p">,</span>
+                                     <span class="n">ev_filter_list</span><span class="o">=</span><span class="n">event_id</span><span class="p">,</span>
+                                     <span class="n">cam_filter_list</span><span class="o">=</span><span class="n">cam_id</span><span class="p">,</span>
+                                     <span class="n">ctapipe_format</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+            <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;file_path&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+
+            <span class="c1"># `image_dict` contains metadata (to be returned) on the current image</span>
+            <span class="n">image_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;input_file_path&quot;</span><span class="p">:</span> <span class="n">input_file_path</span><span class="p">}</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># READ THE INPUT FILE #####################################</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TEL</span><span class="si">{}</span><span class="s2">_EV</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;tel_id&quot;</span><span class="p">],</span>
+                                              <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;event_id&quot;</span><span class="p">]))</span>
+
+                <span class="n">reference_img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">reference_image</span>
+                <span class="n">pixels_position</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">pixels_position</span>
+
+                <span class="k">if</span> <span class="n">ref_img_as_input</span><span class="p">:</span>
+                    <span class="c1"># This option is a hack to easily produce CSV files with</span>
+                    <span class="c1"># the &quot;null_ref&quot; &quot;cleaning&quot; module...</span>
+                    <span class="n">input_img</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">reference_img</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">input_img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">input_image</span>
+
+                <span class="n">image_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
+
+                <span class="c1"># Make the original 1D geom (required for the 2D to 1D geometry</span>
+                <span class="c1"># conversion, for Tailcut and for Hillas)</span>
+                <span class="n">cam_id</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;cam_id&#39;</span><span class="p">]</span>
+                <span class="n">cleaning_function_params</span><span class="p">[</span><span class="s2">&quot;cam_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cam_id</span>
+                <span class="n">geom1d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">benchmark_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="c1"># FETCH ADDITIONAL IMAGE METADATA #####################</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_signal_to_border&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_to_border</span><span class="p">(</span><span class="n">reference_img</span><span class="p">)</span>                   <span class="c1"># TODO: NaN</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_signal_to_border_distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_to_border_distance</span><span class="p">(</span><span class="n">reference_img</span><span class="p">)</span> <span class="c1"># TODO: NaN</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_pemax_on_border&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pemax_on_border</span><span class="p">(</span><span class="n">reference_img</span><span class="p">)</span>                     <span class="c1"># TODO: NaN</span>
+
+                    <span class="n">delta_pe</span><span class="p">,</span> <span class="n">delta_abs_pe</span><span class="p">,</span> <span class="n">delta_num_pixels</span> <span class="o">=</span> <span class="n">kill_isolated_pixels_stats</span><span class="p">(</span><span class="n">reference_img</span><span class="p">)</span>       <span class="c1"># TODO: NaN</span>
+                    <span class="n">num_islands</span> <span class="o">=</span> <span class="n">number_of_islands</span><span class="p">(</span><span class="n">reference_img</span><span class="p">)</span>                                             <span class="c1"># TODO: NaN</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_islands_delta_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_pe</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_islands_delta_abs_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_abs_pe</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_islands_delta_num_pixels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta_num_pixels</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_num_islands&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_islands</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_sum_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">reference_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_min_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">reference_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_max_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">reference_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_num_pix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="p">(</span><span class="n">reference_img</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">reference_img</span><span class="p">)]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_in_sum_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">input_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_in_min_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">input_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_in_max_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">input_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_in_num_pix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="p">(</span><span class="n">input_img</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">input_img</span><span class="p">)]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span>
+
+                    <span class="n">reference_img1d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">reference_img</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">)</span>
+                    <span class="n">hillas_params_2_ref_img</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom1d</span><span class="p">,</span> <span class="n">reference_img1d</span><span class="p">,</span> <span class="n">HILLAS_IMPLEMENTATION</span><span class="p">)</span>   <span class="c1"># TODO GEOM</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_size&quot;</span><span class="p">]</span> <span class="o">=</span>     <span class="nb">float</span><span class="p">(</span><span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_cen_x&quot;</span><span class="p">]</span> <span class="o">=</span>    <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">cen_x</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_cen_y&quot;</span><span class="p">]</span> <span class="o">=</span>    <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">cen_y</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_length&quot;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_width&quot;</span><span class="p">]</span> <span class="o">=</span>    <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_r&quot;</span><span class="p">]</span> <span class="o">=</span>        <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_phi&quot;</span><span class="p">]</span> <span class="o">=</span>      <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_psi&quot;</span><span class="p">]</span> <span class="o">=</span>      <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_miss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">miss</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_miss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_kurtosis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">kurtosis</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_ref_hillas_2_skewness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params_2_ref_img</span><span class="o">.</span><span class="n">skewness</span>
+
+                <span class="c1"># CLEAN THE INPUT IMAGE ###################################</span>
+
+                <span class="c1"># Copy the image (otherwise some cleaning functions like Tailcut may change it)</span>
+                <span class="c1">#input_img_copy = copy.deepcopy(input_img)</span>
+                <span class="n">input_img_copy</span> <span class="o">=</span> <span class="n">input_img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">cleaning_function_params</span><span class="p">[</span><span class="s2">&quot;output_data_dict&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+                <span class="n">initial_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="n">cleaned_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_image</span><span class="p">(</span><span class="n">input_img_copy</span><span class="p">,</span> <span class="o">**</span><span class="n">cleaning_function_params</span><span class="p">)</span>   <span class="c1"># TODO: NaN</span>
+                <span class="n">full_clean_execution_time_sec</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">initial_time</span>
+
+                <span class="k">if</span> <span class="n">benchmark_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">image_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cleaning_function_params</span><span class="p">[</span><span class="s2">&quot;output_data_dict&quot;</span><span class="p">])</span>
+                    <span class="k">del</span> <span class="n">cleaning_function_params</span><span class="p">[</span><span class="s2">&quot;output_data_dict&quot;</span><span class="p">]</span>
+
+                <span class="c1"># ASSESS OR PRINT THE CLEANED IMAGE #######################</span>
+
+                <span class="k">if</span> <span class="n">benchmark_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="c1"># ASSESS THE CLEANING #################################</span>
+
+                    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;geom&#39;</span><span class="p">:</span> <span class="n">geom1d</span><span class="p">,</span>
+                              <span class="s1">&#39;hillas_implementation&#39;</span><span class="p">:</span> <span class="n">HILLAS_IMPLEMENTATION</span><span class="p">}</span>  <span class="c1"># TODO GEOM</span>
+                    <span class="n">score_tuple</span><span class="p">,</span> <span class="n">score_name_tuple</span> <span class="o">=</span> <span class="n">assess</span><span class="o">.</span><span class="n">assess_image_cleaning</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span>
+                                                                                 <span class="n">cleaned_img</span><span class="p">,</span>
+                                                                                 <span class="n">reference_img</span><span class="p">,</span>
+                                                                                 <span class="n">benchmark_method</span><span class="p">,</span>
+                                                                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_signal_to_border&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_to_border</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">)</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_signal_to_border_distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_to_border_distance</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">)</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_pemax_on_border&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pemax_on_border</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">)</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">score_tuple</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;score_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">score_name_tuple</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;full_clean_execution_time_sec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_clean_execution_time_sec</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_sum_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_min_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_max_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">))</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_num_pix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="p">(</span><span class="n">cleaned_img</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">)]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="p">)</span>
+
+                    <span class="n">cleaned_img1d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">)</span>
+                    <span class="n">hillas_params_2_cleaned_img</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom1d</span><span class="p">,</span> <span class="n">cleaned_img1d</span><span class="p">,</span> <span class="n">HILLAS_IMPLEMENTATION</span><span class="p">)</span>    <span class="c1"># GEOM</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_size&quot;</span><span class="p">]</span> <span class="o">=</span>     <span class="nb">float</span><span class="p">(</span><span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_cen_x&quot;</span><span class="p">]</span> <span class="o">=</span>    <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">cen_x</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_cen_y&quot;</span><span class="p">]</span> <span class="o">=</span>    <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">cen_y</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_length&quot;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_width&quot;</span><span class="p">]</span> <span class="o">=</span>    <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_r&quot;</span><span class="p">]</span> <span class="o">=</span>        <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_phi&quot;</span><span class="p">]</span> <span class="o">=</span>      <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_psi&quot;</span><span class="p">]</span> <span class="o">=</span>      <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_miss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">miss</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_miss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_kurtosis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">kurtosis</span>
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;img_cleaned_hillas_2_skewness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params_2_cleaned_img</span><span class="o">.</span><span class="n">skewness</span>
+
+                <span class="c1"># PLOT IMAGES #########################################################</span>
+
+                <span class="k">if</span> <span class="n">plot</span> <span class="ow">or</span> <span class="p">(</span><span class="n">saveplot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                    <span class="n">image_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">),</span>
+                                  <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">reference_img</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">),</span>
+                                  <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">cleaned_img</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">)]</span> 
+                    <span class="n">title_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Input image&quot;</span><span class="p">,</span> <span class="s2">&quot;Reference image&quot;</span><span class="p">,</span> <span class="s2">&quot;Cleaned image&quot;</span><span class="p">]</span> 
+                    <span class="n">geom_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">geom1d</span><span class="p">,</span> <span class="n">geom1d</span><span class="p">,</span> <span class="n">geom1d</span><span class="p">]</span> 
+                    <span class="n">hillas_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+                        <span class="n">datapipe</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">plot_list</span><span class="p">(</span><span class="n">image_list</span><span class="p">,</span>
+                                                     <span class="n">geom_list</span><span class="o">=</span><span class="n">geom_list</span><span class="p">,</span>
+                                                     <span class="n">title_list</span><span class="o">=</span><span class="n">title_list</span><span class="p">,</span>
+                                                     <span class="n">hillas_list</span><span class="o">=</span><span class="n">hillas_list</span><span class="p">,</span>
+                                                     <span class="n">metadata_dict</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">saveplot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">basename</span><span class="p">,</span> <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">saveplot</span><span class="p">)</span>
+                        <span class="n">plot_file_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_E</span><span class="si">{}</span><span class="s2">_T</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">basename</span><span class="p">,</span> <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;event_id&quot;</span><span class="p">],</span> <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;tel_id&quot;</span><span class="p">],</span> <span class="n">extension</span><span class="p">)</span>
+
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saving </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plot_file_path</span><span class="p">))</span>
+                        <span class="n">datapipe</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">mpl_save_list</span><span class="p">(</span><span class="n">image_list</span><span class="p">,</span>
+                                                         <span class="n">geom_list</span><span class="o">=</span><span class="n">geom_list</span><span class="p">,</span>
+                                                         <span class="n">output_file_path</span><span class="o">=</span><span class="n">plot_file_path</span><span class="p">,</span>
+                                                         <span class="n">title_list</span><span class="o">=</span><span class="n">title_list</span><span class="p">,</span>
+                                                         <span class="n">hillas_list</span><span class="o">=</span><span class="n">hillas_list</span><span class="p">,</span>
+                                                         <span class="n">metadata_dict</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Abort image </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                    <span class="c1"># The following line print the full trackback</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_tb</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">__traceback__</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">benchmark_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="c1"># http://docs.python.org/2/library/sys.html#sys.exc_info</span>
+                    <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span> <span class="c1"># most recent (if any) by default</span>
+
+                    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                    Reason this _can_ be bad: If an (unhandled) exception happens AFTER this,</span>
+<span class="sd">                    or if we do not delete the labels on (not much) older versions of Py, the</span>
+<span class="sd">                    reference we created can linger.</span>
+
+<span class="sd">                    traceback.format_exc/print_exc do this very thing, BUT note this creates a</span>
+<span class="sd">                    temp scope within the function.</span>
+<span class="sd">                    &#39;&#39;&#39;</span>
+
+                    <span class="n">error_dict</span> <span class="o">=</span> <span class="p">{</span>
+                                  <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_filename</span><span class="p">,</span>
+                                  <span class="s1">&#39;lineno&#39;</span>  <span class="p">:</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_lineno</span><span class="p">,</span>
+                                  <span class="s1">&#39;name&#39;</span>    <span class="p">:</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="p">,</span>
+                                  <span class="s1">&#39;type&#39;</span>    <span class="p">:</span> <span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                                  <span class="c1">#&#39;message&#39; : exc_value.message</span>
+                                  <span class="s1">&#39;message&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                                 <span class="p">}</span>
+
+                    <span class="k">del</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span> <span class="c1"># So we don&#39;t leave our local labels/objects dangling</span>
+                    <span class="c1"># This still isn&#39;t &quot;completely safe&quot;, though!</span>
+
+                    <span class="c1">#error_dict = {&quot;type&quot;: str(type(e)),</span>
+                    <span class="c1">#              &quot;message&quot;: str(e)}</span>
+
+                    <span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">error_dict</span>
+
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">benchmark_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">io_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_dict</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">benchmark_method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">error_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">image_dict</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">image_dict</span> <span class="ow">in</span> <span class="n">io_list</span> <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">image_dict</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> images aborted&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">error_list</span><span class="p">)))</span>
+
+            <span class="c1"># GENERAL EXPERIMENT METADATA</span>
+            <span class="n">output_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;benchmark_execution_time_sec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">launch_time</span><span class="p">)</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;date_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;class_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;algo_code_ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">clean_image</span><span class="o">.</span><span class="vm">__code__</span><span class="p">)</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;cmd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;algo_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleaning_function_params</span>
+
+            <span class="k">if</span> <span class="s2">&quot;noise_distribution&quot;</span> <span class="ow">in</span> <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;algo_params&quot;</span><span class="p">]:</span>
+                <span class="k">del</span> <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;algo_params&quot;</span><span class="p">][</span><span class="s2">&quot;noise_distribution&quot;</span><span class="p">]</span>  <span class="c1"># not JSON serializable...</span>
+
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;benchmark_method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">benchmark_method</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">uname</span><span class="p">())</span>
+            <span class="n">output_dict</span><span class="p">[</span><span class="s2">&quot;io&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">io_list</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># pretty print format</span>
+
+            <span class="k">return</span> <span class="n">output_dict</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2010-2015, Jérémie Decock.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.dev4',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

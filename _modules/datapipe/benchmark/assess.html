@@ -160,7 +160,7 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 
-<span class="c1"># Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)</span>
+<span class="c1"># Copyright (c) 2016,2017,2018 Jérémie DECOCK (http://www.jdhp.org)</span>
 
 <span class="c1"># This script is provided under the terms and conditions of the MIT license:</span>
 <span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
@@ -202,6 +202,7 @@
 <span class="kn">import</span> <span class="nn">math</span>
 
 <span class="kn">from</span> <span class="nn">datapipe.image.hillas_parameters</span> <span class="k">import</span> <span class="n">get_hillas_parameters</span>
+<span class="kn">from</span> <span class="nn">datapipe.io.geometry_converter</span> <span class="k">import</span> <span class="n">image_2d_to_1d</span>
 
 <span class="kn">from</span> <span class="nn">datapipe.image.kill_isolated_pixels</span> <span class="k">import</span> <span class="n">kill_isolated_pixels</span>
 <span class="kn">from</span> <span class="nn">datapipe.image.kill_isolated_pixels</span> <span class="k">import</span> <span class="n">kill_isolated_pixels_stats</span>
@@ -210,15 +211,11 @@
 <span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="k">import</span> <span class="n">compare_psnr</span> <span class="k">as</span> <span class="n">psnr</span>
 <span class="kn">from</span> <span class="nn">skimage.measure</span> <span class="k">import</span> <span class="n">compare_nrmse</span> <span class="k">as</span> <span class="n">nrmse</span>
 
-
 <span class="c1">###############################################################################</span>
 <span class="c1"># EXCEPTIONS                                                                  #</span>
 <span class="c1">###############################################################################</span>
 
 <span class="k">class</span> <span class="nc">AssessError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-<span class="k">class</span> <span class="nc">UnknownMethod</span><span class="p">(</span><span class="n">AssessError</span><span class="p">):</span>
     <span class="k">pass</span>
 
 <span class="k">class</span> <span class="nc">EmptyOutputImageError</span><span class="p">(</span><span class="n">AssessError</span><span class="p">):</span>
@@ -294,7 +291,7 @@
 
 <span class="c1"># Mean-Squared Error (MSE) ####################################################</span>
 
-<div class="viewcode-block" id="metric_mse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_mse">[docs]</a><span class="k">def</span> <span class="nf">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_mse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_mse">[docs]</a><span class="k">def</span> <span class="nf">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Mean-Squared Error* (MSE) metric.</span>
 
@@ -332,7 +329,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -355,7 +352,7 @@
 
 <span class="c1"># Normalized Root Mean-Squared Error (NRMSE) ##################################</span>
 
-<div class="viewcode-block" id="metric_nrmse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_nrmse">[docs]</a><span class="k">def</span> <span class="nf">metric_nrmse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_nrmse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_nrmse">[docs]</a><span class="k">def</span> <span class="nf">metric_nrmse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Normalized Root Mean-Squared Error* (NRMSE) metric.</span>
 
@@ -388,7 +385,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -404,11 +401,11 @@
     <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
-    <span class="c1">#if (params is not None) and (&#39;nrmse_normalize_type&#39; in params) and (params[&#39;nrmse_normalize_type&#39;].lower() == &#39;euclidian&#39;):</span>
+    <span class="c1">#if (&#39;nrmse_normalize_type&#39; in kwargs) and (kwargs[&#39;nrmse_normalize_type&#39;].lower() == &#39;euclidian&#39;):</span>
     <span class="c1">#    denom = </span>
     <span class="c1"># TODO: see https://github.com/scikit-image/scikit-image/blob/master/skimage/measure/simple_metrics.py#L82</span>
 
-    <span class="n">mse</span> <span class="o">=</span> <span class="n">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">((</span><span class="n">reference_image</span> <span class="o">*</span> <span class="n">output_image</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
     <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span>
 
@@ -417,7 +414,7 @@
 
 <span class="c1"># Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################</span>
 
-<div class="viewcode-block" id="metric1"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric1">[docs]</a><span class="k">def</span> <span class="nf">metric1</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric1"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric1">[docs]</a><span class="k">def</span> <span class="nf">metric1</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with a (unusually) normalized version of the *Root Mean-Squared Error*</span>
 <span class="sd">    (RMSE) metric.</span>
@@ -455,7 +452,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -481,7 +478,7 @@
 
 <span class="c1"># Mean Pixel Difference 2 #####################################################</span>
 
-<div class="viewcode-block" id="metric2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric2">[docs]</a><span class="k">def</span> <span class="nf">metric2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric2">[docs]</a><span class="k">def</span> <span class="nf">metric2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the :math:`\mathcal{E}_{\text{shape}}` metric.</span>
 
@@ -508,7 +505,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -538,7 +535,7 @@
 
 <span class="c1"># Relative Total Counts Difference (mpdspd) ###################################</span>
 
-<div class="viewcode-block" id="metric3"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric3">[docs]</a><span class="k">def</span> <span class="nf">metric3</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric3"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric3">[docs]</a><span class="k">def</span> <span class="nf">metric3</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the :math:`\mathcal{E}^+_{\text{energy}}`</span>
 <span class="sd">    (a.k.a. *relative total counts difference*) metric.</span>
@@ -563,7 +560,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -590,7 +587,7 @@
 
 <span class="c1"># Signed Relative Total Counts Difference (sspd) ##############################</span>
 
-<div class="viewcode-block" id="metric4"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric4">[docs]</a><span class="k">def</span> <span class="nf">metric4</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric4"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric4">[docs]</a><span class="k">def</span> <span class="nf">metric4</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the :math:`\mathcal{E}_{\text{energy}}`</span>
 <span class="sd">    (a.k.a. *signed relative total counts difference*) metric.</span>
@@ -615,7 +612,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -642,7 +639,7 @@
 
 <span class="c1"># Structural Similarity Index Measure (SSIM) ##################################</span>
 
-<div class="viewcode-block" id="metric_ssim"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_ssim">[docs]</a><span class="k">def</span> <span class="nf">metric_ssim</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_ssim"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_ssim">[docs]</a><span class="k">def</span> <span class="nf">metric_ssim</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Structural Similarity Index Measure* (SSIM) metric.</span>
 
@@ -681,7 +678,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -721,7 +718,7 @@
 
 <span class="c1"># Peak Signal-to-Noise Ratio (PSNR) ###########################################</span>
 
-<div class="viewcode-block" id="metric_psnr"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_psnr">[docs]</a><span class="k">def</span> <span class="nf">metric_psnr</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_psnr"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_psnr">[docs]</a><span class="k">def</span> <span class="nf">metric_psnr</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Peak Signal-to-Noise Ratio* (PSNR) metric.</span>
 
@@ -736,7 +733,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -767,7 +764,7 @@
 
 <span class="c1"># Delta psi ###################################################################</span>
 
-<div class="viewcode-block" id="metric_delta_psi"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_delta_psi">[docs]</a><span class="k">def</span> <span class="nf">metric_delta_psi</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_delta_psi"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_delta_psi">[docs]</a><span class="k">def</span> <span class="nf">metric_delta_psi</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the following relative *psi parameters* (relative difference of shower angle between the cleaned image and the reference image).</span>
 
@@ -780,7 +777,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -794,18 +791,22 @@
     <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
         <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
-        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">kill_isolated_pixels</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">])</span>
+        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">kill_isolated_pixels</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">])</span>
 
-    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;hillas_implementation&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;hillas_implementation&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
         <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
-        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span>
+        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="mi">2</span>
 
-    <span class="n">output_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
-    <span class="n">reference_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">output_image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">output_image</span> <span class="o">=</span> <span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">cam_id</span><span class="p">)</span>        <span class="c1"># TODO!!!</span>
+    <span class="k">if</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">cam_id</span><span class="p">)</span>  <span class="c1"># TODO!!!</span>
+    <span class="n">output_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">)</span>
+    <span class="n">reference_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">)</span>
 
     <span class="c1"># Psi (shower direction angle)</span>
     <span class="n">output_image_parameter_psi_rad</span> <span class="o">=</span> <span class="n">output_image_parameters</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
@@ -819,7 +820,7 @@
 
 <span class="c1"># Hillas delta ################################################################</span>
 
-<div class="viewcode-block" id="metric_hillas_delta"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_hillas_delta"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the following relative *Hillas parameters*:</span>
 
@@ -845,7 +846,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -859,18 +860,22 @@
     <span class="n">output_image</span> <span class="o">=</span> <span class="n">output_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">reference_image</span> <span class="o">=</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">)</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;kill_threshold&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
-        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">kill_isolated_pixels</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">])</span>
+        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">kill_isolated_pixels</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">])</span>
 
-    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;hillas_implementation&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;hillas_implementation&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)):</span>
         <span class="c1"># Remove isolated pixels on the reference image before assessment.</span>
-        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span>
+        <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;hillas_implementation&quot;</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">hillas_implementation</span> <span class="o">=</span> <span class="mi">2</span>
 
-    <span class="n">output_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
-    <span class="n">reference_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">output_image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">output_image</span> <span class="o">=</span> <span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">output_image</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">cam_id</span><span class="p">)</span>        <span class="c1"># TODO!!!</span>
+    <span class="k">if</span> <span class="n">reference_image</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">reference_image</span> <span class="o">=</span> <span class="n">image_2d_to_1d</span><span class="p">(</span><span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">cam_id</span><span class="p">)</span>  <span class="c1"># TODO!!!</span>
+    <span class="n">output_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">)</span>
+    <span class="n">reference_image_parameters</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">hillas_implementation</span><span class="p">)</span>
 
     <span class="c1">#print(reference_image_parameters)</span>
 
@@ -922,7 +927,7 @@
     <span class="c1">#reference_image_parameter_miss = reference_image_parameters.miss.value</span>
     <span class="c1">#delta_miss = reference_image_parameter_miss - output_image_parameter_miss</span>
 
-    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">params</span> <span class="ow">and</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="s2">&quot;kill&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]:</span>
         <span class="n">suffix_str</span> <span class="o">=</span> <span class="s1">&#39;_kill&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">suffix_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -947,7 +952,7 @@
 
 <span class="c1"># Hillas delta 2 ##############################################################</span>
 
-<div class="viewcode-block" id="metric_hillas_delta2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta2">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_hillas_delta2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta2">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Hillas parameters*.</span>
 
@@ -964,7 +969,7 @@
 <span class="sd">    reference_image: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -973,20 +978,17 @@
 <span class="sd">        The score of the image cleaning algorithm for the given image.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span>   <span class="c1"># TODO: don&#39;t give an hardcoded value</span>
 
-    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">params</span><span class="p">[</span><span class="s2">&quot;kill_threshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.2</span>   <span class="c1"># TODO: don&#39;t give an hardcoded value</span>
-
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">scores</span></div>
 
 
 <span class="c1"># Kill isolated pixels ########################################################</span>
 
-<span class="k">def</span> <span class="nf">metric_kill_isolated_pixels</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">pixels_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">metric_kill_isolated_pixels</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">delta_pe</span><span class="p">,</span> <span class="n">delta_abs_pe</span><span class="p">,</span> <span class="n">delta_num_pixels</span> <span class="o">=</span> <span class="n">kill_isolated_pixels_stats</span><span class="p">(</span><span class="n">output_image</span><span class="p">)</span>
 
     <span class="n">score_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">((</span>
@@ -1035,7 +1037,7 @@
     <span class="n">metric_kill_isolated_pixels</span><span class="p">:</span> <span class="s2">&quot;kill_isolated_pixels&quot;</span>
 <span class="p">}</span>
 
-<div class="viewcode-block" id="assess_image_cleaning"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.assess_image_cleaning">[docs]</a><span class="k">def</span> <span class="nf">assess_image_cleaning</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">benchmark_method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="assess_image_cleaning"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.assess_image_cleaning">[docs]</a><span class="k">def</span> <span class="nf">assess_image_cleaning</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="n">benchmark_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of `output_image` regarding `reference_image`</span>
 <span class="sd">    with the `benchmark_method` metrics:</span>
 
@@ -1063,7 +1065,7 @@
 <span class="sd">    reference_img: 2D ndarray</span>
 <span class="sd">        The actual clean image (the best result that can be expected for the</span>
 <span class="sd">        image cleaning algorithm).</span>
-<span class="sd">    params: dict</span>
+<span class="sd">    kwargs: dict</span>
 <span class="sd">        Additional options.</span>
 
 <span class="sd">    Returns</span>
@@ -1077,7 +1079,7 @@
         <span class="n">metric_name_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">metric_function</span> <span class="ow">in</span> <span class="n">BENCHMARK_DICT</span><span class="p">[</span><span class="n">benchmark_method</span><span class="p">]:</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="n">metric_function</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="n">pixels_position</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> 
+            <span class="n">score</span> <span class="o">=</span> <span class="n">metric_function</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
                 <span class="n">score_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
@@ -1088,7 +1090,7 @@
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">score_list</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">metric_name_list</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnknownMethod</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown benchmark method </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">benchmark_method</span><span class="p">))</span>
 
     <span class="c1">#for s, m in zip(score_list, metric_name_list):</span>
     <span class="c1">#    print(m, &quot;:&quot;, s, type(s))</span>
@@ -1141,7 +1143,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

@@ -16,4 +16,5 @@ Modules:
    :maxdepth: 2
 
    datapipe.benchmark.assess <api_benchmark_assess>
+   datapipe.denoising.abstract_cleaning_algorithm <api_filter>
 
