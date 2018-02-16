@@ -178,270 +178,179 @@
 (www.cosmostat.org) – to make Wavelet Transform.</p>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><dl class="docutils">
-<dt>wavelets_mrfilter.py [-h] [–type-of-filtering INTEGER]</dt>
-<dd>[–coef-detection-method INTEGER]
-[–type-of-multiresolution-transform INTEGER]
-[–type-of-filters INTEGER]
-[–type-of-non-orthog-filters INTEGER]
-[–noise-model INTEGER]
-[–number-of-scales integer]
-[–k-sigma-noise-threshold FLOAT]
-[–number-of-iterations integer] [–epsilon FLOAT]
-[–support-file-name FILE]
-[–suppress-isolated-pixels]
-[–kill-isolated-pixels] [–suppress-last-scale]
-[–detect-only-positive-structure]
-[–precision FLOAT]
-[–first-detection-scale INTEGER]
-[–suppress-positivity-constraint]
-[–maximum-level-constraint]
-[–mask-file-path MASK_FILE_NAME]
-[–offset-after-calibration FLOAT]
-[–correction-offset]
-[–input-image-scale INPUT_IMAGE_SCALE]
-[–noise-cdf-file FILE] [–tmp-dir DIRECTORY]
-[–verbose] [–debug] [–max-images INTEGER]
-[–telid INTEGER] [–eventid INTEGER]
-[–camid STRING] [–benchmark STRING]
-[–label STRING] [–plot] [–saveplot FILE]
-[–output FILE]
-FILE [FILE …]</dd>
-</dl>
-<p>Denoise FITS images with Wavelet Transform.</p>
-<dl class="docutils">
-<dt>positional arguments:</dt>
-<dd><dl class="first last docutils">
-<dt>FILE                  The files image to process (FITS).If fileargs is a</dt>
-<dd>directory,all FITS files it contains are processed.</dd>
-</dl>
-</dd>
-<dt>optional arguments:</dt>
-<dd><table class="first last docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group">
-<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
-<td>show this help message and exit</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--type-of-filtering <var>INTEGER</var></span>, <span class="option">-f <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Type of filtering: 1: Multiresolution Hard K-Sigma
-Thresholding 2: Multiresolution Soft K-Sigma
-Thresholding 3: Iterative Multiresolution Thresholding
-4: Adjoint operator applied to the multiresolution
-support 5: Bivariate Shrinkage 6: Multiresolution
-Wiener Filtering 7: Total Variation + Wavelet
-Constraint 8: Wavelet Constraint Iterative Methods 9:
-Median Absolute Deviation (MAD) Hard Thesholding 10:
-Median Absolute Deviation (MAD) Soft Thesholding.
-Default=1.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--coef-detection-method <var>INTEGER</var></span>, <span class="option">-C <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Coef_Detection_Method: 1: K-SigmaNoise Threshold 2:
-False Discovery Rate (FDR) Theshold 3: Universal
-Threshold 4: SURE Threshold 5: Multiscale SURE
-Threshold. Default=1.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--type-of-multiresolution-transform <var>INTEGER</var></span>, <span class="option">-t <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Type of multiresolution transform: 1: linear wavelet
-transform: a trous algorithm 2: bspline wavelet
-transform: a trous algorithm 3: wavelet transform in
-Fourier space 4: morphological median transform 5:
-morphological minmax transform 6: pyramidal linear
-wavelet transform 7: pyramidal bspline wavelet
-transform 8: pyramidal wavelet transform in Fourier
-space: algo 1 (diff. between two resolutions) 9:
-Meyer’s wavelets (compact support in Fourier space)
-10: pyramidal median transform (PMT) 11: pyramidal
-laplacian 12: morphological pyramidal minmax transform
-13: decomposition on scaling function 14: Mallat’s
-wavelet transform (7/9 filters) 15: Feauveau’s wavelet
-transform 16: Feauveau’s wavelet transform without
-undersampling 17: Line Column Wavelet Transform
-(1D+1D) 18: Haar’s wavelet transform 19: half-
-pyramidal transform 20: mixed Half-pyramidal WT and
-Median method (WT-HPMT) 21: undecimated diadic wavelet
-transform (two bands per scale) 22: mixed WT and PMT
-method (WT-PMT) 23: undecimated Haar transform: a
-trous algorithm (one band per scale) 24: undecimated
-(bi-) orthogonal transform (three bands per scale) 25:
-non orthogonal undecimated transform (three bands per
-scale) 26: Isotropic and compact support wavelet in
-Fourier space 27: pyramidal wavelet transform in
-Fourier space: algo 2 (diff. between the square of two
-resolutions) 28: Fast Curvelet Transform. Default=2.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--type-of-filters <var>INTEGER</var></span>, <span class="option">-T <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Type of filters: 1: Biorthogonal 7/9 filters 2:
-Daubechies filter 4 3: Biorthogonal 2/6 Haar filters
-4: Biorthogonal 2/10 Haar filters 5: Odegard 9/7
-filters 6: 5/3 filter 7: Battle-Lemarie filters (2
-vanishing moments) 8: Battle-Lemarie filters (4
-vanishing moments) 9: Battle-Lemarie filters (6
-vanishing moments) 10: User’s filters 11: Haar filter
-12: 3/5 filter 13: 4/4 Linar spline filters 14:
-Undefined sub-band filters. Default=1.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--type-of-non-orthog-filters <var>INTEGER</var></span>, <span class="option">-U <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Type of non-orthogonal filters: 1: SplineB3-Id+H:
-H=[1,4,6,4,1]/16, Ht=H, G=Id-H, Gt=Id+H 2:
-SplineB3-Id: H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
-3: SplineB2-Id: H=4[1,2,1]/4, Ht=H, G=Id-H*H, Gt=Id 4:
-Harr/Spline POS:
-H=Haar,G=[-1/4,1/2,-1/4],Ht=[1,3,3,1]/8,Gt=[1,6,1]/4.
-Default=2.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--noise-model <var>INTEGER</var></span>, <span class="option">-m <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Noise model: 1: Gaussian noise 2: Poisson noise 3:
-Poisson noise + Gaussian noise 4: Multiplicative noise
-5: Non-stationary additive noise 6: Non-stationary
-multiplicative noise 7: Undefined stationary noise 8:
-Undefined noise 9: Stationary correlated noise 10:
-Poisson noise with few events. Default=1.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--number-of-scales <var>integer</var></span>, <span class="option">-n <var>integer</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Number of scales used in the multiresolution
-transform. Default=4.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--k-sigma-noise-threshold <var>FLOAT</var></span>, <span class="option">-s <var>FLOAT</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Thresholding at nsigma * SigmaNoise. Default=3.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--number-of-iterations <var>integer</var></span>, <span class="option">-i <var>integer</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Maximum number of iterations. Default=10.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--epsilon <var>FLOAT</var></span>, <span class="option">-e <var>FLOAT</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Convergence parameter. Default=0.001000 or 0.000010 in
-case of poisson noise with few events.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--support-file-name <var>FILE</var></span>, <span class="option">-w <var>FILE</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Creates an image from the multiresolution support and
-save to disk.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--suppress-isolated-pixels</span>, <span class="option">-k</span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Suppress isolated pixels in the support</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--kill-isolated-pixels</span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Suppress isolated pixels in the support (scipy
-implementation)</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--suppress-last-scale</span>, <span class="option">-K</span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Suppress the last scale (to have background pixels =
-0)</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--detect-only-positive-structure</span>, <span class="option">-p</span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Detect only positive structure</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--precision <var>FLOAT</var></span>, <span class="option">-E <var>FLOAT</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Epsilon = precision for computing thresholds (only
-used in case of poisson noise with few events).
-Default=1.00e-03.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--first-detection-scale <var>INTEGER</var></span>, <span class="option">-F <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>First scale used for the detection. Default=1.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--suppress-positivity-constraint</span>, <span class="option">-P</span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Suppress positivity constraint</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--maximum-level-constraint</span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Add the maximum level constraint. Max value is 255.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--mask-file-path <var>MASK_FILE_NAME</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Filename of the mask containing the bad data
-(Mask[i,j]=1 for good pixels and 0 otherwise. Default
-is none.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--offset-after-calibration <var>FLOAT</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Value added to all pixels of the input image after
-calibration. Default=0.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--correction-offset</span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Apply a correction offset to the output image.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--input-image-scale <var>INPUT_IMAGE_SCALE</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Use a different scale for the input image (‘linear’,
-‘log’ or ‘sqrt’). Default=’linear’.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--noise-cdf-file <var>FILE</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The JSON file containing the Cumulated Distribution
-Function of the noise model used to inject artificial
-noise in blank pixels (those with a NaN value).
-Default=None.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--tmp-dir <var>DIRECTORY</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The directory where temporary files are written.</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--verbose</span>, <span class="option">-v</span></kbd></td>
-<td>Verbose mode</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--debug</span></kbd></td>
-<td>Debug mode</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--max-images <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The maximum number of images to process</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--telid <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Only process images from the specified telescope</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--eventid <var>INTEGER</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Only process images from the specified event</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--camid <var>STRING</var></span></kbd></td>
-<td>Only process images from the specified camera</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--benchmark <var>STRING</var></span>, <span class="option">-b <var>STRING</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The benchmark method to use to assess the algorithm
-for thegiven images</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--label <var>STRING</var></span>, <span class="option">-l <var>STRING</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The label attached to the produced results</td></tr>
-<tr><td class="option-group">
-<kbd><span class="option">--plot</span></kbd></td>
-<td>Plot images</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--saveplot <var>FILE</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The output file where to save plotted images</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--output <var>FILE</var></span>, <span class="option">-o <var>FILE</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>The output file path (JSON)</td></tr>
-</tbody>
-</table>
-</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wavelets_mrfilter</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">filtering</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">coef</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">method</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">multiresolution</span><span class="o">-</span><span class="n">transform</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">filters</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">non</span><span class="o">-</span><span class="n">orthog</span><span class="o">-</span><span class="n">filters</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">noise</span><span class="o">-</span><span class="n">model</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">number</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">scales</span> <span class="n">integer</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">k</span><span class="o">-</span><span class="n">sigma</span><span class="o">-</span><span class="n">noise</span><span class="o">-</span><span class="n">threshold</span> <span class="n">FLOAT</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">number</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">iterations</span> <span class="n">integer</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">epsilon</span> <span class="n">FLOAT</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">support</span><span class="o">-</span><span class="n">file</span><span class="o">-</span><span class="n">name</span> <span class="n">FILE</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">suppress</span><span class="o">-</span><span class="n">isolated</span><span class="o">-</span><span class="n">pixels</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">kill</span><span class="o">-</span><span class="n">isolated</span><span class="o">-</span><span class="n">pixels</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">suppress</span><span class="o">-</span><span class="n">last</span><span class="o">-</span><span class="n">scale</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">detect</span><span class="o">-</span><span class="n">only</span><span class="o">-</span><span class="n">positive</span><span class="o">-</span><span class="n">structure</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">precision</span> <span class="n">FLOAT</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">first</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">scale</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">suppress</span><span class="o">-</span><span class="n">positivity</span><span class="o">-</span><span class="n">constraint</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">maximum</span><span class="o">-</span><span class="n">level</span><span class="o">-</span><span class="n">constraint</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">mask</span><span class="o">-</span><span class="n">file</span><span class="o">-</span><span class="n">path</span> <span class="n">MASK_FILE_NAME</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">offset</span><span class="o">-</span><span class="n">after</span><span class="o">-</span><span class="n">calibration</span> <span class="n">FLOAT</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">correction</span><span class="o">-</span><span class="n">offset</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="nb">input</span><span class="o">-</span><span class="n">image</span><span class="o">-</span><span class="n">scale</span> <span class="n">INPUT_IMAGE_SCALE</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">noise</span><span class="o">-</span><span class="n">cdf</span><span class="o">-</span><span class="n">file</span> <span class="n">FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">tmp</span><span class="o">-</span><span class="nb">dir</span> <span class="n">DIRECTORY</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">verbose</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">images</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">telid</span> <span class="n">INTEGER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">eventid</span> <span class="n">INTEGER</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">camid</span> <span class="n">STRING</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">benchmark</span> <span class="n">STRING</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">label</span> <span class="n">STRING</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">plot</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">saveplot</span> <span class="n">FILE</span><span class="p">]</span>
+                          <span class="p">[</span><span class="o">--</span><span class="n">output</span> <span class="n">FILE</span><span class="p">]</span>
+                          <span class="n">FILE</span> <span class="p">[</span><span class="n">FILE</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="n">Denoise</span> <span class="n">FITS</span> <span class="n">images</span> <span class="k">with</span> <span class="n">Wavelet</span> <span class="n">Transform</span><span class="o">.</span>
+
+<span class="n">positional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="n">FILE</span>                  <span class="n">The</span> <span class="n">files</span> <span class="n">image</span> <span class="n">to</span> <span class="n">process</span> <span class="p">(</span><span class="n">FITS</span><span class="p">)</span><span class="o">.</span><span class="n">If</span> <span class="n">fileargs</span> <span class="ow">is</span> <span class="n">a</span>
+                        <span class="n">directory</span><span class="p">,</span><span class="nb">all</span> <span class="n">FITS</span> <span class="n">files</span> <span class="n">it</span> <span class="n">contains</span> <span class="n">are</span> <span class="n">processed</span><span class="o">.</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">filtering</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="o">-</span><span class="n">f</span> <span class="n">INTEGER</span>
+                        <span class="n">Type</span> <span class="n">of</span> <span class="n">filtering</span><span class="p">:</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Multiresolution</span> <span class="n">Hard</span> <span class="n">K</span><span class="o">-</span><span class="n">Sigma</span>
+                        <span class="n">Thresholding</span> <span class="mi">2</span><span class="p">:</span> <span class="n">Multiresolution</span> <span class="n">Soft</span> <span class="n">K</span><span class="o">-</span><span class="n">Sigma</span>
+                        <span class="n">Thresholding</span> <span class="mi">3</span><span class="p">:</span> <span class="n">Iterative</span> <span class="n">Multiresolution</span> <span class="n">Thresholding</span>
+                        <span class="mi">4</span><span class="p">:</span> <span class="n">Adjoint</span> <span class="n">operator</span> <span class="n">applied</span> <span class="n">to</span> <span class="n">the</span> <span class="n">multiresolution</span>
+                        <span class="n">support</span> <span class="mi">5</span><span class="p">:</span> <span class="n">Bivariate</span> <span class="n">Shrinkage</span> <span class="mi">6</span><span class="p">:</span> <span class="n">Multiresolution</span>
+                        <span class="n">Wiener</span> <span class="n">Filtering</span> <span class="mi">7</span><span class="p">:</span> <span class="n">Total</span> <span class="n">Variation</span> <span class="o">+</span> <span class="n">Wavelet</span>
+                        <span class="n">Constraint</span> <span class="mi">8</span><span class="p">:</span> <span class="n">Wavelet</span> <span class="n">Constraint</span> <span class="n">Iterative</span> <span class="n">Methods</span> <span class="mi">9</span><span class="p">:</span>
+                        <span class="n">Median</span> <span class="n">Absolute</span> <span class="n">Deviation</span> <span class="p">(</span><span class="n">MAD</span><span class="p">)</span> <span class="n">Hard</span> <span class="n">Thesholding</span> <span class="mi">10</span><span class="p">:</span>
+                        <span class="n">Median</span> <span class="n">Absolute</span> <span class="n">Deviation</span> <span class="p">(</span><span class="n">MAD</span><span class="p">)</span> <span class="n">Soft</span> <span class="n">Thesholding</span><span class="o">.</span>
+                        <span class="n">Default</span><span class="o">=</span><span class="mf">1.</span>
+  <span class="o">--</span><span class="n">coef</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">method</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="o">-</span><span class="n">C</span> <span class="n">INTEGER</span>
+                        <span class="n">Coef_Detection_Method</span><span class="p">:</span> <span class="mi">1</span><span class="p">:</span> <span class="n">K</span><span class="o">-</span><span class="n">SigmaNoise</span> <span class="n">Threshold</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="kc">False</span> <span class="n">Discovery</span> <span class="n">Rate</span> <span class="p">(</span><span class="n">FDR</span><span class="p">)</span> <span class="n">Theshold</span> <span class="mi">3</span><span class="p">:</span> <span class="n">Universal</span>
+                        <span class="n">Threshold</span> <span class="mi">4</span><span class="p">:</span> <span class="n">SURE</span> <span class="n">Threshold</span> <span class="mi">5</span><span class="p">:</span> <span class="n">Multiscale</span> <span class="n">SURE</span>
+                        <span class="n">Threshold</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">1.</span>
+  <span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">multiresolution</span><span class="o">-</span><span class="n">transform</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="o">-</span><span class="n">t</span> <span class="n">INTEGER</span>
+                        <span class="n">Type</span> <span class="n">of</span> <span class="n">multiresolution</span> <span class="n">transform</span><span class="p">:</span> <span class="mi">1</span><span class="p">:</span> <span class="n">linear</span> <span class="n">wavelet</span>
+                        <span class="n">transform</span><span class="p">:</span> <span class="n">a</span> <span class="n">trous</span> <span class="n">algorithm</span> <span class="mi">2</span><span class="p">:</span> <span class="n">bspline</span> <span class="n">wavelet</span>
+                        <span class="n">transform</span><span class="p">:</span> <span class="n">a</span> <span class="n">trous</span> <span class="n">algorithm</span> <span class="mi">3</span><span class="p">:</span> <span class="n">wavelet</span> <span class="n">transform</span> <span class="ow">in</span>
+                        <span class="n">Fourier</span> <span class="n">space</span> <span class="mi">4</span><span class="p">:</span> <span class="n">morphological</span> <span class="n">median</span> <span class="n">transform</span> <span class="mi">5</span><span class="p">:</span>
+                        <span class="n">morphological</span> <span class="n">minmax</span> <span class="n">transform</span> <span class="mi">6</span><span class="p">:</span> <span class="n">pyramidal</span> <span class="n">linear</span>
+                        <span class="n">wavelet</span> <span class="n">transform</span> <span class="mi">7</span><span class="p">:</span> <span class="n">pyramidal</span> <span class="n">bspline</span> <span class="n">wavelet</span>
+                        <span class="n">transform</span> <span class="mi">8</span><span class="p">:</span> <span class="n">pyramidal</span> <span class="n">wavelet</span> <span class="n">transform</span> <span class="ow">in</span> <span class="n">Fourier</span>
+                        <span class="n">space</span><span class="p">:</span> <span class="n">algo</span> <span class="mi">1</span> <span class="p">(</span><span class="n">diff</span><span class="o">.</span> <span class="n">between</span> <span class="n">two</span> <span class="n">resolutions</span><span class="p">)</span> <span class="mi">9</span><span class="p">:</span>
+                        <span class="n">Meyer</span><span class="s1">&#39;s wavelets (compact support in Fourier space)</span>
+                        <span class="mi">10</span><span class="p">:</span> <span class="n">pyramidal</span> <span class="n">median</span> <span class="n">transform</span> <span class="p">(</span><span class="n">PMT</span><span class="p">)</span> <span class="mi">11</span><span class="p">:</span> <span class="n">pyramidal</span>
+                        <span class="n">laplacian</span> <span class="mi">12</span><span class="p">:</span> <span class="n">morphological</span> <span class="n">pyramidal</span> <span class="n">minmax</span> <span class="n">transform</span>
+                        <span class="mi">13</span><span class="p">:</span> <span class="n">decomposition</span> <span class="n">on</span> <span class="n">scaling</span> <span class="n">function</span> <span class="mi">14</span><span class="p">:</span> <span class="n">Mallat</span><span class="s1">&#39;s</span>
+                        <span class="n">wavelet</span> <span class="n">transform</span> <span class="p">(</span><span class="mi">7</span><span class="o">/</span><span class="mi">9</span> <span class="n">filters</span><span class="p">)</span> <span class="mi">15</span><span class="p">:</span> <span class="n">Feauveau</span><span class="s1">&#39;s wavelet</span>
+                        <span class="n">transform</span> <span class="mi">16</span><span class="p">:</span> <span class="n">Feauveau</span><span class="s1">&#39;s wavelet transform without</span>
+                        <span class="n">undersampling</span> <span class="mi">17</span><span class="p">:</span> <span class="n">Line</span> <span class="n">Column</span> <span class="n">Wavelet</span> <span class="n">Transform</span>
+                        <span class="p">(</span><span class="mi">1</span><span class="n">D</span><span class="o">+</span><span class="mi">1</span><span class="n">D</span><span class="p">)</span> <span class="mi">18</span><span class="p">:</span> <span class="n">Haar</span><span class="s1">&#39;s wavelet transform 19: half-</span>
+                        <span class="n">pyramidal</span> <span class="n">transform</span> <span class="mi">20</span><span class="p">:</span> <span class="n">mixed</span> <span class="n">Half</span><span class="o">-</span><span class="n">pyramidal</span> <span class="n">WT</span> <span class="ow">and</span>
+                        <span class="n">Median</span> <span class="n">method</span> <span class="p">(</span><span class="n">WT</span><span class="o">-</span><span class="n">HPMT</span><span class="p">)</span> <span class="mi">21</span><span class="p">:</span> <span class="n">undecimated</span> <span class="n">diadic</span> <span class="n">wavelet</span>
+                        <span class="n">transform</span> <span class="p">(</span><span class="n">two</span> <span class="n">bands</span> <span class="n">per</span> <span class="n">scale</span><span class="p">)</span> <span class="mi">22</span><span class="p">:</span> <span class="n">mixed</span> <span class="n">WT</span> <span class="ow">and</span> <span class="n">PMT</span>
+                        <span class="n">method</span> <span class="p">(</span><span class="n">WT</span><span class="o">-</span><span class="n">PMT</span><span class="p">)</span> <span class="mi">23</span><span class="p">:</span> <span class="n">undecimated</span> <span class="n">Haar</span> <span class="n">transform</span><span class="p">:</span> <span class="n">a</span>
+                        <span class="n">trous</span> <span class="n">algorithm</span> <span class="p">(</span><span class="n">one</span> <span class="n">band</span> <span class="n">per</span> <span class="n">scale</span><span class="p">)</span> <span class="mi">24</span><span class="p">:</span> <span class="n">undecimated</span>
+                        <span class="p">(</span><span class="n">bi</span><span class="o">-</span><span class="p">)</span> <span class="n">orthogonal</span> <span class="n">transform</span> <span class="p">(</span><span class="n">three</span> <span class="n">bands</span> <span class="n">per</span> <span class="n">scale</span><span class="p">)</span> <span class="mi">25</span><span class="p">:</span>
+                        <span class="n">non</span> <span class="n">orthogonal</span> <span class="n">undecimated</span> <span class="n">transform</span> <span class="p">(</span><span class="n">three</span> <span class="n">bands</span> <span class="n">per</span>
+                        <span class="n">scale</span><span class="p">)</span> <span class="mi">26</span><span class="p">:</span> <span class="n">Isotropic</span> <span class="ow">and</span> <span class="n">compact</span> <span class="n">support</span> <span class="n">wavelet</span> <span class="ow">in</span>
+                        <span class="n">Fourier</span> <span class="n">space</span> <span class="mi">27</span><span class="p">:</span> <span class="n">pyramidal</span> <span class="n">wavelet</span> <span class="n">transform</span> <span class="ow">in</span>
+                        <span class="n">Fourier</span> <span class="n">space</span><span class="p">:</span> <span class="n">algo</span> <span class="mi">2</span> <span class="p">(</span><span class="n">diff</span><span class="o">.</span> <span class="n">between</span> <span class="n">the</span> <span class="n">square</span> <span class="n">of</span> <span class="n">two</span>
+                        <span class="n">resolutions</span><span class="p">)</span> <span class="mi">28</span><span class="p">:</span> <span class="n">Fast</span> <span class="n">Curvelet</span> <span class="n">Transform</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">2.</span>
+  <span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">filters</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="o">-</span><span class="n">T</span> <span class="n">INTEGER</span>
+                        <span class="n">Type</span> <span class="n">of</span> <span class="n">filters</span><span class="p">:</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Biorthogonal</span> <span class="mi">7</span><span class="o">/</span><span class="mi">9</span> <span class="n">filters</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">Daubechies</span> <span class="nb">filter</span> <span class="mi">4</span> <span class="mi">3</span><span class="p">:</span> <span class="n">Biorthogonal</span> <span class="mi">2</span><span class="o">/</span><span class="mi">6</span> <span class="n">Haar</span> <span class="n">filters</span>
+                        <span class="mi">4</span><span class="p">:</span> <span class="n">Biorthogonal</span> <span class="mi">2</span><span class="o">/</span><span class="mi">10</span> <span class="n">Haar</span> <span class="n">filters</span> <span class="mi">5</span><span class="p">:</span> <span class="n">Odegard</span> <span class="mi">9</span><span class="o">/</span><span class="mi">7</span>
+                        <span class="n">filters</span> <span class="mi">6</span><span class="p">:</span> <span class="mi">5</span><span class="o">/</span><span class="mi">3</span> <span class="nb">filter</span> <span class="mi">7</span><span class="p">:</span> <span class="n">Battle</span><span class="o">-</span><span class="n">Lemarie</span> <span class="n">filters</span> <span class="p">(</span><span class="mi">2</span>
+                        <span class="n">vanishing</span> <span class="n">moments</span><span class="p">)</span> <span class="mi">8</span><span class="p">:</span> <span class="n">Battle</span><span class="o">-</span><span class="n">Lemarie</span> <span class="n">filters</span> <span class="p">(</span><span class="mi">4</span>
+                        <span class="n">vanishing</span> <span class="n">moments</span><span class="p">)</span> <span class="mi">9</span><span class="p">:</span> <span class="n">Battle</span><span class="o">-</span><span class="n">Lemarie</span> <span class="n">filters</span> <span class="p">(</span><span class="mi">6</span>
+                        <span class="n">vanishing</span> <span class="n">moments</span><span class="p">)</span> <span class="mi">10</span><span class="p">:</span> <span class="n">User</span><span class="s1">&#39;s filters 11: Haar filter</span>
+                        <span class="mi">12</span><span class="p">:</span> <span class="mi">3</span><span class="o">/</span><span class="mi">5</span> <span class="nb">filter</span> <span class="mi">13</span><span class="p">:</span> <span class="mi">4</span><span class="o">/</span><span class="mi">4</span> <span class="n">Linar</span> <span class="n">spline</span> <span class="n">filters</span> <span class="mi">14</span><span class="p">:</span>
+                        <span class="n">Undefined</span> <span class="n">sub</span><span class="o">-</span><span class="n">band</span> <span class="n">filters</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">1.</span>
+  <span class="o">--</span><span class="nb">type</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">non</span><span class="o">-</span><span class="n">orthog</span><span class="o">-</span><span class="n">filters</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="o">-</span><span class="n">U</span> <span class="n">INTEGER</span>
+                        <span class="n">Type</span> <span class="n">of</span> <span class="n">non</span><span class="o">-</span><span class="n">orthogonal</span> <span class="n">filters</span><span class="p">:</span> <span class="mi">1</span><span class="p">:</span> <span class="n">SplineB3</span><span class="o">-</span><span class="n">Id</span><span class="o">+</span><span class="n">H</span><span class="p">:</span>
+                        <span class="n">H</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">16</span><span class="p">,</span> <span class="n">Ht</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="n">Id</span><span class="o">-</span><span class="n">H</span><span class="p">,</span> <span class="n">Gt</span><span class="o">=</span><span class="n">Id</span><span class="o">+</span><span class="n">H</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">SplineB3</span><span class="o">-</span><span class="n">Id</span><span class="p">:</span> <span class="n">H</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">16</span><span class="p">,</span> <span class="n">Ht</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="n">Id</span><span class="o">-</span><span class="n">H</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="n">Gt</span><span class="o">=</span><span class="n">Id</span>
+                        <span class="mi">3</span><span class="p">:</span> <span class="n">SplineB2</span><span class="o">-</span><span class="n">Id</span><span class="p">:</span> <span class="n">H</span><span class="o">=</span><span class="mi">4</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="n">Ht</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="n">Id</span><span class="o">-</span><span class="n">H</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="n">Gt</span><span class="o">=</span><span class="n">Id</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="n">Harr</span><span class="o">/</span><span class="n">Spline</span> <span class="n">POS</span><span class="p">:</span>
+                        <span class="n">H</span><span class="o">=</span><span class="n">Haar</span><span class="p">,</span><span class="n">G</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">],</span><span class="n">Ht</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span><span class="n">Gt</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">4.</span>
+                        <span class="n">Default</span><span class="o">=</span><span class="mf">2.</span>
+  <span class="o">--</span><span class="n">noise</span><span class="o">-</span><span class="n">model</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="o">-</span><span class="n">m</span> <span class="n">INTEGER</span>
+                        <span class="n">Noise</span> <span class="n">model</span><span class="p">:</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Gaussian</span> <span class="n">noise</span> <span class="mi">2</span><span class="p">:</span> <span class="n">Poisson</span> <span class="n">noise</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">Poisson</span> <span class="n">noise</span> <span class="o">+</span> <span class="n">Gaussian</span> <span class="n">noise</span> <span class="mi">4</span><span class="p">:</span> <span class="n">Multiplicative</span> <span class="n">noise</span>
+                        <span class="mi">5</span><span class="p">:</span> <span class="n">Non</span><span class="o">-</span><span class="n">stationary</span> <span class="n">additive</span> <span class="n">noise</span> <span class="mi">6</span><span class="p">:</span> <span class="n">Non</span><span class="o">-</span><span class="n">stationary</span>
+                        <span class="n">multiplicative</span> <span class="n">noise</span> <span class="mi">7</span><span class="p">:</span> <span class="n">Undefined</span> <span class="n">stationary</span> <span class="n">noise</span> <span class="mi">8</span><span class="p">:</span>
+                        <span class="n">Undefined</span> <span class="n">noise</span> <span class="mi">9</span><span class="p">:</span> <span class="n">Stationary</span> <span class="n">correlated</span> <span class="n">noise</span> <span class="mi">10</span><span class="p">:</span>
+                        <span class="n">Poisson</span> <span class="n">noise</span> <span class="k">with</span> <span class="n">few</span> <span class="n">events</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">1.</span>
+  <span class="o">--</span><span class="n">number</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">scales</span> <span class="n">integer</span><span class="p">,</span> <span class="o">-</span><span class="n">n</span> <span class="n">integer</span>
+                        <span class="n">Number</span> <span class="n">of</span> <span class="n">scales</span> <span class="n">used</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">multiresolution</span>
+                        <span class="n">transform</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">4.</span>
+  <span class="o">--</span><span class="n">k</span><span class="o">-</span><span class="n">sigma</span><span class="o">-</span><span class="n">noise</span><span class="o">-</span><span class="n">threshold</span> <span class="n">FLOAT</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span> <span class="n">FLOAT</span>
+                        <span class="n">Thresholding</span> <span class="n">at</span> <span class="n">nsigma</span> <span class="o">*</span> <span class="n">SigmaNoise</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">3.</span>
+  <span class="o">--</span><span class="n">number</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">iterations</span> <span class="n">integer</span><span class="p">,</span> <span class="o">-</span><span class="n">i</span> <span class="n">integer</span>
+                        <span class="n">Maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">iterations</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">10.</span>
+  <span class="o">--</span><span class="n">epsilon</span> <span class="n">FLOAT</span><span class="p">,</span> <span class="o">-</span><span class="n">e</span> <span class="n">FLOAT</span>
+                        <span class="n">Convergence</span> <span class="n">parameter</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">0.001000</span> <span class="ow">or</span> <span class="mf">0.000010</span> <span class="ow">in</span>
+                        <span class="n">case</span> <span class="n">of</span> <span class="n">poisson</span> <span class="n">noise</span> <span class="k">with</span> <span class="n">few</span> <span class="n">events</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">support</span><span class="o">-</span><span class="n">file</span><span class="o">-</span><span class="n">name</span> <span class="n">FILE</span><span class="p">,</span> <span class="o">-</span><span class="n">w</span> <span class="n">FILE</span>
+                        <span class="n">Creates</span> <span class="n">an</span> <span class="n">image</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">multiresolution</span> <span class="n">support</span> <span class="ow">and</span>
+                        <span class="n">save</span> <span class="n">to</span> <span class="n">disk</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">suppress</span><span class="o">-</span><span class="n">isolated</span><span class="o">-</span><span class="n">pixels</span><span class="p">,</span> <span class="o">-</span><span class="n">k</span>
+                        <span class="n">Suppress</span> <span class="n">isolated</span> <span class="n">pixels</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">support</span>
+  <span class="o">--</span><span class="n">kill</span><span class="o">-</span><span class="n">isolated</span><span class="o">-</span><span class="n">pixels</span>
+                        <span class="n">Suppress</span> <span class="n">isolated</span> <span class="n">pixels</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">support</span> <span class="p">(</span><span class="n">scipy</span>
+                        <span class="n">implementation</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">suppress</span><span class="o">-</span><span class="n">last</span><span class="o">-</span><span class="n">scale</span><span class="p">,</span> <span class="o">-</span><span class="n">K</span>
+                        <span class="n">Suppress</span> <span class="n">the</span> <span class="n">last</span> <span class="n">scale</span> <span class="p">(</span><span class="n">to</span> <span class="n">have</span> <span class="n">background</span> <span class="n">pixels</span> <span class="o">=</span>
+                        <span class="mi">0</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">detect</span><span class="o">-</span><span class="n">only</span><span class="o">-</span><span class="n">positive</span><span class="o">-</span><span class="n">structure</span><span class="p">,</span> <span class="o">-</span><span class="n">p</span>
+                        <span class="n">Detect</span> <span class="n">only</span> <span class="n">positive</span> <span class="n">structure</span>
+  <span class="o">--</span><span class="n">precision</span> <span class="n">FLOAT</span><span class="p">,</span> <span class="o">-</span><span class="n">E</span> <span class="n">FLOAT</span>
+                        <span class="n">Epsilon</span> <span class="o">=</span> <span class="n">precision</span> <span class="k">for</span> <span class="n">computing</span> <span class="n">thresholds</span> <span class="p">(</span><span class="n">only</span>
+                        <span class="n">used</span> <span class="ow">in</span> <span class="n">case</span> <span class="n">of</span> <span class="n">poisson</span> <span class="n">noise</span> <span class="k">with</span> <span class="n">few</span> <span class="n">events</span><span class="p">)</span><span class="o">.</span>
+                        <span class="n">Default</span><span class="o">=</span><span class="mf">1.00e-03</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">first</span><span class="o">-</span><span class="n">detection</span><span class="o">-</span><span class="n">scale</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="o">-</span><span class="n">F</span> <span class="n">INTEGER</span>
+                        <span class="n">First</span> <span class="n">scale</span> <span class="n">used</span> <span class="k">for</span> <span class="n">the</span> <span class="n">detection</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">1.</span>
+  <span class="o">--</span><span class="n">suppress</span><span class="o">-</span><span class="n">positivity</span><span class="o">-</span><span class="n">constraint</span><span class="p">,</span> <span class="o">-</span><span class="n">P</span>
+                        <span class="n">Suppress</span> <span class="n">positivity</span> <span class="n">constraint</span>
+  <span class="o">--</span><span class="n">maximum</span><span class="o">-</span><span class="n">level</span><span class="o">-</span><span class="n">constraint</span>
+                        <span class="n">Add</span> <span class="n">the</span> <span class="n">maximum</span> <span class="n">level</span> <span class="n">constraint</span><span class="o">.</span> <span class="n">Max</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">255.</span>
+  <span class="o">--</span><span class="n">mask</span><span class="o">-</span><span class="n">file</span><span class="o">-</span><span class="n">path</span> <span class="n">MASK_FILE_NAME</span>
+                        <span class="n">Filename</span> <span class="n">of</span> <span class="n">the</span> <span class="n">mask</span> <span class="n">containing</span> <span class="n">the</span> <span class="n">bad</span> <span class="n">data</span>
+                        <span class="p">(</span><span class="n">Mask</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span> <span class="k">for</span> <span class="n">good</span> <span class="n">pixels</span> <span class="ow">and</span> <span class="mi">0</span> <span class="n">otherwise</span><span class="o">.</span> <span class="n">Default</span>
+                        <span class="ow">is</span> <span class="n">none</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">offset</span><span class="o">-</span><span class="n">after</span><span class="o">-</span><span class="n">calibration</span> <span class="n">FLOAT</span>
+                        <span class="n">Value</span> <span class="n">added</span> <span class="n">to</span> <span class="nb">all</span> <span class="n">pixels</span> <span class="n">of</span> <span class="n">the</span> <span class="nb">input</span> <span class="n">image</span> <span class="n">after</span>
+                        <span class="n">calibration</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="mf">0.</span>
+  <span class="o">--</span><span class="n">correction</span><span class="o">-</span><span class="n">offset</span>   <span class="n">Apply</span> <span class="n">a</span> <span class="n">correction</span> <span class="n">offset</span> <span class="n">to</span> <span class="n">the</span> <span class="n">output</span> <span class="n">image</span><span class="o">.</span>
+  <span class="o">--</span><span class="nb">input</span><span class="o">-</span><span class="n">image</span><span class="o">-</span><span class="n">scale</span> <span class="n">INPUT_IMAGE_SCALE</span>
+                        <span class="n">Use</span> <span class="n">a</span> <span class="n">different</span> <span class="n">scale</span> <span class="k">for</span> <span class="n">the</span> <span class="nb">input</span> <span class="n">image</span> <span class="p">(</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;log&#39;</span> <span class="ow">or</span> <span class="s1">&#39;sqrt&#39;</span><span class="p">)</span><span class="o">.</span> <span class="n">Default</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">noise</span><span class="o">-</span><span class="n">cdf</span><span class="o">-</span><span class="n">file</span> <span class="n">FILE</span>
+                        <span class="n">The</span> <span class="n">JSON</span> <span class="n">file</span> <span class="n">containing</span> <span class="n">the</span> <span class="n">Cumulated</span> <span class="n">Distribution</span>
+                        <span class="n">Function</span> <span class="n">of</span> <span class="n">the</span> <span class="n">noise</span> <span class="n">model</span> <span class="n">used</span> <span class="n">to</span> <span class="n">inject</span> <span class="n">artificial</span>
+                        <span class="n">noise</span> <span class="ow">in</span> <span class="n">blank</span> <span class="n">pixels</span> <span class="p">(</span><span class="n">those</span> <span class="k">with</span> <span class="n">a</span> <span class="n">NaN</span> <span class="n">value</span><span class="p">)</span><span class="o">.</span>
+                        <span class="n">Default</span><span class="o">=</span><span class="kc">None</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">tmp</span><span class="o">-</span><span class="nb">dir</span> <span class="n">DIRECTORY</span>   <span class="n">The</span> <span class="n">directory</span> <span class="n">where</span> <span class="n">temporary</span> <span class="n">files</span> <span class="n">are</span> <span class="n">written</span><span class="o">.</span>
+  <span class="o">--</span><span class="n">verbose</span><span class="p">,</span> <span class="o">-</span><span class="n">v</span>         <span class="n">Verbose</span> <span class="n">mode</span>
+  <span class="o">--</span><span class="n">debug</span>               <span class="n">Debug</span> <span class="n">mode</span>
+  <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">images</span> <span class="n">INTEGER</span>  <span class="n">The</span> <span class="n">maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">images</span> <span class="n">to</span> <span class="n">process</span>
+  <span class="o">--</span><span class="n">telid</span> <span class="n">INTEGER</span>       <span class="n">Only</span> <span class="n">process</span> <span class="n">images</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">specified</span> <span class="n">telescope</span>
+  <span class="o">--</span><span class="n">eventid</span> <span class="n">INTEGER</span>     <span class="n">Only</span> <span class="n">process</span> <span class="n">images</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">specified</span> <span class="n">event</span>
+  <span class="o">--</span><span class="n">camid</span> <span class="n">STRING</span>        <span class="n">Only</span> <span class="n">process</span> <span class="n">images</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">specified</span> <span class="n">camera</span>
+  <span class="o">--</span><span class="n">benchmark</span> <span class="n">STRING</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span> <span class="n">STRING</span>
+                        <span class="n">The</span> <span class="n">benchmark</span> <span class="n">method</span> <span class="n">to</span> <span class="n">use</span> <span class="n">to</span> <span class="n">assess</span> <span class="n">the</span> <span class="n">algorithm</span>
+                        <span class="k">for</span> <span class="n">thegiven</span> <span class="n">images</span>
+  <span class="o">--</span><span class="n">label</span> <span class="n">STRING</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="n">STRING</span>
+                        <span class="n">The</span> <span class="n">label</span> <span class="n">attached</span> <span class="n">to</span> <span class="n">the</span> <span class="n">produced</span> <span class="n">results</span>
+  <span class="o">--</span><span class="n">plot</span>                <span class="n">Plot</span> <span class="n">images</span>
+  <span class="o">--</span><span class="n">saveplot</span> <span class="n">FILE</span>       <span class="n">The</span> <span class="n">output</span> <span class="n">file</span> <span class="n">where</span> <span class="n">to</span> <span class="n">save</span> <span class="n">plotted</span> <span class="n">images</span>
+  <span class="o">--</span><span class="n">output</span> <span class="n">FILE</span><span class="p">,</span> <span class="o">-</span><span class="n">o</span> <span class="n">FILE</span>
+                        <span class="n">The</span> <span class="n">output</span> <span class="n">file</span> <span class="n">path</span> <span class="p">(</span><span class="n">JSON</span><span class="p">)</span>
+</pre></div>
+</div>
 <p class="rubric">Examples</p>
 <p>./wavelets_mrfilter.py -h
 ./wavelets_mrfilter.py ./test.fits
