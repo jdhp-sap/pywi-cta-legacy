@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>denoising.wavelet_mrfilter &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
+  <title>denoising.wavelets_mrfilter &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="SAp CTA data pipeline 0.1.dev4 documentation" href="index.html"/>
         <link rel="up" title="SAp CTA data pipeline API" href="api.html"/>
-        <link rel="next" title="denoising.wavelet_mrtransform" href="api_filter_wavelet_mrtransform.html"/>
-        <link rel="prev" title="denoising.tailcut" href="api_filter_tailcut.html"/> 
+        <link rel="next" title="denoising.wavelets_mrtransform" href="api_filter_wavelet_mrtransform.html"/>
+        <link rel="prev" title="SAp CTA data pipeline API" href="api.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -94,12 +94,15 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="api_benchmark_assess.html">datapipe.benchmark.assess</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.denoising.wavelets_mrfilter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrtransform.html">datapipe.denoising.wavelets_mrtransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_tailcut.html">datapipe.denoising.tailcut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_filter_abstract_cleaning_algorithm.html">datapipe.denoising.abstract_cleaning_algorithm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_filter_inverse_transform_sampling.html">datapipe.denoising.inverse_transform_sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_filter_tailcut.html">datapipe.denoising.tailcut</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.denoising.wavelet_mrfilter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrtransform.html">datapipe.denoising.wavelet_mrtransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_benchmark_assess.html">datapipe.benchmark.assess</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s notes</a></li>
@@ -149,7 +152,7 @@
         
           <li><a href="api.html">SAp CTA data pipeline API</a> &raquo;</li>
         
-      <li>denoising.wavelet_mrfilter</li>
+      <li>denoising.wavelets_mrfilter</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -168,8 +171,285 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="denoising-wavelet-mrfilter">
-<h1>denoising.wavelet_mrfilter<a class="headerlink" href="#denoising-wavelet-mrfilter" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="denoising-wavelets-mrfilter">
+<h1>denoising.wavelets_mrfilter<a class="headerlink" href="#denoising-wavelets-mrfilter" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-datapipe.denoising.wavelets_mrfilter"></span><p>Denoise FITS images with Wavelet Transform.</p>
+<p>This script use mr_filter – a program written CEA/CosmoStat
+(www.cosmostat.org) – to make Wavelet Transform.</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><dl class="docutils">
+<dt>wavelets_mrfilter.py [-h] [–type-of-filtering INTEGER]</dt>
+<dd>[–coef-detection-method INTEGER]
+[–type-of-multiresolution-transform INTEGER]
+[–type-of-filters INTEGER]
+[–type-of-non-orthog-filters INTEGER]
+[–noise-model INTEGER]
+[–number-of-scales integer]
+[–k-sigma-noise-threshold FLOAT]
+[–number-of-iterations integer] [–epsilon FLOAT]
+[–support-file-name FILE]
+[–suppress-isolated-pixels]
+[–kill-isolated-pixels] [–suppress-last-scale]
+[–detect-only-positive-structure]
+[–precision FLOAT]
+[–first-detection-scale INTEGER]
+[–suppress-positivity-constraint]
+[–maximum-level-constraint]
+[–mask-file-path MASK_FILE_NAME]
+[–offset-after-calibration FLOAT]
+[–correction-offset]
+[–input-image-scale INPUT_IMAGE_SCALE]
+[–noise-cdf-file FILE] [–tmp-dir DIRECTORY]
+[–verbose] [–debug] [–max-images INTEGER]
+[–telid INTEGER] [–eventid INTEGER]
+[–camid STRING] [–benchmark STRING]
+[–label STRING] [–plot] [–saveplot FILE]
+[–output FILE]
+FILE [FILE …]</dd>
+</dl>
+<p>Denoise FITS images with Wavelet Transform.</p>
+<dl class="docutils">
+<dt>positional arguments:</dt>
+<dd><dl class="first last docutils">
+<dt>FILE                  The files image to process (FITS).If fileargs is a</dt>
+<dd>directory,all FITS files it contains are processed.</dd>
+</dl>
+</dd>
+<dt>optional arguments:</dt>
+<dd><table class="first last docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group">
+<kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></td>
+<td>show this help message and exit</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--type-of-filtering <var>INTEGER</var></span>, <span class="option">-f <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Type of filtering: 1: Multiresolution Hard K-Sigma
+Thresholding 2: Multiresolution Soft K-Sigma
+Thresholding 3: Iterative Multiresolution Thresholding
+4: Adjoint operator applied to the multiresolution
+support 5: Bivariate Shrinkage 6: Multiresolution
+Wiener Filtering 7: Total Variation + Wavelet
+Constraint 8: Wavelet Constraint Iterative Methods 9:
+Median Absolute Deviation (MAD) Hard Thesholding 10:
+Median Absolute Deviation (MAD) Soft Thesholding.
+Default=1.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--coef-detection-method <var>INTEGER</var></span>, <span class="option">-C <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Coef_Detection_Method: 1: K-SigmaNoise Threshold 2:
+False Discovery Rate (FDR) Theshold 3: Universal
+Threshold 4: SURE Threshold 5: Multiscale SURE
+Threshold. Default=1.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--type-of-multiresolution-transform <var>INTEGER</var></span>, <span class="option">-t <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Type of multiresolution transform: 1: linear wavelet
+transform: a trous algorithm 2: bspline wavelet
+transform: a trous algorithm 3: wavelet transform in
+Fourier space 4: morphological median transform 5:
+morphological minmax transform 6: pyramidal linear
+wavelet transform 7: pyramidal bspline wavelet
+transform 8: pyramidal wavelet transform in Fourier
+space: algo 1 (diff. between two resolutions) 9:
+Meyer’s wavelets (compact support in Fourier space)
+10: pyramidal median transform (PMT) 11: pyramidal
+laplacian 12: morphological pyramidal minmax transform
+13: decomposition on scaling function 14: Mallat’s
+wavelet transform (7/9 filters) 15: Feauveau’s wavelet
+transform 16: Feauveau’s wavelet transform without
+undersampling 17: Line Column Wavelet Transform
+(1D+1D) 18: Haar’s wavelet transform 19: half-
+pyramidal transform 20: mixed Half-pyramidal WT and
+Median method (WT-HPMT) 21: undecimated diadic wavelet
+transform (two bands per scale) 22: mixed WT and PMT
+method (WT-PMT) 23: undecimated Haar transform: a
+trous algorithm (one band per scale) 24: undecimated
+(bi-) orthogonal transform (three bands per scale) 25:
+non orthogonal undecimated transform (three bands per
+scale) 26: Isotropic and compact support wavelet in
+Fourier space 27: pyramidal wavelet transform in
+Fourier space: algo 2 (diff. between the square of two
+resolutions) 28: Fast Curvelet Transform. Default=2.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--type-of-filters <var>INTEGER</var></span>, <span class="option">-T <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Type of filters: 1: Biorthogonal 7/9 filters 2:
+Daubechies filter 4 3: Biorthogonal 2/6 Haar filters
+4: Biorthogonal 2/10 Haar filters 5: Odegard 9/7
+filters 6: 5/3 filter 7: Battle-Lemarie filters (2
+vanishing moments) 8: Battle-Lemarie filters (4
+vanishing moments) 9: Battle-Lemarie filters (6
+vanishing moments) 10: User’s filters 11: Haar filter
+12: 3/5 filter 13: 4/4 Linar spline filters 14:
+Undefined sub-band filters. Default=1.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--type-of-non-orthog-filters <var>INTEGER</var></span>, <span class="option">-U <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Type of non-orthogonal filters: 1: SplineB3-Id+H:
+H=[1,4,6,4,1]/16, Ht=H, G=Id-H, Gt=Id+H 2:
+SplineB3-Id: H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
+3: SplineB2-Id: H=4[1,2,1]/4, Ht=H, G=Id-H*H, Gt=Id 4:
+Harr/Spline POS:
+H=Haar,G=[-1/4,1/2,-1/4],Ht=[1,3,3,1]/8,Gt=[1,6,1]/4.
+Default=2.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--noise-model <var>INTEGER</var></span>, <span class="option">-m <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Noise model: 1: Gaussian noise 2: Poisson noise 3:
+Poisson noise + Gaussian noise 4: Multiplicative noise
+5: Non-stationary additive noise 6: Non-stationary
+multiplicative noise 7: Undefined stationary noise 8:
+Undefined noise 9: Stationary correlated noise 10:
+Poisson noise with few events. Default=1.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--number-of-scales <var>integer</var></span>, <span class="option">-n <var>integer</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Number of scales used in the multiresolution
+transform. Default=4.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--k-sigma-noise-threshold <var>FLOAT</var></span>, <span class="option">-s <var>FLOAT</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Thresholding at nsigma * SigmaNoise. Default=3.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--number-of-iterations <var>integer</var></span>, <span class="option">-i <var>integer</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Maximum number of iterations. Default=10.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--epsilon <var>FLOAT</var></span>, <span class="option">-e <var>FLOAT</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Convergence parameter. Default=0.001000 or 0.000010 in
+case of poisson noise with few events.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--support-file-name <var>FILE</var></span>, <span class="option">-w <var>FILE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Creates an image from the multiresolution support and
+save to disk.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--suppress-isolated-pixels</span>, <span class="option">-k</span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Suppress isolated pixels in the support</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--kill-isolated-pixels</span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Suppress isolated pixels in the support (scipy
+implementation)</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--suppress-last-scale</span>, <span class="option">-K</span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Suppress the last scale (to have background pixels =
+0)</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--detect-only-positive-structure</span>, <span class="option">-p</span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Detect only positive structure</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--precision <var>FLOAT</var></span>, <span class="option">-E <var>FLOAT</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Epsilon = precision for computing thresholds (only
+used in case of poisson noise with few events).
+Default=1.00e-03.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--first-detection-scale <var>INTEGER</var></span>, <span class="option">-F <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>First scale used for the detection. Default=1.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--suppress-positivity-constraint</span>, <span class="option">-P</span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Suppress positivity constraint</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maximum-level-constraint</span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Add the maximum level constraint. Max value is 255.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--mask-file-path <var>MASK_FILE_NAME</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Filename of the mask containing the bad data
+(Mask[i,j]=1 for good pixels and 0 otherwise. Default
+is none.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--offset-after-calibration <var>FLOAT</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Value added to all pixels of the input image after
+calibration. Default=0.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--correction-offset</span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Apply a correction offset to the output image.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--input-image-scale <var>INPUT_IMAGE_SCALE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Use a different scale for the input image (‘linear’,
+‘log’ or ‘sqrt’). Default=’linear’.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--noise-cdf-file <var>FILE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The JSON file containing the Cumulated Distribution
+Function of the noise model used to inject artificial
+noise in blank pixels (those with a NaN value).
+Default=None.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--tmp-dir <var>DIRECTORY</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The directory where temporary files are written.</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--verbose</span>, <span class="option">-v</span></kbd></td>
+<td>Verbose mode</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--debug</span></kbd></td>
+<td>Debug mode</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--max-images <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The maximum number of images to process</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--telid <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Only process images from the specified telescope</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--eventid <var>INTEGER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Only process images from the specified event</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--camid <var>STRING</var></span></kbd></td>
+<td>Only process images from the specified camera</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--benchmark <var>STRING</var></span>, <span class="option">-b <var>STRING</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The benchmark method to use to assess the algorithm
+for thegiven images</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--label <var>STRING</var></span>, <span class="option">-l <var>STRING</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The label attached to the produced results</td></tr>
+<tr><td class="option-group">
+<kbd><span class="option">--plot</span></kbd></td>
+<td>Plot images</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--saveplot <var>FILE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The output file where to save plotted images</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--output <var>FILE</var></span>, <span class="option">-o <var>FILE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>The output file path (JSON)</td></tr>
+</tbody>
+</table>
+</dd>
+</dl>
+</div></blockquote>
+<p class="rubric">Examples</p>
+<p>./wavelets_mrfilter.py -h
+./wavelets_mrfilter.py ./test.fits
+ipython3 – ./wavelets_mrfilter.py -n4 ./test.fits</p>
+<p class="rubric">Notes</p>
+<p>This script requires the mr_filter program
+(<a class="reference external" href="http://www.cosmostat.org/software/isap/">http://www.cosmostat.org/software/isap/</a>).</p>
+</div>
 </div>
 
 
@@ -182,10 +462,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api_filter_wavelet_mrtransform.html" class="btn btn-neutral float-right" title="denoising.wavelet_mrtransform" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api_filter_wavelet_mrtransform.html" class="btn btn-neutral float-right" title="denoising.wavelets_mrtransform" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="api_filter_tailcut.html" class="btn btn-neutral" title="denoising.tailcut" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral" title="SAp CTA data pipeline API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -15,10 +15,10 @@ Modules:
 .. toctree::
    :maxdepth: 2
 
-   datapipe.benchmark.assess <api_benchmark_assess>
+   datapipe.denoising.wavelets_mrfilter <api_filter_wavelet_mrfilter>
+   datapipe.denoising.wavelets_mrtransform <api_filter_wavelet_mrtransform>
+   datapipe.denoising.tailcut <api_filter_tailcut>
    datapipe.denoising.abstract_cleaning_algorithm <api_filter_abstract_cleaning_algorithm>
    datapipe.denoising.inverse_transform_sampling <api_filter_inverse_transform_sampling>
-   datapipe.denoising.tailcut <api_filter_tailcut>
-   datapipe.denoising.wavelet_mrfilter <api_filter_wavelet_mrfilter>
-   datapipe.denoising.wavelet_mrtransform <api_filter_wavelet_mrtransform>
+   datapipe.benchmark.assess <api_benchmark_assess>
 

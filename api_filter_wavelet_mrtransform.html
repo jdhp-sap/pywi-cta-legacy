@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>denoising.wavelet_mrtransform &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
+  <title>denoising.wavelets_mrtransform &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="SAp CTA data pipeline 0.1.dev4 documentation" href="index.html"/>
         <link rel="up" title="SAp CTA data pipeline API" href="api.html"/>
-        <link rel="next" title="Developer’s notes" href="developer.html"/>
-        <link rel="prev" title="denoising.wavelet_mrfilter" href="api_filter_wavelet_mrfilter.html"/> 
+        <link rel="next" title="denoising.tailcut" href="api_filter_tailcut.html"/>
+        <link rel="prev" title="denoising.wavelets_mrfilter" href="api_filter_wavelet_mrfilter.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -94,12 +94,12 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="api_benchmark_assess.html">datapipe.benchmark.assess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrfilter.html">datapipe.denoising.wavelets_mrfilter</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.denoising.wavelets_mrtransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_tailcut.html">datapipe.denoising.tailcut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_filter_abstract_cleaning_algorithm.html">datapipe.denoising.abstract_cleaning_algorithm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_filter_inverse_transform_sampling.html">datapipe.denoising.inverse_transform_sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_filter_tailcut.html">datapipe.denoising.tailcut</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrfilter.html">datapipe.denoising.wavelet_mrfilter</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.denoising.wavelet_mrtransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_benchmark_assess.html">datapipe.benchmark.assess</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s notes</a></li>
@@ -149,7 +149,7 @@
         
           <li><a href="api.html">SAp CTA data pipeline API</a> &raquo;</li>
         
-      <li>denoising.wavelet_mrtransform</li>
+      <li>denoising.wavelets_mrtransform</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -168,8 +168,138 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="denoising-wavelet-mrtransform">
-<h1>denoising.wavelet_mrtransform<a class="headerlink" href="#denoising-wavelet-mrtransform" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="denoising-wavelets-mrtransform">
+<h1>denoising.wavelets_mrtransform<a class="headerlink" href="#denoising-wavelets-mrtransform" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-datapipe.denoising.wavelets_mrtransform"></span><dl class="function">
+<dt id="datapipe.denoising.wavelets_mrtransform.wavelet_transform">
+<code class="descclassname">datapipe.denoising.wavelets_mrtransform.</code><code class="descname">wavelet_transform</code><span class="sig-paren">(</span><em>input_image</em>, <em>number_of_scales=4</em>, <em>tmp_files_directory='.'</em>, <em>noise_distribution=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/denoising/wavelets_mrtransform.html#wavelet_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.denoising.wavelets_mrtransform.wavelet_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the wavelet transform of <cite>input_image</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_image</strong> (<em>array_like</em>) – The input image to transform.</li>
+<li><strong>number_of_scales</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a><em>, </em><em>optional</em>) – The number of scales used to transform <cite>input_image</cite> or in other words
+the number of wavelet planes returned.</li>
+<li><strong>tmp_files_directory</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – The path of the directory used to store mr_transform temporary data.
+The default is the current directory, but it may be more appropriate to
+specify here the path of a directory mounted in a ramdisk to speedup
+I/Os (“/Volumes/ramdisk” on MacOSX or “/dev/shm” on Linux).</li>
+<li><strong>noise_distribution</strong> (<cite>EmpiricalDistribution</cite>, optional) – The noise distribution used to fill ‘empty’ NaN pixels with the
+appropriate random noise distribution. If none, NaN pixels are fill
+with zeros (which may add unwanted harmonics in wavelet planes).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return a list containing the <cite>number_of_scales</cite> wavelet planes.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">WrongDimensionError</span></code> – If <cite>input_image</cite> is not a 2D array.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.denoising.wavelets_mrtransform.filter_planes">
+<code class="descclassname">datapipe.denoising.wavelets_mrtransform.</code><code class="descname">filter_planes</code><span class="sig-paren">(</span><em>wavelet_planes, method='hard_filtering', thresholds=[0.0, 0.0], detect_only_positive_structures=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/denoising/wavelets_mrtransform.html#filter_planes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.denoising.wavelets_mrtransform.filter_planes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the wavelet planes.</p>
+<p>The last plane (called residuals) is kept unmodified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wavelet_planes</strong> (<em>list of array_like</em>) – The wavelet planes to filter, including the last <em>residual</em> plane.</li>
+<li><strong>method</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – The filtering method to use. So far, only the ‘hard_filtering’ and
+‘ksigma_hard_filtering’ methods are implemented.</li>
+<li><strong>thresholds</strong> (<em>list of float</em>) – Thresholds used for the plane filtering.</li>
+<li><strong>detect_only_positive_structures</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) – Detect only positive structures.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return a list containing the filtered wavelet planes.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.denoising.wavelets_mrtransform.inverse_wavelet_transform">
+<code class="descclassname">datapipe.denoising.wavelets_mrtransform.</code><code class="descname">inverse_wavelet_transform</code><span class="sig-paren">(</span><em>wavelet_planes</em>, <em>last_plane='mask'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/denoising/wavelets_mrtransform.html#inverse_wavelet_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.denoising.wavelets_mrtransform.inverse_wavelet_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the inverse wavelet transform of <cite>wavelet_planes</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>wavelet_planes</strong> (<em>list of array_like</em>) – The wavelet planes to (inverse) transform.</li>
+<li><strong>last_plane</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Define what to do with the last plane: ‘keep’ to keep it in the inverse
+transform, ‘drop’ to remove it in the inverse transform, ‘mask’ to keep
+only pixels that are <em>significant</em> in the others planes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return the cleaned image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">array_like</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="datapipe.denoising.wavelets_mrtransform.WaveletTransform">
+<em class="property">class </em><code class="descclassname">datapipe.denoising.wavelets_mrtransform.</code><code class="descname">WaveletTransform</code><a class="reference internal" href="_modules/datapipe/denoising/wavelets_mrtransform.html#WaveletTransform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.denoising.wavelets_mrtransform.WaveletTransform" title="Permalink to this definition">¶</a></dt>
+<dd><p>The wavelet transform wrapper for ctapipe.</p>
+<dl class="method">
+<dt id="datapipe.denoising.wavelets_mrtransform.WaveletTransform.clean_image">
+<code class="descname">clean_image</code><span class="sig-paren">(</span><em>input_image, type_of_filtering='hard_filtering', filter_thresholds=[0.0, 0.0], last_scale_treatment='mask', detect_only_positive_structures=False, kill_isolated_pixels=False, noise_distribution=None, tmp_files_directory='.', output_data_dict=None, **kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/denoising/wavelets_mrtransform.html#WaveletTransform.clean_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.denoising.wavelets_mrtransform.WaveletTransform.clean_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean the <cite>input_image</cite> image.</p>
+<p>Apply the wavelet transform, filter planes and return the reverse
+transformed image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_image</strong> (<em>array_like</em>) – The image to clean.</li>
+<li><strong>type_of_filtering</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Type of filtering: ‘hard_filtering’ or ‘ksigma_hard_filtering’.</li>
+<li><strong>filter_thresholds</strong> (<em>list of float</em>) – Thresholds used for the plane filtering.</li>
+<li><strong>last_scale_treatment</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Last plane treatment: ‘keep’, ‘drop’ or ‘mask’.</li>
+<li><strong>detect_only_positive_structures</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) – Detect only positive structures.</li>
+<li><strong>kill_isolated_pixels</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) – Suppress isolated pixels in the support.</li>
+<li><strong>noise_distribution</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) – The JSON file containing the Cumulated Distribution Function of the
+noise model used to inject artificial noise in blank pixels (those
+with a NaN value).</li>
+<li><strong>tmp_files_directory</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the directory where temporary files are written.</li>
+<li><strong>output_data_dict</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – A dictionary used to return results and intermediate results.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Return the cleaned image.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -182,10 +312,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="developer.html" class="btn btn-neutral float-right" title="Developer’s notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api_filter_tailcut.html" class="btn btn-neutral float-right" title="denoising.tailcut" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="api_filter_wavelet_mrfilter.html" class="btn btn-neutral" title="denoising.wavelet_mrfilter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="api_filter_wavelet_mrfilter.html" class="btn btn-neutral" title="denoising.wavelets_mrfilter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

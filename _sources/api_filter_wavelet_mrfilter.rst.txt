@@ -1,7 +1,7 @@
-==========================
-denoising.wavelet_mrfilter
-==========================
+===========================
+denoising.wavelets_mrfilter
+===========================
 
-.. automodule:: datapipe.denoising.wavelet_mrfilter
+.. automodule:: datapipe.denoising.wavelets_mrfilter
    :members:
 
