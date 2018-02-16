@@ -118,7 +118,7 @@ setup(author=AUTHOR_NAME,
       maintainer=AUTHOR_NAME,
       maintainer_email=AUTHOR_EMAIL,
 
-      name=PYTHON_PACKAGE_NAME,
+      name='ctapipe-wavelet-filter',
       description=PROJECT_SHORT_DESC,
       long_description=get_long_description(),
       url=PROJECT_WEB_SITE_URL,
