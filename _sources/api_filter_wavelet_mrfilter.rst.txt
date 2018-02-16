@@ -1,7 +1,7 @@
-=====================================
-denoising.abstract_cleaning_algorithm
-=====================================
+==========================
+denoising.wavelet_mrfilter
+==========================
 
-.. automodule:: datapipe.denoising.abstract_cleaning_algorithm
+.. automodule:: datapipe.denoising.wavelet_mrfilter
    :members:
 

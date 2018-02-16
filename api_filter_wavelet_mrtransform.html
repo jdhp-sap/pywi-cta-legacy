@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>denoising.abstract_cleaning_algorithm &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
+  <title>denoising.wavelet_mrtransform &mdash; SAp CTA data pipeline 0.1.dev4 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
     <link rel="top" title="SAp CTA data pipeline 0.1.dev4 documentation" href="index.html"/>
         <link rel="up" title="SAp CTA data pipeline API" href="api.html"/>
         <link rel="next" title="Developer’s notes" href="developer.html"/>
-        <link rel="prev" title="denoising.abstract_cleaning_algorithm" href="api_filter_wavelet_mrfilter.html"/> 
+        <link rel="prev" title="denoising.wavelet_mrfilter" href="api_filter_wavelet_mrfilter.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -149,7 +149,7 @@
         
           <li><a href="api.html">SAp CTA data pipeline API</a> &raquo;</li>
         
-      <li>denoising.abstract_cleaning_algorithm</li>
+      <li>denoising.wavelet_mrtransform</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -168,73 +168,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-datapipe.denoising.abstract_cleaning_algorithm">
-<span id="denoising-abstract-cleaning-algorithm"></span><h1>denoising.abstract_cleaning_algorithm<a class="headerlink" href="#module-datapipe.denoising.abstract_cleaning_algorithm" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="datapipe.denoising.abstract_cleaning_algorithm.AbstractCleaningAlgorithm">
-<em class="property">class </em><code class="descclassname">datapipe.denoising.abstract_cleaning_algorithm.</code><code class="descname">AbstractCleaningAlgorithm</code><a class="reference internal" href="_modules/datapipe/denoising/abstract_cleaning_algorithm.html#AbstractCleaningAlgorithm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.denoising.abstract_cleaning_algorithm.AbstractCleaningAlgorithm" title="Permalink to this definition">¶</a></dt>
-<dd><p>A convenient optional wrapper to simplify the image cleaning analysis.</p>
-<p>Common processing to run and assess the image cleaning procedure on a set
-of images and save results. This class gather some common procedures to
-avoid code duplication in image cleaning modules:
-- call the cleaning algorithm on an image set;
-- assess the cleaning procedure using a set of estimators;
-- apply various pre-processing and post-processing procedures (e.g.</p>
-<blockquote>
-<div>geometry conversion);</div></blockquote>
-<ul class="simple">
-<li>collect and save metadata, results and intermediate values that are
-useful for analysis;</li>
-<li>measure and save the execution time;</li>
-<li>manage exceptions;</li>
-<li>…</li>
-</ul>
-<p>This abstract class is supposed to be inherited by the others image
-cleaning classes.</p>
-<dl class="method">
-<dt id="datapipe.denoising.abstract_cleaning_algorithm.AbstractCleaningAlgorithm.run">
-<code class="descname">run</code><span class="sig-paren">(</span><em>cleaning_function_params</em>, <em>input_file_or_dir_path_list</em>, <em>benchmark_method</em>, <em>output_file_path</em>, <em>plot=False</em>, <em>saveplot=None</em>, <em>ref_img_as_input=False</em>, <em>max_num_img=None</em>, <em>tel_id=None</em>, <em>event_id=None</em>, <em>cam_id=None</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/denoising/abstract_cleaning_algorithm.html#AbstractCleaningAlgorithm.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.denoising.abstract_cleaning_algorithm.AbstractCleaningAlgorithm.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>A convenient optional wrapper to simplify the image cleaning analysis.</p>
-<p>Apply the image cleaning analysis on <cite>input_file_or_dir_path_list</cite>,
-apply some pre-processing and post-processing procedures, collect and
-return results, intermediate values and metadata.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cleaning_function_params</strong> – A dictionary containing the parameters required for the image
-cleaning method.</li>
-<li><strong>input_file_or_dir_path_list</strong> – A list of file to clean. Can be a list of simtel files, fits files
-or directories containing such files.</li>
-<li><strong>benchmark_method</strong> – The list of estimators to use to assess the image cleaning. If
-<cite>None</cite>, images are cleaned but nothing is returned (can be used
-with e.g. the <cite>plot</cite> and/or <cite>saveplot</cite> options).</li>
-<li><strong>output_file_path</strong> – The result file path (a JSON file).</li>
-<li><strong>plot</strong> – The result of each cleaning is plot if <cite>True</cite>.</li>
-<li><strong>saveplot</strong> – The result of each cleaning is saved if <cite>True</cite>.</li>
-<li><strong>ref_img_as_input</strong> – This option is a hack to easily produce a “flatten” CSV results
-files.</li>
-<li><strong>max_num_img</strong> – The number of images to process among the input set
-(<cite>input_file_or_dir_path_list</cite>).</li>
-<li><strong>debug</strong> – Stop the execution and print the full traceback when an exception
-is encountered if this parameter is <cite>True</cite>. Report exceptions and
-continue with the next input image if this parameter is <cite>False</cite>.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Results, intermediate values and metadata.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="denoising-wavelet-mrtransform">
+<h1>denoising.wavelet_mrtransform<a class="headerlink" href="#denoising-wavelet-mrtransform" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -250,7 +185,7 @@ continue with the next input image if this parameter is <cite>False</cite>.</li>
         <a href="developer.html" class="btn btn-neutral float-right" title="Developer’s notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="api_filter_wavelet_mrfilter.html" class="btn btn-neutral" title="denoising.abstract_cleaning_algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="api_filter_wavelet_mrfilter.html" class="btn btn-neutral" title="denoising.wavelet_mrfilter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,7 +1,7 @@
-=====================================
-denoising.abstract_cleaning_algorithm
-=====================================
+====================================
+denoising.inverse_transform_sampling
+====================================
 
-.. automodule:: datapipe.denoising.abstract_cleaning_algorithm
+.. automodule:: datapipe.denoising.inverse_transform_sampling
    :members:
 
