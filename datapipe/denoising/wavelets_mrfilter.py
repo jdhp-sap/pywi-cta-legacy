@@ -29,6 +29,8 @@ This script use mr_filter -- a program written CEA/CosmoStat
 Usage
 -----
 
+::
+
     wavelets_mrfilter.py [-h] [--type-of-filtering INTEGER]
                               [--coef-detection-method INTEGER]
                               [--type-of-multiresolution-transform INTEGER]
@@ -57,13 +59,13 @@ Usage
                               [--label STRING] [--plot] [--saveplot FILE]
                               [--output FILE]
                               FILE [FILE ...]
-
+    
     Denoise FITS images with Wavelet Transform.
-
+    
     positional arguments:
       FILE                  The files image to process (FITS).If fileargs is a
                             directory,all FITS files it contains are processed.
-
+    
     optional arguments:
       -h, --help            show this help message and exit
       --type-of-filtering INTEGER, -f INTEGER
