@@ -143,7 +143,7 @@ Clean images generated in step 1:
 3. instead of the step 3.2, the "benchmark mode" can be set to clean
    images and assess cleaning algorithms (it's still a bit experimental) : use
    the same instructions than for step 3.2 with the additional option "-b 1" in
-   each command (and put several fits files in input e.g. "*.fits")
+   each command (and put several fits files in input e.g. "\*.fits")
 
 Step 4
 ------
