@@ -37,9 +37,9 @@ Gnu/Linux
 You can install, upgrade, uninstall SAp CTA data pipeline with these commands (in a
 terminal)::
 
-    pip install --pre datapipe
-    pip install --upgrade datapipe
-    pip uninstall datapipe
+    pip install --pre ctapipe-wavelet-filter
+    pip install --upgrade ctapipe-wavelet-filter
+    pip uninstall ctapipe-wavelet-filter
 
 Or, if you have downloaded the SAp CTA data pipeline source code::
 
@@ -47,7 +47,7 @@ Or, if you have downloaded the SAp CTA data pipeline source code::
 
 .. There's also a package for Debian/Ubuntu::
 .. 
-..     sudo apt-get install datapipe
+..     sudo apt-get install ctapipe-wavelet-filter
 
 Windows
 -------
@@ -61,9 +61,9 @@ Windows
 You can install, upgrade, uninstall SAp CTA data pipeline with these commands (in a
 `command prompt`_)::
 
-    py -m pip install --pre datapipe
-    py -m pip install --upgrade datapipe
-    py -m pip uninstall datapipe
+    py -m pip install --pre ctapipe-wavelet-filter
+    py -m pip install --upgrade ctapipe-wavelet-filter
+    py -m pip uninstall ctapipe-wavelet-filter
 
 Or, if you have downloaded the SAp CTA data pipeline source code::
 
@@ -81,9 +81,9 @@ MacOSX
 You can install, upgrade, uninstall SAp CTA data pipeline with these commands (in a
 terminal)::
 
-    pip install --pre datapipe
-    pip install --upgrade datapipe
-    pip uninstall datapipe
+    pip install --pre ctapipe-wavelet-filter
+    pip install --upgrade ctapipe-wavelet-filter
+    pip uninstall ctapipe-wavelet-filter
 
 Or, if you have downloaded the SAp CTA data pipeline source code::
 
