@@ -79,6 +79,8 @@ doc-show:
 	$(PYTHON) setup.py build_sphinx --open-docs-in-browser
 
 doc-publish-github: doc
+	# See https://github.com/davisp/ghp-import
+	# Install: pip install ghp-import
 	ghp-import -n -p -m 'Update gh-pages docs' docs/_build/html
 
 doc-publish-jdhp: doc
