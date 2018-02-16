@@ -1,13 +1,13 @@
-========================
-CTAPipe Wavelet Cleaning
-========================
+======================
+CTAPipe Wavelet Filter
+======================
 
-Copyright (c) 2016 Jeremie DECOCK (www.jdhp.org) and Tino Michael
+Copyright (c) 2016,2017,2018 Jeremie DECOCK (www.jdhp.org) and Tino Michael
 
 * Online documentation: https://jdhp-sap.github.io/ctapipe-wavelet-filter/
 * Source code: https://github.com/jdhp-sap/ctapipe-wavelet-filter
 * Issue tracker: https://github.com/jdhp-sap/ctapipe-wavelet-filter/issues
-* datapipe on PyPI: https://pypi.python.org/pypi/datapipe
+* CTAPipe wavelet filter on PyPI: https://pypi.python.org/pypi/ctapipe-wavelet-filter
 
 .. Former documentation: http://sap-cta-data-pipeline.readthedocs.io/en/latest/
 
