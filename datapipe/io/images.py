@@ -21,13 +21,22 @@
 # THE SOFTWARE.
 
 __all__ = ['fill_nan_pixels',
-           'load_fits',
-           'save_fits',
-           'mpl_save',
-           'plot',
+           'hillas_parameters_to_df',
            'image_files_in_dir',
            'image_files_in_paths',
-           'image_generator']
+           'image_generator',
+           'load_benchmark_images',
+           'load_fits',
+           'mpl_save',
+           'plot',
+           'plot_ctapipe_image',
+           'plot_hillas_parameters_on_axes',
+           'print_hillas_parameters',
+           'quantity_to_tuple',
+           'save_benchmark_images',
+           'save_fits',
+           'simtel_event_to_images',
+           'simtel_images_generator']
 
 import math
 
@@ -186,7 +195,22 @@ def fill_nan_pixels(image, noise_distribution=None):
 # DIRECTORY PARSER ############################################################
 
 def image_files_in_dir(directory_path, max_num_files=None):
-    """ Return the list of all FITS files and Simtel files in `directory_path`.
+    """Return the path of FITS and Simtel files in `directory_path`.
+
+    Return the path of all (or `max_num_files`) files having the extension
+    ".simtel", ".simtel.gz", ".fits" or ".fit" in `directory_path`.
+
+    Parameters
+    ----------
+    directory_path : str
+        The directory's path where FITS and Simtel files are searched.
+    max_num_files : int
+        The maximum number of files to return.
+
+    Yields
+    ------
+    str
+        The path of the next FITS or Simtel files in `directory_path`.
     """
 
     FILE_EXT = (".simtel", ".simtel.gz", ".fits", ".fit")
@@ -205,9 +229,24 @@ def image_files_in_dir(directory_path, max_num_files=None):
 
 
 def image_files_in_paths(path_list, max_num_files=None):
-    """Return an iterable sequence all FITS files path and Simtel files path in `path_list`.
+    """Return the path of FITS and Simtel files in `path_list`.
 
-    `path_list` can contain files and directories.
+    Return the path of all (or `max_num_files`) files having the extension
+    ".simtel", ".simtel.gz", ".fits" or ".fit" in `path_list`.
+
+    Parameters
+    ----------
+    path_list : str
+        The list of directory's path where FITS and Simtel files are searched.
+        It can also directly contain individual file paths (or a mix of files
+        and directories path).
+    max_num_files : int
+        The maximum number of files to return.
+
+    Yields
+    ------
+    str
+        The path of the next FITS or Simtel files in `path_list`.
     """
 
     files_counter = 0
@@ -272,6 +311,12 @@ def image_generator(path_list,
         Only iterate images from events defined in this list.
     cam_filter_list
         Only iterate images from cameras defined in this list.
+
+    Yields
+    ------
+    Image1D or Image2D
+        The named tuple `Image1D` or `Image1D` of the next FITS or Simtel files
+        in `path_list`.
     """
 
     images_counter = 0
