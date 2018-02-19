@@ -53,4 +53,6 @@ Optimization package:
    datapipe.optimization.bruteforce <api_optimization_bruteforce>
    datapipe.optimization.differential_evolution <api_optimization_differential_evolution>
    datapipe.optimization.saes <api_optimization_saes>
+   datapipe.optimization.objectivefunc.tailcut_delta_psi <api_optimization_objectivefunc_tailcut_delta_psi>
+   datapipe.optimization.objectivefunc.wavelets_mrfilter_delta_psi <api_optimization_objectivefunc_wavelets_mrfilter_delta_psi>
 
