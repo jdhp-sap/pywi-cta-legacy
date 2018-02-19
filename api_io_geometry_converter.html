@@ -1,0 +1,795 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>benchmark.assess &mdash; SAp CTA data pipeline 0.1.dev6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="SAp CTA data pipeline 0.1.dev6 documentation" href="index.html"/>
+        <link rel="up" title="SAp CTA data pipeline API" href="api.html"/>
+        <link rel="next" title="io.images" href="api_io_images.html"/>
+        <link rel="prev" title="io.geometry_converter" href="api_benchmark_assess.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SAp CTA data pipeline
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrfilter.html">datapipe.denoising.wavelets_mrfilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrtransform.html">datapipe.denoising.wavelets_mrtransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_tailcut.html">datapipe.denoising.tailcut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_abstract_cleaning_algorithm.html">datapipe.denoising.abstract_cleaning_algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_inverse_transform_sampling.html">datapipe.denoising.inverse_transform_sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_benchmark_assess.html">datapipe.benchmark.assess</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.io.geometry_converter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_io_images.html">datapipe.io.images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SAp CTA data pipeline</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="api.html">SAp CTA data pipeline API</a> &raquo;</li>
+        
+      <li>benchmark.assess</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api_io_geometry_converter.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-datapipe.benchmark.assess">
+<span id="benchmark-assess"></span><h1>benchmark.assess<a class="headerlink" href="#module-datapipe.benchmark.assess" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="datapipe.benchmark.assess.normalize_array">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">normalize_array</code><span class="sig-paren">(</span><em>input_array</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#normalize_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.normalize_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize the given image such that its pixels value fit between 0.0
+and 1.0.</p>
+<p>It applies</p>
+<div class="math">
+\[\text{normalize}(\boldsymbol{S}) = \frac{ \boldsymbol{S} - \text{min}(\boldsymbol{S}) }{ \text{max}(\boldsymbol{S}) - \text{min}(\boldsymbol{S}) }\]</div>
+<p>where <span class="math">\(\boldsymbol{S}\)</span> is the input array (an image).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>image</strong> (<em>Numpy array</em>) – The image to normalize (whatever its shape)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The normalized version of the input image (keeping the same dimension
+and shape)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric_mse">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric_mse</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric_mse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric_mse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <em>Mean-Squared Error</em> (MSE) metric.</p>
+<p>It applies</p>
+<div class="math">
+\[\text{MSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \hat{\boldsymbol{S}} - \boldsymbol{S}^* \right)^{\circ 2} \right\rangle\]</div>
+<p>with:</p>
+<ul class="simple">
+<li><span class="math">\(\hat{\boldsymbol{S}}\)</span> the algorithm’s output image (i.e. the
+<em>cleaned</em> image);</li>
+<li><span class="math">\(\boldsymbol{S}^*\)</span> the reference image (i.e. the <em>clean</em> image);</li>
+<li><span class="math">\(\langle \boldsymbol{S} \rangle\)</span> the average of matrix
+<span class="math">\(\boldsymbol{S}\)</span>;</li>
+<li><span class="math">\(\boldsymbol{S}^{\circ 2}\)</span> the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hadamard_product_(matrices)#Analogous_operations">Hadamar power</a>
+(i.e. the element wise square) of matrix <span class="math">\(\boldsymbol{S}\)</span>.</li>
+</ul>
+<p>See <a class="reference external" href="http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-mse">http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-mse</a>
+for more information.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function is not well-suited to high dynamic range images handled with
+this project (errors are correlated with energy levels).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric_nrmse">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric_nrmse</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric_nrmse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric_nrmse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <em>Normalized Root Mean-Squared Error</em> (NRMSE) metric.</p>
+<p>It applies</p>
+<div class="math">
+\[\text{NRMSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{\sqrt{\text{MSE}}}{\sqrt{ \left\langle \hat{\boldsymbol{S}} \circ \boldsymbol{S}^* \right\rangle }}\]</div>
+<p>with:</p>
+<ul class="simple">
+<li><span class="math">\(\hat{\boldsymbol{S}}\)</span> the algorithm’s output image (i.e. the
+<em>cleaned</em> image);</li>
+<li><span class="math">\(\boldsymbol{S}^*\)</span> the reference image (i.e. the <em>clean</em> image);</li>
+<li><span class="math">\(\langle \boldsymbol{S} \rangle\)</span> the average of matrix
+<span class="math">\(\boldsymbol{S}\)</span>;</li>
+<li><span class="math">\(\circ\)</span> the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hadamard_product_(matrices)">Hadamar product</a>
+(i.e. the element wise product operator).</li>
+</ul>
+<p>See <a class="reference external" href="http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-nrmse">http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-nrmse</a> and
+<a class="reference external" href="https://en.wikipedia.org/wiki/Root-mean-square_deviation">https://en.wikipedia.org/wiki/Root-mean-square_deviation</a> for more information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric1">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric1</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with a (unusually) normalized version of the <em>Root Mean-Squared Error</em>
+(RMSE) metric.</p>
+<p>It applies</p>
+<div class="math">
+\[\text{uNRMSE}(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \left( \left( \hat{\boldsymbol{S}}_n - \boldsymbol{S}^*_n \right)^{\circ 2} \right)^{\circ \frac{1}{2}} \right\rangle\]</div>
+<p>with:</p>
+<ul class="simple">
+<li><span class="math">\(\hat{\boldsymbol{S}}_n\)</span>
+the algorithm’s normalized output image (i.e. the <em>cleaned</em> image),
+(using <a class="reference internal" href="#datapipe.benchmark.assess.normalize_array" title="datapipe.benchmark.assess.normalize_array"><code class="xref py py-func docutils literal"><span class="pre">normalize_array()</span></code></a>);</li>
+<li><span class="math">\(\boldsymbol{S}^*_n\)</span>
+the normalized reference image (i.e. the <em>clean</em> image)
+(using <a class="reference internal" href="#datapipe.benchmark.assess.normalize_array" title="datapipe.benchmark.assess.normalize_array"><code class="xref py py-func docutils literal"><span class="pre">normalize_array()</span></code></a>);</li>
+<li><span class="math">\(\langle \boldsymbol{S} \rangle\)</span> the average of matrix
+<span class="math">\(\boldsymbol{S}\)</span>;</li>
+<li><span class="math">\(\boldsymbol{S}^{\circ 2}\)</span> the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hadamard_product_(matrices)#Analogous_operations">Hadamar power</a>
+(i.e. the element wise square) of matrix <span class="math">\(\boldsymbol{S}\)</span>.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function is not robust to noise on extreme values.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric2">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric2</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <span class="math">\(\mathcal{E}_{\text{shape}}\)</span> metric.</p>
+<p>It applies</p>
+<div class="math">
+\[f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \left\langle \text{abs} \left( \frac{\hat{\boldsymbol{S}}}{\sum_i \hat{\boldsymbol{S}}_i} - \frac{\boldsymbol{S}^*}{\sum_i \boldsymbol{S}^*_i} \right) \right\rangle\]</div>
+<p>with:</p>
+<ul class="simple">
+<li><span class="math">\(\hat{\boldsymbol{S}}\)</span> the algorithm’s output image
+(i.e. the <em>cleaned</em> image);</li>
+<li><span class="math">\(\boldsymbol{S}^*\)</span> the reference image (i.e. the <em>clean</em> image);</li>
+<li><span class="math">\(\langle \boldsymbol{S} \rangle\)</span> the average of matrix
+<span class="math">\(\boldsymbol{S}\)</span>.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric3">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric3</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <span class="math">\(\mathcal{E}^+_{\text{energy}}\)</span>
+(a.k.a. <em>relative total counts difference</em>) metric.</p>
+<p>It applies</p>
+<div class="math">
+\[f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{ \text{abs} \left( \sum_i \hat{\boldsymbol{S}}_i - \sum_i \boldsymbol{S}^*_i \right) }{ \sum_i \boldsymbol{S}^*_i }\]</div>
+<p>with <span class="math">\(\hat{\boldsymbol{S}}\)</span> the algorithm’s output image
+(i.e. the <em>cleaned</em> image)
+and <span class="math">\(\boldsymbol{S}^*\)</span> the reference image
+(i.e. the <em>clean</em> image).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric4">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric4</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <span class="math">\(\mathcal{E}_{\text{energy}}\)</span>
+(a.k.a. <em>signed relative total counts difference</em>) metric.</p>
+<p>It applies</p>
+<div class="math">
+\[f(\hat{\boldsymbol{S}}, \boldsymbol{S}^*) = \frac{ \sum_i \hat{\boldsymbol{S}}_i - \sum_i \boldsymbol{S}^*_i }{ \sum_i \boldsymbol{S}^*_i }\]</div>
+<p>with <span class="math">\(\hat{\boldsymbol{S}}\)</span> the algorithm’s output image
+(i.e. the <em>cleaned</em> image)
+and <span class="math">\(\boldsymbol{S}^*\)</span> the reference image
+(i.e. the <em>clean</em> image).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric_ssim">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric_ssim</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric_ssim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric_ssim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <em>Structural Similarity Index Measure</em> (SSIM) metric.</p>
+<p>See <a class="footnote-reference" href="#id6" id="id2">[1]</a>, <a class="footnote-reference" href="#id7" id="id3">[2]</a>, <a class="footnote-reference" href="#id8" id="id4">[3]</a> and <a class="footnote-reference" href="#id9" id="id5">[4]</a> for more information.</p>
+<p>The SSIM index is calculated on various windows of an image.
+The measure between two windows <span class="math">\(x\)</span> and <span class="math">\(y\)</span> of common size
+<span class="math">\(N.N\)</span> is:</p>
+<div class="math">
+\[\hbox{SSIM}(x,y) = \frac{(2\mu_x\mu_y + c_1)(2\sigma_{xy} + c_2)}{(\mu_x^2 + \mu_y^2 + c_1)(\sigma_x^2 + \sigma_y^2 + c_2)}\]</div>
+<p>with:</p>
+<ul class="simple">
+<li><span class="math">\(\scriptstyle\mu_x\)</span> the average of <span class="math">\(\scriptstyle x\)</span>;</li>
+<li><span class="math">\(\scriptstyle\mu_y\)</span> the average of <span class="math">\(\scriptstyle y\)</span>;</li>
+<li><span class="math">\(\scriptstyle\sigma_x^2\)</span> the variance of <span class="math">\(\scriptstyle x\)</span>;</li>
+<li><span class="math">\(\scriptstyle\sigma_y^2\)</span> the variance of <span class="math">\(\scriptstyle y\)</span>;</li>
+<li><span class="math">\(\scriptstyle \sigma_{xy}\)</span> the covariance of <span class="math">\(\scriptstyle x\)</span> and <span class="math">\(\scriptstyle y\)</span>;</li>
+<li><span class="math">\(\scriptstyle c_1 = (k_1L)^2\)</span>, <span class="math">\(\scriptstyle c_2 = (k_2L)^2\)</span> two variables to stabilize the division with weak denominator;</li>
+<li><span class="math">\(\scriptstyle L\)</span> the dynamic range of the pixel-values (typically this is <span class="math">\(\scriptstyle 2^{\#bits\ per\ pixel}-1\)</span>);</li>
+<li><span class="math">\(\scriptstyle k_1 = 0.01\)</span> and <span class="math">\(\scriptstyle k_2 = 0.03\)</span> by default.</li>
+</ul>
+<p>The SSIM index satisfies the condition of symmetry:</p>
+<div class="math">
+\[\text{SSIM}(x, y) = \text{SSIM}(y, x)\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>Wang, Z., Bovik, A. C., Sheikh, H. R., &amp; Simoncelli, E. P.
+(2004). Image quality assessment: From error visibility to
+structural similarity. IEEE Transactions on Image Processing,
+13, 600-612.
+<a class="reference external" href="https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf">https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf</a>,
+DOI:10.1.1.11.2477</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>Avanaki, A. N. (2009). Exact global histogram specification
+optimized for structural similarity. Optical Review, 16, 613-621.
+<a class="reference external" href="http://arxiv.org/abs/0901.0065">http://arxiv.org/abs/0901.0065</a>,
+DOI:10.1007/s10043-009-0119-z</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td><a class="reference external" href="http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-ssim">http://scikit-image.org/docs/dev/api/skimage.measure.html#compare-ssim</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id9" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td><a class="reference external" href="https://en.wikipedia.org/wiki/Structural_similarity">https://en.wikipedia.org/wiki/Structural_similarity</a></td></tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric_psnr">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric_psnr</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric_psnr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric_psnr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <em>Peak Signal-to-Noise Ratio</em> (PSNR) metric.</p>
+<p>See <a class="footnote-reference" href="#id12" id="id10">[5]</a> and <a class="footnote-reference" href="#id13" id="id11">[6]</a> for more information.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id10">[5]</a></td><td><a class="reference external" href="http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.compare_psnr">http://scikit-image.org/docs/dev/api/skimage.measure.html#skimage.measure.compare_psnr</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id13" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id11">[6]</a></td><td><a class="reference external" href="https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio">https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio</a></td></tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric_delta_psi">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric_delta_psi</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>geom</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric_delta_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric_delta_psi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the following relative <em>psi parameters</em> (relative difference of shower angle between the cleaned image and the reference image).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#float" title="(in Python v2.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric_hillas_delta">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric_hillas_delta</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>geom</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric_hillas_delta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric_hillas_delta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the following relative <em>Hillas parameters</em>:</p>
+<ul class="simple">
+<li><span class="math">\(\Delta_{\text{size}}   = \text{reference_image}_{\text{size}}   - \text{output_image}_{\text{size_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{cen_x}}  = \text{reference_image}_{\text{cen_x}}  - \text{output_image}_{\text{cen_x_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{cen_y}}  = \text{reference_image}_{\text{cen_y}}  - \text{output_image}_{\text{cen_y_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{length}} = \text{reference_image}_{\text{length}} - \text{output_image}_{\text{length_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{width}}  = \text{reference_image}_{\text{width}}  - \text{output_image}_{\text{width_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{r}}      = \text{reference_image}_{\text{r}}      - \text{output_image}_{\text{r_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{phi}}    = \text{reference_image}_{\text{phi}}    - \text{output_image}_{\text{phi_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{psi}}    = \text{reference_image}_{\text{psi}}    - \text{output_image}_{\text{psi_out}}\)</span></li>
+<li><span class="math">\(\Delta_{\text{miss}}   = \text{reference_image}_{\text{miss}}   - \text{output_image}_{\text{miss_out}}\)</span></li>
+</ul>
+<p>See <a class="reference external" href="http://adsabs.harvard.edu/abs/1989ApJ...342..379W">http://adsabs.harvard.edu/abs/1989ApJ…342..379W</a> for more details
+about Hillas parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">namedtuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.metric_hillas_delta2">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">metric_hillas_delta2</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_image</em>, <em>reference_image</em>, <em>geom</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#metric_hillas_delta2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.metric_hillas_delta2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <code class="docutils literal"><span class="pre">output_image</span></code> regarding <code class="docutils literal"><span class="pre">reference_image</span></code>
+with the <em>Hillas parameters</em>.</p>
+<p>It works exactly like <a class="reference internal" href="#datapipe.benchmark.assess.metric_hillas_delta" title="datapipe.benchmark.assess.metric_hillas_delta"><code class="xref py py-func docutils literal"><span class="pre">metric_hillas_delta()</span></code></a> except that isolated
+pixels are removed from the <code class="docutils literal"><span class="pre">reference_image</span></code> before the evaluation
+(using <code class="xref py py-func docutils literal"><span class="pre">datapipe.image.kill_isolated_pixels()</span></code>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_image</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_image</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">namedtuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.benchmark.assess.assess_image_cleaning">
+<code class="descclassname">datapipe.benchmark.assess.</code><code class="descname">assess_image_cleaning</code><span class="sig-paren">(</span><em>input_img</em>, <em>output_img</em>, <em>reference_img</em>, <em>benchmark_method</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/benchmark/assess.html#assess_image_cleaning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.benchmark.assess.assess_image_cleaning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the score of <cite>output_image</cite> regarding <cite>reference_image</cite>
+with the <cite>benchmark_method</cite> metrics:</p>
+<ul class="simple">
+<li>“mse”:                  <a class="reference internal" href="#datapipe.benchmark.assess.metric_mse" title="datapipe.benchmark.assess.metric_mse"><code class="xref py py-func docutils literal"><span class="pre">metric_mse()</span></code></a></li>
+<li>“nrmse”:                <a class="reference internal" href="#datapipe.benchmark.assess.metric_nrmse" title="datapipe.benchmark.assess.metric_nrmse"><code class="xref py py-func docutils literal"><span class="pre">metric_nrmse()</span></code></a></li>
+<li>“unrmse”:               <a class="reference internal" href="#datapipe.benchmark.assess.metric1" title="datapipe.benchmark.assess.metric1"><code class="xref py py-func docutils literal"><span class="pre">metric1()</span></code></a></li>
+<li>“e_shape”:              <a class="reference internal" href="#datapipe.benchmark.assess.metric2" title="datapipe.benchmark.assess.metric2"><code class="xref py py-func docutils literal"><span class="pre">metric2()</span></code></a></li>
+<li>“e_energy”:             <a class="reference internal" href="#datapipe.benchmark.assess.metric3" title="datapipe.benchmark.assess.metric3"><code class="xref py py-func docutils literal"><span class="pre">metric3()</span></code></a></li>
+<li>“mpdspd”:               <a class="reference internal" href="#datapipe.benchmark.assess.metric2" title="datapipe.benchmark.assess.metric2"><code class="xref py py-func docutils literal"><span class="pre">metric2()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric3" title="datapipe.benchmark.assess.metric3"><code class="xref py py-func docutils literal"><span class="pre">metric3()</span></code></a></li>
+<li>“sspd”:                 <a class="reference internal" href="#datapipe.benchmark.assess.metric4" title="datapipe.benchmark.assess.metric4"><code class="xref py py-func docutils literal"><span class="pre">metric4()</span></code></a></li>
+<li>“ssim”:                 <a class="reference internal" href="#datapipe.benchmark.assess.metric_ssim" title="datapipe.benchmark.assess.metric_ssim"><code class="xref py py-func docutils literal"><span class="pre">metric_ssim()</span></code></a></li>
+<li>“psnr”:                 <a class="reference internal" href="#datapipe.benchmark.assess.metric_psnr" title="datapipe.benchmark.assess.metric_psnr"><code class="xref py py-func docutils literal"><span class="pre">metric_psnr()</span></code></a></li>
+<li>“delta_psi”:            <a class="reference internal" href="#datapipe.benchmark.assess.metric_delta_psi" title="datapipe.benchmark.assess.metric_delta_psi"><code class="xref py py-func docutils literal"><span class="pre">metric_delta_psi()</span></code></a></li>
+<li>“hillas_delta”:         <a class="reference internal" href="#datapipe.benchmark.assess.metric_hillas_delta" title="datapipe.benchmark.assess.metric_hillas_delta"><code class="xref py py-func docutils literal"><span class="pre">metric_hillas_delta()</span></code></a></li>
+<li>“hillas_delta2”:        <a class="reference internal" href="#datapipe.benchmark.assess.metric_hillas_delta2" title="datapipe.benchmark.assess.metric_hillas_delta2"><code class="xref py py-func docutils literal"><span class="pre">metric_hillas_delta2()</span></code></a></li>
+<li>“kill_isolated_pixels”: <code class="xref py py-func docutils literal"><span class="pre">metric_kill_isolated_pixels()</span></code></li>
+<li>“all”:                  <a class="reference internal" href="#datapipe.benchmark.assess.metric_mse" title="datapipe.benchmark.assess.metric_mse"><code class="xref py py-func docutils literal"><span class="pre">metric_mse()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric_nrmse" title="datapipe.benchmark.assess.metric_nrmse"><code class="xref py py-func docutils literal"><span class="pre">metric_nrmse()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric2" title="datapipe.benchmark.assess.metric2"><code class="xref py py-func docutils literal"><span class="pre">metric2()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric3" title="datapipe.benchmark.assess.metric3"><code class="xref py py-func docutils literal"><span class="pre">metric3()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric4" title="datapipe.benchmark.assess.metric4"><code class="xref py py-func docutils literal"><span class="pre">metric4()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric_ssim" title="datapipe.benchmark.assess.metric_ssim"><code class="xref py py-func docutils literal"><span class="pre">metric_ssim()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric_psnr" title="datapipe.benchmark.assess.metric_psnr"><code class="xref py py-func docutils literal"><span class="pre">metric_psnr()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric_hillas_delta" title="datapipe.benchmark.assess.metric_hillas_delta"><code class="xref py py-func docutils literal"><span class="pre">metric_hillas_delta()</span></code></a>, <a class="reference internal" href="#datapipe.benchmark.assess.metric_hillas_delta2" title="datapipe.benchmark.assess.metric_hillas_delta2"><code class="xref py py-func docutils literal"><span class="pre">metric_hillas_delta2()</span></code></a>, <code class="xref py py-func docutils literal"><span class="pre">metric_kill_isolated_pixels()</span></code></li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_img</strong> (<em>2D ndarray</em>) – The RAW original image.</li>
+<li><strong>output_img</strong> (<em>2D ndarray</em>) – The cleaned image returned by the image cleanning algorithm to assess.</li>
+<li><strong>reference_img</strong> (<em>2D ndarray</em>) – The actual clean image (the best result that can be expected for the
+image cleaning algorithm).</li>
+<li><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) – Additional options.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The score(s) of the image cleaning algorithm for the given image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple of float numbers</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api_io_images.html" class="btn btn-neutral float-right" title="io.images" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="api_benchmark_assess.html" class="btn btn-neutral" title="io.geometry_converter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2010-2015, Jérémie Decock.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.dev6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

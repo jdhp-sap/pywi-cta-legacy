@@ -1,7 +1,7 @@
-================
-benchmark.assess
-================
+=====================
+io.geometry_converter
+=====================
 
-.. automodule:: datapipe.benchmark.assess
+.. automodule:: datapipe.io.geometry_converter
    :members:
 

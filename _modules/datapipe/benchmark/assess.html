@@ -241,7 +241,7 @@
 <span class="c1"># TOOL FUNCTIONS                                                              #</span>
 <span class="c1">###############################################################################</span>
 
-<div class="viewcode-block" id="normalize_array"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.normalize_array">[docs]</a><span class="k">def</span> <span class="nf">normalize_array</span><span class="p">(</span><span class="n">input_array</span><span class="p">):</span>
+<div class="viewcode-block" id="normalize_array"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.normalize_array">[docs]</a><span class="k">def</span> <span class="nf">normalize_array</span><span class="p">(</span><span class="n">input_array</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize the given image such that its pixels value fit between 0.0</span>
 <span class="sd">    and 1.0.</span>
 
@@ -291,7 +291,7 @@
 
 <span class="c1"># Mean-Squared Error (MSE) ####################################################</span>
 
-<div class="viewcode-block" id="metric_mse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_mse">[docs]</a><span class="k">def</span> <span class="nf">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_mse"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric_mse">[docs]</a><span class="k">def</span> <span class="nf">metric_mse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Mean-Squared Error* (MSE) metric.</span>
 
@@ -352,7 +352,7 @@
 
 <span class="c1"># Normalized Root Mean-Squared Error (NRMSE) ##################################</span>
 
-<div class="viewcode-block" id="metric_nrmse"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_nrmse">[docs]</a><span class="k">def</span> <span class="nf">metric_nrmse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_nrmse"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric_nrmse">[docs]</a><span class="k">def</span> <span class="nf">metric_nrmse</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Normalized Root Mean-Squared Error* (NRMSE) metric.</span>
 
@@ -414,7 +414,7 @@
 
 <span class="c1"># Unusual Normalized Root Mean-Squared Error (uNRMSE) #########################</span>
 
-<div class="viewcode-block" id="metric1"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric1">[docs]</a><span class="k">def</span> <span class="nf">metric1</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric1"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric1">[docs]</a><span class="k">def</span> <span class="nf">metric1</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with a (unusually) normalized version of the *Root Mean-Squared Error*</span>
 <span class="sd">    (RMSE) metric.</span>
@@ -478,7 +478,7 @@
 
 <span class="c1"># Mean Pixel Difference 2 #####################################################</span>
 
-<div class="viewcode-block" id="metric2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric2">[docs]</a><span class="k">def</span> <span class="nf">metric2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric2"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric2">[docs]</a><span class="k">def</span> <span class="nf">metric2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the :math:`\mathcal{E}_{\text{shape}}` metric.</span>
 
@@ -535,7 +535,7 @@
 
 <span class="c1"># Relative Total Counts Difference (mpdspd) ###################################</span>
 
-<div class="viewcode-block" id="metric3"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric3">[docs]</a><span class="k">def</span> <span class="nf">metric3</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric3"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric3">[docs]</a><span class="k">def</span> <span class="nf">metric3</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the :math:`\mathcal{E}^+_{\text{energy}}`</span>
 <span class="sd">    (a.k.a. *relative total counts difference*) metric.</span>
@@ -587,7 +587,7 @@
 
 <span class="c1"># Signed Relative Total Counts Difference (sspd) ##############################</span>
 
-<div class="viewcode-block" id="metric4"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric4">[docs]</a><span class="k">def</span> <span class="nf">metric4</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric4"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric4">[docs]</a><span class="k">def</span> <span class="nf">metric4</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the :math:`\mathcal{E}_{\text{energy}}`</span>
 <span class="sd">    (a.k.a. *signed relative total counts difference*) metric.</span>
@@ -639,7 +639,7 @@
 
 <span class="c1"># Structural Similarity Index Measure (SSIM) ##################################</span>
 
-<div class="viewcode-block" id="metric_ssim"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_ssim">[docs]</a><span class="k">def</span> <span class="nf">metric_ssim</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_ssim"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric_ssim">[docs]</a><span class="k">def</span> <span class="nf">metric_ssim</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Structural Similarity Index Measure* (SSIM) metric.</span>
 
@@ -718,7 +718,7 @@
 
 <span class="c1"># Peak Signal-to-Noise Ratio (PSNR) ###########################################</span>
 
-<div class="viewcode-block" id="metric_psnr"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_psnr">[docs]</a><span class="k">def</span> <span class="nf">metric_psnr</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_psnr"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric_psnr">[docs]</a><span class="k">def</span> <span class="nf">metric_psnr</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Peak Signal-to-Noise Ratio* (PSNR) metric.</span>
 
@@ -764,7 +764,7 @@
 
 <span class="c1"># Delta psi ###################################################################</span>
 
-<div class="viewcode-block" id="metric_delta_psi"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_delta_psi">[docs]</a><span class="k">def</span> <span class="nf">metric_delta_psi</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_delta_psi"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric_delta_psi">[docs]</a><span class="k">def</span> <span class="nf">metric_delta_psi</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the following relative *psi parameters* (relative difference of shower angle between the cleaned image and the reference image).</span>
 
@@ -820,7 +820,7 @@
 
 <span class="c1"># Hillas delta ################################################################</span>
 
-<div class="viewcode-block" id="metric_hillas_delta"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_hillas_delta"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric_hillas_delta">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the following relative *Hillas parameters*:</span>
 
@@ -952,7 +952,7 @@
 
 <span class="c1"># Hillas delta 2 ##############################################################</span>
 
-<div class="viewcode-block" id="metric_hillas_delta2"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.metric_hillas_delta2">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="metric_hillas_delta2"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.metric_hillas_delta2">[docs]</a><span class="k">def</span> <span class="nf">metric_hillas_delta2</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">reference_image</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of ``output_image`` regarding ``reference_image``</span>
 <span class="sd">    with the *Hillas parameters*.</span>
 
@@ -1037,7 +1037,7 @@
     <span class="n">metric_kill_isolated_pixels</span><span class="p">:</span> <span class="s2">&quot;kill_isolated_pixels&quot;</span>
 <span class="p">}</span>
 
-<div class="viewcode-block" id="assess_image_cleaning"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.benchmark.assess.assess_image_cleaning">[docs]</a><span class="k">def</span> <span class="nf">assess_image_cleaning</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="n">benchmark_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="assess_image_cleaning"><a class="viewcode-back" href="../../../api_io_geometry_converter.html#datapipe.benchmark.assess.assess_image_cleaning">[docs]</a><span class="k">def</span> <span class="nf">assess_image_cleaning</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_img</span><span class="p">,</span> <span class="n">reference_img</span><span class="p">,</span> <span class="n">benchmark_method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the score of `output_image` regarding `reference_image`</span>
 <span class="sd">    with the `benchmark_method` metrics:</span>
 

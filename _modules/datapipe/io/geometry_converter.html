@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>datapipe.io.geometry_converter &mdash; SAp CTA data pipeline 0.1.dev6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="SAp CTA data pipeline 0.1.dev6 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SAp CTA data pipeline
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer’s notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SAp CTA data pipeline</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>datapipe.io.geometry_converter</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for datapipe.io.geometry_converter</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright (c) 2017 Jérémie DECOCK (http://www.jdhp.org)</span>
+
+<span class="c1"># This script is provided under the terms and conditions of the MIT license:</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_geom1d&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;image_2d_to_1d&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;image_1d_to_2d&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">ctapipe.image.geometry_converter</span> <span class="k">as</span> <span class="nn">geomconv</span>
+<span class="kn">from</span> <span class="nn">ctapipe.instrument</span> <span class="k">import</span> <span class="n">camera</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Convert the 2D array image format used by the wavelet image cleaning to the</span>
+<span class="sd">1D array image format used by ctapipe.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="get_geom1d"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.io.geometry_converter.get_geom1d">[docs]</a><span class="k">def</span> <span class="nf">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the `cam_id` geometry for ctapipe.</span>
+
+<span class="sd">    Use `camera.CameraGeometry.get_known_camera_names()` to get the list of</span>
+<span class="sd">    available cameras.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cam_id: str</span>
+<span class="sd">        The instrument name (required to guess the image geometry).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geom1d: CameraGeometry</span>
+<span class="sd">        The `cam_id` camera geometry for ctapipe **1D images**.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Use a cache to speedup geom access (~1 micro sec instead of ~70 micro sec)</span>
+    <span class="n">geometry_converter_module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]</span>
+    <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;_geom1d_&quot;</span> <span class="o">+</span> <span class="n">cam_id</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">geometry_converter_module</span><span class="p">,</span> <span class="n">var_name</span><span class="p">):</span>
+
+        <span class="n">geom1d</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">geometry_converter_module</span><span class="p">,</span> <span class="n">var_name</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="n">camera_names</span> <span class="o">=</span> <span class="n">camera</span><span class="o">.</span><span class="n">CameraGeometry</span><span class="o">.</span><span class="n">get_known_camera_names</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">camera_names</span><span class="p">:</span>
+            <span class="n">error_str</span> <span class="o">=</span> <span class="s2">&quot;Unknown camera name </span><span class="si">{}</span><span class="s2">. Should be one of: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_id</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">camera_names</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_str</span><span class="p">)</span>
+
+        <span class="n">geom1d</span> <span class="o">=</span> <span class="n">camera</span><span class="o">.</span><span class="n">CameraGeometry</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">geometry_converter_module</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">geom1d</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">geom1d</span></div>
+
+<span class="k">def</span> <span class="nf">get_geom2d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TODO!!!!!!!!!!!!!</span>
+
+<span class="sd">    TODO: this implementation is a temporary hack...</span>
+<span class="sd">    ctapipe.image.geometry_converter should be updated to clean this</span>
+<span class="sd">    function...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">geom1d</span> <span class="o">=</span> <span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>  <span class="c1"># TODO: should be avoided...</span>
+
+    <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;DigiCam&quot;</span><span class="p">,</span> <span class="s2">&quot;NectarCam&quot;</span><span class="p">,</span> <span class="s2">&quot;FlashCam&quot;</span><span class="p">,</span> <span class="s2">&quot;LSTCam&quot;</span><span class="p">):</span>
+        <span class="c1"># TODO: dirty hack !!!!!!!!!!!</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">geom2d</span><span class="p">,</span> <span class="n">image2d</span> <span class="o">=</span> <span class="n">geomconv</span><span class="o">.</span><span class="n">convert_geometry_hex1d_to_rect2d</span><span class="p">(</span><span class="n">geom1d</span><span class="p">,</span>
+                                                                    <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">geom1d</span><span class="o">.</span><span class="n">pix_x</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span>
+                                                                    <span class="n">geom1d</span><span class="o">.</span><span class="n">cam_id</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span>
+                                                                    <span class="n">add_rot</span><span class="o">=</span><span class="n">rotation</span><span class="p">)</span> <span class="c1"># TODO</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;ASTRICam&quot;</span><span class="p">:</span>
+        <span class="n">num_pixels_x</span> <span class="o">=</span> <span class="mi">7</span><span class="o">*</span><span class="mi">8</span>
+        <span class="n">num_pixels_y</span> <span class="o">=</span> <span class="mi">7</span><span class="o">*</span><span class="mi">8</span>
+
+        <span class="n">geom1d</span> <span class="o">=</span> <span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>
+
+        <span class="n">range_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom1d</span><span class="o">.</span><span class="n">pix_x</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">geom1d</span><span class="o">.</span><span class="n">pix_x</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="n">range_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom1d</span><span class="o">.</span><span class="n">pix_y</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">geom1d</span><span class="o">.</span><span class="n">pix_y</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+        <span class="n">geom2d</span> <span class="o">=</span> <span class="n">camera</span><span class="o">.</span><span class="n">CameraGeometry</span><span class="o">.</span><span class="n">make_rectangular</span><span class="p">(</span><span class="n">num_pixels_x</span><span class="p">,</span>
+                                                        <span class="n">num_pixels_y</span><span class="p">,</span>
+                                                        <span class="n">range_x</span><span class="p">,</span>
+                                                        <span class="n">range_y</span><span class="p">)</span>
+        <span class="n">geom2d</span><span class="o">.</span><span class="n">cam_id</span> <span class="o">=</span> <span class="s2">&quot;ASTRICam2D&quot;</span>
+        <span class="c1">#shape_2d = (num_pixels_x, num_pixels_y)</span>
+        <span class="c1">#geom2d.pix_x = geom2d.pix_x.reshape(shape_2d)</span>
+        <span class="c1">#geom2d.pix_y = geom2d.pix_y.reshape(shape_2d)</span>
+        <span class="c1">##geom2d.mask = geom2d.mask.reshape(shape_2d)</span>
+        <span class="c1">#geom2d.pix_area = geom2d.pix_area.reshape(shape_2d)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;CHEC&quot;</span><span class="p">:</span>
+        <span class="n">num_pixels_x</span> <span class="o">=</span> <span class="mi">6</span><span class="o">*</span><span class="mi">8</span>
+        <span class="n">num_pixels_y</span> <span class="o">=</span> <span class="mi">6</span><span class="o">*</span><span class="mi">8</span>
+
+        <span class="n">geom1d</span> <span class="o">=</span> <span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>
+
+        <span class="n">range_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom1d</span><span class="o">.</span><span class="n">pix_x</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">geom1d</span><span class="o">.</span><span class="n">pix_x</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="n">range_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom1d</span><span class="o">.</span><span class="n">pix_y</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">geom1d</span><span class="o">.</span><span class="n">pix_y</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+        <span class="n">geom2d</span> <span class="o">=</span> <span class="n">camera</span><span class="o">.</span><span class="n">CameraGeometry</span><span class="o">.</span><span class="n">make_rectangular</span><span class="p">(</span><span class="n">num_pixels_x</span><span class="p">,</span>
+                                                        <span class="n">num_pixels_y</span><span class="p">,</span>
+                                                        <span class="n">range_x</span><span class="p">,</span>
+                                                        <span class="n">range_y</span><span class="p">)</span>
+        <span class="n">geom2d</span><span class="o">.</span><span class="n">cam_id</span> <span class="o">=</span> <span class="s2">&quot;CHEC2D&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;1D to 2D image converter: unknown camera </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_id</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">geom2d</span>
+
+<div class="viewcode-block" id="image_2d_to_1d"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.io.geometry_converter.image_2d_to_1d">[docs]</a><span class="k">def</span> <span class="nf">image_2d_to_1d</span><span class="p">(</span><span class="n">image2d</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a wavelet compatible 2D image to a ctapipe compliant 1D image.</span>
+
+<span class="sd">    Convert the 2D array image format used by the wavelet image cleaning to the</span>
+<span class="sd">    1D array image format used by ctapipe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image2d: 2D ndarray</span>
+<span class="sd">        The 2D image to convert.</span>
+<span class="sd">    cam_id: str</span>
+<span class="sd">        The instrument name (required to guess the image geometry).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    1D ndarray</span>
+<span class="sd">        The converted image in its 1D version compliant with ctapipe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">geom1d</span> <span class="o">=</span> <span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>  <span class="c1"># TODO: should be avoided...</span>
+
+    <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;DigiCam&quot;</span><span class="p">,</span> <span class="s2">&quot;NectarCam&quot;</span><span class="p">,</span> <span class="s2">&quot;FlashCam&quot;</span><span class="p">,</span> <span class="s2">&quot;LSTCam&quot;</span><span class="p">):</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># TODO: should be avoided...</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">image1d</span> <span class="o">=</span> <span class="n">geomconv</span><span class="o">.</span><span class="n">convert_geometry_rect2d_back_to_hexe1d</span><span class="p">(</span><span class="n">geom1d</span><span class="p">,</span>
+                                                                     <span class="n">image2d</span><span class="p">,</span>
+                                                                     <span class="n">cam_id</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span>
+                                                                     <span class="n">add_rot</span><span class="o">=</span><span class="n">rotation</span><span class="p">)</span> <span class="c1"># TODO</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;ASTRICam&quot;</span><span class="p">:</span>
+        <span class="n">image1d</span> <span class="o">=</span> <span class="n">geomconv</span><span class="o">.</span><span class="n">array_2d_to_astri</span><span class="p">(</span><span class="n">image2d</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;CHEC&quot;</span><span class="p">:</span>
+        <span class="n">image1d</span> <span class="o">=</span> <span class="n">geomconv</span><span class="o">.</span><span class="n">array_2d_to_chec</span><span class="p">(</span><span class="n">image2d</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;2D to 1D image converter: unknown camera </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_id</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">image1d</span></div>
+
+<div class="viewcode-block" id="image_1d_to_2d"><a class="viewcode-back" href="../../../api_benchmark_assess.html#datapipe.io.geometry_converter.image_1d_to_2d">[docs]</a><span class="k">def</span> <span class="nf">image_1d_to_2d</span><span class="p">(</span><span class="n">image1d</span><span class="p">,</span> <span class="n">cam_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a ctapipe compliant 1D image to a wavelet compatible 2D image.</span>
+
+<span class="sd">    Convert the 1D array image format used by ctapipe to the 2D array image</span>
+<span class="sd">    format used by the wavelet image cleaning.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image1d: 1D ndarray</span>
+<span class="sd">        The 1D image to convert.</span>
+<span class="sd">    cam_id: str</span>
+<span class="sd">        The instrument name (required to guess the image geometry).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    2D ndarray</span>
+<span class="sd">        The converted image in its 2D version compliant with wavelet packages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">geom1d</span> <span class="o">=</span> <span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>  <span class="c1"># TODO: should be avoided...</span>
+
+    <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;DigiCam&quot;</span><span class="p">,</span> <span class="s2">&quot;NectarCam&quot;</span><span class="p">,</span> <span class="s2">&quot;FlashCam&quot;</span><span class="p">,</span> <span class="s2">&quot;LSTCam&quot;</span><span class="p">):</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># TODO: should be avoided...</span>
+        <span class="n">geom2d</span><span class="p">,</span> <span class="n">image2d</span> <span class="o">=</span> <span class="n">geomconv</span><span class="o">.</span><span class="n">convert_geometry_hex1d_to_rect2d</span><span class="p">(</span><span class="n">geom1d</span><span class="p">,</span>
+                                                                    <span class="n">image1d</span><span class="p">,</span>
+                                                                    <span class="n">cam_id</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">rotation</span><span class="p">),</span>
+                                                                    <span class="n">add_rot</span><span class="o">=</span><span class="n">rotation</span><span class="p">)</span> <span class="c1"># TODO</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;ASTRICam&quot;</span><span class="p">:</span>
+        <span class="n">image2d</span> <span class="o">=</span> <span class="n">geomconv</span><span class="o">.</span><span class="n">astri_to_2d_array</span><span class="p">(</span><span class="n">image1d</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;CHEC&quot;</span><span class="p">:</span>
+        <span class="n">image2d</span> <span class="o">=</span> <span class="n">geomconv</span><span class="o">.</span><span class="n">chec_to_2d_array</span><span class="p">(</span><span class="n">image1d</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;1D to 2D image converter: unknown camera </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_id</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">image2d</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2010-2015, Jérémie Decock.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.dev6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
