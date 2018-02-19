@@ -224,71 +224,6 @@ parameter.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="datapipe.io.images.load_fits">
-<code class="descclassname">datapipe.io.images.</code><code class="descname">load_fits</code><span class="sig-paren">(</span><em>input_file_path</em>, <em>hdu_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.load_fits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the image array contained in the given HDU of the given FITS file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>input_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the FITS file to load</li>
-<li><strong>hdu_index</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The HDU to load within the FITS file (one FITS file can contain several
-images stored in different HDU)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The loaded image</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">ndarray</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal"><span class="pre">WrongHDUError</span></code> – If <cite>input_file_path</cite> doesn’t contain the HDU <cite>hdu_index</cite></li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">NotAnImageError</span></code> – If <cite>input_file_path</cite> doesn’t contain a valid image in the HDU
-<cite>hdu_index</cite></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="datapipe.io.images.save_fits">
-<code class="descclassname">datapipe.io.images.</code><code class="descname">save_fits</code><span class="sig-paren">(</span><em>img</em>, <em>output_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#save_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.save_fits" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the <cite>img</cite> image (array_like) to the <cite>output_file_path</cite> FITS file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>img</strong> (<em>array_like</em>) – The image to save (should be a 2D or a 3D numpy array)</li>
-<li><strong>output_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the FITS file where to save the <cite>img</cite></li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">WrongDimensionError</span></code> – If <cite>img</cite> has more than 3 dimensions or less than 2 dimensions.</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="datapipe.io.images.mpl_save">
-<code class="descclassname">datapipe.io.images.</code><code class="descname">mpl_save</code><span class="sig-paren">(</span><em>img</em>, <em>output_file_path</em>, <em>title=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#mpl_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.mpl_save" title="Permalink to this definition">¶</a></dt>
-<dd><p>img should be a 2D numpy array.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="datapipe.io.images.plot">
-<code class="descclassname">datapipe.io.images.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>img</em>, <em>title=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>img should be a 2D numpy array.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="datapipe.io.images.image_files_in_dir">
 <code class="descclassname">datapipe.io.images.</code><code class="descname">image_files_in_dir</code><span class="sig-paren">(</span><em>directory_path</em>, <em>max_num_files=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#image_files_in_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.image_files_in_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the path of FITS and Simtel files in <cite>directory_path</cite>.</p>
@@ -360,6 +295,179 @@ in <cite>path_list</cite>.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.load_benchmark_images">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">load_benchmark_images</code><span class="sig-paren">(</span><em>input_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#load_benchmark_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.load_benchmark_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return images contained in the given FITS file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the FITS file to load</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing the loaded images and their metadata</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">WrongFitsFileStructure</span></code> – If <cite>input_file_path</cite> doesn’t contain a valid structure</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.load_fits">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">load_fits</code><span class="sig-paren">(</span><em>input_file_path</em>, <em>hdu_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.load_fits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the image array contained in the given HDU of the given FITS file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the FITS file to load</li>
+<li><strong>hdu_index</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The HDU to load within the FITS file (one FITS file can contain several
+images stored in different HDU)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The loaded image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">ndarray</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">WrongHDUError</span></code> – If <cite>input_file_path</cite> doesn’t contain the HDU <cite>hdu_index</cite></li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NotAnImageError</span></code> – If <cite>input_file_path</cite> doesn’t contain a valid image in the HDU
+<cite>hdu_index</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.mpl_save">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">mpl_save</code><span class="sig-paren">(</span><em>img</em>, <em>output_file_path</em>, <em>title=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#mpl_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.mpl_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>img should be a 2D numpy array.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.plot">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>img</em>, <em>title=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>img should be a 2D numpy array.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.plot_ctapipe_image">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">plot_ctapipe_image</code><span class="sig-paren">(</span><em>image</em>, <em>geom</em>, <em>ax=None</em>, <em>figsize=(10</em>, <em>10)</em>, <em>title=None</em>, <em>title_fontsize=24</em>, <em>norm='lin'</em>, <em>highlight_mask=None</em>, <em>plot_colorbar=True</em>, <em>plot_axis=True</em>, <em>colorbar_orientation='horizontal'</em>, <em>colorbar_limits=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#plot_ctapipe_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.plot_ctapipe_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>image</strong> (<em>array_like</em>) – Array of values corresponding to the pixels in the CameraGeometry.</li>
+<li><strong>geometry</strong> (<cite>~ctapipe.instrument.CameraGeometry</cite>) – Definition of the Camera/Image</li>
+<li><strong>ax</strong> (<cite>matplotlib.axes.Axes</cite>) – A matplotlib axes object to plot on, or None to create a new one</li>
+<li><strong>title</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em> (</em><em>default &quot;Camera&quot;</em><em>)</em>) – Title to put on camera plot</li>
+<li><strong>norm</strong> (str or <cite>matplotlib.color.Normalize</cite> instance (default ‘lin’)) – Normalization for the color scale.
+Supported str arguments are
+- ‘lin’: linear scale
+- ‘log’: logarithmic scale (base 10)</li>
+<li><strong>cmap</strong> (str or <cite>matplotlib.colors.Colormap</cite> (default ‘hot’)) – Color map to use (see <cite>matplotlib.cm</cite>)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.plot_hillas_parameters_on_axes">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">plot_hillas_parameters_on_axes</code><span class="sig-paren">(</span><em>ax</em>, <em>image</em>, <em>geom</em>, <em>hillas_params=None</em>, <em>plot_ellipse=True</em>, <em>plot_axis=True</em>, <em>plot_actual_axis_pm=True</em>, <em>plot_inner_axes=False</em>, <em>auto_lim=True</em>, <em>hillas_implementation=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#plot_hillas_parameters_on_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.plot_hillas_parameters_on_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the shower ellipse and direction on an existing matplotlib axes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.quantity_to_tuple">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">quantity_to_tuple</code><span class="sig-paren">(</span><em>quantity</em>, <em>unit_str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#quantity_to_tuple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.quantity_to_tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits a quantity into a tuple of (value,unit) where unit is FITS compliant.</p>
+<p>Useful to write FITS header keywords with units in a comment.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>quantity</strong> (<em>astropy quantity</em>) – The Astropy quantity to split.</li>
+<li><strong>unit_str</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Unit string representation readable by astropy.units (e.g. ‘m’, ‘TeV’, …)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple containing the value and the quantity.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.save_benchmark_images">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">save_benchmark_images</code><span class="sig-paren">(</span><em>img</em>, <em>pe_img</em>, <em>adc_sums_img</em>, <em>pedestal_img</em>, <em>gains_img</em>, <em>pixel_pos</em>, <em>pixel_mask</em>, <em>metadata</em>, <em>output_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#save_benchmark_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.save_benchmark_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a FITS file containing pe_img, output_file_path and metadata.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>img</strong> (<em>ndarray</em>) – The “input image” to save (it should be a 2D Numpy array).</li>
+<li><strong>pe_img</strong> (<em>ndarray</em>) – The “reference image” to save (it should be a 2D Numpy array).</li>
+<li><strong>output_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the output FITS file.</li>
+<li><strong>metadata</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#tuple" title="(in Python v2.7)"><em>tuple</em></a>) – A dictionary containing all metadata to write in the FITS file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.save_fits">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">save_fits</code><span class="sig-paren">(</span><em>img</em>, <em>output_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#save_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.save_fits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the <cite>img</cite> image (array_like) to the <cite>output_file_path</cite> FITS file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<em>array_like</em>) – The image to save (should be a 2D or a 3D numpy array)</li>
+<li><strong>output_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the FITS file where to save the <cite>img</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">WrongDimensionError</span></code> – If <cite>img</cite> has more than 3 dimensions or less than 2 dimensions.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.simtel_event_to_images">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">simtel_event_to_images</code><span class="sig-paren">(</span><em>event</em>, <em>tel_id</em>, <em>ctapipe_format=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#simtel_event_to_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.simtel_event_to_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.simtel_images_generator">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">simtel_images_generator</code><span class="sig-paren">(</span><em>file_path</em>, <em>tel_filter_list=None</em>, <em>ev_filter_list=None</em>, <em>cam_filter_list=None</em>, <em>ctapipe_format=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#simtel_images_generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.simtel_images_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
 </dd></dl>
 
 </div>
