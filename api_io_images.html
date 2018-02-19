@@ -172,6 +172,58 @@
   <div class="section" id="module-datapipe.io.images">
 <span id="io-images"></span><h1>io.images<a class="headerlink" href="#module-datapipe.io.images" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
+<dt id="datapipe.io.images.fill_nan_pixels">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">fill_nan_pixels</code><span class="sig-paren">(</span><em>image</em>, <em>noise_distribution=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#fill_nan_pixels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.fill_nan_pixels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace <em>in-place</em> <cite>NaN</cite> values in <cite>image</cite> by zeros or by random noise.</p>
+<p>Images containing <cite>NaN</cite> values generate undesired harmonics with wavelet
+image cleaning. This function should be used to “fix” images before each
+wavelet image cleaning.</p>
+<p>Replace <cite>NaN</cite> (“Not a Number”) values in <cite>image</cite> by zeros if
+<cite>noise_distribution</cite> is <cite>None</cite>.
+Otherwise, <cite>NaN</cite> values are replaced by random noise drawn by the
+<cite>noise_distribution</cite> random generator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>array_like</em>) – The image to process. <cite>NaN</cite> values are replaced <strong>in-place</strong> thus this
+function changes the provided object.</li>
+<li><strong>noise_distribution</strong> (<cite>datapipe.denoising.inverse_transform_sampling.EmpiricalDistribution</cite>) – The random generator to use to replace <cite>NaN</cite> pixels by random noise.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Returns a boolean mask array indicating whether pixels in <cite>images</cite>
+initially contained <cite>NaN</cite> values (<cite>True</cite>) of not (<cite>False</cite>). This array
+is defined by the instruction <cite>np.isnan(image)</cite>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">array_like</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p><cite>NaN</cite> values are replaced <strong>in-place</strong> in the provided <cite>image</cite>
+parameter.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">6</span><span class="p">],[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fill_nan_pixels</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="gp">... </span>
+<span class="go">array([[False, False,  True],</span>
+<span class="go">       [False,  True, False],</span>
+<span class="go">       [ True, False,  True]], dtype=bool)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">img</span>
+<span class="gp">... </span>
+<span class="go">array([[ 1., 2., 0.],</span>
+<span class="go">       [ 4., 0., 6.],</span>
+<span class="go">       [ 0., 8., 0.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="datapipe.io.images.load_fits">
 <code class="descclassname">datapipe.io.images.</code><code class="descname">load_fits</code><span class="sig-paren">(</span><em>input_file_path</em>, <em>hdu_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.load_fits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the image array contained in the given HDU of the given FITS file.</p>

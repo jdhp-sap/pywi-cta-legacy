@@ -179,7 +179,8 @@
 <span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
 <span class="c1"># THE SOFTWARE.</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load_fits&#39;</span><span class="p">,</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fill_nan_pixels&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;load_fits&#39;</span><span class="p">,</span>
            <span class="s1">&#39;save_fits&#39;</span><span class="p">,</span>
            <span class="s1">&#39;mpl_save&#39;</span><span class="p">,</span>
            <span class="s1">&#39;plot&#39;</span><span class="p">,</span>
@@ -272,7 +273,7 @@
 
 <span class="c1"># FILL NAN PIXELS #############################################################</span>
 
-<span class="k">def</span> <span class="nf">fill_nan_pixels</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">noise_distribution</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="fill_nan_pixels"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.fill_nan_pixels">[docs]</a><span class="k">def</span> <span class="nf">fill_nan_pixels</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">noise_distribution</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Replace *in-place* `NaN` values in `image` by zeros or by random noise.</span>
 
 <span class="sd">    Images containing `NaN` values generate undesired harmonics with wavelet</span>
@@ -338,7 +339,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
         <span class="n">plot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;Noise injected&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">nan_mask</span>
+    <span class="k">return</span> <span class="n">nan_mask</span></div>
 
 
 <span class="c1"># DIRECTORY PARSER ############################################################</span>
