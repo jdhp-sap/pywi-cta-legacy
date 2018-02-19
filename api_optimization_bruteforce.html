@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>denoising.inverse_transform_sampling &mdash; SAp CTA data pipeline 0.1.dev6 documentation</title>
+  <title>optimization.bruteforce &mdash; SAp CTA data pipeline 0.1.dev6 documentation</title>
   
 
   
@@ -37,8 +37,8 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="SAp CTA data pipeline 0.1.dev6 documentation" href="index.html"/>
         <link rel="up" title="SAp CTA data pipeline API" href="api.html"/>
-        <link rel="next" title="image.hillas_parameters" href="api_image_hillas_parameters.html"/>
-        <link rel="prev" title="denoising.abstract_cleaning_algorithm" href="api_filter_abstract_cleaning_algorithm.html"/> 
+        <link rel="next" title="optimization.bruteforce" href="api_optimization_differential_evolution.html"/>
+        <link rel="prev" title="io.images" href="api_io_images.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -99,13 +99,13 @@
 <li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrtransform.html">datapipe.denoising.wavelets_mrtransform</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_filter_tailcut.html">datapipe.denoising.tailcut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_filter_abstract_cleaning_algorithm.html">datapipe.denoising.abstract_cleaning_algorithm</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.denoising.inverse_transform_sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_inverse_transform_sampling.html">datapipe.denoising.inverse_transform_sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_image_hillas_parameters.html">datapipe.image.hillas_parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_image_pixel_clusters.html">datapipe.image.pixel_clusters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_image_signal_to_border_distance.html">datapipe.image.signal_to_border_distance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_io_geometry_converter.html">datapipe.io.geometry_converter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_io_images.html">datapipe.io.images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api_optimization_bruteforce.html">datapipe.optimization.bruteforce</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.optimization.bruteforce</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_optimization_differential_evolution.html">datapipe.optimization.differential_evolution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_optimization_saes.html">datapipe.optimization.saes</a></li>
 </ul>
@@ -157,13 +157,13 @@
         
           <li><a href="api.html">SAp CTA data pipeline API</a> &raquo;</li>
         
-      <li>denoising.inverse_transform_sampling</li>
+      <li>optimization.bruteforce</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/api_filter_inverse_transform_sampling.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/api_optimization_bruteforce.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -176,23 +176,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-datapipe.denoising.inverse_transform_sampling">
-<span id="denoising-inverse-transform-sampling"></span><h1>denoising.inverse_transform_sampling<a class="headerlink" href="#module-datapipe.denoising.inverse_transform_sampling" title="Permalink to this headline">¶</a></h1>
-<p>But: construire une distribution à partir d’un modèle empirique (“inverse transform sampling”).</p>
-<p>Implémentation en Python:
-* <a class="reference external" href="http://www.astroml.org/book_figures/chapter3/fig_clone_distribution.html">http://www.astroml.org/book_figures/chapter3/fig_clone_distribution.html</a>
-* <a class="reference external" href="https://github.com/astroML/astroML/blob/master/astroML/density_estimation/empirical.py">https://github.com/astroML/astroML/blob/master/astroML/density_estimation/empirical.py</a>
-* <a class="reference external" href="https://github.com/astroML/astroML/blob/0287fe00c429b28b3ddf52435a32543f43246349/astroML/density_estimation/tests/test_empirical.py">https://github.com/astroML/astroML/blob/0287fe00c429b28b3ddf52435a32543f43246349/astroML/density_estimation/tests/test_empirical.py</a>
-* <a class="reference external" href="http://www.astroml.org/modules/generated/astroML.density_estimation.EmpiricalDistribution.html#astroML.density_estimation.EmpiricalDistribution">http://www.astroml.org/modules/generated/astroML.density_estimation.EmpiricalDistribution.html#astroML.density_estimation.EmpiricalDistribution</a>
-* <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.splprep.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.splprep.html</a>
-* <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/interpolate.html">https://docs.scipy.org/doc/scipy/reference/interpolate.html</a>
-* <a class="reference external" href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">https://en.wikipedia.org/wiki/Inverse_transform_sampling</a></p>
-<p>Mon implémentation:
-* Ne pas garder tous les points comme ils le font dans astroml (j’ai plusieurs centaines de millions se samples…)
-* A la place, utiliser np.histogram pour faire un CDF avec un nombre de bins choisi
-* Stocker ce CDF dans un fichier
-* Ecrire une classe pour générer des echantillons: charger et interpoller (avec des splines) le CDF dans __init__: interpolate.splrep(y, data)
-* Fonction rvs qui génère un echantillon: interpolate.splev(y, self._tck)</p>
+  <div class="section" id="module-datapipe.optimization.bruteforce">
+<span id="optimization-bruteforce"></span><h1>optimization.bruteforce<a class="headerlink" href="#module-datapipe.optimization.bruteforce" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -205,10 +190,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api_image_hillas_parameters.html" class="btn btn-neutral float-right" title="image.hillas_parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api_optimization_differential_evolution.html" class="btn btn-neutral float-right" title="optimization.bruteforce" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="api_filter_abstract_cleaning_algorithm.html" class="btn btn-neutral" title="denoising.abstract_cleaning_algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="api_io_images.html" class="btn btn-neutral" title="io.images" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

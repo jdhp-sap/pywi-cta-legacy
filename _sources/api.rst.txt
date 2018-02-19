@@ -26,4 +26,7 @@ Modules:
    datapipe.image.signal_to_border_distance <api_image_signal_to_border_distance>
    datapipe.io.geometry_converter <api_io_geometry_converter>
    datapipe.io.images <api_io_images>
+   datapipe.optimization.bruteforce <api_optimization_bruteforce>
+   datapipe.optimization.differential_evolution <api_optimization_differential_evolution>
+   datapipe.optimization.saes <api_optimization_saes>
 
