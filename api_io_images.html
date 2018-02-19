@@ -291,14 +291,49 @@ images stored in different HDU)</li>
 <dl class="function">
 <dt id="datapipe.io.images.image_files_in_dir">
 <code class="descclassname">datapipe.io.images.</code><code class="descname">image_files_in_dir</code><span class="sig-paren">(</span><em>directory_path</em>, <em>max_num_files=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#image_files_in_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.image_files_in_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the list of all FITS files and Simtel files in <cite>directory_path</cite>.</p>
+<dd><p>Return the path of FITS and Simtel files in <cite>directory_path</cite>.</p>
+<p>Return the path of all (or <cite>max_num_files</cite>) files having the extension
+“.simtel”, “.simtel.gz”, “.fits” or “.fit” in <cite>directory_path</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>directory_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The directory’s path where FITS and Simtel files are searched.</li>
+<li><strong>max_num_files</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The maximum number of files to return.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>str</em> – The path of the next FITS or Simtel files in <cite>directory_path</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="datapipe.io.images.image_files_in_paths">
 <code class="descclassname">datapipe.io.images.</code><code class="descname">image_files_in_paths</code><span class="sig-paren">(</span><em>path_list</em>, <em>max_num_files=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#image_files_in_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.image_files_in_paths" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an iterable sequence all FITS files path and Simtel files path in <cite>path_list</cite>.</p>
-<p><cite>path_list</cite> can contain files and directories.</p>
+<dd><p>Return the path of FITS and Simtel files in <cite>path_list</cite>.</p>
+<p>Return the path of all (or <cite>max_num_files</cite>) files having the extension
+“.simtel”, “.simtel.gz”, “.fits” or “.fit” in <cite>path_list</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>path_list</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The list of directory’s path where FITS and Simtel files are searched.
+It can also directly contain individual file paths (or a mix of files
+and directories path).</li>
+<li><strong>max_num_files</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The maximum number of files to return.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>str</em> – The path of the next FITS or Simtel files in <cite>path_list</cite>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -309,7 +344,7 @@ images stored in different HDU)</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>path_list</strong> – The path of files containing the images to extract. It can contain
 FITS/Simtel files and directories.</li>
 <li><strong>max_num_images</strong> – The maximum number of images to iterate.</li>
@@ -317,6 +352,10 @@ FITS/Simtel files and directories.</li>
 <li><strong>ev_filter_list</strong> – Only iterate images from events defined in this list.</li>
 <li><strong>cam_filter_list</strong> – Only iterate images from cameras defined in this list.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>Image1D or Image2D</em> – The named tuple <cite>Image1D</cite> or <cite>Image1D</cite> of the next FITS or Simtel files
+in <cite>path_list</cite>.</p>
 </td>
 </tr>
 </tbody>

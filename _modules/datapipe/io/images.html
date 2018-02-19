@@ -345,7 +345,22 @@
 <span class="c1"># DIRECTORY PARSER ############################################################</span>
 
 <div class="viewcode-block" id="image_files_in_dir"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.image_files_in_dir">[docs]</a><span class="k">def</span> <span class="nf">image_files_in_dir</span><span class="p">(</span><span class="n">directory_path</span><span class="p">,</span> <span class="n">max_num_files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Return the list of all FITS files and Simtel files in `directory_path`.</span>
+    <span class="sd">&quot;&quot;&quot;Return the path of FITS and Simtel files in `directory_path`.</span>
+
+<span class="sd">    Return the path of all (or `max_num_files`) files having the extension</span>
+<span class="sd">    &quot;.simtel&quot;, &quot;.simtel.gz&quot;, &quot;.fits&quot; or &quot;.fit&quot; in `directory_path`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    directory_path : str</span>
+<span class="sd">        The directory&#39;s path where FITS and Simtel files are searched.</span>
+<span class="sd">    max_num_files : int</span>
+<span class="sd">        The maximum number of files to return.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path of the next FITS or Simtel files in `directory_path`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">FILE_EXT</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;.simtel&quot;</span><span class="p">,</span> <span class="s2">&quot;.simtel.gz&quot;</span><span class="p">,</span> <span class="s2">&quot;.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;.fit&quot;</span><span class="p">)</span>
@@ -364,9 +379,24 @@
 
 
 <div class="viewcode-block" id="image_files_in_paths"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.image_files_in_paths">[docs]</a><span class="k">def</span> <span class="nf">image_files_in_paths</span><span class="p">(</span><span class="n">path_list</span><span class="p">,</span> <span class="n">max_num_files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return an iterable sequence all FITS files path and Simtel files path in `path_list`.</span>
+    <span class="sd">&quot;&quot;&quot;Return the path of FITS and Simtel files in `path_list`.</span>
 
-<span class="sd">    `path_list` can contain files and directories.</span>
+<span class="sd">    Return the path of all (or `max_num_files`) files having the extension</span>
+<span class="sd">    &quot;.simtel&quot;, &quot;.simtel.gz&quot;, &quot;.fits&quot; or &quot;.fit&quot; in `path_list`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_list : str</span>
+<span class="sd">        The list of directory&#39;s path where FITS and Simtel files are searched.</span>
+<span class="sd">        It can also directly contain individual file paths (or a mix of files</span>
+<span class="sd">        and directories path).</span>
+<span class="sd">    max_num_files : int</span>
+<span class="sd">        The maximum number of files to return.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    str</span>
+<span class="sd">        The path of the next FITS or Simtel files in `path_list`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">files_counter</span> <span class="o">=</span> <span class="mi">0</span>
@@ -431,6 +461,12 @@
 <span class="sd">        Only iterate images from events defined in this list.</span>
 <span class="sd">    cam_filter_list</span>
 <span class="sd">        Only iterate images from cameras defined in this list.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    Image1D or Image2D</span>
+<span class="sd">        The named tuple `Image1D` or `Image1D` of the next FITS or Simtel files</span>
+<span class="sd">        in `path_list`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">images_counter</span> <span class="o">=</span> <span class="mi">0</span>
