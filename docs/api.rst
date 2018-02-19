@@ -21,6 +21,9 @@ Modules:
    datapipe.denoising.tailcut <api_filter_tailcut>
    datapipe.denoising.abstract_cleaning_algorithm <api_filter_abstract_cleaning_algorithm>
    datapipe.denoising.inverse_transform_sampling <api_filter_inverse_transform_sampling>
+   datapipe.image.hillas_parameters <api_image_hillas_parameters>
+   datapipe.image.pixel_clusters <api_image_pixel_clusters>
+   datapipe.image.signal_to_border_distance <api_image_signal_to_border_distance>
    datapipe.io.geometry_converter <api_io_geometry_converter>
    datapipe.io.images <api_io_images>
 
