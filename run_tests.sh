@@ -3,6 +3,14 @@
 export PYTHONPATH=.:$PYTHONPATH
 source activate cta
 
+# DOCTESTS ####################################################################
+
+echo
+echo
+python3 -m doctest ./datapipe/io/images.py
+
+# UNITTESTS ###################################################################
+
 echo
 echo
 echo "TEST_BENCHMARK_ASSESS"

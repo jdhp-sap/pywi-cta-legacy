@@ -114,6 +114,53 @@ class WrongFitsFileStructure(FitsError):
 # FILL NAN PIXELS #############################################################
 
 def fill_nan_pixels(image, noise_distribution=None):
+    """Replace *in-place* `NaN` values in `image` by zeros or by random noise.
+
+    Images containing `NaN` values generate undesired harmonics with wavelet
+    image cleaning. This function should be used to "fix" images before each
+    wavelet image cleaning.
+
+    Replace `NaN` ("Not a Number") values in `image` by zeros if
+    `noise_distribution` is `None`.
+    Otherwise, `NaN` values are replaced by random noise drawn by the
+    `noise_distribution` random generator.
+
+    Parameters
+    ----------
+    image : array_like
+        The image to process. `NaN` values are replaced **in-place** thus this
+        function changes the provided object.
+    noise_distribution : `datapipe.denoising.inverse_transform_sampling.EmpiricalDistribution`
+        The random generator to use to replace `NaN` pixels by random noise.
+
+    Returns
+    -------
+    array_like
+        Returns a boolean mask array indicating whether pixels in `images`
+        initially contained `NaN` values (`True`) of not (`False`). This array
+        is defined by the instruction `np.isnan(image)`.
+
+    Notes
+    -----
+        `NaN` values are replaced **in-place** in the provided `image`
+        parameter.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> img = np.array([[1, 2, np.nan],[4, np.nan, 6],[np.nan, 8, np.nan]])
+    >>> fill_nan_pixels(img)
+    ... # doctest: +NORMALIZE_WHITESPACE
+    array([[False, False,  True],
+           [False,  True, False],
+           [ True, False,  True]], dtype=bool)
+    >>> img
+    ... # doctest: +NORMALIZE_WHITESPACE
+    array([[ 1., 2., 0.],
+           [ 4., 0., 6.],
+           [ 0., 8., 0.]])
+    """
+
     # See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array
     nan_mask = np.isnan(image)
 
