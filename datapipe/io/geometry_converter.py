@@ -20,7 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['image_2d_to_1d',
+__all__ = ['get_geom1d',
+           'image_2d_to_1d',
            'image_1d_to_2d']
 
 import ctapipe.image.geometry_converter as geomconv
