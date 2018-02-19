@@ -20,7 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['load_fits',
+__all__ = ['fill_nan_pixels',
+           'load_fits',
            'save_fits',
            'mpl_save',
            'plot',
