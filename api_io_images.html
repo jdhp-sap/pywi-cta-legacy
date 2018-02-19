@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>io.images &mdash; SAp CTA data pipeline 0.1.dev6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="SAp CTA data pipeline 0.1.dev6 documentation" href="index.html"/>
+        <link rel="up" title="SAp CTA data pipeline API" href="api.html"/>
+        <link rel="next" title="Developer’s notes" href="developer.html"/>
+        <link rel="prev" title="benchmark.assess" href="api_benchmark_assess.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SAp CTA data pipeline
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrfilter.html">datapipe.denoising.wavelets_mrfilter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_wavelet_mrtransform.html">datapipe.denoising.wavelets_mrtransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_tailcut.html">datapipe.denoising.tailcut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_abstract_cleaning_algorithm.html">datapipe.denoising.abstract_cleaning_algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_filter_inverse_transform_sampling.html">datapipe.denoising.inverse_transform_sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_benchmark_assess.html">datapipe.benchmark.assess</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">datapipe.io.images</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer.html">Developer’s notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SAp CTA data pipeline</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="api.html">SAp CTA data pipeline API</a> &raquo;</li>
+        
+      <li>io.images</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api_io_images.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-datapipe.io.images">
+<span id="io-images"></span><h1>io.images<a class="headerlink" href="#module-datapipe.io.images" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="datapipe.io.images.load_fits">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">load_fits</code><span class="sig-paren">(</span><em>input_file_path</em>, <em>hdu_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#load_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.load_fits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the image array contained in the given HDU of the given FITS file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the FITS file to load</li>
+<li><strong>hdu_index</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The HDU to load within the FITS file (one FITS file can contain several
+images stored in different HDU)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The loaded image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">ndarray</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal"><span class="pre">WrongHDUError</span></code> – If <cite>input_file_path</cite> doesn’t contain the HDU <cite>hdu_index</cite></li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">NotAnImageError</span></code> – If <cite>input_file_path</cite> doesn’t contain a valid image in the HDU
+<cite>hdu_index</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.save_fits">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">save_fits</code><span class="sig-paren">(</span><em>img</em>, <em>output_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#save_fits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.save_fits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the <cite>img</cite> image (array_like) to the <cite>output_file_path</cite> FITS file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<em>array_like</em>) – The image to save (should be a 2D or a 3D numpy array)</li>
+<li><strong>output_file_path</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The path of the FITS file where to save the <cite>img</cite></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">WrongDimensionError</span></code> – If <cite>img</cite> has more than 3 dimensions or less than 2 dimensions.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.mpl_save">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">mpl_save</code><span class="sig-paren">(</span><em>img</em>, <em>output_file_path</em>, <em>title=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#mpl_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.mpl_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>img should be a 2D numpy array.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.plot">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>img</em>, <em>title=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>img should be a 2D numpy array.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.image_files_in_dir">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">image_files_in_dir</code><span class="sig-paren">(</span><em>directory_path</em>, <em>max_num_files=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#image_files_in_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.image_files_in_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of all FITS files and Simtel files in <cite>directory_path</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.image_files_in_paths">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">image_files_in_paths</code><span class="sig-paren">(</span><em>path_list</em>, <em>max_num_files=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#image_files_in_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.image_files_in_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable sequence all FITS files path and Simtel files path in <cite>path_list</cite>.</p>
+<p><cite>path_list</cite> can contain files and directories.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datapipe.io.images.image_generator">
+<code class="descclassname">datapipe.io.images.</code><code class="descname">image_generator</code><span class="sig-paren">(</span><em>path_list</em>, <em>max_num_images=None</em>, <em>tel_filter_list=None</em>, <em>ev_filter_list=None</em>, <em>cam_filter_list=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/datapipe/io/images.html#image_generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#datapipe.io.images.image_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterable sequence all calibrated images in <cite>path_list</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_list</strong> – The path of files containing the images to extract. It can contain
+FITS/Simtel files and directories.</li>
+<li><strong>max_num_images</strong> – The maximum number of images to iterate.</li>
+<li><strong>tel_filter_list</strong> – Only iterate images from telescopes defined in this list.</li>
+<li><strong>ev_filter_list</strong> – Only iterate images from events defined in this list.</li>
+<li><strong>cam_filter_list</strong> – Only iterate images from cameras defined in this list.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="developer.html" class="btn btn-neutral float-right" title="Developer’s notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="api_benchmark_assess.html" class="btn btn-neutral" title="benchmark.assess" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2010-2015, Jérémie Decock.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.dev6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

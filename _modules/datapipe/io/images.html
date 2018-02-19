@@ -1,0 +1,1544 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>datapipe.io.images &mdash; SAp CTA data pipeline 0.1.dev6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="SAp CTA data pipeline 0.1.dev6 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SAp CTA data pipeline
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer’s notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SAp CTA data pipeline</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>datapipe.io.images</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for datapipe.io.images</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)</span>
+
+<span class="c1"># This script is provided under the terms and conditions of the MIT license:</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;load_fits&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;save_fits&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;mpl_save&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;plot&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;image_files_in_dir&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;image_files_in_paths&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;image_generator&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">cm</span>
+<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="k">import</span> <span class="n">Ellipse</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">ctapipe</span>
+<span class="kn">import</span> <span class="nn">pyhessio</span>
+<span class="kn">from</span> <span class="nn">ctapipe.image.hillas</span> <span class="k">import</span> <span class="n">HillasParameterizationError</span>
+<span class="kn">from</span> <span class="nn">ctapipe.io.hessio</span> <span class="k">import</span> <span class="n">hessio_event_source</span>
+<span class="kn">from</span> <span class="nn">ctapipe.instrument</span> <span class="k">import</span> <span class="n">CameraGeometry</span>
+<span class="kn">from</span> <span class="nn">ctapipe.calib</span> <span class="k">import</span> <span class="n">CameraCalibrator</span>
+<span class="kn">import</span> <span class="nn">ctapipe.visualization</span>
+
+<span class="kn">from</span> <span class="nn">datapipe.image.hillas_parameters</span> <span class="k">import</span> <span class="n">get_hillas_parameters</span>
+<span class="kn">from</span> <span class="nn">datapipe.io</span> <span class="k">import</span> <span class="n">geometry_converter</span>
+
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># EXCEPTIONS #################################################################</span>
+
+<span class="k">class</span> <span class="nc">FitsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span> <span class="nc">WrongHDUError</span><span class="p">(</span><span class="n">FitsError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception raised when trying to access a wrong HDU in a FITS file.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        file_path -- the FITS file concerned by the error</span>
+<span class="sd">        hdu_index -- the HDU index concerned by the error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;File </span><span class="si">{}</span><span class="s2"> doesn&#39;t have data in HDU </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdu_index</span> <span class="o">=</span> <span class="n">hdu_index</span>
+
+<span class="k">class</span> <span class="nc">NotAnImageError</span><span class="p">(</span><span class="n">FitsError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception raised when trying to load a FITS file which doesn&#39;t contain a</span>
+<span class="sd">    valid image in the given HDU.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        file_path -- the FITS file concerned by the error</span>
+<span class="sd">        hdu_index -- the HDU index concerned by the error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;HDU </span><span class="si">{}</span><span class="s2"> in file </span><span class="si">{}</span><span class="s2"> doesn&#39;t contain any image.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hdu_index</span><span class="p">,</span> <span class="n">file_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hdu_index</span> <span class="o">=</span> <span class="n">hdu_index</span>
+
+<span class="k">class</span> <span class="nc">WrongDimensionError</span><span class="p">(</span><span class="n">FitsError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Exception raised when trying to save a FITS with more than 3 dimensions</span>
+<span class="sd">    or less than 2 dimensions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;The input image should be a 2D or a 3D numpy array.&quot;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">WrongFitsFileStructure</span><span class="p">(</span><span class="n">FitsError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception raised when trying to load a FITS file which doesn&#39;t contain a</span>
+<span class="sd">    valid structure (for benchmark).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        file_path -- the FITS file concerned by the error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;File </span><span class="si">{}</span><span class="s2"> doesn&#39;t contain a valid structure.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span>
+
+
+<span class="c1"># FILL NAN PIXELS #############################################################</span>
+
+<span class="k">def</span> <span class="nf">fill_nan_pixels</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">noise_distribution</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Replace *in-place* `NaN` values in `image` by zeros or by random noise.</span>
+
+<span class="sd">    Images containing `NaN` values generate undesired harmonics with wavelet</span>
+<span class="sd">    image cleaning. This function should be used to &quot;fix&quot; images before each</span>
+<span class="sd">    wavelet image cleaning.</span>
+
+<span class="sd">    Replace `NaN` (&quot;Not a Number&quot;) values in `image` by zeros if</span>
+<span class="sd">    `noise_distribution` is `None`.</span>
+<span class="sd">    Otherwise, `NaN` values are replaced by random noise drawn by the</span>
+<span class="sd">    `noise_distribution` random generator.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image : array_like</span>
+<span class="sd">        The image to process. `NaN` values are replaced **in-place** thus this</span>
+<span class="sd">        function changes the provided object.</span>
+<span class="sd">    noise_distribution : `datapipe.denoising.inverse_transform_sampling.EmpiricalDistribution`</span>
+<span class="sd">        The random generator to use to replace `NaN` pixels by random noise.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array_like</span>
+<span class="sd">        Returns a boolean mask array indicating whether pixels in `images`</span>
+<span class="sd">        initially contained `NaN` values (`True`) of not (`False`). This array</span>
+<span class="sd">        is defined by the instruction `np.isnan(image)`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        `NaN` values are replaced **in-place** in the provided `image`</span>
+<span class="sd">        parameter.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; img = np.array([[1, 2, np.nan],[4, np.nan, 6],[np.nan, 8, np.nan]])</span>
+<span class="sd">    &gt;&gt;&gt; fill_nan_pixels(img)</span>
+<span class="sd">    ... # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">    array([[False, False,  True],</span>
+<span class="sd">           [False,  True, False],</span>
+<span class="sd">           [ True, False,  True]], dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; img</span>
+<span class="sd">    ... # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">    array([[ 1., 2., 0.],</span>
+<span class="sd">           [ 4., 0., 6.],</span>
+<span class="sd">           [ 0., 8., 0.]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># See https://stackoverflow.com/questions/29365194/replacing-missing-values-with-random-in-a-numpy-array</span>
+    <span class="n">nan_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">plot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;In&quot;</span><span class="p">)</span>
+        <span class="n">plot</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">,</span> <span class="s2">&quot;Mask&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">noise_distribution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nan_noise_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">nan_mask</span><span class="p">)</span>
+        <span class="n">image</span><span class="p">[</span><span class="n">nan_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">noise_distribution</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">nan_noise_size</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">image</span><span class="p">[</span><span class="n">nan_mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="n">plot</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;Noise injected&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">nan_mask</span>
+
+
+<span class="c1"># DIRECTORY PARSER ############################################################</span>
+
+<div class="viewcode-block" id="image_files_in_dir"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.image_files_in_dir">[docs]</a><span class="k">def</span> <span class="nf">image_files_in_dir</span><span class="p">(</span><span class="n">directory_path</span><span class="p">,</span> <span class="n">max_num_files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Return the list of all FITS files and Simtel files in `directory_path`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">FILE_EXT</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;.simtel&quot;</span><span class="p">,</span> <span class="s2">&quot;.simtel.gz&quot;</span><span class="p">,</span> <span class="s2">&quot;.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;.fit&quot;</span><span class="p">)</span>
+    <span class="n">directory_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">directory_path</span><span class="p">)</span>
+
+    <span class="n">files_counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory_path</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory_path</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">file_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">FILE_EXT</span><span class="p">):</span>
+            <span class="n">files_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">max_num_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">files_counter</span> <span class="o">&gt;</span> <span class="n">max_num_files</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">file_path</span></div>
+
+
+<div class="viewcode-block" id="image_files_in_paths"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.image_files_in_paths">[docs]</a><span class="k">def</span> <span class="nf">image_files_in_paths</span><span class="p">(</span><span class="n">path_list</span><span class="p">,</span> <span class="n">max_num_files</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an iterable sequence all FITS files path and Simtel files path in `path_list`.</span>
+
+<span class="sd">    `path_list` can contain files and directories.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">files_counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">path_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="c1"># If path is a directory</span>
+            <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">image_files_in_dir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">files_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">max_num_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">files_counter</span> <span class="o">&gt;</span> <span class="n">max_num_files</span><span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">file_path</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="c1"># If path is a regular file</span>
+            <span class="n">files_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">max_num_files</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">files_counter</span> <span class="o">&gt;</span> <span class="n">max_num_files</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Wrong item:&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+
+<span class="c1"># LOAD IMAGES ################################################################</span>
+
+<span class="n">Image1D</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Image1D&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;input_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;reference_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;adc_sum_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;pedestal_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;gains_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;pixels_position&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;meta&#39;</span><span class="p">))</span>
+
+<span class="n">Image2D</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Image2D&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;input_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;reference_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;adc_sum_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;pedestal_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;gains_image&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;pixels_position&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;pixels_mask&#39;</span><span class="p">,</span>
+                                             <span class="s1">&#39;meta&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="image_generator"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.image_generator">[docs]</a><span class="k">def</span> <span class="nf">image_generator</span><span class="p">(</span><span class="n">path_list</span><span class="p">,</span>
+                    <span class="n">max_num_images</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">tel_filter_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">ev_filter_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">cam_filter_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an iterable sequence all calibrated images in `path_list`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_list</span>
+<span class="sd">        The path of files containing the images to extract. It can contain</span>
+<span class="sd">        FITS/Simtel files and directories.</span>
+<span class="sd">    max_num_images</span>
+<span class="sd">        The maximum number of images to iterate.</span>
+<span class="sd">    tel_filter_list</span>
+<span class="sd">        Only iterate images from telescopes defined in this list.</span>
+<span class="sd">    ev_filter_list</span>
+<span class="sd">        Only iterate images from events defined in this list.</span>
+<span class="sd">    cam_filter_list</span>
+<span class="sd">        Only iterate images from cameras defined in this list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">images_counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">image_files_in_paths</span><span class="p">(</span><span class="n">path_list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">max_num_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">images_counter</span> <span class="o">&gt;=</span> <span class="n">max_num_images</span><span class="p">):</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">&quot;.simtel&quot;</span><span class="p">,</span> <span class="s2">&quot;.simtel.gz&quot;</span><span class="p">)):</span>
+                <span class="c1"># SIMTEL FILES</span>
+                <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">simtel_images_generator</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span>
+                                                     <span class="n">tel_filter_list</span><span class="p">,</span>
+                                                     <span class="n">ev_filter_list</span><span class="p">,</span>
+                                                     <span class="n">cam_filter_list</span><span class="p">,</span>
+                                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">max_num_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">images_counter</span> <span class="o">&gt;=</span> <span class="n">max_num_images</span><span class="p">):</span>
+                        <span class="n">pyhessio</span><span class="o">.</span><span class="n">close_file</span><span class="p">()</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">images_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">yield</span> <span class="n">image</span>
+            <span class="k">elif</span> <span class="n">file_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">&quot;.fits&quot;</span><span class="p">,</span> <span class="s2">&quot;.fit&quot;</span><span class="p">)):</span>
+                <span class="c1"># FITS FILES</span>
+                <span class="n">image_dict</span><span class="p">,</span> <span class="n">fits_metadata_dict</span> <span class="o">=</span> <span class="n">load_benchmark_images</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>   <span class="c1"># TODO: named tuple</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">tel_filter_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fits_metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">tel_filter_list</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">ev_filter_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fits_metadata_dict</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ev_filter_list</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">cam_filter_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fits_metadata_dict</span><span class="p">[</span><span class="s1">&#39;cam_id&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cam_filter_list</span><span class="p">):</span>
+                            <span class="n">images_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="k">yield</span> <span class="n">Image2D</span><span class="p">(</span><span class="o">**</span><span class="n">image_dict</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">fits_metadata_dict</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Wrong item:&quot;</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span></div>
+
+
+<span class="c1"># LOAD SIMTEL IMAGE ##########################################################</span>
+
+<span class="k">def</span> <span class="nf">quantity_to_tuple</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">unit_str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Splits a quantity into a tuple of (value,unit) where unit is FITS compliant.</span>
+
+<span class="sd">    Useful to write FITS header keywords with units in a comment.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    quantity : astropy quantity</span>
+<span class="sd">        The Astropy quantity to split.</span>
+<span class="sd">    unit_str: str</span>
+<span class="sd">        Unit string representation readable by astropy.units (e.g. &#39;m&#39;, &#39;TeV&#39;, ...)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        A tuple containing the value and the quantity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">quantity</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">unit_str</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">quantity</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">unit_str</span><span class="p">)</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;FITS&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">simtel_event_to_images</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">tel_id</span><span class="p">,</span> <span class="n">ctapipe_format</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TODO</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SINGLE_CHANNEL_CAMERAS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;CHEC&quot;</span><span class="p">,</span> <span class="s2">&quot;DigiCam&quot;</span><span class="p">,</span> <span class="s2">&quot;FlashCam&quot;</span><span class="p">)</span>
+    <span class="n">TWO_CHANNELS_CAMERAS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ASTRICam&quot;</span><span class="p">,</span> <span class="s2">&quot;NectarCam&quot;</span><span class="p">,</span> <span class="s2">&quot;LSTCam&quot;</span><span class="p">)</span>
+
+    <span class="c1"># GUESS THE IMAGE GEOMETRY ################################</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">pixel_pos</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span>
+    <span class="n">foclen</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">optical_foclen</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span>
+    <span class="n">geom1d</span> <span class="o">=</span> <span class="n">CameraGeometry</span><span class="o">.</span><span class="n">guess</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">foclen</span><span class="p">)</span>
+
+    <span class="c1"># GET IMAGES ##############################################</span>
+
+    <span class="n">mc_pe</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">photo_electron_image</span>
+    <span class="n">mc_pedestal</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">pedestal</span>                     <span class="c1"># [N channels]</span>
+    <span class="n">mc_gain</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">dc_to_pe</span>                         <span class="c1"># [N channels]</span>
+
+    <span class="n">r0_adc_sums</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">adc_sums</span>                     <span class="c1"># [N channels]</span>
+    <span class="n">r0_adc_samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">adc_samples</span>               <span class="c1"># [N channels]</span>
+
+    <span class="n">r1_pe_samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">r1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">pe_samples</span>                 <span class="c1"># [N channels]</span>
+
+    <span class="n">dl0_pe_samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">pe_samples</span>               <span class="c1"># [N channels]</span>
+
+    <span class="n">dl1_cleaned_samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">cleaned</span>             <span class="c1"># [N channels]</span>
+    <span class="n">dl1_extracted_samples</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">extracted_samples</span> <span class="c1"># [N channels]</span>
+    <span class="n">dl1_image</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">image</span>                         <span class="c1"># [N channels]</span>
+    <span class="n">dl1_peakpos</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dl1</span><span class="o">.</span><span class="n">tel</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span><span class="o">.</span><span class="n">peakpos</span>                     <span class="c1"># [N channels]</span>
+
+    <span class="c1"># ALIAS #</span>
+
+    <span class="n">pe_image</span> <span class="o">=</span> <span class="n">mc_pe</span>
+    <span class="n">pedestal</span> <span class="o">=</span> <span class="n">mc_pedestal</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="n">mc_gain</span>
+
+    <span class="n">uncalibrated_image</span> <span class="o">=</span> <span class="n">r0_adc_sums</span>
+    <span class="n">uncalibrated_samples</span> <span class="o">=</span> <span class="n">r0_adc_samples</span>
+
+    <span class="n">calibrated_image</span> <span class="o">=</span> <span class="n">dl1_image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">pixel_pos</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">pixel_pos</span><span class="p">[</span><span class="n">tel_id</span><span class="p">]</span>
+
+    <span class="n">cam_id</span> <span class="o">=</span> <span class="n">geom1d</span><span class="o">.</span><span class="n">cam_id</span>
+
+    <span class="c1"># MIX CHANNELS FOR DOUBLE CHANNEL CAMERAS #################</span>
+
+    <span class="k">if</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;ASTRICam&quot;</span><span class="p">:</span>
+        <span class="n">ASTRI_CAM_CHANNEL_THRESHOLD</span> <span class="o">=</span> <span class="mi">14</span>         <span class="c1"># cf. &quot;calib_find_channel_selection_threshold&quot; notebook</span>
+        <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">&lt;=</span> <span class="n">ASTRI_CAM_CHANNEL_THRESHOLD</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">&gt;</span>  <span class="n">ASTRI_CAM_CHANNEL_THRESHOLD</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">calibrated_image</span> <span class="o">=</span> <span class="n">calibrated_image</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;NectarCam&quot;</span><span class="p">:</span>
+        <span class="n">NECTAR_CAM_CHANNEL_THRESHOLD</span> <span class="o">=</span> <span class="mi">190</span>       <span class="c1"># cf. &quot;calib_find_channel_selection_threshold&quot; notebook</span>
+        <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">&lt;=</span> <span class="n">NECTAR_CAM_CHANNEL_THRESHOLD</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">&gt;</span>  <span class="n">NECTAR_CAM_CHANNEL_THRESHOLD</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">calibrated_image</span> <span class="o">=</span> <span class="n">calibrated_image</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="o">==</span> <span class="s2">&quot;LSTCam&quot;</span><span class="p">:</span>
+        <span class="n">LST_CAM_CHANNEL_THRESHOLD</span> <span class="o">=</span> <span class="mi">100</span>          <span class="c1"># cf. &quot;calib_find_channel_selection_threshold&quot; notebook</span>
+        <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">&lt;=</span> <span class="n">LST_CAM_CHANNEL_THRESHOLD</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">&gt;</span>  <span class="n">LST_CAM_CHANNEL_THRESHOLD</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">calibrated_image</span> <span class="o">=</span> <span class="n">calibrated_image</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="n">SINGLE_CHANNEL_CAMERAS</span> <span class="p">:</span>
+        <span class="n">calibrated_image</span> <span class="o">=</span> <span class="n">calibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unknown camera: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_id</span><span class="p">))</span>
+
+    <span class="c1"># METADATA ###############################################</span>
+
+    <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cam_id&#39;</span><span class="p">:</span> <span class="n">cam_id</span><span class="p">}</span>
+
+    <span class="c1">##########################################################</span>
+
+    <span class="k">if</span> <span class="n">ctapipe_format</span><span class="p">:</span>
+
+        <span class="k">return</span> <span class="n">Image1D</span><span class="p">(</span><span class="n">input_image</span><span class="o">=</span><span class="n">calibrated_image</span><span class="p">,</span>
+                       <span class="n">reference_image</span><span class="o">=</span><span class="n">pe_image</span><span class="p">,</span>
+                       <span class="n">adc_sum_image</span><span class="o">=</span><span class="n">uncalibrated_image</span><span class="p">,</span>
+                       <span class="n">pedestal_image</span><span class="o">=</span><span class="n">pedestal</span><span class="p">,</span>
+                       <span class="n">gains_image</span><span class="o">=</span><span class="n">gain</span><span class="p">,</span>
+                       <span class="n">pixels_position</span><span class="o">=</span><span class="n">pixel_pos</span><span class="p">,</span>
+                       <span class="n">meta</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c1"># CONVERTING GEOMETRY (1D TO 2D) ##########################</span>
+
+        <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="n">SINGLE_CHANNEL_CAMERAS</span><span class="p">:</span>
+
+            <span class="n">pe_image_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">pe_image</span><span class="p">,</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">calibrated_image_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">calibrated_image</span><span class="p">,</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+
+            <span class="n">uncalibrated_image_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">uncalibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">pedestal_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">pedestal</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">gains_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">gain</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="n">TWO_CHANNELS_CAMERAS</span><span class="p">:</span>
+
+            <span class="n">pe_image_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">pe_image</span><span class="p">,</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">calibrated_image_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">calibrated_image</span><span class="p">,</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+
+            <span class="n">uncalibrated_image_2d_ch0</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">uncalibrated_image</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">uncalibrated_image_2d_ch1</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">uncalibrated_image</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">pedestal_2d_ch0</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">pedestal</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">pedestal_2d_ch1</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">pedestal</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">gains_2d_ch0</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">gain</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+            <span class="n">gains_2d_ch1</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">gain</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unknown camera: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_id</span><span class="p">))</span>
+
+        <span class="c1"># Make a mock pixel position array...</span>
+        <span class="n">pixel_pos_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">pixel_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                        <span class="n">pixel_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                        <span class="n">pe_image_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                                            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">pixel_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                        <span class="n">pixel_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                        <span class="n">pe_image_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+        <span class="c1"># FIX THE ARRAY SHAPE #####################################</span>
+
+        <span class="c1"># The ctapipe geometry converter operate on one channel</span>
+        <span class="c1"># only and then takes and return a 2D array but datapipe</span>
+        <span class="c1"># fits files keep all channels and thus takes 3D arrays...</span>
+
+        <span class="k">if</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="n">SINGLE_CHANNEL_CAMERAS</span><span class="p">:</span>
+            <span class="n">uncalibrated_image_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">uncalibrated_image_2d</span><span class="p">])</span>
+            <span class="n">pedestal_2d</span> <span class="o">=</span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pedestal_2d</span><span class="p">])</span>
+            <span class="n">gains_2d</span> <span class="o">=</span>              <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">gains_2d</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">cam_id</span> <span class="ow">in</span> <span class="n">TWO_CHANNELS_CAMERAS</span><span class="p">:</span>
+            <span class="n">uncalibrated_image_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">uncalibrated_image_2d_ch0</span><span class="p">,</span> <span class="n">uncalibrated_image_2d_ch1</span><span class="p">])</span>
+            <span class="n">pedestal_2d</span> <span class="o">=</span>           <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pedestal_2d_ch0</span><span class="p">,</span> <span class="n">pedestal_2d_ch1</span> <span class="p">])</span>
+            <span class="n">gains_2d</span> <span class="o">=</span>              <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">gains_2d_ch0</span><span class="p">,</span> <span class="n">gains_2d_ch1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unknown camera: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cam_id</span><span class="p">))</span>
+
+        <span class="c1"># GET PIXEL MASK AND PUT NAN IN BLANK PIXELS ##############</span>
+
+        <span class="n">mask_1d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">pe_image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">mask_2d</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">image_1d_to_2d</span><span class="p">(</span><span class="n">mask_1d</span><span class="p">,</span> <span class="n">cam_id</span><span class="o">=</span><span class="n">cam_id</span><span class="p">)</span>
+
+        <span class="c1"># TODO: apparently nan values are already there so this step is useless...</span>
+
+        <span class="c1">#calibrated_image_2d[mask_2d != 1] = np.nan</span>
+        <span class="c1">#pe_image_2d[mask_2d != 1] = np.nan</span>
+
+        <span class="c1">#uncalibrated_image_2d[0, mask_2d != 1] = np.nan</span>
+        <span class="c1">#pedestal_2d[0, mask_2d != 1] = np.nan</span>
+        <span class="c1">#gains_2d[0, mask_2d != 1] = np.nan</span>
+
+        <span class="c1">#if cam_id in (&quot;NectarCam&quot;, &quot;LSTCam&quot;, &quot;ASTRICam&quot;, &quot;ASTRI&quot;):</span>
+        <span class="c1">#    # Double channel instruments</span>
+        <span class="c1">#    uncalibrated_image_2d[1, mask_2d != 1] = np.nan</span>
+        <span class="c1">#    pedestal_2d[1, mask_2d != 1] = np.nan</span>
+        <span class="c1">#    gains_2d[1, mask_2d != 1] = np.nan</span>
+
+        <span class="c1">#pixel_pos_2d[mask_2d != 1] = np.nan</span>
+
+        <span class="k">return</span> <span class="n">Image2D</span><span class="p">(</span><span class="n">input_image</span><span class="o">=</span><span class="n">calibrated_image_2d</span><span class="p">,</span>
+                       <span class="n">reference_image</span><span class="o">=</span><span class="n">pe_image_2d</span><span class="p">,</span>
+                       <span class="n">adc_sum_image</span><span class="o">=</span><span class="n">uncalibrated_image_2d</span><span class="p">,</span>
+                       <span class="n">pedestal_image</span><span class="o">=</span><span class="n">pedestal_2d</span><span class="p">,</span>
+                       <span class="n">gains_image</span><span class="o">=</span><span class="n">gains_2d</span><span class="p">,</span>
+                       <span class="n">pixels_position</span><span class="o">=</span><span class="n">pixel_pos_2d</span><span class="p">,</span>
+                       <span class="n">pixels_mask</span><span class="o">=</span><span class="n">mask_2d</span><span class="p">,</span>
+                       <span class="n">meta</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">simtel_images_generator</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span>
+                            <span class="n">tel_filter_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">ev_filter_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">cam_filter_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">ctapipe_format</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TODO</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># EXTRACT IMAGES ##########################################################</span>
+
+    <span class="c1"># hessio_event_source returns a Python generator that streams data from an</span>
+    <span class="c1"># EventIO/HESSIO MC data file (e.g. a standard CTA data file).</span>
+    <span class="c1"># This generator contains ctapipe.core.Container instances (&quot;event&quot;).</span>
+    <span class="c1"># </span>
+    <span class="c1"># Parameters:</span>
+    <span class="c1"># - max_events: maximum number of events to read</span>
+    <span class="c1"># - allowed_tels: select only a subset of telescope, if None, all are read.</span>
+
+    <span class="n">source</span> <span class="o">=</span> <span class="n">hessio_event_source</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">allowed_tels</span><span class="o">=</span><span class="n">tel_filter_list</span><span class="p">)</span>
+
+    <span class="c1"># ITERATE OVER EVENTS #####################################################</span>
+
+    <span class="n">calib</span> <span class="o">=</span> <span class="n">CameraCalibrator</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+
+        <span class="n">calib</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>  <span class="c1"># calibrate the event</span>
+
+        <span class="n">event_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">event_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">ev_filter_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">event_id</span> <span class="ow">in</span> <span class="n">ev_filter_list</span><span class="p">):</span>
+
+            <span class="c1"># ITERATE OVER IMAGES #############################################</span>
+
+            <span class="k">for</span> <span class="n">tel_id</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">trig</span><span class="o">.</span><span class="n">tels_with_trigger</span><span class="p">:</span>
+
+                <span class="n">tel_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tel_id</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">tel_filter_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">tel_id</span> <span class="ow">in</span> <span class="n">tel_filter_list</span><span class="p">):</span>
+
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">simtel_event_to_images</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">tel_id</span><span class="p">,</span> <span class="n">ctapipe_format</span><span class="o">=</span><span class="n">ctapipe_format</span><span class="p">)</span>
+                        <span class="n">cam_id</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;cam_id&#39;</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                        <span class="n">cam_id</span> <span class="o">=</span> <span class="kc">None</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="n">cam_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">cam_filter_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">cam_id</span> <span class="ow">in</span> <span class="n">cam_filter_list</span><span class="p">)):</span>
+
+                        <span class="c1"># MAKE METADATA ###########################################</span>
+
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>    <span class="c1"># Version of the datapipe data format</span>
+
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;tel_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tel_id</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event_id</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;file_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;simtel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span>
+
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;num_tel_with_trigger&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">trig</span><span class="o">.</span><span class="n">tels_with_trigger</span><span class="p">)</span>
+
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="s1">&#39;TeV&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mc_azimuth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">az</span><span class="p">,</span> <span class="s1">&#39;rad&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mc_altitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">alt</span><span class="p">,</span> <span class="s1">&#39;rad&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mc_core_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">core_x</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mc_core_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">core_y</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;mc_height_first_interaction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">mc</span><span class="o">.</span><span class="n">h_first_int</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;ev_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;run_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;num_tel_with_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">dl0</span><span class="o">.</span><span class="n">tels_with_data</span><span class="p">)</span>
+
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;optical_foclen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">optical_foclen</span><span class="p">[</span><span class="n">tel_id</span><span class="p">],</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;tel_pos_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">tel_pos</span><span class="p">[</span><span class="n">tel_id</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;tel_pos_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">tel_pos</span><span class="p">[</span><span class="n">tel_id</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+                        <span class="n">image</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;tel_pos_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantity_to_tuple</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">inst</span><span class="o">.</span><span class="n">tel_pos</span><span class="p">[</span><span class="n">tel_id</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;m&#39;</span><span class="p">)</span>
+
+                        <span class="c1"># IMAGES ##################################################</span>
+
+                        <span class="c1">#images_dict = {}</span>
+
+                        <span class="c1">#images_dict[&quot;input_image&quot;] = calibrated_image_2d</span>
+                        <span class="c1">#images_dict[&quot;reference_image&quot;] = pe_image_2d</span>
+                        <span class="c1">#images_dict[&quot;adc_sum_image&quot;] = uncalibrated_image_2d</span>
+                        <span class="c1">#images_dict[&quot;pedestal_image&quot;] = pedestal_2d</span>
+                        <span class="c1">#images_dict[&quot;gains_image&quot;] = gains_2d</span>
+                        <span class="c1">#images_dict[&quot;pixels_position&quot;] = pixel_pos_2d</span>
+                        <span class="c1">#images_dict[&quot;pixels_mask&quot;] = mask_2d</span>
+
+                        <span class="k">yield</span> <span class="n">image</span>
+
+    <span class="c1"># End of file</span>
+    <span class="n">pyhessio</span><span class="o">.</span><span class="n">close_file</span><span class="p">()</span>
+
+
+<span class="c1"># LOAD FITS BENCHMARK IMAGE ##################################################</span>
+
+<span class="k">def</span> <span class="nf">load_benchmark_images</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return images contained in the given FITS file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_file_path : str</span>
+<span class="sd">        The path of the FITS file to load</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary containing the loaded images and their metadata</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    WrongFitsFileStructure</span>
+<span class="sd">        If `input_file_path` doesn&#39;t contain a valid structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hdu_list</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>   <span class="c1"># open the FITS file</span>
+
+    <span class="c1"># METADATA ################################################################</span>
+
+    <span class="n">hdu0</span> <span class="o">=</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;cam_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;cam_id&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;tel_id&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;file_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_file_path</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;simtel_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;simtel&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;num_tel_with_trigger&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;tel_trig&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_azimuth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;mc_az&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_azimuth_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;mc_az&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_altitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;mc_alt&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_altitude_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;mc_alt&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_core_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;mc_corex&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_core_x_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;mc_corex&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_core_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;mc_corey&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_core_y_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;mc_corey&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_height_first_interaction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;mc_hfi&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_height_first_interaction_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;mc_hfi&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;ev_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;run_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;run_id&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;num_tel_with_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;tel_data&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;optical_foclen&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;foclen&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;optical_foclen_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;foclen&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_pos_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;tel_posx&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_pos_x_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;tel_posx&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_pos_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;tel_posy&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_pos_y_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;tel_posy&#39;</span><span class="p">]</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_pos_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;tel_posz&#39;</span><span class="p">]</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_pos_z_unit&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="s1">&#39;tel_posz&#39;</span><span class="p">]</span>
+
+    <span class="c1"># TODO: Astropy fails to store the following data in FITS files</span>
+    <span class="c1">#metadata_dict[&#39;uid&#39;] = hdu0.header.comments[&#39;uid&#39;]</span>
+    <span class="c1">#metadata_dict[&#39;date_time&#39;] = hdu0.header.comments[&#39;datetime&#39;]</span>
+    <span class="c1">#metadata_dict[&#39;lib_version&#39;] = hdu0.header.comments[&#39;lib_version&#39;]</span>
+    <span class="c1">#metadata_dict[&#39;argv&#39;] = hdu0.header.comments[&#39;argv&#39;]</span>
+    <span class="c1">#metadata_dict[&#39;python_version&#39;] = hdu0.header.comments[&#39;python&#39;]</span>
+    <span class="c1">#metadata_dict[&#39;system&#39;] = hdu0.header.comments[&#39;system&#39;]</span>
+
+    <span class="c1"># IMAGES ##################################################################</span>
+
+    <span class="k">if</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hdu_list</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">7</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_image</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">is_image</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">is_image</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">is_image</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">is_image</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">is_image</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">hdu_list</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">is_image</span><span class="p">):</span>
+            <span class="n">hdu_list</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">WrongFitsFileStructure</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+
+        <span class="n">hdu0</span><span class="p">,</span> <span class="n">hdu1</span><span class="p">,</span> <span class="n">hdu2</span><span class="p">,</span> <span class="n">hdu3</span><span class="p">,</span> <span class="n">hdu4</span><span class="p">,</span> <span class="n">hdu6</span><span class="p">,</span> <span class="n">hdu7</span> <span class="o">=</span> <span class="n">hdu_list</span>
+
+        <span class="c1"># IMAGES</span>
+
+        <span class="n">images_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;input_image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu0</span><span class="o">.</span><span class="n">data</span>        <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+        <span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;reference_image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu1</span><span class="o">.</span><span class="n">data</span>    <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+        <span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;adc_sum_image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu2</span><span class="o">.</span><span class="n">data</span>      <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+        <span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;pedestal_image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu3</span><span class="o">.</span><span class="n">data</span>     <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+        <span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;gains_image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu4</span><span class="o">.</span><span class="n">data</span>        <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+        <span class="c1">#images_dict[&quot;calibration_image&quot;] = hdu5.data # &quot;hdu.data&quot; is a Numpy Array</span>
+        <span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;pixels_position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu6</span><span class="o">.</span><span class="n">data</span>    <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+        <span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;pixels_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdu7</span><span class="o">.</span><span class="n">data</span>        <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown version number&quot;</span><span class="p">)</span>
+
+    <span class="c1"># METADATA ################################################################</span>
+
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;npe&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;reference_image&quot;</span><span class="p">]))</span>       <span class="c1"># np.sum() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;min_npe&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;reference_image&quot;</span><span class="p">]))</span>   <span class="c1"># np.min() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...</span>
+    <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;max_npe&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">images_dict</span><span class="p">[</span><span class="s2">&quot;reference_image&quot;</span><span class="p">]))</span>   <span class="c1"># np.max() returns numpy.int64 objects thus it must be casted with float() to avoid serialization errors with JSON...</span>
+
+    <span class="n">hdu_list</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">images_dict</span><span class="p">,</span> <span class="n">metadata_dict</span>   <span class="c1"># TODO: named tuple</span>
+
+
+<span class="c1"># SAVE BENCHMARK IMAGE #######################################################</span>
+
+<span class="k">def</span> <span class="nf">save_benchmark_images</span><span class="p">(</span><span class="n">img</span><span class="p">,</span>
+                          <span class="n">pe_img</span><span class="p">,</span>
+                          <span class="n">adc_sums_img</span><span class="p">,</span>
+                          <span class="n">pedestal_img</span><span class="p">,</span>
+                          <span class="n">gains_img</span><span class="p">,</span>
+                          <span class="c1">#calibration_img,</span>
+                          <span class="n">pixel_pos</span><span class="p">,</span>
+                          <span class="n">pixel_mask</span><span class="p">,</span>
+                          <span class="n">metadata</span><span class="p">,</span>
+                          <span class="n">output_file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a FITS file containing pe_img, output_file_path and metadata.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img: ndarray</span>
+<span class="sd">        The &quot;input image&quot; to save (it should be a 2D Numpy array).</span>
+<span class="sd">    pe_img: ndarray</span>
+<span class="sd">        The &quot;reference image&quot; to save (it should be a 2D Numpy array).</span>
+<span class="sd">    output_file_path: str</span>
+<span class="sd">        The path of the output FITS file.</span>
+<span class="sd">    metadata: tuple</span>
+<span class="sd">        A dictionary containing all metadata to write in the FITS file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The input image should be a 2D numpy array.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pe_img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The input image should be a 2D numpy array.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">adc_sums_img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The input image should be a 3D numpy array.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pedestal_img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The input image should be a 3D numpy array.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">gains_img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The input image should be a 3D numpy array.&quot;</span><span class="p">)</span>
+
+    <span class="c1">#if calibration_img.ndim != 3:</span>
+    <span class="c1">#    raise Exception(&quot;The input image should be a 3D numpy array.&quot;)</span>
+
+    <span class="k">if</span> <span class="n">pixel_pos</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The input image should be a 3D numpy array.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pixel_mask</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The input image should be a 2D numpy array.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># http://docs.astropy.org/en/stable/io/fits/appendix/faq.html#how-do-i-create-a-multi-extension-fits-file-from-scratch</span>
+    <span class="c1"># http://docs.astropy.org/en/stable/generated/examples/io/create-mef.html#sphx-glr-generated-examples-io-create-mef-py</span>
+    <span class="n">hdu0</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="n">hdu1</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">pe_img</span><span class="p">)</span>
+    <span class="n">hdu2</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">adc_sums_img</span><span class="p">)</span>
+    <span class="n">hdu3</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">pedestal_img</span><span class="p">)</span>
+    <span class="n">hdu4</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">gains_img</span><span class="p">)</span>
+    <span class="c1">#hdu5 = fits.ImageHDU(calibration_img)</span>
+    <span class="n">hdu6</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">pixel_pos</span><span class="p">)</span>
+    <span class="n">hdu7</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">ImageHDU</span><span class="p">(</span><span class="n">pixel_mask</span><span class="p">)</span>
+
+    <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;calibrated image&quot;</span>
+    <span class="n">hdu1</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pe image&quot;</span>
+    <span class="n">hdu2</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;adc sum images&quot;</span>
+    <span class="n">hdu3</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pedestal images&quot;</span>
+    <span class="n">hdu4</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;gains images&quot;</span>
+    <span class="c1">#hdu5.header[&quot;desc&quot;] = &quot;calibration images&quot;</span>
+    <span class="n">hdu6</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pixels position&quot;</span>
+    <span class="n">hdu7</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pixels mask&quot;</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span> <span class="p">:</span>
+            <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">comments</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hdu0</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">)</span>
+
+    <span class="n">hdu_list</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">([</span><span class="n">hdu0</span><span class="p">,</span> <span class="n">hdu1</span><span class="p">,</span> <span class="n">hdu2</span><span class="p">,</span> <span class="n">hdu3</span><span class="p">,</span> <span class="n">hdu4</span><span class="p">,</span> <span class="n">hdu6</span><span class="p">,</span> <span class="n">hdu7</span><span class="p">])</span>
+
+    <span class="n">hdu_list</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">)</span>
+
+
+<span class="c1"># LOAD AND SAVE FITS FILES ###################################################</span>
+
+<div class="viewcode-block" id="load_fits"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.load_fits">[docs]</a><span class="k">def</span> <span class="nf">load_fits</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the image array contained in the given HDU of the given FITS file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_file_path : str</span>
+<span class="sd">        The path of the FITS file to load</span>
+<span class="sd">    hdu_index : int</span>
+<span class="sd">        The HDU to load within the FITS file (one FITS file can contain several</span>
+<span class="sd">        images stored in different HDU)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        The loaded image</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    WrongHDUError</span>
+<span class="sd">        If `input_file_path` doesn&#39;t contain the HDU `hdu_index`</span>
+<span class="sd">    NotAnImageError</span>
+<span class="sd">        If `input_file_path` doesn&#39;t contain a valid image in the HDU</span>
+<span class="sd">        `hdu_index`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">hdu_list</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>   <span class="c1"># open the FITS file</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">hdu_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">hdu_list</span><span class="p">)):</span>
+        <span class="n">hdu_list</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">WrongHDUError</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">)</span>
+
+    <span class="n">hdu</span> <span class="o">=</span> <span class="n">hdu_list</span><span class="p">[</span><span class="n">hdu_index</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">hdu</span><span class="o">.</span><span class="n">is_image</span><span class="p">:</span>
+        <span class="n">hdu_list</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">NotAnImageError</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">,</span> <span class="n">hdu_index</span><span class="p">)</span>
+
+    <span class="n">image_array</span> <span class="o">=</span> <span class="n">hdu</span><span class="o">.</span><span class="n">data</span>    <span class="c1"># &quot;hdu.data&quot; is a Numpy Array</span>
+
+    <span class="n">hdu_list</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">image_array</span></div>
+
+
+<div class="viewcode-block" id="save_fits"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.save_fits">[docs]</a><span class="k">def</span> <span class="nf">save_fits</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">output_file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save the `img` image (array_like) to the `output_file_path` FITS file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img : array_like</span>
+<span class="sd">        The image to save (should be a 2D or a 3D numpy array)</span>
+<span class="sd">    output_file_path : str</span>
+<span class="sd">        The path of the FITS file where to save the `img`</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    WrongDimensionError</span>
+<span class="sd">        If `img` has more than 3 dimensions or less than 2 dimensions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">WrongDimensionError</span><span class="p">()</span>
+
+    <span class="n">hdu</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+    <span class="n">hdu</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># overwrite=True: overwrite the file if it already exists</span></div>
+
+
+<span class="c1">###############################################################################</span>
+
+<span class="k">def</span> <span class="nf">plot_ctapipe_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                       <span class="n">geom</span><span class="p">,</span>
+                       <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                       <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">title_fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span>
+                       <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;lin&#39;</span><span class="p">,</span>
+                       <span class="n">highlight_mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">plot_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">plot_axis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">colorbar_orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span>
+                       <span class="n">colorbar_limits</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot an image.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image : array_like</span>
+<span class="sd">        Array of values corresponding to the pixels in the CameraGeometry.</span>
+<span class="sd">    geometry : `~ctapipe.instrument.CameraGeometry`</span>
+<span class="sd">        Definition of the Camera/Image</span>
+<span class="sd">    ax : `matplotlib.axes.Axes`</span>
+<span class="sd">        A matplotlib axes object to plot on, or None to create a new one</span>
+<span class="sd">    title : str (default &quot;Camera&quot;)</span>
+<span class="sd">        Title to put on camera plot</span>
+<span class="sd">    norm : str or `matplotlib.color.Normalize` instance (default &#39;lin&#39;)</span>
+<span class="sd">        Normalization for the color scale.</span>
+<span class="sd">        Supported str arguments are</span>
+<span class="sd">        - &#39;lin&#39;: linear scale</span>
+<span class="sd">        - &#39;log&#39;: logarithmic scale (base 10)</span>
+<span class="sd">    cmap : str or `matplotlib.colors.Colormap` (default &#39;hot&#39;)</span>
+<span class="sd">        Color map to use (see `matplotlib.cm`)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">colorbar_limits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">disp</span><span class="o">.</span><span class="n">set_limits_minmax</span><span class="p">(</span><span class="n">colorbar_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">colorbar_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">disp</span> <span class="o">=</span> <span class="n">ctapipe</span><span class="o">.</span><span class="n">visualization</span><span class="o">.</span><span class="n">CameraDisplay</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span>
+                                               <span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                                               <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                                               <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+    <span class="c1">#disp.enable_pixel_picker()</span>
+
+    <span class="k">if</span> <span class="n">plot_colorbar</span><span class="p">:</span>
+        <span class="n">disp</span><span class="o">.</span><span class="n">add_colorbar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">disp</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">colorbar_orientation</span><span class="p">)</span>
+        <span class="n">disp</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">highlight_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">disp</span><span class="o">.</span><span class="n">highlight_pixels</span><span class="p">(</span><span class="n">highlight_mask</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plot_axis</span><span class="p">:</span>
+        <span class="n">disp</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">cam_id</span>
+
+    <span class="n">disp</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">title_fontsize</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">colorbar_orientation</span> <span class="o">==</span> <span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+        <span class="c1"># https://stackoverflow.com/questions/8482588/putting-text-in-top-left-corner-of-matplotlib-plot</span>
+        <span class="n">disp</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s2">&quot;Intensity (photoelectrons)&quot;</span><span class="p">,</span>
+                       <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
+                       <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span>
+                       <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span>
+                       <span class="n">transform</span><span class="o">=</span><span class="n">disp</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">disp</span>
+
+
+<span class="k">def</span> <span class="nf">plot_hillas_parameters_on_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span>
+                                   <span class="n">image</span><span class="p">,</span>
+                                   <span class="n">geom</span><span class="p">,</span>
+                                   <span class="n">hillas_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">plot_ellipse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">plot_axis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">plot_actual_axis_pm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">plot_inner_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">auto_lim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">hillas_implementation</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot the shower ellipse and direction on an existing matplotlib axes.&quot;&quot;&quot;</span>
+
+    <span class="n">x_lim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="n">y_lim</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">hillas_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hillas_params</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">implementation</span><span class="o">=</span><span class="n">hillas_implementation</span><span class="p">)</span>
+
+        <span class="n">centroid</span> <span class="o">=</span> <span class="p">(</span><span class="n">hillas_params</span><span class="o">.</span><span class="n">cen_x</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">cen_y</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="c1">#print(&quot;centroid:&quot;, centroid)</span>
+        <span class="c1">#print(&quot;length:&quot;,   length)</span>
+        <span class="c1">#print(&quot;width:&quot;,    width)</span>
+        <span class="c1">#print(&quot;angle:&quot;,    angle)</span>
+
+        <span class="k">if</span> <span class="n">plot_ellipse</span><span class="p">:</span>
+            <span class="n">ellipse</span> <span class="o">=</span> <span class="n">Ellipse</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="n">centroid</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">ellipse</span><span class="p">)</span>
+
+        <span class="n">title</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (</span><span class="si">{:.2f}</span><span class="s2">°)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">angle</span><span class="p">)))</span>
+
+        <span class="c1"># Plot the center of the ellipse</span>
+
+        <span class="k">if</span> <span class="n">plot_ellipse</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">centroid</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Plot the shower axis</span>
+
+        <span class="n">p0_x</span> <span class="o">=</span> <span class="n">centroid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">p0_y</span> <span class="o">=</span> <span class="n">centroid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">p1_x</span> <span class="o">=</span> <span class="n">p0_x</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+        <span class="n">p1_y</span> <span class="o">=</span> <span class="n">p0_y</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+        <span class="n">p2_x</span> <span class="o">=</span> <span class="n">p0_x</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">p2_y</span> <span class="o">=</span> <span class="n">p0_y</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p1_x</span><span class="p">,</span> <span class="n">p2_x</span><span class="p">],</span> <span class="p">[</span><span class="n">p1_y</span><span class="p">,</span> <span class="n">p2_y</span><span class="p">],</span> <span class="s1">&#39;:r&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Plot the actual axis in pointing source mode</span>
+
+        <span class="k">if</span> <span class="n">plot_actual_axis_pm</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">p0_x</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">p0_y</span><span class="p">],</span> <span class="s1">&#39;:g&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Plot the shower inner axes</span>
+
+        <span class="k">if</span> <span class="n">plot_inner_axes</span><span class="p">:</span>
+            <span class="n">p3_x</span> <span class="o">=</span> <span class="n">p0_x</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">length</span> <span class="o">/</span> <span class="mf">2.</span>
+            <span class="n">p3_y</span> <span class="o">=</span> <span class="n">p0_y</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">length</span> <span class="o">/</span> <span class="mf">2.</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p0_x</span><span class="p">,</span> <span class="n">p3_x</span><span class="p">],</span> <span class="p">[</span><span class="n">p0_y</span><span class="p">,</span> <span class="n">p3_y</span><span class="p">],</span> <span class="s1">&#39;-r&#39;</span><span class="p">)</span>
+
+            <span class="n">p4_x</span> <span class="o">=</span> <span class="n">p0_x</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.</span>
+            <span class="n">p4_y</span> <span class="o">=</span> <span class="n">p0_y</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p0_x</span><span class="p">,</span> <span class="n">p4_x</span><span class="p">],</span> <span class="p">[</span><span class="n">p0_y</span><span class="p">,</span> <span class="n">p4_y</span><span class="p">],</span> <span class="s1">&#39;-g&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Set (back) ax limits</span>
+
+        <span class="k">if</span> <span class="n">auto_lim</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_lim</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">HillasParameterizationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">print_hillas_parameters</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                            <span class="n">cam_id</span><span class="p">,</span>
+                            <span class="n">implementation</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">hillas_params</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span>
+                                              <span class="n">image</span><span class="p">,</span>
+                                              <span class="n">implementation</span><span class="o">=</span><span class="n">implementation</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cen_x:...&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">cen_x</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cen_y:...&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">cen_y</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;length:..&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;width:...&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;size:....&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="s2">&quot;PE&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NPE: ....&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">image</span><span class="p">),</span> <span class="s2">&quot;PE&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;psi:.....&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">psi</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;miss:....&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">miss</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;phi:.....&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">phi</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;r:.......&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">r</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;kurtosis:&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;skewness:&quot;</span><span class="p">,</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">skewness</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">HillasParameterizationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">hillas_parameters_to_df</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                            <span class="n">cam_id</span><span class="p">,</span>
+                            <span class="n">implementation</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">geometry_converter</span><span class="o">.</span><span class="n">get_geom1d</span><span class="p">(</span><span class="n">cam_id</span><span class="p">)</span>
+
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cen_x_m&#39;</span><span class="p">,</span> <span class="s1">&#39;cen_y_m&#39;</span><span class="p">,</span> <span class="s1">&#39;length_m&#39;</span><span class="p">,</span> <span class="s1">&#39;width_m&#39;</span><span class="p">,</span> <span class="s1">&#39;size_pe&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;psi_rad&#39;</span><span class="p">,</span> <span class="s1">&#39;miss_m&#39;</span><span class="p">,</span> <span class="s1">&#39;phi_rad&#39;</span><span class="p">,</span> <span class="s1">&#39;r_m&#39;</span><span class="p">,</span> <span class="s1">&#39;kurtosis&#39;</span><span class="p">,</span> <span class="s1">&#39;skewness&#39;</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">hillas_params</span> <span class="o">=</span> <span class="n">get_hillas_parameters</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span>
+                                              <span class="n">image</span><span class="p">,</span>
+                                              <span class="n">implementation</span><span class="o">=</span><span class="n">implementation</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;cen_x_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">cen_x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">meter</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;cen_y_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">cen_y</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">meter</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;length_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">meter</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;width_m&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">meter</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;size_pe&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;psi_rad&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">psi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;miss_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">miss</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">meter</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;phi_rad&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">phi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;r_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">meter</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;kurtosis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">kurtosis</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;skewness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hillas_params</span><span class="o">.</span><span class="n">skewness</span>
+    <span class="k">except</span> <span class="n">HillasParameterizationError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="c1"># MATPLOTLIB ##################################################################</span>
+
+<span class="n">COLOR_MAP</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">gnuplot2</span>
+
+<div class="viewcode-block" id="mpl_save"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.mpl_save">[docs]</a><span class="k">def</span> <span class="nf">mpl_save</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">output_file_path</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    img should be a 2D numpy array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+
+    <span class="c1">#im = ax.imshow(img,</span>
+    <span class="c1">#               origin=&#39;lower&#39;,</span>
+    <span class="c1">#               interpolation=&#39;nearest&#39;,</span>
+    <span class="c1">#               vmin=min(img.min(), 0),</span>
+    <span class="c1">#               cmap=COLOR_MAP)</span>
+
+    <span class="c1"># Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)</span>
+    <span class="n">masked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">img</span><span class="p">),</span> <span class="n">img</span><span class="p">)</span>
+
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">COLOR_MAP</span>
+    <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span>
+                   <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+                   <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="c1"># draw the colorbar</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../../api_io_images.html#datapipe.io.images.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    img should be a 2D numpy array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="c1">#im = ax.imshow(img,</span>
+    <span class="c1">#               origin=&#39;lower&#39;,</span>
+    <span class="c1">#               interpolation=&#39;nearest&#39;,</span>
+    <span class="c1">#               vmin=min(img.min(), 0),</span>
+    <span class="c1">#               cmap=COLOR_MAP)</span>
+
+    <span class="c1"># Manage NaN values (see http://stackoverflow.com/questions/2578752/how-can-i-plot-nan-values-as-a-special-color-with-imshow-in-matplotlib and http://stackoverflow.com/questions/38800532/plot-color-nan-values)</span>
+    <span class="n">masked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">img</span><span class="p">),</span> <span class="n">img</span><span class="p">)</span>
+
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">COLOR_MAP</span>
+    <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span>
+                   <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+                   <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">)</span> <span class="c1"># draw the colorbar</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">plot_hist</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">num_bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">logx</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">x_max</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Flatten + remove NaN values</span>
+    <span class="n">flat_img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">img</span><span class="p">)]</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">logx</span><span class="p">:</span>
+        <span class="c1"># Setup the logarithmic scale on the X axis</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">flat_img</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">flat_img</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">num_bins</span><span class="p">)</span> <span class="c1"># Make a range from 10**vmin to 10**vmax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">num_bins</span>
+
+    <span class="k">if</span> <span class="n">x_max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xmax</span><span class="o">=</span><span class="n">x_max</span><span class="p">)</span>
+
+    <span class="n">res_tuple</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">flat_img</span><span class="p">,</span>
+                        <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+                        <span class="n">log</span><span class="o">=</span><span class="n">logy</span><span class="p">,</span>               <span class="c1"># Set log scale on the Y axis</span>
+                        <span class="n">histtype</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">logx</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>               <span class="c1"># Activate log scale on X axis</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+
+<span class="k">def</span> <span class="nf">_plot_list</span><span class="p">(</span><span class="n">img_list</span><span class="p">,</span>
+               <span class="n">geom_list</span><span class="p">,</span>
+               <span class="n">title_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">hillas_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">highlight_mask_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">main_title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot several images at once.&quot;&quot;&quot;</span>
+    <span class="n">num_imgs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">img_list</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax_tuple</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">num_imgs</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">num_imgs</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">title_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">title_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">img_list</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">hillas_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hillas_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">img_list</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">highlight_mask_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">highlight_mask_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">img_list</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">img</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">plot_hillas</span><span class="p">,</span> <span class="n">highlight_mask</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">img_list</span><span class="p">,</span>
+                                                                 <span class="n">title_list</span><span class="p">,</span>
+                                                                 <span class="n">ax_tuple</span><span class="p">,</span>
+                                                                 <span class="n">geom_list</span><span class="p">,</span>
+                                                                 <span class="n">hillas_list</span><span class="p">,</span>
+                                                                 <span class="n">highlight_mask_list</span><span class="p">):</span>
+
+        <span class="n">disp</span> <span class="o">=</span> <span class="n">plot_ctapipe_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span>
+                                  <span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span>
+                                  <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                                  <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+                                  <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;lin&#39;</span><span class="p">,</span>
+                                  <span class="n">highlight_mask</span><span class="o">=</span><span class="n">highlight_mask</span><span class="p">,</span>
+                                  <span class="n">plot_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                  <span class="n">plot_axis</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">plot_hillas</span><span class="p">:</span>
+            <span class="n">plot_hillas_parameters_on_axes</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span>
+                                           <span class="n">img</span><span class="p">,</span>
+                                           <span class="n">geom</span><span class="p">)</span>
+        <span class="c1">#plt.savefig(&#39;tailcut_cleaned_img.pdf&#39;)</span>
+        <span class="c1">#disp.show()</span>
+
+    <span class="k">if</span> <span class="n">main_title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">main_title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">plot_list</span><span class="p">(</span><span class="n">img_list</span><span class="p">,</span>
+              <span class="n">geom_list</span><span class="p">,</span>
+              <span class="n">title_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">hillas_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">highlight_mask_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">metadata_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot several images at once.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img_list</span>
+<span class="sd">        A list of 2D numpy array to plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Main title</span>
+    <span class="k">if</span> <span class="n">metadata_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mc_energy</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;mc_energy_unit&#39;</span> <span class="ow">in</span> <span class="n">metadata_dict</span> <span class="k">else</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mc_energy_unit</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy_unit&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;mc_energy_unit&#39;</span> <span class="ow">in</span> <span class="n">metadata_dict</span> <span class="k">else</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">main_title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (Tel. </span><span class="si">{}</span><span class="s2">, Ev. </span><span class="si">{}</span><span class="s2">) </span><span class="si">{:.2E}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;simtel_path&#39;</span><span class="p">]),</span>
+                                                            <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_id&#39;</span><span class="p">],</span>
+                                                            <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">],</span>
+                                                            <span class="n">mc_energy</span><span class="p">,</span>
+                                                            <span class="n">mc_energy_unit</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">main_title</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">_plot_list</span><span class="p">(</span><span class="n">img_list</span><span class="p">,</span>
+               <span class="n">geom_list</span><span class="p">,</span>
+               <span class="n">title_list</span><span class="o">=</span><span class="n">title_list</span><span class="p">,</span>
+               <span class="n">hillas_list</span><span class="o">=</span><span class="n">hillas_list</span><span class="p">,</span>
+               <span class="n">highlight_mask_list</span><span class="o">=</span><span class="n">highlight_mask_list</span><span class="p">,</span>
+               <span class="n">main_title</span><span class="o">=</span><span class="n">main_title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">mpl_save_list</span><span class="p">(</span><span class="n">img_list</span><span class="p">,</span>
+                  <span class="n">geom_list</span><span class="p">,</span>
+                  <span class="n">output_file_path</span><span class="p">,</span>
+                  <span class="n">title_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">hillas_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">highlight_mask_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">metadata_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot several images at once.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img_list</span>
+<span class="sd">        A list of 2D numpy array to plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Main title</span>
+    <span class="k">if</span> <span class="n">metadata_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mc_energy</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;mc_energy_unit&#39;</span> <span class="ow">in</span> <span class="n">metadata_dict</span> <span class="k">else</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mc_energy_unit</span> <span class="o">=</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy_unit&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;mc_energy_unit&#39;</span> <span class="ow">in</span> <span class="n">metadata_dict</span> <span class="k">else</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;mc_energy&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">main_title</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> (Tel. </span><span class="si">{}</span><span class="s2">, Ev. </span><span class="si">{}</span><span class="s2">) </span><span class="si">{:.2E}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;simtel_path&#39;</span><span class="p">]),</span>
+                                                            <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;tel_id&#39;</span><span class="p">],</span>
+                                                            <span class="n">metadata_dict</span><span class="p">[</span><span class="s1">&#39;event_id&#39;</span><span class="p">],</span>
+                                                            <span class="n">mc_energy</span><span class="p">,</span>
+                                                            <span class="n">mc_energy_unit</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">main_title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">_plot_list</span><span class="p">(</span><span class="n">img_list</span><span class="p">,</span>
+               <span class="n">geom_list</span><span class="p">,</span>
+               <span class="n">title_list</span><span class="o">=</span><span class="n">title_list</span><span class="p">,</span>
+               <span class="n">hillas_list</span><span class="o">=</span><span class="n">hillas_list</span><span class="p">,</span>
+               <span class="n">highlight_mask_list</span><span class="o">=</span><span class="n">highlight_mask_list</span><span class="p">,</span>
+               <span class="n">main_title</span><span class="o">=</span><span class="n">main_title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># DEBUG #######################################################################</span>
+
+<span class="k">def</span> <span class="nf">export_image_as_plain_text</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">output_file_path</span><span class="p">):</span>
+    <span class="n">fd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">image</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:5.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fd</span><span class="p">)</span>
+    <span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2010-2015, Jérémie Decock.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.dev6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

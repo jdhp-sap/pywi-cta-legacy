@@ -21,4 +21,5 @@ Modules:
    datapipe.denoising.abstract_cleaning_algorithm <api_filter_abstract_cleaning_algorithm>
    datapipe.denoising.inverse_transform_sampling <api_filter_inverse_transform_sampling>
    datapipe.benchmark.assess <api_benchmark_assess>
+   datapipe.io.images <api_io_images>
 
