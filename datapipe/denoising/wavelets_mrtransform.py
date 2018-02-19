@@ -20,6 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+__all__ = ['wavelet_transform',
+           'filter_planes',
+           'inverse_wavelet_transform',
+           'clean_image',
+           'WaveletTransform']
+
 """Denoise FITS and PNG images with Wavelet Transform.
 
 This script use mr_transform -- a program written CEA/CosmoStat
@@ -97,11 +103,6 @@ This script requires the mr_transform program
 It also requires Numpy and Matplotlib Python libraries.
 """
 
-__all__ = ['wavelet_transform',
-           'filter_planes',
-           'inverse_wavelet_transform',
-           'clean_image']
-
 import argparse
 import copy
 import numpy as np
@@ -112,9 +113,9 @@ from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgor
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 from datapipe.io import images
 
-from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
-from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
-from datapipe.image.kill_isolated_pixels import number_of_islands
+from datapipe.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
+from datapipe.image.pixel_clusters import kill_isolated_pixels_stats
+from datapipe.image.pixel_clusters import number_of_islands
 
 # CONSTANTS ##################################################################
 

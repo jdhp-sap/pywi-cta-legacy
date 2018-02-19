@@ -226,9 +226,9 @@ from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgor
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 from datapipe.io import images
 
-from datapipe.image.kill_isolated_pixels import kill_isolated_pixels as scipy_kill_isolated_pixels
-from datapipe.image.kill_isolated_pixels import kill_isolated_pixels_stats
-from datapipe.image.kill_isolated_pixels import number_of_islands
+from datapipe.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
+from datapipe.image.pixel_clusters import kill_isolated_pixels_stats
+from datapipe.image.pixel_clusters import number_of_islands
 
 # CONSTANTS ##################################################################
 
