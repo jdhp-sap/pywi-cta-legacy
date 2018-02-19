@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>datapipe.image.pixel_clusters &mdash; SAp CTA data pipeline 0.1.dev6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="SAp CTA data pipeline 0.1.dev6 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SAp CTA data pipeline
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer.html">Developer’s notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SAp CTA data pipeline</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>datapipe.image.pixel_clusters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for datapipe.image.pixel_clusters</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="c1"># Copyright (c) 2016 Jérémie DECOCK (http://www.jdhp.org)</span>
+
+<span class="c1"># This script is provided under the terms and conditions of the MIT license:</span>
+<span class="c1"># Permission is hereby granted, free of charge, to any person obtaining a copy</span>
+<span class="c1"># of this software and associated documentation files (the &quot;Software&quot;), to deal</span>
+<span class="c1"># in the Software without restriction, including without limitation the rights</span>
+<span class="c1"># to use, copy, modify, merge, publish, distribute, sublicense, and/or sell</span>
+<span class="c1"># copies of the Software, and to permit persons to whom the Software is</span>
+<span class="c1"># furnished to do so, subject to the following conditions:</span>
+<span class="c1"># The above copyright notice and this permission notice shall be included in</span>
+<span class="c1"># all copies or substantial portions of the Software.</span>
+<span class="c1"># THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR</span>
+<span class="c1"># IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,</span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</span>
+<span class="c1"># AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER</span>
+<span class="c1"># LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,</span>
+<span class="c1"># OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN</span>
+<span class="c1"># THE SOFTWARE.</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_islands&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;kill_isolated_pixels&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;kill_isolated_pixels_stats&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;number_of_islands&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span> <span class="k">as</span> <span class="nn">ndimage</span>
+
+<span class="c1"># See: https://docs.scipy.org/doc/scipy-0.16.0/reference/generated/scipy.ndimage.measurements.label.html</span>
+
+
+<div class="viewcode-block" id="get_islands"><a class="viewcode-back" href="../../../api_image_pixel_clusters.html#datapipe.image.pixel_clusters.get_islands">[docs]</a><span class="k">def</span> <span class="nf">get_islands</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array : Numpy array</span>
+<span class="sd">        The input image to clean.</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">        The &quot;level of the sea&quot; before island cleaning.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Numpy array</span>
+<span class="sd">        ``filtered_array`` the input image with all pixels below ``threshold`` put to 0 (may contain NaN values).</span>
+
+<span class="sd">    Numpy array</span>
+<span class="sd">        ``label_array`` define the island id each pixel belongs to (doesn&#39;t contain NaN values).</span>
+
+<span class="sd">    Integer</span>
+<span class="sd">        ``num_labels`` the number of islands.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">filtered_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+
+    <span class="c1"># Put NaN pixels to 0</span>
+    <span class="c1"># This is OK as long as it is made temporary and internally to avoid issues</span>
+    <span class="c1"># with scipy</span>
+    <span class="n">filtered_array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">filtered_array</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.</span>
+
+    <span class="c1"># Put to 0 pixels that are below &#39;threshold&#39;</span>
+    <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filtered_array</span><span class="p">[</span><span class="n">filtered_array</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">filtered_array</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="c1"># Detect islands (&quot;label&quot;)</span>
+    <span class="n">label_array</span><span class="p">,</span> <span class="n">num_labels</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="c1">#, structure=np.ones((5, 5)))</span>
+
+    <span class="c1"># Put back NaN in filtered_array (required to avoid bugs in others</span>
+    <span class="c1"># functions (e.g. uncoherent dimensions with pixels_positions).</span>
+    <span class="n">filtered_array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">array</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">return</span> <span class="n">filtered_array</span><span class="p">,</span> <span class="n">label_array</span><span class="p">,</span> <span class="n">num_labels</span></div>
+
+
+<div class="viewcode-block" id="kill_isolated_pixels"><a class="viewcode-back" href="../../../api_image_pixel_clusters.html#datapipe.image.pixel_clusters.kill_isolated_pixels">[docs]</a><span class="k">def</span> <span class="nf">kill_isolated_pixels</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array : Numpy array</span>
+<span class="sd">        The input image to clean.</span>
+<span class="sd">    threshold : float</span>
+<span class="sd">        The &quot;level of the sea&quot; before island cleaning.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Numpy array</span>
+<span class="sd">        The input image ``array`` with isolated islands removed.</span>
+<span class="sd">        Only keeping the biggest islands (the largest surface).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">filtered_array</span><span class="p">,</span> <span class="n">label_array</span><span class="p">,</span> <span class="n">num_labels</span> <span class="o">=</span> <span class="n">get_islands</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="c1"># Put NaN pixels to 0</span>
+    <span class="c1"># This is OK as long as it is made temporary and internally to avoid issues</span>
+    <span class="c1"># with scipy</span>
+    <span class="n">filtered_array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">filtered_array</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.</span>
+
+    <span class="c1"># Count the number of pixels for each island</span>
+    <span class="n">num_pixels_per_island</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">filtered_array</span><span class="p">,</span> <span class="n">label_array</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_labels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># Only keep the biggest island</span>
+    <span class="n">mask_biggest_island</span> <span class="o">=</span> <span class="n">num_pixels_per_island</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">num_pixels_per_island</span><span class="p">)</span>
+    <span class="n">remove_pixel</span> <span class="o">=</span> <span class="n">mask_biggest_island</span><span class="p">[</span><span class="n">label_array</span><span class="p">]</span>
+
+    <span class="n">filtered_array</span><span class="p">[</span><span class="n">remove_pixel</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Put back NaN in filtered_array (required to avoid bugs in others</span>
+    <span class="c1"># functions (e.g. uncoherent dimensions with pixels_positions).</span>
+    <span class="n">filtered_array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">array</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">return</span> <span class="n">filtered_array</span></div>
+
+
+<span class="k">def</span> <span class="nf">kill_isolated_pixels_stats</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+
+    <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">filtered_array</span> <span class="o">=</span> <span class="n">kill_isolated_pixels</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+
+    <span class="n">delta_pe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">array</span> <span class="o">-</span> <span class="n">filtered_array</span><span class="p">)</span>
+    <span class="n">delta_abs_pe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">array</span> <span class="o">-</span> <span class="n">filtered_array</span><span class="p">))</span>
+
+
+    <span class="n">array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">array</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>                              <span class="c1"># May genereate warnings on NaN values</span>
+    <span class="n">filtered_array</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">filtered_array</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">filtered_array</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>   <span class="c1"># May genereate warnings on NaN values</span>
+
+    <span class="n">delta_num_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">array</span> <span class="o">-</span> <span class="n">filtered_array</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_pe</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_abs_pe</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta_num_pixels</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">number_of_islands</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="n">filtered_array</span><span class="p">,</span> <span class="n">label_array</span><span class="p">,</span> <span class="n">num_labels</span> <span class="o">=</span> <span class="n">get_islands</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">num_labels</span>
+
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2010-2015, Jérémie Decock.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1.dev6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
