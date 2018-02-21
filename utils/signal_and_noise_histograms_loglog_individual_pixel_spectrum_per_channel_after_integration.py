@@ -22,14 +22,14 @@ from datapipe.denoising.wavelets_mrtransform import WaveletTransform
 from datapipe.denoising import inverse_transform_sampling
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 
-MAX_NUM_SAMPLES = 10000 #000 #00
+MAX_NUM_SAMPLES = 100000000 #0
 PARTICLE = "gamma"   # "gamma" or "proton"
 
 # Common functions ##############################
 
 def get_samples(file_path_list,
                 cam_id,
-                max_num_samples=1000000):
+                max_num_samples):
     
     print("Cam ID:", cam_id)
     print("Input files:", file_path_list)
@@ -40,7 +40,6 @@ def get_samples(file_path_list,
 
     index = 0
     for image in image_generator(file_path_list,
-                                 #max_num_images=NUM_IMAGES,
                                  cam_filter_list=[cam_id],
                                  ctapipe_format=True):
         
@@ -70,8 +69,6 @@ def get_samples(file_path_list,
     file = "individual_pixel_spectra_channels_integrated_{}.h5".format(cam_id)
     df.to_hdf(file, key='df')
     
-    return df
-
 #################################################
 
 if PARTICLE == "gamma":
