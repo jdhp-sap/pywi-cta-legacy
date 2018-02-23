@@ -38,6 +38,10 @@ FLASHCAM_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'flashcam_grid_prod3b_nort
 NECTARCAM_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'nectarcam_grid_prod3b_north_cdf_proton.json')
 LSTCAM_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf_proton.json')
 
+DIGICAM_GAMMA_CDF_MARS_FILE = os.path.join(PACKAGE_PATH, 'digicam_konrad_cdf_gamma_mars_like.json')
+NECTARCAM_GAMMA_CDF_MARS_FILE = os.path.join(PACKAGE_PATH, 'nectarcam_grid_prod3b_north_cdf_gamma_mars_like.json')
+LSTCAM_GAMMA_CDF_MARS_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf_gamma_mars_like.json')
+
 ASTRI_CDF_FILE = ASTRI_GAMMA_CDF_FILE
 GCT_CDF_FILE = GCT_GAMMA_CDF_FILE
 DIGICAM_CDF_FILE = DIGICAM_GAMMA_CDF_FILE
