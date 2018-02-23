@@ -54,4 +54,7 @@ __all__ = ['ASTRI_CDF_FILE',
            'DIGICAM_CDF_FILE',
            'FLASHCAM_CDF_FILE',
            'NECTARCAM_CDF_FILE',
-           'LSTCAM_CDF_FILE']
+           'LSTCAM_CDF_FILE',
+           'DIGICAM_GAMMA_CDF_MARS_FILE',
+           'NECTARCAM_GAMMA_CDF_MARS_FILE',
+           'LSTCAM_GAMMA_CDF_MARS_FILE']
