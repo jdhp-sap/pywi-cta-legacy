@@ -55,6 +55,8 @@ import astropy.units as u
 
 import pandas as pd
 
+from traitlets.config import Config
+
 import ctapipe
 import pyhessio
 from ctapipe.image.hillas import HillasParameterizationError
@@ -252,6 +254,7 @@ def image_files_in_paths(path_list, max_num_files=None):
     files_counter = 0
 
     for path in path_list:
+        path = os.path.expanduser(path)
         if os.path.isdir(path):
             # If path is a directory
             for file_path in image_files_in_dir(path):
@@ -274,6 +277,7 @@ def image_files_in_paths(path_list, max_num_files=None):
 # LOAD IMAGES ################################################################
 
 Image1D = collections.namedtuple('Image1D', ('input_image',
+                                             #'input_samples',    # TODO
                                              'reference_image',
                                              'adc_sum_image',
                                              'pedestal_image',
@@ -282,6 +286,7 @@ Image1D = collections.namedtuple('Image1D', ('input_image',
                                              'meta'))
 
 Image2D = collections.namedtuple('Image2D', ('input_image',
+                                             #'input_samples',    # TODO
                                              'reference_image',
                                              'adc_sum_image',
                                              'pedestal_image',
@@ -372,9 +377,18 @@ def quantity_to_tuple(quantity, unit_str):
     return quantity.to(unit_str).value, quantity.to(unit_str).unit.to_string(format='FITS')
 
 
-def simtel_event_to_images(event, tel_id, ctapipe_format=False):
-    """
+def simtel_event_to_images(event, tel_id, ctapipe_format=False, **kwargs):
+    """Extract and return `tel_id`'s images and metadata from a ctapipe `event`.
+
+    Parameters
+    ----------
     TODO
+
+    Returns
+    -------
+    Image1D or Image2D
+        Return a named tuple containing `tel_id` images and metadata from a
+        ctapipe `event`.
     """
 
     SINGLE_CHANNEL_CAMERAS = ("CHEC", "DigiCam", "FlashCam")
@@ -414,6 +428,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
     uncalibrated_samples = r0_adc_samples
 
     calibrated_image = dl1_image.copy()
+    #calibrated_samples = dl0_pe_samples.copy()
 
     pixel_pos = event.inst.pixel_pos[tel_id]
 
@@ -421,25 +436,28 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
 
     # MIX CHANNELS FOR DOUBLE CHANNEL CAMERAS #################
 
-    if cam_id == "ASTRICam":
-        ASTRI_CAM_CHANNEL_THRESHOLD = 14         # cf. "calib_find_channel_selection_threshold" notebook
-        calibrated_image[1, calibrated_image[0,:] <= ASTRI_CAM_CHANNEL_THRESHOLD] = 0
-        calibrated_image[0, calibrated_image[0,:] >  ASTRI_CAM_CHANNEL_THRESHOLD] = 0
-        calibrated_image = calibrated_image.sum(axis=0)
-    elif cam_id == "NectarCam":
-        NECTAR_CAM_CHANNEL_THRESHOLD = 190       # cf. "calib_find_channel_selection_threshold" notebook
-        calibrated_image[1, calibrated_image[0,:] <= NECTAR_CAM_CHANNEL_THRESHOLD] = 0
-        calibrated_image[0, calibrated_image[0,:] >  NECTAR_CAM_CHANNEL_THRESHOLD] = 0
-        calibrated_image = calibrated_image.sum(axis=0)
-    elif cam_id == "LSTCam":
-        LST_CAM_CHANNEL_THRESHOLD = 100          # cf. "calib_find_channel_selection_threshold" notebook
-        calibrated_image[1, calibrated_image[0,:] <= LST_CAM_CHANNEL_THRESHOLD] = 0
-        calibrated_image[0, calibrated_image[0,:] >  LST_CAM_CHANNEL_THRESHOLD] = 0
-        calibrated_image = calibrated_image.sum(axis=0)
-    elif cam_id in SINGLE_CHANNEL_CAMERAS :
-        calibrated_image = calibrated_image[0]
-    else:
-        raise NotImplementedError("Unknown camera: {}".format(cam_id))
+    MIX_CHANNELS = True
+
+    if MIX_CHANNELS:
+        if cam_id == "ASTRICam":
+            ASTRI_CAM_CHANNEL_THRESHOLD = 14         # cf. "calib_find_channel_selection_threshold" notebook
+            calibrated_image[1, calibrated_image[0,:] <= ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image[0, calibrated_image[0,:] >  ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image = calibrated_image.sum(axis=0)
+        elif cam_id == "NectarCam":
+            NECTAR_CAM_CHANNEL_THRESHOLD = 100       # cf. "calib_find_channel_selection_threshold" notebook
+            calibrated_image[1, calibrated_image[0,:] <= NECTAR_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image[0, calibrated_image[0,:] >  NECTAR_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image = calibrated_image.sum(axis=0)
+        elif cam_id == "LSTCam":
+            LST_CAM_CHANNEL_THRESHOLD = 60          # cf. "calib_find_channel_selection_threshold" notebook
+            calibrated_image[1, calibrated_image[0,:] <= LST_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image[0, calibrated_image[0,:] >  LST_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image = calibrated_image.sum(axis=0)
+        elif cam_id in SINGLE_CHANNEL_CAMERAS :
+            calibrated_image = calibrated_image[0]
+        else:
+            raise NotImplementedError("Unknown camera: {}".format(cam_id))
 
     # METADATA ###############################################
 
@@ -450,6 +468,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
     if ctapipe_format:
 
         return Image1D(input_image=calibrated_image,
+                       #input_samples=calibrated_samples,    # TODO
                        reference_image=pe_image,
                        adc_sum_image=uncalibrated_image,
                        pedestal_image=pedestal,
@@ -533,6 +552,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False):
         #pixel_pos_2d[mask_2d != 1] = np.nan
 
         return Image2D(input_image=calibrated_image_2d,
+                       #input_samples=calibrated_samples_2d,       # TODO
                        reference_image=pe_image_2d,
                        adc_sum_image=uncalibrated_image_2d,
                        pedestal_image=pedestal_2d,
@@ -562,11 +582,120 @@ def simtel_images_generator(file_path,
     # - max_events: maximum number of events to read
     # - allowed_tels: select only a subset of telescope, if None, all are read.
 
+    file_path = os.path.expanduser(file_path)
     source = hessio_event_source(file_path, allowed_tels=tel_filter_list)
 
-    # ITERATE OVER EVENTS #####################################################
+    # CONFIGURE THE CALIBRATOR ################################################
 
-    calib = CameraCalibrator(None, None)
+    # See (in a terminal): ctapipe-chargeres-extract --help-all
+    # See ctapipe/image/charge_extractors.py -> ChargeExtractorFactory class definition
+
+    # cfg = Config()
+    # cfg["ChargeExtractorFactory"]["extractor"] = ‘LocalPeakIntegrator'
+    # cfg["ChargeExtractorFactory"]["window_width"] = 5
+    # cfg["ChargeExtractorFactory"]["window_shift"] = 2
+    #
+    # calib = CameraCalibrator(config=cfg, tool=None)
+    #
+    # def null_integration_correction_func(n_chan, pulse_shape, refstep, time_slice, window_width, window_shift):
+    #     return np.ones(n_chan)
+    #
+    # ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
+
+    #INTEGRATOR = None                       # Use the default integrator with the default params (NeighbourPeakIntegrator)
+    #INTEGRATOR = 'FullIntegrator'           # Integrates the entire waveform
+    #INTEGRATOR = 'SimpleIntegrator'         # Integrates within a window defined by the user
+    #INTEGRATOR = 'GlobalPeakIntegrator'     # Integration window about the global peak in each pixel
+    INTEGRATOR = 'LocalPeakIntegrator'       # Integration window about the local peak in each pixel
+    #INTEGRATOR = 'NeighbourPeakIntegrator'  # Integration window defined by the peaks in the neighbouring pixels
+    #INTEGRATOR = 'AverageWfPeakIntegrator'  # Integration window defined by the average waveform across all pixels
+
+    # Integrator parameters
+    WINDOW_WIDTH = 5      # Define the width of the integration window. Only applicable to WindowIntegrators.
+    WINDOW_SHIFT = 2      # Define the shift of the integration window from the peakpos (peakpos - shift). Only applicable to PeakFindingIntegrators.
+    T0 = None             # Define the peak position for all pixels. Only applicable to SimpleIntegrators.
+    SIG_AMP_CUT_HG = None # Define the cut above which a sample is considered as significant for PeakFinding in the HG channel. Only applicable to PeakFindingIntegrators.
+    SIG_AMP_CUT_LG = None # Define the cut above which a sample is considered as significant for PeakFinding in the LG channel. Only applicable to PeakFindingIntegrators.
+    LWT = None            # Weight of the local pixel (0: peak from neighbours only, 1: local pixel counts as much as any neighbour). Only applicable to NeighbourPeakIntegrator.
+
+    INTEGRATION_CORRECTION = False
+
+    if INTEGRATOR is None:
+        cfg = None
+    elif INTEGRATOR in ('FullIntegrator',
+                        'SimpleIntegrator',
+                        'GlobalPeakIntegrator',
+                        'LocalPeakIntegrator',
+                        'NeighbourPeakIntegrator',
+                        'AverageWfPeakIntegrator'):
+        cfg = Config()
+        cfg["ChargeExtractorFactory"]["extractor"] = INTEGRATOR
+
+        if WINDOW_WIDTH is not None:
+            cfg["ChargeExtractorFactory"]["window_width"] = WINDOW_WIDTH
+
+        if WINDOW_SHIFT is not None:
+            cfg["ChargeExtractorFactory"]["window_shift"] = WINDOW_SHIFT
+
+        if T0 is not None:
+            cfg["ChargeExtractorFactory"]["t0"] = T0
+
+        if SIG_AMP_CUT_HG is not None:
+            cfg["ChargeExtractorFactory"]["sig_amp_cut_HG"] = SIG_AMP_CUT_HG
+
+        if SIG_AMP_CUT_LG is not None:
+            cfg["ChargeExtractorFactory"]["sig_amp_cut_LG"] = SIG_AMP_CUT_LG
+
+        if LWT is not None:
+            cfg["ChargeExtractorFactory"]["lwt"] = LWT
+    else:
+        raise ValueError(INTEGRATOR)
+
+    calib = CameraCalibrator(config=cfg, tool=None)
+
+    if not INTEGRATION_CORRECTION:
+        # Switch off the integration correction occuring in ctapipe.calib.camera.dl1.CameraDL1Calibrator.calibrate()
+        #null_integration_correction_func = lambda n_chan, pulse_shape, refstep, time_slice, window_width, window_shift: np.ones(n_chan)
+        null_integration_correction_func = lambda n_chan, *args, **kwargs: np.ones(n_chan)
+        ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
+
+    if DEBUG:
+        try:
+            print("extractor.name:", calib.dl1.extractor.name)
+        except:
+            pass
+
+        try:
+            print("extractor.window_width:", calib.dl1.extractor.window_width)
+        except:
+            pass
+
+        try:
+            print("extractor.window_shift:", calib.dl1.extractor.window_shift)
+        except:
+            pass
+
+        try:
+            print("extractor.t0:", calib.dl1.extractor.t0)
+        except:
+            pass
+
+        try:
+            print("extractor.sig_amp_cut_HG:", calib.dl1.extractor.sig_amp_cut_HG)
+        except:
+            pass
+
+        try:
+            print("extractor.sig_amp_cut_LG:", calib.dl1.extractor.sig_amp_cut_LG)
+        except:
+            pass
+
+        try:
+            print("extractor.lwt:", calib.dl1.extractor.lwt)
+        except:
+            pass
+
+    # ITERATE OVER EVENTS #####################################################
 
     for event in source:
 
@@ -585,7 +714,7 @@ def simtel_images_generator(file_path,
                 if (tel_filter_list is None) or (tel_id in tel_filter_list):
 
                     try:
-                        image = simtel_event_to_images(event, tel_id, ctapipe_format=ctapipe_format)
+                        image = simtel_event_to_images(event, tel_id, ctapipe_format=ctapipe_format, **kwargs)
                         cam_id = image.meta['cam_id']
                     except NotImplementedError:
                         cam_id = None
