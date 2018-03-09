@@ -377,7 +377,7 @@ def quantity_to_tuple(quantity, unit_str):
     return quantity.to(unit_str).value, quantity.to(unit_str).unit.to_string(format='FITS')
 
 
-def simtel_event_to_images(event, tel_id, ctapipe_format=False, **kwargs):
+def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=True, **kwargs):
     """Extract and return `tel_id`'s images and metadata from a ctapipe `event`.
 
     Parameters
@@ -436,9 +436,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, **kwargs):
 
     # MIX CHANNELS FOR DOUBLE CHANNEL CAMERAS #################
 
-    MIX_CHANNELS = True
-
-    if MIX_CHANNELS:
+    if mix_channels:
         if cam_id == "ASTRICam":
             ASTRI_CAM_CHANNEL_THRESHOLD = 14         # cf. "calib_find_channel_selection_threshold" notebook
             calibrated_image[1, calibrated_image[0,:] <= ASTRI_CAM_CHANNEL_THRESHOLD] = 0
