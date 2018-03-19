@@ -277,7 +277,8 @@ def image_files_in_paths(path_list, max_num_files=None):
 # LOAD IMAGES ################################################################
 
 Image1D = collections.namedtuple('Image1D', ('input_image',
-                                             #'input_samples',    # TODO
+                                             'input_samples',    # TODO
+                                             'adc_samples',      # TODO
                                              'reference_image',
                                              'adc_sum_image',
                                              'pedestal_image',
@@ -286,7 +287,8 @@ Image1D = collections.namedtuple('Image1D', ('input_image',
                                              'meta'))
 
 Image2D = collections.namedtuple('Image2D', ('input_image',
-                                             #'input_samples',    # TODO
+                                             'input_samples',    # TODO
+                                             'adc_samples',      # TODO
                                              'reference_image',
                                              'adc_sum_image',
                                              'pedestal_image',
@@ -382,7 +384,14 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
 
     Parameters
     ----------
-    TODO
+    event : ctapipe event object
+        TODO
+    tel_id : int
+        TODO
+    ctapipe_format : bool
+        TODO
+    mix_channels : bool
+        TODO
 
     Returns
     -------
@@ -428,7 +437,7 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
     uncalibrated_samples = r0_adc_samples
 
     calibrated_image = dl1_image.copy()
-    #calibrated_samples = dl0_pe_samples.copy()
+    calibrated_samples = dl0_pe_samples.copy()
 
     pixel_pos = event.inst.pixel_pos[tel_id]
 
@@ -466,7 +475,8 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
     if ctapipe_format:
 
         return Image1D(input_image=calibrated_image,
-                       #input_samples=calibrated_samples,    # TODO
+                       input_samples=calibrated_samples,    # TODO
+                       adc_samples=uncalibrated_samples,    # TODO
                        reference_image=pe_image,
                        adc_sum_image=uncalibrated_image,
                        pedestal_image=pedestal,
@@ -483,6 +493,9 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
             pe_image_2d = geometry_converter.image_1d_to_2d(pe_image, cam_id=cam_id)
             calibrated_image_2d = geometry_converter.image_1d_to_2d(calibrated_image, cam_id=cam_id)
 
+            calibrated_samples_2d = None    # TODO
+            uncalibrated_samples_2d = None  # TODO
+
             uncalibrated_image_2d = geometry_converter.image_1d_to_2d(uncalibrated_image[0], cam_id=cam_id)
             pedestal_2d = geometry_converter.image_1d_to_2d(pedestal[0], cam_id=cam_id)
             gains_2d = geometry_converter.image_1d_to_2d(gain[0], cam_id=cam_id)
@@ -491,6 +504,9 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
 
             pe_image_2d = geometry_converter.image_1d_to_2d(pe_image, cam_id=cam_id)
             calibrated_image_2d = geometry_converter.image_1d_to_2d(calibrated_image, cam_id=cam_id)
+
+            calibrated_samples_2d = None    # TODO
+            uncalibrated_samples_2d = None  # TODO
 
             uncalibrated_image_2d_ch0 = geometry_converter.image_1d_to_2d(uncalibrated_image[0], cam_id=cam_id)
             uncalibrated_image_2d_ch1 = geometry_converter.image_1d_to_2d(uncalibrated_image[1], cam_id=cam_id)
@@ -550,7 +566,8 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
         #pixel_pos_2d[mask_2d != 1] = np.nan
 
         return Image2D(input_image=calibrated_image_2d,
-                       #input_samples=calibrated_samples_2d,       # TODO
+                       input_samples=calibrated_samples_2d,       # TODO
+                       adc_samples=uncalibrated_samples_2d,       # TODO
                        reference_image=pe_image_2d,
                        adc_sum_image=uncalibrated_image_2d,
                        pedestal_image=pedestal_2d,
@@ -565,9 +582,81 @@ def simtel_images_generator(file_path,
                             ev_filter_list=None,
                             cam_filter_list=None,
                             ctapipe_format=False,
+                            integrator='LocalPeakIntegrator',
+                            integrator_window_width=5,
+                            integrator_window_shift=2,
+                            integrator_t0=None,
+                            integrator_sig_amp_cut_hg=None,
+                            integrator_sig_amp_cut_lg=None,
+                            integrator_lwt=None,
+                            integration_correction=False,
+                            debug=False,
                             **kwargs):
-    """
-    TODO
+    """Return an iterable sequence all calibrated images in `file_path`.
+
+    Parameters
+    ----------
+    file_path : str
+        The path of a Simtel file.
+    tel_filter_list : sequence of int
+        If defined, the generator iterator returns only images from telescopes
+        listed in ``tel_filter_list``.
+    ev_filter_list : sequence of int
+        If defined, the generator iterator returns only images from events
+        listed in ``ev_filter_list``.
+    cam_filter_list : sequence of str
+        If defined, the generator iterator returns only images from instrument
+        listed in ``cam_filter_list``.
+    ctapipe_format : bool
+        The generator iterator returns ctapipe compliant 1D images if ``True``;
+        it returns 2D converted images compliant with `iSAP/Sparce2D` otherwise.
+    integrator : str
+        Define the trace integration method used in ``ctapipe.calib.camera.dl1``.
+        Should be one of the following:
+        * None:                      use the default integrator with the default parameters (NeighbourPeakIntegrator);
+        * 'FullIntegrator':          integrates the entire waveform;
+        * 'SimpleIntegrator':        integrates within a window defined by the user;
+        * 'GlobalPeakIntegrator':    integration window about the global peak in each pixel;
+        * 'LocalPeakIntegrator':     integration window about the local peak in each pixel (default);
+        * 'NeighbourPeakIntegrator': integration window defined by the peaks in the neighbouring pixels;
+        * 'AverageWfPeakIntegrator': integration window defined by the average waveform across all pixels.
+    integrator_window_width : int
+        Define the width of the integration window. Only applicable to
+        WindowIntegrators.
+    integrator_window_shift : int
+        Define the shift of the integration window from the peakpos (peakpos -
+        shift). Only applicable to PeakFindingIntegrators.
+    integrator_t0 : int
+        Define the peak position for all pixels. Only applicable to
+        SimpleIntegrators.
+    integrator_sig_amp_cut_hg : float
+        Define the cut above which a sample is considered as significant for
+        PeakFinding in the HG channel. Only applicable to
+        PeakFindingIntegrators.
+    integrator_sig_amp_cut_lg : float
+        Define the cut above which a sample is considered as significant for
+        PeakFinding in the LG channel. Only applicable to
+        PeakFindingIntegrators.
+    integrator_lwt : int
+        Weight of the local pixel (0: peak from neighbours only, 1: local pixel
+        counts as much as any neighbour). Only applicable to
+        NeighbourPeakIntegrator.
+    integration_correction : bool
+        If ``False``, switch off the integration correction occurring in
+        ``ctapipe.calib.camera.dl1.CameraDL1Calibrator.calibrate()``.
+    debug : bool
+        Print additional values if ``True``.
+
+    Notes
+    -----
+        For more information about the integrator (``integrator*``) parameters,
+        see the ``ChargeExtractorFactory`` class definition in ``ctapipe/image/charge_extractors.py``
+        or type (in a terminal) ``ctapipe-chargeres-extract --help-all``.
+
+    Yields
+    ------
+    image
+        The next image in `file_path`.
     """
 
     # EXTRACT IMAGES ##########################################################
@@ -585,9 +674,6 @@ def simtel_images_generator(file_path,
 
     # CONFIGURE THE CALIBRATOR ################################################
 
-    # See (in a terminal): ctapipe-chargeres-extract --help-all
-    # See ctapipe/image/charge_extractors.py -> ChargeExtractorFactory class definition
-
     # cfg = Config()
     # cfg["ChargeExtractorFactory"]["extractor"] = ‘LocalPeakIntegrator'
     # cfg["ChargeExtractorFactory"]["window_width"] = 5
@@ -600,64 +686,46 @@ def simtel_images_generator(file_path,
     #
     # ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
 
-    #INTEGRATOR = None                       # Use the default integrator with the default params (NeighbourPeakIntegrator)
-    #INTEGRATOR = 'FullIntegrator'           # Integrates the entire waveform
-    #INTEGRATOR = 'SimpleIntegrator'         # Integrates within a window defined by the user
-    #INTEGRATOR = 'GlobalPeakIntegrator'     # Integration window about the global peak in each pixel
-    INTEGRATOR = 'LocalPeakIntegrator'       # Integration window about the local peak in each pixel
-    #INTEGRATOR = 'NeighbourPeakIntegrator'  # Integration window defined by the peaks in the neighbouring pixels
-    #INTEGRATOR = 'AverageWfPeakIntegrator'  # Integration window defined by the average waveform across all pixels
-
-    # Integrator parameters
-    WINDOW_WIDTH = 5      # Define the width of the integration window. Only applicable to WindowIntegrators.
-    WINDOW_SHIFT = 2      # Define the shift of the integration window from the peakpos (peakpos - shift). Only applicable to PeakFindingIntegrators.
-    T0 = None             # Define the peak position for all pixels. Only applicable to SimpleIntegrators.
-    SIG_AMP_CUT_HG = None # Define the cut above which a sample is considered as significant for PeakFinding in the HG channel. Only applicable to PeakFindingIntegrators.
-    SIG_AMP_CUT_LG = None # Define the cut above which a sample is considered as significant for PeakFinding in the LG channel. Only applicable to PeakFindingIntegrators.
-    LWT = None            # Weight of the local pixel (0: peak from neighbours only, 1: local pixel counts as much as any neighbour). Only applicable to NeighbourPeakIntegrator.
-
-    INTEGRATION_CORRECTION = False
-
-    if INTEGRATOR is None:
+    if integrator is None:
         cfg = None
-    elif INTEGRATOR in ('FullIntegrator',
+    elif integrator in ('FullIntegrator',
                         'SimpleIntegrator',
                         'GlobalPeakIntegrator',
                         'LocalPeakIntegrator',
                         'NeighbourPeakIntegrator',
                         'AverageWfPeakIntegrator'):
         cfg = Config()
-        cfg["ChargeExtractorFactory"]["extractor"] = INTEGRATOR
+        cfg["ChargeExtractorFactory"]["extractor"] = integrator
 
-        if WINDOW_WIDTH is not None:
-            cfg["ChargeExtractorFactory"]["window_width"] = WINDOW_WIDTH
+        if integrator_window_width is not None:
+            cfg["ChargeExtractorFactory"]["window_width"] = integrator_window_width
 
-        if WINDOW_SHIFT is not None:
-            cfg["ChargeExtractorFactory"]["window_shift"] = WINDOW_SHIFT
+        if integrator_window_shift is not None:
+            cfg["ChargeExtractorFactory"]["window_shift"] = integrator_window_shift
 
-        if T0 is not None:
-            cfg["ChargeExtractorFactory"]["t0"] = T0
+        if integrator_t0 is not None:
+            cfg["ChargeExtractorFactory"]["t0"] = integrator_t0
 
-        if SIG_AMP_CUT_HG is not None:
-            cfg["ChargeExtractorFactory"]["sig_amp_cut_HG"] = SIG_AMP_CUT_HG
+        if integrator_sig_amp_cut_hg is not None:
+            cfg["ChargeExtractorFactory"]["sig_amp_cut_HG"] = integrator_sig_amp_cut_hg
 
-        if SIG_AMP_CUT_LG is not None:
-            cfg["ChargeExtractorFactory"]["sig_amp_cut_LG"] = SIG_AMP_CUT_LG
+        if integrator_sig_amp_cut_lg is not None:
+            cfg["ChargeExtractorFactory"]["sig_amp_cut_LG"] = integrator_sig_amp_cut_lg
 
-        if LWT is not None:
-            cfg["ChargeExtractorFactory"]["lwt"] = LWT
+        if integrator_lwt is not None:
+            cfg["ChargeExtractorFactory"]["lwt"] = integrator_lwt
     else:
-        raise ValueError(INTEGRATOR)
+        raise ValueError(integrator)
 
     calib = CameraCalibrator(config=cfg, tool=None)
 
-    if not INTEGRATION_CORRECTION:
-        # Switch off the integration correction occuring in ctapipe.calib.camera.dl1.CameraDL1Calibrator.calibrate()
+    if not integration_correction:
+        # Switch off the integration correction occurring in ctapipe.calib.camera.dl1.CameraDL1Calibrator.calibrate()
         #null_integration_correction_func = lambda n_chan, pulse_shape, refstep, time_slice, window_width, window_shift: np.ones(n_chan)
         null_integration_correction_func = lambda n_chan, *args, **kwargs: np.ones(n_chan)
         ctapipe.calib.camera.dl1.integration_correction = null_integration_correction_func
 
-    if DEBUG:
+    if debug:
         try:
             print("extractor.name:", calib.dl1.extractor.name)
         except:
