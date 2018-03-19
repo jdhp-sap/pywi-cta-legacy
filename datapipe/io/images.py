@@ -447,19 +447,19 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
 
     if mix_channels:
         if cam_id == "ASTRICam":
-            ASTRI_CAM_CHANNEL_THRESHOLD = 14         # cf. "calib_find_channel_selection_threshold" notebook
-            calibrated_image[1, calibrated_image[0,:] <= ASTRI_CAM_CHANNEL_THRESHOLD] = 0
-            calibrated_image[0, calibrated_image[0,:] >  ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+            ASTRI_CAM_CHANNEL_THRESHOLD = 2**12 - 1       # cf. "signal_and_noise_histograms_loglog_adc_counts_not_summed_per_channel_FAST" notebook
+            calibrated_image[1, r0_adc_samples[0].max(axis=1) <  ASTRI_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image[0, r0_adc_samples[0].max(axis=1) >= ASTRI_CAM_CHANNEL_THRESHOLD] = 0
             calibrated_image = calibrated_image.sum(axis=0)
         elif cam_id == "NectarCam":
-            NECTAR_CAM_CHANNEL_THRESHOLD = 100       # cf. "calib_find_channel_selection_threshold" notebook
-            calibrated_image[1, calibrated_image[0,:] <= NECTAR_CAM_CHANNEL_THRESHOLD] = 0
-            calibrated_image[0, calibrated_image[0,:] >  NECTAR_CAM_CHANNEL_THRESHOLD] = 0
+            NECTAR_CAM_CHANNEL_THRESHOLD = 2**12 - 1      # cf. "signal_and_noise_histograms_loglog_adc_counts_not_summed_per_channel_FAST" notebook
+            calibrated_image[1, r0_adc_samples[0].max(axis=1) <  NECTAR_CAM_CHANNEL_THRESHOLD] = 0  # LG channel
+            calibrated_image[0, r0_adc_samples[0].max(axis=1) >= NECTAR_CAM_CHANNEL_THRESHOLD] = 0  # HG channel
             calibrated_image = calibrated_image.sum(axis=0)
         elif cam_id == "LSTCam":
-            LST_CAM_CHANNEL_THRESHOLD = 60          # cf. "calib_find_channel_selection_threshold" notebook
-            calibrated_image[1, calibrated_image[0,:] <= LST_CAM_CHANNEL_THRESHOLD] = 0
-            calibrated_image[0, calibrated_image[0,:] >  LST_CAM_CHANNEL_THRESHOLD] = 0
+            LST_CAM_CHANNEL_THRESHOLD = 2**12 - 1      # cf. "signal_and_noise_histograms_loglog_adc_counts_not_summed_per_channel_FAST" notebook
+            calibrated_image[1, r0_adc_samples[0].max(axis=1) <  LST_CAM_CHANNEL_THRESHOLD] = 0
+            calibrated_image[0, r0_adc_samples[0].max(axis=1) >= LST_CAM_CHANNEL_THRESHOLD] = 0
             calibrated_image = calibrated_image.sum(axis=0)
         elif cam_id in SINGLE_CHANNEL_CAMERAS :
             calibrated_image = calibrated_image[0]
