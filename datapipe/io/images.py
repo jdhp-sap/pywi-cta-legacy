@@ -277,9 +277,11 @@ def image_files_in_paths(path_list, max_num_files=None):
 # LOAD IMAGES ################################################################
 
 Image1D = collections.namedtuple('Image1D', ('input_image',
-                                             'input_samples',    # TODO
-                                             'adc_samples',      # TODO
+                                             'input_samples',
                                              'reference_image',
+                                             'adc_samples',
+                                             'extracted_samples',
+                                             'peakpos',
                                              'adc_sum_image',
                                              'pedestal_image',
                                              'gains_image',
@@ -288,8 +290,10 @@ Image1D = collections.namedtuple('Image1D', ('input_image',
 
 Image2D = collections.namedtuple('Image2D', ('input_image',
                                              'input_samples',    # TODO
-                                             'adc_samples',      # TODO
                                              'reference_image',
+                                             'adc_samples',      # TODO
+                                             'extracted_samples',
+                                             'peakpos',
                                              'adc_sum_image',
                                              'pedestal_image',
                                              'gains_image',
@@ -439,6 +443,9 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
     calibrated_image = dl1_image.copy()
     calibrated_samples = dl0_pe_samples.copy()
 
+    extracted_samples = dl1_extracted_samples
+    peakpos = dl1_peakpos
+
     pixel_pos = event.inst.pixel_pos[tel_id]
 
     cam_id = geom1d.cam_id
@@ -475,9 +482,11 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
     if ctapipe_format:
 
         return Image1D(input_image=calibrated_image,
-                       input_samples=calibrated_samples,    # TODO
-                       adc_samples=uncalibrated_samples,    # TODO
+                       input_samples=calibrated_samples,
                        reference_image=pe_image,
+                       adc_samples=uncalibrated_samples,
+                       extracted_samples=extracted_samples,
+                       peakpos=peakpos,
                        adc_sum_image=uncalibrated_image,
                        pedestal_image=pedestal,
                        gains_image=gain,
@@ -495,6 +504,8 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
 
             calibrated_samples_2d = None    # TODO
             uncalibrated_samples_2d = None  # TODO
+            extracted_samples_2d = None     # TODO
+            peakpos_2d = None               # TODO
 
             uncalibrated_image_2d = geometry_converter.image_1d_to_2d(uncalibrated_image[0], cam_id=cam_id)
             pedestal_2d = geometry_converter.image_1d_to_2d(pedestal[0], cam_id=cam_id)
@@ -507,6 +518,8 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
 
             calibrated_samples_2d = None    # TODO
             uncalibrated_samples_2d = None  # TODO
+            extracted_samples_2d = None     # TODO
+            peakpos_2d = None               # TODO
 
             uncalibrated_image_2d_ch0 = geometry_converter.image_1d_to_2d(uncalibrated_image[0], cam_id=cam_id)
             uncalibrated_image_2d_ch1 = geometry_converter.image_1d_to_2d(uncalibrated_image[1], cam_id=cam_id)
@@ -567,8 +580,10 @@ def simtel_event_to_images(event, tel_id, ctapipe_format=False, mix_channels=Tru
 
         return Image2D(input_image=calibrated_image_2d,
                        input_samples=calibrated_samples_2d,       # TODO
-                       adc_samples=uncalibrated_samples_2d,       # TODO
                        reference_image=pe_image_2d,
+                       adc_samples=uncalibrated_samples_2d,       # TODO
+                       extracted_samples=extracted_samples_2d,
+                       peakpos=peakpos_2d,
                        adc_sum_image=uncalibrated_image_2d,
                        pedestal_image=pedestal_2d,
                        gains_image=gains_2d,
