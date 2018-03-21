@@ -24,14 +24,23 @@ import os
 
 PACKAGE_PATH = os.path.split(__file__)[0]
 
-ASTRI_GAMMA_CDF_FILE = os.path.join(PACKAGE_PATH, 'astri_inaf_cdf_gamma.json')
-GCT_GAMMA_CDF_FILE = os.path.join(PACKAGE_PATH, 'gct_konrad_cdf_gamma.json')
-DIGICAM_GAMMA_CDF_FILE = os.path.join(PACKAGE_PATH, 'digicam_konrad_cdf_gamma.json')
-FLASHCAM_GAMMA_CDF_FILE = os.path.join(PACKAGE_PATH, 'flashcam_grid_prod3b_north_cdf_gamma.json')
-NECTARCAM_GAMMA_CDF_FILE = os.path.join(PACKAGE_PATH, 'nectarcam_grid_prod3b_north_cdf_gamma.json')
-LSTCAM_GAMMA_CDF_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf_gamma.json')
+ASTRI_GAMMA_CTAPIPE_DEFAULT_CDF_FILE = os.path.join(PACKAGE_PATH, 'astri_konrad_cdf_gamma_ctapipe_default.json')
+GCT_GAMMA_CTAPIPE_DEFAULT_CDF_FILE = os.path.join(PACKAGE_PATH, 'gct_konrad_cdf_gamma_ctapipe_default.json')
+DIGICAM_GAMMA_CTAPIPE_DEFAULT_CDF_FILE = os.path.join(PACKAGE_PATH, 'digicam_konrad_cdf_gamma_ctapipe_default.json')
+FLASHCAM_GAMMA_CTAPIPE_DEFAULT_CDF_FILE = os.path.join(PACKAGE_PATH, 'flashcam_grid_prod3b_north_cdf_gamma_ctapipe_default.json')
+NECTARCAM_GAMMA_CTAPIPE_DEFAULT_CDF_FILE = os.path.join(PACKAGE_PATH, 'nectarcam_grid_prod3b_north_cdf_gamma_ctapipe_default.json')
+LSTCAM_GAMMA_CTAPIPE_DEFAULT_CDF_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf_gamma_ctapipe_default.json')
 
-ASTRI_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'astri_inaf_cdf_proton.json')
+ASTRI_GAMMA_MARS_LIKE_CDF_FILE = os.path.join(PACKAGE_PATH, 'astri_konrad_cdf_gamma_mars_like.json')
+GCT_GAMMA_MARS_LIKE_CDF_FILE = os.path.join(PACKAGE_PATH, 'gct_konrad_cdf_gamma_mars_like.json')
+DIGICAM_GAMMA_MARS_LIKE_CDF_FILE = os.path.join(PACKAGE_PATH, 'digicam_konrad_cdf_gamma_mars_like.json')
+FLASHCAM_GAMMA_MARS_LIKE_CDF_FILE = os.path.join(PACKAGE_PATH, 'flashcam_grid_prod3b_north_cdf_gamma_mars_like.json')
+NECTARCAM_GAMMA_MARS_LIKE_CDF_FILE = os.path.join(PACKAGE_PATH, 'nectarcam_grid_prod3b_north_cdf_gamma_mars_like.json')
+LSTCAM_GAMMA_MARS_LIKE_CDF_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf_gamma_mars_like.json')
+
+###
+
+ASTRI_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'astri_konrad_cdf_proton.json')
 GCT_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'gct_konrad_cdf_proton.json')
 DIGICAM_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'digicam_konrad_cdf_proton.json')
 FLASHCAM_PROTON_CDF_FILE = os.path.join(PACKAGE_PATH, 'flashcam_grid_prod3b_north_cdf_proton.json')
@@ -42,12 +51,12 @@ DIGICAM_GAMMA_CDF_MARS_FILE = os.path.join(PACKAGE_PATH, 'digicam_konrad_cdf_gam
 NECTARCAM_GAMMA_CDF_MARS_FILE = os.path.join(PACKAGE_PATH, 'nectarcam_grid_prod3b_north_cdf_gamma_mars_like.json')
 LSTCAM_GAMMA_CDF_MARS_FILE = os.path.join(PACKAGE_PATH, 'lstcam_grid_prod3b_north_cdf_gamma_mars_like.json')
 
-ASTRI_CDF_FILE = ASTRI_GAMMA_CDF_FILE
-GCT_CDF_FILE = GCT_GAMMA_CDF_FILE
-DIGICAM_CDF_FILE = DIGICAM_GAMMA_CDF_FILE
-FLASHCAM_CDF_FILE = FLASHCAM_GAMMA_CDF_FILE
-NECTARCAM_CDF_FILE = NECTARCAM_GAMMA_CDF_FILE
-LSTCAM_CDF_FILE = LSTCAM_GAMMA_CDF_FILE
+ASTRI_CDF_FILE = ASTRI_GAMMA_MARS_LIKE_CDF_FILE
+GCT_CDF_FILE = GCT_GAMMA_MARS_LIKE_CDF_FILE
+DIGICAM_CDF_FILE = DIGICAM_GAMMA_MARS_LIKE_CDF_FILE
+FLASHCAM_CDF_FILE = FLASHCAM_GAMMA_MARS_LIKE_CDF_FILE
+NECTARCAM_CDF_FILE = NECTARCAM_GAMMA_MARS_LIKE_CDF_FILE
+LSTCAM_CDF_FILE = LSTCAM_GAMMA_MARS_LIKE_CDF_FILE
 
 __all__ = ['ASTRI_CDF_FILE',
            'GCT_CDF_FILE',
