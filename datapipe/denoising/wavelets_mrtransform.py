@@ -20,10 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-__all__ = ['wavelet_transform',
-           'filter_planes',
-           'inverse_wavelet_transform',
-           'clean_image',
+__all__ = ['clean_image',
            'WaveletTransform']
 
 """Denoise FITS and PNG images with Wavelet Transform.
@@ -104,278 +101,30 @@ It also requires Numpy and Matplotlib Python libraries.
 """
 
 import argparse
-import copy
-import numpy as np
-import os
-import time
 
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 from datapipe.io import images
 
-from datapipe.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
-from datapipe.image.pixel_clusters import kill_isolated_pixels_stats
-from datapipe.image.pixel_clusters import number_of_islands
+from pywi.filtering import hard_filter
+from pywi.filtering.hard_filter import filter_planes
+
+from pywi.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
+from pywi.image.pixel_clusters import kill_isolated_pixels_stats
+from pywi.image.pixel_clusters import number_of_islands
+
+from pywi.transform import mrtransform_wrapper
+from pywi.transform.mrtransform_wrapper import inverse_wavelet_transform
+from pywi.transform.mrtransform_wrapper import wavelet_transform
+
+from pywi.ui.argparse_commons import add_common_arguments
+from pywi.ui.filter_with_mrtransform import add_arguments
 
 # CONSTANTS ##################################################################
 
 DEBUG = False
 
-AVAILABLE_TYPE_OF_FILTERING = ('hard_filtering', 'ksigma_hard_filtering', 'common_hard_filtering')
-AVAILABLE_LAST_SCALE_OPTIONS = ('keep', 'drop', 'mask')
-
-DEFAULT_TYPE_OF_FILTERING = 'hard_filtering'
-DEFAULT_FILTER_THRESHOLDS_STR = '0,0'            # TODO: change the default value...
-DEFAULT_FILTER_THRESHOLDS = [float(threshold_str) for threshold_str in DEFAULT_FILTER_THRESHOLDS_STR.split(",")]
-DEFAULT_LAST_SCALE_TREATMENT = 'mask'
-
-# EXCEPTIONS #################################################################
-
-class MrTransformError(Exception):
-    """Common `wavelet_mrtransform` module's error."""
-    pass
-
-class WrongDimensionError(MrTransformError):
-    """Raised when data having a wrong number of dimensions is given.
-
-    Attributes
-    ----------
-    msg : str
-        Explanation of the error.
-    """
-
-    def __init__(self, msg=None):
-        if msg is None:
-            self.msg = "The data has a wrong number of dimension."
-
-
 ##############################################################################
-
-def wavelet_transform(input_image,
-                      number_of_scales=4,
-                      tmp_files_directory=".",
-                      noise_distribution=None):
-    """Compute the wavelet transform of `input_image`.
-
-    Parameters
-    ----------
-    input_image : array_like
-        The input image to transform.
-    number_of_scales : int, optional
-        The number of scales used to transform `input_image` or in other words
-        the number of wavelet planes returned.
-    tmp_files_directory : str, optional
-        The path of the directory used to store mr_transform temporary data.
-        The default is the current directory, but it may be more appropriate to
-        specify here the path of a directory mounted in a ramdisk to speedup
-        I/Os ("/Volumes/ramdisk" on MacOSX or "/dev/shm" on Linux).
-    noise_distribution : `EmpiricalDistribution`, optional
-        The noise distribution used to fill 'empty' NaN pixels with the
-        appropriate random noise distribution. If none, NaN pixels are fill
-        with zeros (which may add unwanted harmonics in wavelet planes).
-
-    Returns
-    -------
-    list
-        Return a list containing the `number_of_scales` wavelet planes.
-
-    Raises
-    ------
-    WrongDimensionError
-        If `input_image` is not a 2D array.
-    """
-
-    input_image = input_image.copy()
-
-    if input_image.ndim != 2:
-        msg = "The data should be a 2D array."
-        raise WrongDimensionError(msg)
-
-    # INJECT NOISE IN NAN PIXELS ###########################################
-
-    # TODO: should this noise injection be done in the abstract 'run()' function ?
-
-    nan_mask = images.fill_nan_pixels(input_image, noise_distribution)
-
-    # DO THE WAVELET TRANSFORM #############################################
-
-    input_file_name = ".tmp_{}_{}_in.fits".format(os.getpid(), time.time())
-    input_file_path = os.path.join(tmp_files_directory, input_file_name)
-
-    output_file_name = ".tmp_{}_{}_out.fits".format(os.getpid(), time.time())
-    mr_output_file_path = os.path.join(tmp_files_directory, output_file_name)
-
-    try:
-        # WRITE THE INPUT FILE (FITS) ##########################
-
-        images.save_fits(input_image, input_file_path)
-
-        # EXECUTE MR_TRANSFORM #################################
-
-        cmd = 'mr_transform -n{} "{}" {}'.format(number_of_scales,
-                                                 input_file_path,
-                                                 mr_output_file_path)
-        os.system(cmd)
-
-        cmd = "mv {}.mr {}".format(mr_output_file_path, mr_output_file_path)
-        os.system(cmd)
-
-        # READ THE MR_TRANSFORM OUTPUT FILE ####################
-
-        wavelet_planes = images.load_fits(mr_output_file_path, 0)
-
-        # CHECK RESULT #########################################
-
-        if wavelet_planes.ndim != 3:
-            msg = "Unexpected error: the output FITS file should contain a 3D array."
-            raise WrongDimensionError(msg)
-
-    finally:
-
-        # REMOVE FITS FILES ####################################
-
-        os.remove(input_file_path)
-        os.remove(mr_output_file_path)
-
-    wavelet_planes_list = [plane for plane in wavelet_planes]
-
-    # INJECT NOISE IN NAN: PUT BACK NAN VALUES #############
-
-    if noise_distribution is not None:
-        for plane in wavelet_planes_list:
-            plane[nan_mask] = np.nan
-
-    return wavelet_planes_list
-
-
-def filter_planes(wavelet_planes,
-                  method=DEFAULT_TYPE_OF_FILTERING,
-                  thresholds=DEFAULT_FILTER_THRESHOLDS,
-                  detect_only_positive_structures=False):
-    """Filter the wavelet planes.
-
-    The last plane (called residuals) is kept unmodified.
-    
-    Parameters
-    ----------
-    wavelet_planes : list of array_like
-        The wavelet planes to filter, including the last *residual* plane.
-    method : str, optional
-        The filtering method to use. So far, only the 'hard_filtering' and
-        'ksigma_hard_filtering' methods are implemented.
-    thresholds : list of float
-        Thresholds used for the plane filtering.
-    detect_only_positive_structures : bool
-        Detect only positive structures.
-
-    Returns
-    -------
-    list
-        Return a list containing the filtered wavelet planes.
-    """
-    filtered_wavelet_planes = copy.deepcopy(wavelet_planes)
-
-    # The last plane is kept unmodified
-
-    for plane_index, plane in enumerate(wavelet_planes[0:-1]):
-
-        if method in ('hard_filtering', 'common_hard_filtering'):
-
-            if detect_only_positive_structures:
-                plane_mask = plane > thresholds[plane_index]
-            else:
-                plane_mask = abs(plane) > thresholds[plane_index]
-
-            filtered_plane = plane * plane_mask
-
-        elif method == 'ksigma_hard_filtering':
-
-            # Compute the standard deviation of the plane ##
-
-            plane_noise_std = np.std(plane)  # TODO: this is wrong... it should be the estimated std of the **noise**
-
-            # Apply a threshold on the plane ###############
-
-            # Remark: "abs(plane) > (plane_noise_std * 3.)" should be the correct way to
-            # make the image mask, but sometimes results looks better when all
-            # negative coefficients are dropped ("plane > (plane_noise_std * 3.)")
-
-            if detect_only_positive_structures:
-                plane_mask = plane > (plane_noise_std * thresholds[plane_index])
-            else:
-                plane_mask = abs(plane) > (plane_noise_std * thresholds[plane_index])  
-
-            filtered_plane = plane * plane_mask
-
-        else:
-
-            raise ValueError('Unknown method "{}". Should be "hard_filtering" or "ksigma_hard_filtering".'.format(method))
-
-        filtered_wavelet_planes[plane_index] = filtered_plane
-
-        if DEBUG:
-            images.plot(plane, title="Plane {}".format(plane_index))
-            images.plot(plane_mask, title="Binary mask for plane {}".format(plane_index))
-            images.plot(filtered_plane, title="Filtered plane {}".format(plane_index))
-
-    if method == 'common_hard_filtering':
-
-        # Use the same significant pixels on each plane
-
-        # Init the common pixel mask to "all pixels rejected"
-        common_significant_pixels_mask = np.zeros(wavelet_planes[0].shape)
-
-        for filtered_plane in filtered_wavelet_planes[0:-1]:
-            current_significant_pixels_mask = (np.isfinite(filtered_plane) * (filtered_plane != 0))
-            common_significant_pixels_mask = np.logical_or(common_significant_pixels_mask, current_significant_pixels_mask)
-
-        for plane_index, plane in enumerate(wavelet_planes[0:-1]):
-            filtered_plane = plane * common_significant_pixels_mask
-            filtered_wavelet_planes[plane_index] = filtered_plane
-
-    return filtered_wavelet_planes
-
-
-def inverse_wavelet_transform(wavelet_planes,
-                              last_plane=DEFAULT_LAST_SCALE_TREATMENT):
-    """Compute the inverse wavelet transform of `wavelet_planes`.
-
-    Parameters
-    ----------
-    wavelet_planes : list of array_like
-        The wavelet planes to (inverse) transform.
-    last_plane : str, optional
-        Define what to do with the last plane: 'keep' to keep it in the inverse
-        transform, 'drop' to remove it in the inverse transform, 'mask' to keep
-        only pixels that are *significant* in the others planes.
-
-    Returns
-    -------
-    array_like
-        Return the cleaned image.
-    """
-    output_image = np.zeros(wavelet_planes[0].shape)
-
-    for plane in wavelet_planes[0:-1]:
-        # Sum all planes except the last one (residuals plane)
-        output_image += plane
-
-    # Apply a special treatment with the last plane (residuals plane)
-    if last_plane == "keep":
-
-        # Keep the last plane
-        output_image += wavelet_planes[-1]
-
-    elif last_plane == "mask":
-
-        # Only keep last plane's pixels that are *significant* in the others planes
-        significant_pixels_mask = np.zeros(wavelet_planes[0].shape)
-        for plane in wavelet_planes[0:-1]:
-            significant_pixels_mask[plane != 0] = 1
-        output_image += wavelet_planes[-1] * significant_pixels_mask
-
-    return output_image
-
 
 class WaveletTransform(AbstractCleaningAlgorithm):
     """The wavelet transform wrapper for ctapipe."""
@@ -386,9 +135,9 @@ class WaveletTransform(AbstractCleaningAlgorithm):
 
     def clean_image(self,
                     input_image,
-                    type_of_filtering=DEFAULT_TYPE_OF_FILTERING,
-                    filter_thresholds=DEFAULT_FILTER_THRESHOLDS,
-                    last_scale_treatment=DEFAULT_LAST_SCALE_TREATMENT,
+                    type_of_filtering=hard_filter.DEFAULT_TYPE_OF_FILTERING,
+                    filter_thresholds=hard_filter.DEFAULT_FILTER_THRESHOLDS,
+                    last_scale_treatment=mrtransform_wrapper.DEFAULT_LAST_SCALE_TREATMENT,
                     detect_only_positive_structures=False,
                     kill_isolated_pixels=False,
                     noise_distribution=None,
@@ -496,34 +245,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
-    parser.add_argument("--type-of-filtering", "-f", metavar="STRING", default=DEFAULT_TYPE_OF_FILTERING,
-                        help="Type of filtering: {}.".format(", ".join(AVAILABLE_TYPE_OF_FILTERING)))
-
-    parser.add_argument("--filter-thresholds", "-t", metavar="FLOAT LIST", default=DEFAULT_FILTER_THRESHOLDS_STR,
-                        help="Thresholds used for the plane filtering.")
-
-    parser.add_argument("--last-scale", "-L", metavar="STRING", default=DEFAULT_LAST_SCALE_TREATMENT,
-                        help="Last plane treatment: {}.".format(", ".join(AVAILABLE_LAST_SCALE_OPTIONS)))
-
-    parser.add_argument("--detect-only-positive-structures", "-p", action="store_true",
-                        help="Detect only positive structures.")
-
-    parser.add_argument("--kill-isolated-pixels", action="store_true",
-                        help="Suppress isolated pixels in the support (scipy implementation).")
-
-    parser.add_argument("--noise-cdf-file", metavar="FILE",
-                        help="The JSON file containing the Cumulated Distribution Function of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=None.")
-
-    parser.add_argument("--tmp-dir", default=".", metavar="DIRECTORY",
-                        help="The directory where temporary files are written.")
+    parser = add_arguments(parser)
+    parser = add_common_arguments(parser, nargs="+")
 
     # COMMON OPTIONS
-
-    parser.add_argument("--verbose", "-v", action="store_true",
-                        help="Verbose mode")
-
-    parser.add_argument("--debug", action="store_true",
-                        help="Debug mode")
 
     parser.add_argument("--max-images", type=int, metavar="INTEGER", 
                         help="The maximum number of images to process")
@@ -545,20 +270,9 @@ def main():
                         metavar="STRING",
                         help="The label attached to the produced results")
 
-    parser.add_argument("--plot", action="store_true",
-                        help="Plot images")
-
-    parser.add_argument("--saveplot", default=None, metavar="FILE",
-                        help="The output file where to save plotted images")
-
     parser.add_argument("--output", "-o", default=None,
                         metavar="FILE",
                         help="The output file path (JSON)")
-
-    parser.add_argument("fileargs", nargs="+", metavar="FILE",
-                        help="The files image to process (FITS)."
-                             "If fileargs is a directory,"
-                             "all FITS files it contains are processed.")
 
     args = parser.parse_args()
 
@@ -585,18 +299,18 @@ def main():
 
     # CHECK OPTIONS #############################
 
-    if type_of_filtering not in AVAILABLE_TYPE_OF_FILTERING:
+    if type_of_filtering not in hard_filter.AVAILABLE_TYPE_OF_FILTERING:
         raise ValueError('Unknown type of filterning: "{}". Should be in {}'.format(type_of_filtering,
-                                                                                    AVAILABLE_TYPE_OF_FILTERING))
+                                                                                    hard_filter.AVAILABLE_TYPE_OF_FILTERING))
 
     try:
         filter_thresholds = [float(threshold_str) for threshold_str in filter_thresholds_str.split(",")]
     except:
         raise ValueError('Wrong filter thresholds: "{}". Should be in a list of figures separated by a comma (e.g. "3,2,3")'.format(filter_thresholds_str))
 
-    if last_scale_treatment not in AVAILABLE_LAST_SCALE_OPTIONS:
+    if last_scale_treatment not in mrtransform_wrapper.AVAILABLE_LAST_SCALE_OPTIONS:
         raise ValueError('Unknown type of last scale treatment: "{}". Should be in {}'.format(last_scale_treatment ,
-                                                                                              AVAILABLE_LAST_SCALE_OPTIONS))
+                                                                                              mrtransform_wrapper.AVAILABLE_LAST_SCALE_OPTIONS))
 
     # TODO: check the noise_cdf_file value
     # TODO: check the tmp_dir value

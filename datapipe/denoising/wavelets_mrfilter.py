@@ -226,9 +226,12 @@ from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgor
 from datapipe.denoising.inverse_transform_sampling import EmpiricalDistribution
 from datapipe.io import images
 
-from datapipe.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
-from datapipe.image.pixel_clusters import kill_isolated_pixels_stats
-from datapipe.image.pixel_clusters import number_of_islands
+from pywi.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
+from pywi.image.pixel_clusters import kill_isolated_pixels_stats
+from pywi.image.pixel_clusters import number_of_islands
+
+from pywi.ui.argparse_commons import add_common_arguments
+from pywi.ui.filter_with_mrfilter import add_arguments
 
 # CONSTANTS ##################################################################
 
@@ -520,219 +523,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="Denoise FITS images with Wavelet Transform.")
 
-
-    parser.add_argument("--type-of-filtering", "-f", type=int, metavar="INTEGER",
-                        help="""Type of filtering:
-                            1: Multiresolution Hard K-Sigma Thresholding
-                            2: Multiresolution Soft K-Sigma Thresholding
-                            3: Iterative Multiresolution Thresholding
-                            4: Adjoint operator applied to the multiresolution support
-                            5: Bivariate Shrinkage
-                            6: Multiresolution Wiener Filtering
-                            7: Total Variation + Wavelet Constraint
-                            8: Wavelet Constraint Iterative Methods
-                            9: Median Absolute Deviation (MAD) Hard Thesholding
-                            10: Median Absolute Deviation (MAD) Soft Thesholding.
-                            Default=1.""")
-
-    parser.add_argument("--coef-detection-method", "-C", type=int, metavar="INTEGER",
-                        help="""Coef_Detection_Method:
-                            1: K-SigmaNoise Threshold
-                            2: False Discovery Rate (FDR) Theshold
-                            3: Universal Threshold
-                            4: SURE Threshold
-                            5: Multiscale SURE Threshold.
-                            Default=1.""")
-
-    parser.add_argument("--type-of-multiresolution-transform", "-t", type=int, metavar="INTEGER",
-                        help="""Type of multiresolution transform:
-                            1: linear wavelet transform: a trous algorithm
-                            2: bspline wavelet transform: a trous algorithm
-                            3: wavelet transform in Fourier space
-                            4: morphological median transform
-                            5: morphological minmax transform
-                            6: pyramidal linear wavelet transform
-                            7: pyramidal bspline wavelet transform
-                            8: pyramidal wavelet transform in Fourier space: algo 1 (diff. between two resolutions)
-                            9: Meyer's wavelets (compact support in Fourier space)
-                            10: pyramidal median transform (PMT)
-                            11: pyramidal laplacian
-                            12: morphological pyramidal minmax transform
-                            13: decomposition on scaling function
-                            14: Mallat's wavelet transform (7/9 filters)
-                            15: Feauveau's wavelet transform
-                            16: Feauveau's wavelet transform without undersampling
-                            17: Line Column Wavelet Transform (1D+1D)
-                            18: Haar's wavelet transform
-                            19: half-pyramidal transform
-                            20: mixed Half-pyramidal WT and Median method (WT-HPMT)
-                            21: undecimated diadic wavelet transform (two bands per scale)
-                            22: mixed WT and PMT method (WT-PMT)
-                            23: undecimated Haar transform: a trous algorithm (one band per scale)
-                            24: undecimated (bi-) orthogonal transform (three bands per scale)
-                            25: non orthogonal undecimated transform (three bands per scale)
-                            26: Isotropic and compact support wavelet in Fourier space
-                            27: pyramidal wavelet transform in Fourier space: algo 2 (diff. between the square of two resolutions)
-                            28: Fast Curvelet Transform.
-                            Default=2.""")
-
-    parser.add_argument("--type-of-filters", "-T", type=int, metavar="INTEGER",
-                        help="""Type of filters:
-                            1: Biorthogonal 7/9 filters
-                            2: Daubechies filter 4
-                            3: Biorthogonal 2/6 Haar filters
-                            4: Biorthogonal 2/10 Haar filters
-                            5: Odegard 9/7 filters
-                            6: 5/3 filter
-                            7: Battle-Lemarie filters (2 vanishing moments)
-                            8: Battle-Lemarie filters (4 vanishing moments)
-                            9: Battle-Lemarie filters (6 vanishing moments)
-                            10: User's filters
-                            11: Haar filter
-                            12: 3/5 filter
-                            13: 4/4 Linar spline filters
-                            14: Undefined sub-band filters.
-                            Default=1.""")
-
-    parser.add_argument("--type-of-non-orthog-filters", "-U", type=int, metavar="INTEGER",
-                        help="""Type of non-orthogonal filters:
-                            1: SplineB3-Id+H:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H, Gt=Id+H
-                            2: SplineB3-Id:  H=[1,4,6,4,1]/16, Ht=H, G=Id-H*H, Gt=Id
-                            3: SplineB2-Id: H=4[1,2,1]/4, Ht=H, G=Id-H*H, Gt=Id
-                            4: Harr/Spline POS: H=Haar,G=[-1/4,1/2,-1/4],Ht=[1,3,3,1]/8,Gt=[1,6,1]/4.
-                            Default=2.""")
-
-#         [-u number_of_undecimated_scales]
-#             Number of undecimated scales used in the Undecimated Wavelet Transform
-#             Default is all scale.
-#
-#         [-g sigma]
-#             sigma = noise standard deviation
-#             default is automatically estimated.
-#
-#         [-c gain,sigma,mean]
-#             Poisson + readout noise, with:
-#                 gain = gain of the CCD
-#                 sigma = read-out noise standard deviation
-#                 mean = read-out noise mean
-#             default is no (Gaussian).
-
-    parser.add_argument("--noise-model", "-m", type=int, metavar="INTEGER",
-                        help="""Noise model:
-                            1: Gaussian noise
-                            2: Poisson noise
-                            3: Poisson noise + Gaussian noise
-                            4: Multiplicative noise
-                            5: Non-stationary additive noise
-                            6: Non-stationary multiplicative noise
-                            7: Undefined stationary noise
-                            8: Undefined noise
-                            9: Stationary correlated noise
-                            10: Poisson noise with few events. Default=1.""")
-
-    parser.add_argument("--number-of-scales", "-n", type=int, metavar="integer",
-                        help="Number of scales used in the multiresolution transform. Default=4.")
-
-    parser.add_argument("--k-sigma-noise-threshold", "-s", metavar="FLOAT",
-                        help="Thresholding at nsigma * SigmaNoise. Default=3.")
-
-    parser.add_argument("--number-of-iterations", "-i", type=int, metavar="integer",
-                        help="Maximum number of iterations. Default=10.")
-
-    parser.add_argument("--epsilon", "-e", type=float, metavar="FLOAT",
-                        help="Convergence parameter. Default=0.001000 or 0.000010 in case of poisson noise with few events.")
-
-    parser.add_argument("--support-file-name", "-w", metavar="FILE",
-                        help="Creates an image from the multiresolution support and save to disk.")
-
-    parser.add_argument("--suppress-isolated-pixels", "-k", action="store_true",
-                        help="Suppress isolated pixels in the support")
-
-    parser.add_argument("--kill-isolated-pixels", action="store_true",
-                        help="Suppress isolated pixels in the support (scipy implementation)")
-
-    parser.add_argument("--suppress-last-scale", "-K", action="store_true",
-                        help="Suppress the last scale (to have background pixels = 0)")
-
-    parser.add_argument("--detect-only-positive-structure", "-p", action="store_true",
-                        help="Detect only positive structure")
-
-    parser.add_argument("--precision", "-E", type=float, metavar="FLOAT",
-                        help="Epsilon = precision for computing thresholds (only used in case of poisson noise with few events). Default=1.00e-03.")
-
-#         [-S SizeBlock]
-#             Size of the  blocks used for local variance estimation.
-#             default is 7.
-#
-#         [-N NiterSigmaClip]
-#             Iteration number used for local variance estimation.
-#             default is 1.
-
-    parser.add_argument("--first-detection-scale", "-F", type=int, metavar="INTEGER",
-                        help="First scale used for the detection. Default=1.")
-
-#         [-R RMS_Map_File_Name]
-#              RMS Map (only used with -m 5 and -m 9 options).
-
-    parser.add_argument("--suppress-positivity-constraint", "-P", action="store_true",
-                        help="Suppress positivity constraint")
-
-    parser.add_argument("--maximum-level-constraint", action="store_true",
-                        help="Add the maximum level constraint. Max value is 255.")
-
-#         [-B BackgroundModelImage]
-#             Background Model Image: the background image is
-#             subtracted during the filtering.
-#             Default is no.
-#
-#         [-M Flat_Image]
-#             Flat Image: The solution is corrected from the flat (i.e. Sol = Input / Flat)
-#             Default is no.
-#
-#         [-h]
-#             write info used for computing the probability map.
-#             Default is no.
-#
-#         [-G RegulParam]
-#              Regularization parameter for the TV method.
-#              default is 0.100000
-#
-#         [-z]
-#             Use virtual memory.
-#                default limit size: 4
-#                default directory: .
-#
-#         [-Z VMSize:VMDIR]
-#             Use virtual memory.
-#                VMSize = limit size (megabytes)
-#                VMDIR = directory name
-#
-
-    parser.add_argument("--mask-file-path", metavar="MASK_FILE_NAME",
-                        help="Filename of the mask containing the bad data (Mask[i,j]=1 for good pixels and 0 otherwise. Default is none.")
-
-    parser.add_argument("--offset-after-calibration", type=float, metavar="FLOAT",
-                        help="Value added to all pixels of the input image after calibration. Default=0.")
-
-    parser.add_argument("--correction-offset", action="store_true",
-                        help="Apply a correction offset to the output image.")
-
-    parser.add_argument("--input-image-scale", default="linear",
-                        help="Use a different scale for the input image ('linear', 'log' or 'sqrt'). Default='linear'.")
-
-    parser.add_argument("--noise-cdf-file", metavar="FILE",
-                        help="The JSON file containing the Cumulated Distribution Function of the noise model used to inject artificial noise in blank pixels (those with a NaN value). Default=None.")
-
-    parser.add_argument("--tmp-dir", default=".", metavar="DIRECTORY",
-                        help="The directory where temporary files are written.")
+    parser = add_arguments(parser)
+    parser = add_common_arguments(parser, nargs="+")
 
     # COMMON OPTIONS
-
-    parser.add_argument("--verbose", "-v", action="store_true",
-                        help="Verbose mode")
-
-    parser.add_argument("--debug", action="store_true",
-                        help="Debug mode")
 
     parser.add_argument("--max-images", type=int, metavar="INTEGER", 
                         help="The maximum number of images to process")
@@ -754,19 +548,8 @@ def main():
                         metavar="STRING",
                         help="The label attached to the produced results")
 
-    parser.add_argument("--plot", action="store_true",
-                        help="Plot images")
-
-    parser.add_argument("--saveplot", metavar="FILE",
-                        help="The output file where to save plotted images")
-
     parser.add_argument("--output", "-o", metavar="FILE",
                         help="The output file path (JSON)")
-
-    parser.add_argument("fileargs", nargs="+", metavar="FILE",
-                        help="The files image to process (FITS)."
-                             "If fileargs is a directory,"
-                             "all FITS files it contains are processed.")
 
     args = parser.parse_args()
 

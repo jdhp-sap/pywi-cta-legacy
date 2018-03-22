@@ -34,8 +34,10 @@ import astropy.units as u
 
 from datapipe.benchmark import assess
 from datapipe.image.hillas_parameters import get_hillas_parameters
-from datapipe.image.pixel_clusters import kill_isolated_pixels_stats
-from datapipe.image.pixel_clusters import number_of_islands
+
+from pywi.image.pixel_clusters import kill_isolated_pixels_stats
+from pywi.image.pixel_clusters import number_of_islands
+
 from datapipe.image.signal_to_border_distance import signal_to_border
 from datapipe.image.signal_to_border_distance import signal_to_border_distance
 from datapipe.image.signal_to_border_distance import pemax_on_border

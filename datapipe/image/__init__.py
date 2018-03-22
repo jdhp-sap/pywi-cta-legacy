@@ -21,6 +21,5 @@
 # THE SOFTWARE.
 
 __all__ = ['hillas_parameters',
-           'pixel_clusters',
            'signal_to_border_distance']
 

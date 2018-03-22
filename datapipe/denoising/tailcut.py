@@ -35,10 +35,12 @@ This snippet requires Numpy, Matplotlib and PIL/Pillow Python libraries.
 import argparse
 
 from datapipe.denoising.abstract_cleaning_algorithm import AbstractCleaningAlgorithm
-from datapipe.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
-from datapipe.image.pixel_clusters import kill_isolated_pixels_stats
-from datapipe.image.pixel_clusters import number_of_islands
+
 from datapipe.io import geometry_converter
+
+from pywi.image.pixel_clusters import kill_isolated_pixels as scipy_kill_isolated_pixels
+from pywi.image.pixel_clusters import kill_isolated_pixels_stats
+from pywi.image.pixel_clusters import number_of_islands
 
 from ctapipe.image.cleaning import tailcuts_clean
 
