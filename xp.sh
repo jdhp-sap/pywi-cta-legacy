@@ -171,8 +171,10 @@ gct_mini_konrad)
 digicam_mini_konrad)
     CAM_ID="DigiCam"
 
-    GAMMA_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/gamma ;
-    PROTON_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/proton ;
+    #GAMMA_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/gamma ;
+    #PROTON_FITS_DIR=~/data/sst1m_mini_array_konrad/fits/sst1m/proton ;
+    GAMMA_FITS_DIR=~/data/sst1m_mini_array_konrad/simtel/sst1m/gamma ;
+    PROTON_FITS_DIR=~/data/sst1m_mini_array_konrad/simtel/sst1m/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/digicam_konrad_cdf_gamma.json ;
 
@@ -203,8 +205,10 @@ digicam_mini_konrad)
 flashcam_mini_inaf)
     CAM_ID="FlashCam"
 
-    GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
-    PROTON_FITS_DIR=~/data/astri_mini_array/fits/flashcam/proton ;
+    #GAMMA_FITS_DIR=~/data/astri_mini_array/fits/flashcam/gamma ;
+    #PROTON_FITS_DIR=~/data/astri_mini_array/fits/flashcam/proton ;
+    GAMMA_FITS_DIR=~/data/grid_prod3b_north/simtel/gamma ;
+    PROTON_FITS_DIR=~/data/grid_prod3b_north/simtel/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/flashcam_grid_prod3b_north_cdf_gamma.json ;
 
@@ -231,8 +235,10 @@ flashcam_mini_inaf)
 nectarcam_grid_prod3b_north)
     CAM_ID="NectarCam"
 
-    GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
-    PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/proton ;
+    #GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/gamma ;
+    #PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/nectarcam/proton ;
+    GAMMA_FITS_DIR=~/data/grid_prod3b_north/simtel/gamma ;
+    PROTON_FITS_DIR=~/data/grid_prod3b_north/simtel/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/nectarcam_grid_prod3b_north_cdf_gamma.json ;
 
@@ -267,10 +273,10 @@ nectarcam_grid_prod3b_north)
 lstcam_grid_prod3b_north)
     CAM_ID="LSTCam"
 
-    GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
-    PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/lst/proton ;
-    #GAMMA_FITS_DIR=~/data/grid_prod3b_north/simtel/gamma ;
-    #PROTON_FITS_DIR=~/data/grid_prod3b_north/simtel/proton ;
+    #GAMMA_FITS_DIR=~/data/grid_prod3b_north/fits/lst/gamma ;
+    #PROTON_FITS_DIR=~/data/grid_prod3b_north/fits/lst/proton ;
+    GAMMA_FITS_DIR=~/data/grid_prod3b_north/simtel/gamma ;
+    PROTON_FITS_DIR=~/data/grid_prod3b_north/simtel/proton ;
 
     WT_NAN_NOISE_CDF_FILE=./datapipe/denoising/cdf/lstcam_grid_prod3b_north_cdf_gamma.json ;
 
