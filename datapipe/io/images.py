@@ -950,6 +950,11 @@ def load_benchmark_images(input_file_path):
         #images_dict["calibration_image"] = hdu5.data # "hdu.data" is a Numpy Array
         images_dict["pixels_position"] = hdu6.data    # "hdu.data" is a Numpy Array
         images_dict["pixels_mask"] = hdu7.data        # "hdu.data" is a Numpy Array
+
+        images_dict["input_samples"] = None         # TODO
+        images_dict["adc_samples"] = None           # TODO
+        images_dict["extracted_samples"] = None     # TODO
+        images_dict["peakpos"] = None               # TODO
     else:
         raise Exception("Unknown version number")
 
