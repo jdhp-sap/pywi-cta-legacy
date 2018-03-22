@@ -143,8 +143,8 @@ class AbstractCleaningAlgorithm(object):
         if event_id is not None:
             event_id = [event_id]
 
-        if cam_id is not None:
-            cam_id = [cam_id]
+        if cam_id is None:
+            raise ValueError('cam_id is now mandatory.')
 
         if cam_id == "ASTRICam":
             integrator_window_width = 1
@@ -171,7 +171,7 @@ class AbstractCleaningAlgorithm(object):
                                      max_num_images=max_num_img,
                                      tel_filter_list=tel_id,
                                      ev_filter_list=event_id,
-                                     cam_filter_list=cam_id,
+                                     cam_filter_list=[cam_id],
                                      ctapipe_format=False,
                                      integrator='LocalPeakIntegrator',
                                      integrator_window_width=integrator_window_width,
