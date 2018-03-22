@@ -146,12 +146,38 @@ class AbstractCleaningAlgorithm(object):
         if cam_id is not None:
             cam_id = [cam_id]
 
+        if cam_id == "ASTRICam":
+            integrator_window_width = 1
+            integrator_window_shift = 1
+        elif cam_id == "CHEC":
+            integrator_window_width = 10
+            integrator_window_shift = 5
+        elif cam_id == "DigiCam":
+            integrator_window_width = 5
+            integrator_window_shift = 2
+        elif cam_id == "FlashCam":
+            integrator_window_width = 6
+            integrator_window_shift = 3
+        elif cam_id == "NectarCam":
+            integrator_window_width = 5
+            integrator_window_shift = 2
+        elif cam_id == "LSTCam":
+            integrator_window_width = 5
+            integrator_window_shift = 2
+        else:
+            raise ValueError('Unknown cam_id "{}"'.format(cam_id))
+
         for image in image_generator(input_file_or_dir_path_list,
                                      max_num_images=max_num_img,
                                      tel_filter_list=tel_id,
                                      ev_filter_list=event_id,
                                      cam_filter_list=cam_id,
-                                     ctapipe_format=False):
+                                     ctapipe_format=False,
+                                     integrator='LocalPeakIntegrator',
+                                     integrator_window_width=integrator_window_width,
+                                     integrator_window_shift=integrator_window_shift,
+                                     integration_correction=False,
+                                     mix_channels=True):
 
             input_file_path = image.meta['file_path']
 
