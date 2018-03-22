@@ -528,6 +528,8 @@ def main():
 
     # COMMON OPTIONS
 
+    CAM_IDS = ("ASTRICam", "CHEC", "DigiCam", "FlashCam", "NectarCam", "LSTCam")
+
     parser.add_argument("--max-images", type=int, metavar="INTEGER", 
                         help="The maximum number of images to process")
 
@@ -538,7 +540,7 @@ def main():
                         help="Only process images from the specified event")
 
     parser.add_argument("--camid", metavar="STRING", 
-                        help="Only process images from the specified camera")
+                        help="Only process images from the specified camera: {}".format(str(CAM_IDS)))
 
     parser.add_argument("--benchmark", "-b", metavar="STRING",
                         help="The benchmark method to use to assess the algorithm for the"
